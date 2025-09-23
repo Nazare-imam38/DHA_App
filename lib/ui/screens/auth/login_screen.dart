@@ -1,0 +1,847 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../services/language_service.dart';
+import '../../../providers/auth_provider.dart';
+import '../../../models/auth_models.dart';
+import '../../../screens/main_wrapper.dart';
+import 'signup_screen.dart';
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen>
+    with TickerProviderStateMixin {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _isLoading = false;
+  
+  late AnimationController _fadeController;
+  late AnimationController _slideController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
+    
+    _fadeController.forward();
+    _slideController.forward();
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    _slideController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleLogin() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+      
+      try {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        await authProvider.login(LoginRequest(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        ));
+        
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => MainWrapper(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(1.0, 0.0),
+                    end: Offset.zero,
+                  ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+                  child: child,
+                );
+              },
+              transitionDuration: const Duration(milliseconds: 600),
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          String errorMessage = 'Login failed. Please try again.';
+          
+          // Handle specific error messages
+          if (e.toString().contains('Invalid credentials')) {
+            errorMessage = 'Invalid email or password. Please check and try again.';
+          } else if (e.toString().contains('User not found')) {
+            errorMessage = 'No account found with this email. Please sign up first.';
+          } else if (e.toString().contains('Account not verified')) {
+            errorMessage = 'Please verify your account first. Check your email for verification link.';
+          } else if (e.toString().contains('Network')) {
+            errorMessage = 'Network error. Please check your connection.';
+          } else if (e.toString().contains('Too many attempts')) {
+            errorMessage = 'Too many login attempts. Please try again later.';
+          }
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 4),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              action: SnackBarAction(
+                label: 'Forgot Password?',
+                textColor: Colors.white,
+                onPressed: _showForgotPasswordDialog,
+              ),
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
+    }
+  }
+
+  void _showForgotPasswordDialog() {
+    final emailController = TextEditingController();
+    final cnicController = TextEditingController();
+    final phoneController = TextEditingController();
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(
+            'Forgot Password',
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Enter your details to reset password',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: emailController,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  prefixIcon: Icon(Icons.email),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: cnicController,
+                decoration: InputDecoration(
+                  labelText: 'CNIC',
+                  prefixIcon: Icon(Icons.credit_card),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                keyboardType: TextInputType.number,
+                maxLength: 13,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: phoneController,
+                decoration: InputDecoration(
+                  labelText: 'Phone Number',
+                  prefixIcon: Icon(Icons.phone),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                keyboardType: TextInputType.phone,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: isLoading ? null : () => Navigator.pop(context),
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: isLoading ? null : () async {
+                if (emailController.text.isEmpty || 
+                    cnicController.text.isEmpty || 
+                    phoneController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Please fill all fields'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+
+                setState(() {
+                  isLoading = true;
+                });
+
+                try {
+                  final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                  await authProvider.forgotPassword(ForgotPasswordRequest(
+                    email: emailController.text.trim(),
+                    cnic: cnicController.text.trim(),
+                    phone: phoneController.text.trim(),
+                  ));
+
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Password reset instructions sent to your email/phone'),
+                        backgroundColor: const Color(0xFF20B2AA),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    String errorMessage = 'Failed to send reset instructions. Please try again.';
+                    
+                    if (e.toString().contains('User not found')) {
+                      errorMessage = 'No account found with the provided details. Please check your information.';
+                    } else if (e.toString().contains('Invalid email')) {
+                      errorMessage = 'Please enter a valid email address.';
+                    } else if (e.toString().contains('Invalid phone')) {
+                      errorMessage = 'Please enter a valid phone number.';
+                    } else if (e.toString().contains('Invalid CNIC')) {
+                      errorMessage = 'Please enter a valid CNIC number.';
+                    } else if (e.toString().contains('Network')) {
+                      errorMessage = 'Network error. Please check your connection.';
+                    }
+                    
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(errorMessage),
+                        backgroundColor: Colors.red,
+                        behavior: SnackBarBehavior.floating,
+                        duration: const Duration(seconds: 4),
+                      ),
+                    );
+                  }
+                } finally {
+                  if (mounted) {
+                    setState(() {
+                      isLoading = false;
+                    });
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF20B2AA),
+                foregroundColor: Colors.white,
+              ),
+              child: isLoading
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Text('Reset Password'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final languageService = Provider.of<LanguageService>(context);
+    
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/login.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                const Color(0xFF1E3C90).withValues(alpha: 0.85),
+                const Color(0xFF1E3C90).withValues(alpha: 0.75),
+                const Color(0xFF20B2AA).withValues(alpha: 0.65),
+                Colors.black.withValues(alpha: 0.4),
+              ],
+            ),
+          ),
+          child: Stack(
+            children: [
+            // Content overlay
+            SafeArea(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                  const SizedBox(height: 40),
+                  
+                        // Logo and Title
+                        FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: Column(
+                            children: [
+                              Image.asset(
+                                'assets/images/dhalogo.png',
+                                width: 160,
+                                height: 160,
+                                fit: BoxFit.contain,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                l10n.welcomeBack,
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white.withOpacity(0.95),
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black.withOpacity(0.3),
+                                      offset: const Offset(0, 1),
+                                      blurRadius: 4,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                l10n.signInToAccount,
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 16,
+                                  color: Colors.white.withOpacity(0.85),
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                  const SizedBox(height: 40),
+
+                  // Email Field
+                  SlideTransition(
+                    position: _slideAnimation,
+                    child: _buildModernTextField(
+                      controller: _emailController,
+                      label: l10n.emailAddress,
+                      icon: Icons.email_outlined,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!value.contains('@')) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Password Field
+                  SlideTransition(
+                    position: _slideAnimation,
+                    child: _buildModernTextField(
+                      controller: _passwordController,
+                      label: l10n.password,
+                      icon: Icons.lock_outlined,
+                      obscureText: _obscurePassword,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                          color: Colors.grey[600],
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Forgot Password
+                  SlideTransition(
+                    position: _slideAnimation,
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          _showForgotPasswordDialog();
+                        },
+                        child: Text(
+                          l10n.forgotPassword,
+                          style: TextStyle(
+                              fontFamily: 'Inter',
+                            color: const Color(0xFF20B2AA),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  // Login Button
+                  SlideTransition(
+                    position: _slideAnimation,
+                    child: Container(
+                      width: double.infinity,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF20B2AA).withOpacity(0.4),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 15,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _handleLogin,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          elevation: 0,
+                          shadowColor: Colors.transparent,
+                        ),
+                        child: _isLoading
+                            ? const SizedBox(
+                                width: 25,
+                                height: 25,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            : Text(
+                                l10n.signIn,
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Divider
+                  SlideTransition(
+                    position: _slideAnimation,
+                    child: Row(
+                      children: [
+                        Expanded(child: Divider(color: Colors.grey[300])),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            'or',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        Expanded(child: Divider(color: Colors.grey[300])),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Register Button
+                  SlideTransition(
+                    position: _slideAnimation,
+                    child: Container(
+                      width: double.infinity,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.95),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.6),
+                          width: 2,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const SignupScreen()),
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF1E3C90),
+                          side: const BorderSide(color: Color(0xFF1E3C90), width: 2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: Text(
+                          l10n.createAccount,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  // Social Media Icons
+                  SlideTransition(
+                    position: _slideAnimation,
+                    child: Column(
+                      children: [
+                        Text(
+                          'Follow us on',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildSocialIcon(Icons.facebook, const Color(0xFF1877F2), 'Facebook'),
+                            const SizedBox(width: 20),
+                            _buildSocialIcon(Icons.alternate_email, const Color(0xFF1DA1F2), 'Twitter'),
+                            const SizedBox(width: 20),
+                            _buildSocialIcon(Icons.camera_alt, const Color(0xFFE4405F), 'Instagram'),
+                            const SizedBox(width: 20),
+                            _buildSocialIcon(Icons.play_circle, const Color(0xFFFF0000), 'YouTube'),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                        const SizedBox(height: 20),
+
+                        // Continue as Guest Button
+                        SlideTransition(
+                          position: _slideAnimation,
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: OutlinedButton(
+                              onPressed: _continueAsGuest,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                side: const BorderSide(color: Colors.white, width: 1.5),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Text(
+                                'Continue as Guest',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildModernTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    TextInputType? keyboardType,
+    bool obscureText = false,
+    Widget? suffixIcon,
+    String? Function(String?)? validator,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.98),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.4),
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 25,
+            offset: const Offset(0, 10),
+          ),
+          BoxShadow(
+            color: Colors.white.withOpacity(0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        obscureText: obscureText,
+        style: TextStyle(
+          fontFamily: 'Inter',
+          color: const Color(0xFF1F2937),
+          fontSize: 17,
+          fontWeight: FontWeight.w500,
+        ),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(
+            fontFamily: 'Inter',
+            color: const Color(0xFF6B7280),
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+          ),
+          prefixIcon: Container(
+            margin: const EdgeInsets.all(15),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF20B2AA).withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 22,
+            ),
+          ),
+          suffixIcon: suffixIcon,
+          filled: true,
+          fillColor: Colors.transparent,
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 25),
+          errorStyle: TextStyle(
+            fontFamily: 'Inter',
+            color: Colors.red[600],
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        validator: validator,
+      ),
+    );
+  }
+
+  Widget _buildSocialIcon(IconData icon, Color color, String tooltip) {
+    return Tooltip(
+      message: tooltip,
+      child: Container(
+        width: 55,
+        height: 55,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(
+            color: color.withOpacity(0.2),
+            width: 2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Icon(
+          icon,
+          color: color,
+          size: 28,
+        ),
+      ),
+    );
+  }
+
+  void _continueAsGuest() {
+    // Show confirmation dialog
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Continue as Guest',
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        content: Text(
+          'You can browse properties without creating an account. You can always sign up later to save your preferences.',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 14,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close dialog
+              // Navigate to main app as guest
+              Navigator.pushReplacement(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) => MainWrapper(),
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    return SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(1.0, 0.0),
+                        end: Offset.zero,
+                      ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+                      child: child,
+                    );
+                  },
+                  transitionDuration: const Duration(milliseconds: 600),
+                ),
+              );
+            },
+            child: Text(
+              'Continue',
+              style: TextStyle(
+                color: const Color(0xFF20B2AA),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
