@@ -18,6 +18,7 @@ import '../core/services/enterprise_api_manager.dart';
 import '../core/services/smart_filter_manager.dart';
 import '../core/services/progressive_map_renderer.dart';
 import '../core/services/amenities_geojson_service.dart' as geojson;
+import '../core/services/app_initialization_service.dart';
 import 'sidebar_drawer.dart';
 import '../ui/widgets/modern_filters_panel.dart';
 
@@ -279,6 +280,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         zoomLevel: _zoom.round(),
         useCache: true,
       );
+      
+      // Initialize app with polygon preloading for performance
+      await AppInitializationService.initializeApp(plots);
       
       // Store plots for detailed loading
       _plots = plots;

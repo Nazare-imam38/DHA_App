@@ -4,29 +4,22 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../data/models/plot_model.dart';
 import '../utils/enhanced_geojson_parser.dart';
+import 'polygon_preloader.dart';
 
 /// Enhanced polygon service for proper plot boundary visualization
 class EnhancedPolygonService {
-  /// Create plot polygons with proper coordinate conversion
+  /// Create plot polygons using preloaded coordinates for maximum performance
   static List<Polygon> createPlotPolygons(List<PlotModel> plots) {
     final polygons = <Polygon>[];
     
-    print('EnhancedPolygonService: Creating polygons for ${plots.length} plots');
+    print('EnhancedPolygonService: Creating polygons for ${plots.length} plots (using preloaded coordinates)');
     
     for (final plot in plots) {
       try {
-        print('EnhancedPolygonService: Processing plot ${plot.plotNo} - ${plot.category} ${plot.catArea}');
-        print('EnhancedPolygonService: GeoJSON length: ${plot.stAsgeojson.length}');
+        // Use preloaded coordinates for maximum performance
+        final plotPolygons = plot.polygonCoordinates;
         
-        // Test the real plot data
-        EnhancedGeoJsonParser.testRealPlotData(plot.stAsgeojson);
-        
-        // Use enhanced parser for proper coordinate conversion
-        final plotPolygons = EnhancedGeoJsonParser.parsePolygonCoordinates(plot.stAsgeojson);
-        
-        print('EnhancedPolygonService: Raw GeoJSON preview: ${plot.stAsgeojson.substring(0, min(200, plot.stAsgeojson.length))}...');
-        
-        print('EnhancedPolygonService: Parsed ${plotPolygons.length} polygons for plot ${plot.plotNo}');
+        print('EnhancedPolygonService: Using ${plotPolygons.length} polygons for plot ${plot.plotNo}');
         
         for (int i = 0; i < plotPolygons.length; i++) {
           final coordinates = plotPolygons[i];

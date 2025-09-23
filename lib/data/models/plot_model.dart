@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import '../../core/utils/enhanced_geojson_parser.dart';
 import '../../core/services/robust_polygon_parser.dart';
 import '../../core/services/coordinate_cache_manager.dart';
+import '../../core/services/polygon_preloader.dart';
 
 class PlotModel {
   final int id;
@@ -380,18 +381,25 @@ class PlotModel {
     }
   }
 
-  /// Extract polygon coordinates for map rendering using global cache
+  /// Extract polygon coordinates for map rendering using preloaded coordinates
   List<List<LatLng>> get polygonCoordinates {
+    // Check preloaded coordinates first (fastest)
+    final preloadedCoordinates = PolygonPreloader.getPreloadedCoordinates(id);
+    if (preloadedCoordinates != null) {
+      print('PlotModel: Using preloaded coordinates for plot ${plotNo} (${preloadedCoordinates.length} polygons)');
+      return preloadedCoordinates;
+    }
+    
     final cacheManager = CoordinateCacheManager();
     
-    // Check global cache first
+    // Check global cache second
     final cachedCoordinates = cacheManager.getCachedCoordinates(id);
     if (cachedCoordinates != null) {
       print('PlotModel: Using global cache for plot ${plotNo} (${cachedCoordinates.length} polygons)');
       return cachedCoordinates;
     }
     
-    // Check local cache
+    // Check local cache third
     if (_cachedPolygonCoordinates != null) {
       print('PlotModel: Using local cache for plot ${plotNo} (${_cachedPolygonCoordinates!.length} polygons)');
       // Also store in global cache for future use
