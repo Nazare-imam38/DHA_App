@@ -12,15 +12,17 @@ import '../data/models/plot_model.dart';
 import '../data/monuments_data.dart';
 import '../core/services/polygon_renderer_service.dart';
 import '../core/services/enhanced_polygon_service.dart';
-import '../ui/widgets/plot_info_card.dart';
+import '../ui/widgets/enhanced_plot_info_card.dart';
 import '../core/services/instant_boundary_service.dart';
-import '../core/services/enterprise_api_manager.dart';
-import '../core/services/smart_filter_manager.dart';
-import '../core/services/progressive_map_renderer.dart';
+import '../core/services/plots_api_service.dart';
+import '../core/services/enhanced_plots_api_service.dart';
+import '../core/services/modern_filter_manager.dart';
 import '../core/services/amenities_geojson_service.dart' as geojson;
 import '../core/services/app_initialization_service.dart';
+import '../core/services/plot_selection_handler.dart';
 import 'sidebar_drawer.dart';
 import '../ui/widgets/modern_filters_panel.dart';
+import '../ui/widgets/rectangular_toggle_button.dart';
 
 /// Model class for amenity markers
 class AmenityMarker {
@@ -105,6 +107,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   // Plot data
   List<PlotModel> _plots = [];
   
+  // Modern filter manager
+  final ModernFilterManager _filterManager = ModernFilterManager();
+  
   // Boundary polygons
   List<BoundaryPolygon> _boundaryPolygons = [];
   bool _isLoadingBoundaries = true;
@@ -119,6 +124,10 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   bool _showMapControls = false; // Controls the expanded state of map controls
   AmenityMarker? _selectedAmenity;
   
+  // Legend visibility states
+  bool _showAmenitiesLegend = true;
+  bool _showPhaseBoundariesLegend = true;
+  
   // Performance optimization
   Timer? _debounceTimer;
   bool _isInitialized = false;
@@ -129,8 +138,105 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     _initializeAnimations();
     _initializeLocation();
     _updateActiveFilters();
+    _initializeFilterManager();
     // Start data loading in background without blocking UI
     _initializeDataLoadingAsync();
+  }
+
+  /// Initialize modern filter manager
+  void _initializeFilterManager() {
+    _filterManager.onPlotsUpdated = (plots) {
+      setState(() {
+        _plots = plots;
+      });
+    };
+    
+    _filterManager.onLoadingChanged = (isLoading) {
+      setState(() {
+        _isDataLoading = isLoading;
+      });
+    };
+    
+    _filterManager.onErrorChanged = (error) {
+      if (error != null) {
+        print('Filter Manager Error: $error');
+      }
+    };
+  }
+
+  /// Apply filters to modern filter manager
+  void _applyFiltersToManager(Map<String, dynamic> filters) {
+    // Apply price range
+    final priceRange = filters['priceRange'] as RangeValues?;
+    if (priceRange != null) {
+      _filterManager.setPriceRange(priceRange.start, priceRange.end);
+    }
+
+    // Apply plot type
+    final plotType = filters['plotType'] as String?;
+    _filterManager.setCategory(plotType);
+
+    // Apply DHA phase
+    final dhaPhase = filters['dhaPhase'] as String?;
+    _filterManager.setPhase(dhaPhase);
+
+    // Apply plot size
+    final plotSize = filters['plotSize'] as String?;
+    _filterManager.setSize(plotSize);
+
+    print('Modern Filter Manager: Applied filters - Price: ${priceRange?.start}-${priceRange?.end}, Type: $plotType, Phase: $dhaPhase, Size: $plotSize');
+    
+    // Navigate to filtered plots after a short delay
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      _navigateToFilteredPlots();
+    });
+  }
+
+  /// Navigate map to show filtered plots
+  void _navigateToFilteredPlots() {
+    if (_plots.isEmpty) return;
+    
+    try {
+      // Calculate bounds of filtered plots
+      double minLat = double.infinity;
+      double maxLat = -double.infinity;
+      double minLng = double.infinity;
+      double maxLng = -double.infinity;
+      
+      for (final plot in _plots) {
+        if (plot.latitude != null && plot.longitude != null) {
+          minLat = minLat < plot.latitude! ? minLat : plot.latitude!;
+          maxLat = maxLat > plot.latitude! ? maxLat : plot.latitude!;
+          minLng = minLng < plot.longitude! ? minLng : plot.longitude!;
+          maxLng = maxLng > plot.longitude! ? maxLng : plot.longitude!;
+        }
+      }
+      
+      if (minLat != double.infinity && maxLat != -double.infinity) {
+        // Calculate center point
+        final centerLat = (minLat + maxLat) / 2;
+        final centerLng = (minLng + maxLng) / 2;
+        final center = LatLng(centerLat, centerLng);
+        
+        // Calculate appropriate zoom level
+        final latDiff = maxLat - minLat;
+        final lngDiff = maxLng - minLng;
+        final maxDiff = latDiff > lngDiff ? latDiff : lngDiff;
+        
+        double zoom = 12.0;
+        if (maxDiff > 0) {
+          zoom = 15.0 - (maxDiff * 10);
+          zoom = zoom.clamp(8.0, 18.0);
+        }
+        
+        print('Navigating to filtered plots: Center: $center, Zoom: $zoom');
+        
+        // Animate to the new position
+        _mapController.move(center, zoom);
+      }
+    } catch (e) {
+      print('Error navigating to filtered plots: $e');
+    }
   }
 
   /// Initialize data loading asynchronously without blocking UI
@@ -198,7 +304,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       try {
         // Preload common filter combinations
         if (_plots.isNotEmpty) {
-          await SmartFilterManager.preloadCommonFilters(_plots);
+          // TODO: Implement filter preloading
         }
         
         // Preload adjacent areas
@@ -270,54 +376,14 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   /// Load basic plot data (fast, no GeoJSON parsing)
   Future<void> _loadBasicPlots() async {
-    try {
-      final plotsProvider = Provider.of<PlotsProvider>(context, listen: false);
-      
-      // Use enterprise API manager for fast loading
-      final plots = await EnterpriseAPIManager.loadPlotsOptimized(
-        center: _mapCenter,
-        radius: 50.0, // 50km radius
-        zoomLevel: _zoom.round(),
-        useCache: true,
-      );
-      
-      // Initialize app with polygon preloading for performance
-      await AppInitializationService.initializeApp(plots);
-      
-      // Store plots for detailed loading
-      _plots = plots;
-      
-      // Update provider with basic plots
-      plotsProvider.setPlotsFromCache(plots);
-      
-      print('Basic plots loaded: ${plots.length} plots (fast loading)');
-    } catch (e) {
-      print('Error loading basic plots: $e');
-    }
+    // Plots API removed - no longer loading plots on map screen
+    print('Plots API removed - skipping plot loading');
   }
   
   /// Load detailed plot data (background, with GeoJSON parsing)
   Future<void> _loadDetailedPlots() async {
-    try {
-      if (_plots.isEmpty) return;
-      
-      // Use progressive renderer for detailed data
-      final detailedPlots = await ProgressiveMapRenderer.renderPlotsProgressive(
-        allPlots: _plots,
-        zoomLevel: _zoom,
-        center: _mapCenter,
-        radiusKm: 50.0,
-        forceRerender: false,
-      );
-      
-      // Update provider with detailed plots
-      final plotsProvider = Provider.of<PlotsProvider>(context, listen: false);
-      plotsProvider.setPlotsFromCache(detailedPlots);
-      
-      print('Detailed plots loaded: ${detailedPlots.length} plots (progressive rendering)');
-    } catch (e) {
-      print('Error loading detailed plots: $e');
-    }
+    // Plots API removed - no longer loading detailed plots on map screen
+    print('Plots API removed - skipping detailed plot loading');
   }
   
   /// Preload adjacent areas for smooth exploration
@@ -331,19 +397,24 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         LatLng(_mapCenter.latitude, _mapCenter.longitude - 0.1),
       ];
       
-      for (final center in adjacentCenters) {
-        await EnterpriseAPIManager.loadPlotsOptimized(
-          center: center,
-          radius: 25.0,
-          zoomLevel: _zoom.round(),
-          useCache: true,
-        );
-      }
+      // Plots API removed - no longer preloading plots
       
       print('Adjacent areas preloaded for smooth exploration');
     } catch (e) {
       print('Error preloading adjacent areas: $e');
     }
+  }
+
+  /// Simple progressive plot rendering
+  Future<List<PlotModel>> _renderPlotsProgressive({
+    required List<PlotModel> allPlots,
+    required double zoomLevel,
+    required LatLng center,
+    required double radiusKm,
+    required bool forceRerender,
+  }) async {
+    // Simple implementation - just return the plots
+    return allPlots;
   }
 
   Future<void> _loadBoundaryPolygons() async {
@@ -475,17 +546,61 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     if (zoomLevel < 14.0) {
       // Show only 30% of amenities at zoom levels 12-13
       final maxAmenities = (amenityMarkers.length * 0.3).round();
-      filteredMarkers = amenityMarkers.take(maxAmenities).toList();
-      print('Limited to $maxAmenities amenities for zoom level $zoomLevel');
+      // Use sampling instead of .take() to ensure all phases are represented
+      filteredMarkers = _sampleAmenitiesEvenly(amenityMarkers, maxAmenities);
+      print('Limited to $maxAmenities amenities for zoom level $zoomLevel (evenly sampled)');
     } else if (zoomLevel < 16.0) {
       // Show 60% of amenities at zoom levels 14-15
       final maxAmenities = (amenityMarkers.length * 0.6).round();
-      filteredMarkers = amenityMarkers.take(maxAmenities).toList();
-      print('Limited to $maxAmenities amenities for zoom level $zoomLevel');
+      // Use sampling instead of .take() to ensure all phases are represented
+      filteredMarkers = _sampleAmenitiesEvenly(amenityMarkers, maxAmenities);
+      print('Limited to $maxAmenities amenities for zoom level $zoomLevel (evenly sampled)');
     }
     
     print('Rendering ${filteredMarkers.length} amenity MARKERS with dynamic sizing');
     return filteredMarkers.map((amenityMarker) => _createDynamicAmenityMarker(amenityMarker, zoomLevel)).toList();
+  }
+
+  /// Sample amenities evenly across all phases to ensure fair representation
+  List<AmenityMarker> _sampleAmenitiesEvenly(List<AmenityMarker> amenityMarkers, int maxAmenities) {
+    if (maxAmenities >= amenityMarkers.length) {
+      return amenityMarkers;
+    }
+    
+    // Group amenities by phase
+    final Map<String, List<AmenityMarker>> amenitiesByPhase = {};
+    for (final amenity in amenityMarkers) {
+      amenitiesByPhase.putIfAbsent(amenity.phase, () => []).add(amenity);
+    }
+    
+    print('Amenities by phase: ${amenitiesByPhase.keys.map((phase) => '$phase: ${amenitiesByPhase[phase]!.length}').join(', ')}');
+    
+    // Calculate how many amenities to take from each phase
+    final phases = amenitiesByPhase.keys.toList();
+    final amenitiesPerPhase = (maxAmenities / phases.length).round();
+    
+    final List<AmenityMarker> sampledAmenities = [];
+    
+    for (final phase in phases) {
+      final phaseAmenities = amenitiesByPhase[phase]!;
+      final takeCount = amenitiesPerPhase.clamp(0, phaseAmenities.length);
+      
+      // Use random sampling to avoid always taking the first amenities
+      final shuffled = List<AmenityMarker>.from(phaseAmenities)..shuffle();
+      sampledAmenities.addAll(shuffled.take(takeCount));
+      
+      print('Phase $phase: taking $takeCount out of ${phaseAmenities.length} amenities');
+    }
+    
+    // If we still need more amenities, fill from remaining
+    if (sampledAmenities.length < maxAmenities) {
+      final remaining = amenityMarkers.where((a) => !sampledAmenities.contains(a)).toList();
+      final needed = maxAmenities - sampledAmenities.length;
+      sampledAmenities.addAll(remaining.take(needed));
+    }
+    
+    print('Sampled ${sampledAmenities.length} amenities evenly across phases');
+    return sampledAmenities;
   }
 
   /// Create amenity marker with dynamic sizing based on zoom level
@@ -616,13 +731,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               PolygonLayer(
                 polygons: _getBoundaryPolygons(),
               ),
-              // Plot polygons
-              Consumer<PlotsProvider>(
-                builder: (context, plotsProvider, child) {
-                  return PolygonLayer(
-                    polygons: _getAllPolygons(plotsProvider),
-                  );
-                },
+              // Plot polygons - showing filtered plots
+              PolygonLayer(
+                polygons: _getFilteredPlotPolygons(),
               ),
                // Amenities markers (only show when toggle is on and at zoom level 12+)
                // NOTE: We only want MARKERS, not polygons for amenities
@@ -700,55 +811,55 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                   ),
                 ],
               ),
-              child: Padding(
+                child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Scaffold.of(context).openDrawer();
-                          },
-                          child: Container(
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Scaffold.of(context).openDrawer();
+                            },
+                            child: Container(
                             padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
+                              decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(
+                              ),
+                              child: const Icon(
                               Icons.menu,
-                              color: Colors.white,
-                              size: 24,
+                                color: Colors.white,
+                                size: 24,
+                              ),
                             ),
                           ),
-                        ),
-                        Expanded(
+                          Expanded(
                           child: Text(
-                            l10n.dhaProjectsMap,
+                                  l10n.dhaProjectsMap,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                                    fontFamily: 'Poppins',
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                                    color: Colors.white,
                             ),
                           ),
                         ),
                         IconButton(
                           onPressed: _showViewTypeSelector,
                           icon: const Icon(Icons.layers, color: Colors.white),
-                        ),
-                      ],
-                    ),
+                                ),
+                              ],
+                            ),
                     const SizedBox(height: 12),
                     // View controls and indicators
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
+                      Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
+                        decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -763,21 +874,15 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                           ),
                         ),
                         const SizedBox(width: 8),
-                        // Plot count indicator
-                        Consumer<PlotsProvider>(
-                          builder: (context, plotsProvider, child) {
-                            final plotCount = plotsProvider.filteredPlots.where((plot) => 
-                              plot.polygonCoordinates.isNotEmpty
-                            ).length;
-                            
-                            return Container(
+                            // Filtered plot count indicator
+                            Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                '$plotCount Plots',
+                                '${_filterManager.plotCount} Plots',
                                 style: TextStyle(
                                   fontFamily: 'Inter',
                                   color: Colors.white,
@@ -785,12 +890,10 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                            );
-                          },
-                        ),
+                            ),
                         const SizedBox(width: 8),
                         // Status indicator
-                        Container(
+                            Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
                             color: _isInitialized ? Colors.green.withOpacity(0.8) : Colors.orange.withOpacity(0.8),
@@ -801,7 +904,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                             children: [
                               Icon(
                                 _isInitialized ? Icons.check_circle : Icons.sync,
-                                color: Colors.white,
+                              color: Colors.white,
                                 size: 14,
                               ),
                               const SizedBox(width: 4),
@@ -813,15 +916,55 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                 ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
                   ],
                 ),
               ),
+            ),
+          ),
+          
+          // Map Controls (Top Left of Map)
+          Positioned(
+            top: 140,
+            left: 20,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Amenities Button
+                RectangularToggleButton(
+                  text: 'Amenities',
+                  icon: Icons.location_on,
+                  isActive: _showAmenities,
+                  onPressed: () {
+                    setState(() {
+                      _showAmenities = !_showAmenities;
+                    });
+                    
+                    // Load amenities when toggled on and not already loaded
+                    if (_showAmenities && !_amenitiesLoaded && !_isLoadingAmenities) {
+                      print('Loading amenities on toggle...');
+                      _loadAmenitiesMarkers();
+                    }
+                  },
+                ),
+                const SizedBox(height: 8),
+                // Boundaries Button
+                RectangularToggleButton(
+                  text: 'Boundaries',
+                  icon: Icons.layers,
+                  isActive: _showBoundaries,
+                  onPressed: () {
+                    setState(() {
+                      _showBoundaries = !_showBoundaries;
+                    });
+                  },
+                ),
+              ],
             ),
           ),
           
@@ -933,7 +1076,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 });
               },
               onFiltersChanged: (filters) {
-                // Debounce filter changes to prevent excessive updates
+                // Apply filters using modern filter manager
                 _debounceTimer?.cancel();
                 _debounceTimer = Timer(const Duration(milliseconds: 300), () {
                   setState(() {
@@ -944,12 +1087,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                     _activeFilters = List<String>.from(filters['activeFilters'] ?? []);
                   });
                   
-                  // Apply filters to the provider
-                  final plotsProvider = Provider.of<PlotsProvider>(context, listen: false);
-                  plotsProvider.setPriceRange(_priceRange);
-                  plotsProvider.setPlotType(_selectedPlotType);
-                  plotsProvider.setPhase(_selectedDhaPhase);
-                  plotsProvider.setPlotSize(_selectedPlotSize);
+                  // Apply filters to modern filter manager
+                  _applyFiltersToManager(filters);
                 });
               },
               initialFilters: {
@@ -958,8 +1097,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 'plotSize': _selectedPlotSize,
                 'priceRange': _priceRange,
               },
-              enabledPhases: Provider.of<PlotsProvider>(context).enabledPhasesForCurrentFilters,
-              enabledSizes: Provider.of<PlotsProvider>(context).enabledSizesForCurrentFilters,
+              // Plots API removed - no longer using plot filters
             ),
           ),
 
@@ -972,45 +1110,6 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               children: [
                 // Expanded Controls (shown when _showMapControls is true)
                 if (_showMapControls) ...[
-                  // Toggle Amenities Button
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        setState(() {
-                          _showAmenities = !_showAmenities;
-                        });
-                        
-                        // Load amenities when toggled on and not already loaded
-                        if (_showAmenities && !_amenitiesLoaded && !_isLoadingAmenities) {
-                          print('Loading amenities on toggle...');
-                          _loadAmenitiesMarkers();
-                        }
-                      },
-                      backgroundColor: _showAmenities ? const Color(0xFF20B2AA) : Colors.grey,
-                      child: Icon(
-                        _showAmenities ? Icons.location_on : Icons.location_off,
-                        color: Colors.white,
-                      ),
-                      tooltip: _showAmenities ? 'Hide Amenities' : 'Show Amenities',
-                    ),
-                  ),
-                  // Toggle Boundaries Button
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        setState(() {
-                          _showBoundaries = !_showBoundaries;
-                        });
-                      },
-                      backgroundColor: _showBoundaries ? const Color(0xFF20B2AA) : Colors.grey,
-                      child: Icon(
-                        _showBoundaries ? Icons.layers : Icons.layers_outlined,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
                   // All Phases Button
                   Container(
                     margin: const EdgeInsets.only(bottom: 12),
@@ -1068,152 +1167,10 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
             ),
           ),
 
-          // Dynamic Amenities Dropdown (above phase boundaries)
-          if (_showAmenities)
-            Positioned(
-              bottom: 120, // Position above phase boundaries
-              left: 20,
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 200),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.location_on,
-                          color: _zoom >= 12.0 ? Colors.green : Colors.orange,
-                          size: 16,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Amenities',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: _zoom >= 12.0 ? Colors.green : Colors.orange,
-                          ),
-                        ),
-                      ],
-                    ),
-                     if (_zoom < 12.0) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        'Zoom in to see amenities',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 10,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ] else ...[
-                      const SizedBox(height: 8),
-                      _buildAmenityLegendItem('Park', Colors.green, Icons.park),
-                      const SizedBox(height: 4),
-                      _buildAmenityLegendItem('Masjid', Colors.blue, Icons.mosque),
-                      const SizedBox(height: 4),
-                      _buildAmenityLegendItem('School', Colors.orange, Icons.school),
-                      const SizedBox(height: 4),
-                      _buildAmenityLegendItem('Play Ground', Colors.lightGreen, Icons.sports_soccer),
-                      const SizedBox(height: 4),
-                      _buildAmenityLegendItem('Health Facility', Colors.red, Icons.local_hospital),
-                      const SizedBox(height: 4),
-                      _buildAmenityLegendItem('Graveyard', Colors.brown, Icons.place),
-                      const SizedBox(height: 4),
-                      _buildAmenityLegendItem('Petrol Pump', Colors.amber, Icons.local_gas_station),
-                    ],
-                  ],
-                ),
-              ),
-            ),
+          // Clean UI with only rectangular toggle buttons
 
-          // Compact Legend (Phase Boundaries)
-          Positioned(
-            bottom: 20,
-            left: 20,
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Phase Boundaries (always visible)
-                  const Text(
-                    'Phase Boundaries',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1A1A1A),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  ..._boundaryPolygons.take(3).map((boundary) => 
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: _buildLegendItem(boundary.phaseName, boundary.color),
-                    ),
-                  ),
-                  if (_boundaryPolygons.length > 3)
-                    Text(
-                      '+ ${_boundaryPolygons.length - 3} more',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 10,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-
-          // Plot Details Card
-          if (_showProjectDetails && _selectedPlot != null)
-            Positioned(
-              bottom: 20,
-              left: 16,
-              right: 16,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.6,
-                ),
-                child: PlotInfoCard(
-                  plot: _selectedPlot!,
-                  onClose: () {
-                    setState(() {
-                      _showProjectDetails = false;
-                      _selectedPlot = null;
-                    });
-                  },
-                ),
-              ),
-            ),
+            // Plot Details Card is now handled by PlotSelectionHandler
+            // No need for duplicate card display here
         ],
       ),
     );
@@ -1268,81 +1225,116 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     return polygons;
   }
 
-  List<Polygon> _getAllPolygons(PlotsProvider plotsProvider) {
+  /// Get filtered plot polygons for rendering
+  List<Polygon> _getFilteredPlotPolygons() {
     try {
-      // Get plots with valid polygon coordinates using state manager
-      final plotsWithPolygons = plotsProvider.getPlotsWithPolygons();
+      if (_plots.isEmpty) {
+        print('No filtered plots to render');
+        return [];
+      }
+
+      // Get plots with valid polygon coordinates
+      final plotsWithPolygons = _plots.where((plot) => 
+        plot.polygonCoordinates.isNotEmpty
+      ).toList();
       
       if (plotsWithPolygons.isEmpty) {
-        print('❌ No plots with valid polygons found');
-        // Print polygon statistics for debugging
-        final stats = plotsProvider.getPolygonStats();
-        print('Polygon stats: $stats');
+        print('No plots with valid polygons found');
         return [];
       }
       
       // Limit polygons for performance (show max 100 polygons at once)
       final limitedPlots = plotsWithPolygons.take(100).toList();
       
-      print('✅ Rendering ${limitedPlots.length} polygons (using state manager for performance)');
+      print('✅ Rendering ${limitedPlots.length} filtered plot polygons');
       return EnhancedPolygonService.createPlotPolygons(limitedPlots);
     } catch (e) {
-      print('❌ Error creating polygons: $e');
+      print('❌ Error creating filtered plot polygons: $e');
       return [];
     }
   }
 
   void _handleMapTap(LatLng point) {
-    final plotsProvider = Provider.of<PlotsProvider>(context, listen: false);
-    final plotsWithPolygons = plotsProvider.getPlotsWithPolygons();
-    
-    print('Map tapped at: $point');
-    print('Available plots with polygons: ${plotsWithPolygons.length}');
-    
-      // Check if amenities are visible (zoom level 10+)
-      if (_showAmenities && _zoom >= 12.0) {
-      // Find amenity at tapped point
-      final tappedAmenity = _findAmenityAtPoint(point);
-      if (tappedAmenity != null) {
-        setState(() {
-          _selectedAmenity = tappedAmenity;
-          _showProjectDetails = false;
-          _selectedPlot = null;
-        });
-        _showAmenityInfo(tappedAmenity);
-        return;
-      }
-    }
-    
-    // Find plot at tapped point
-    final tappedPlot = EnhancedPolygonService.findPlotAtPoint(point, plotsWithPolygons);
-    
-    print('Plot tapped: ${tappedPlot?.plotNo}');
-    print('Show project details: ${tappedPlot != null}');
-    
-    setState(() {
+    try {
+      print('Map tapped at: $point');
+      
+      // PRIORITY 1: Check for filtered plot polygons first
+      final tappedPlot = EnhancedPolygonService.findPlotAtPoint(point, _plots);
+      
       if (tappedPlot != null) {
-        _selectedPlot = tappedPlot;
-        _showProjectDetails = true;
-        _selectedAmenity = null;
-      } else {
+        print('Filtered plot tapped: ${tappedPlot.plotNo} - Showing plot information');
+        
+        // Validate plot data before proceeding
+        if (tappedPlot.plotNo.isNotEmpty) {
+          // Use the enhanced plot selection handler
+          PlotSelectionHandler.selectPlot(tappedPlot);
+          
+          setState(() {
+            _selectedPlot = tappedPlot;
+            _showProjectDetails = true;
+            _selectedAmenity = null;
+          });
+          return;
+        } else {
+          print('Plot tapped but plot number is empty, skipping');
+        }
+      }
+      
+      // PRIORITY 2: Check for amenities only if no plot was found
+      if (_showAmenities && _zoom >= 12.0) {
+        // Find amenity at tapped point
+        final tappedAmenity = _findAmenityAtPoint(point);
+        if (tappedAmenity != null) {
+          print('Amenity tapped: ${tappedAmenity.amenityType} - Showing amenity information');
+          
+          setState(() {
+            _selectedAmenity = tappedAmenity;
+            _showProjectDetails = false;
+            _selectedPlot = null;
+          });
+          _showAmenityInfo(tappedAmenity);
+          return;
+        }
+      }
+      
+      // Clear selection if no plot or amenity was tapped
+      print('No plot or amenity found at tap point - Clearing selection');
+      PlotSelectionHandler.handleMapTap();
+      
+      setState(() {
         _showProjectDetails = false;
         _selectedPlot = null;
         _selectedAmenity = null;
-      }
-    });
+      });
+    } catch (e) {
+      print('Error in map tap handler: $e');
+      // Clear any existing selections on error
+      setState(() {
+        _showProjectDetails = false;
+        _selectedPlot = null;
+        _selectedAmenity = null;
+      });
+    }
   }
 
   /// Find amenity at a specific point
   AmenityMarker? _findAmenityAtPoint(LatLng point) {
     const double tolerance = 0.0001; // Small tolerance for click detection
     
+    print('Finding amenity at point: $point');
+    print('Available amenities: ${_amenitiesMarkers.length}');
+    
     for (final amenity in _amenitiesMarkers) {
       final distance = _calculateDistance(point, amenity.point);
+      print('Distance to ${amenity.amenityType}: $distance (tolerance: $tolerance)');
+      
       if (distance <= tolerance) {
+        print('Found amenity: ${amenity.amenityType}');
         return amenity;
       }
     }
+    
+    print('No amenity found at point');
     return null;
   }
 
@@ -1590,11 +1582,11 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     return Row(
       children: [
         Container(
-          width: 12,
-          height: 12,
+          width: 16,
+          height: 16,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(2),
+            borderRadius: BorderRadius.circular(3),
             border: Border.all(color: Colors.grey[300]!, width: 0.5),
           ),
         ),
@@ -1621,7 +1613,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.grey[300]!, width: 0.5),
+            border: Border.all(color: color, width: 2),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.1),
@@ -1690,8 +1682,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                   onPressed: () async {
                     final id = int.tryParse(_plotIdController.text);
                     if (id != null) {
-                      final plotsProvider = Provider.of<PlotsProvider>(context, listen: false);
-                      await plotsProvider.searchPlotById(id);
+                      // Plots API removed - no longer searching plots by ID
                       Navigator.pop(context);
                       _plotIdController.clear();
                     } else {
@@ -1810,10 +1801,325 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       _loadAmenitiesMarkers();
     }
     
-    // Only reload plots if zoom level changed significantly (more than 2 levels)
-    if ((newZoomLevel - _zoom.round()).abs() > 2) {
-      final plotsProvider = Provider.of<PlotsProvider>(context, listen: false);
-      plotsProvider.updateZoomLevel(newZoomLevel);
-    }
+    // Plots API removed - no longer handling zoom level changes for plots
   }
+
+  /// Build dynamic amenities legend with toggle functionality
+  Widget _buildAmenitiesLegend() {
+    return SizedBox(
+      width: 200, // Increased width for better readability
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header with toggle button
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _showAmenitiesLegend = !_showAmenitiesLegend;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: _showAmenities ? const Color(0xFF20B2AA).withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      topRight: Radius.circular(12),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.location_on,
+                        color: _showAmenities ? const Color(0xFF20B2AA) : Colors.grey,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Amenities',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: _showAmenities ? const Color(0xFF20B2AA) : Colors.grey,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // Toggle button for amenities visibility
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _showAmenities = !_showAmenities;
+                          });
+                          
+                          // Load amenities when toggled on and not already loaded
+                          if (_showAmenities && !_amenitiesLoaded && !_isLoadingAmenities) {
+                            print('Loading amenities on toggle...');
+                            _loadAmenitiesMarkers();
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: _showAmenities ? const Color(0xFF20B2AA) : Colors.grey,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Icon(
+                            _showAmenities ? Icons.visibility : Icons.visibility_off,
+                            color: Colors.white,
+                            size: 14,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      // Collapse/expand button
+                      Icon(
+                        _showAmenitiesLegend ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                        color: Colors.grey[600],
+                        size: 18,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              // Legend content (collapsible)
+              if (_showAmenitiesLegend) ...[
+                Container(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_zoom < 12.0) ...[
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.zoom_in, color: Colors.orange, size: 14),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Zoom in to see amenities',
+                                  style: TextStyle(
+                                    fontFamily: 'Inter',
+                                    fontSize: 12,
+                                    color: Colors.orange[700],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ] else ...[
+                        _buildAmenityLegendItem('Park', Colors.green, Icons.park),
+                        const SizedBox(height: 6),
+                        _buildAmenityLegendItem('Masjid', Colors.blue, Icons.mosque),
+                        const SizedBox(height: 6),
+                        _buildAmenityLegendItem('School', Colors.orange, Icons.school),
+                        const SizedBox(height: 6),
+                        _buildAmenityLegendItem('Health Facility', Colors.red, Icons.local_hospital),
+                        const SizedBox(height: 6),
+                        _buildAmenityLegendItem('Graveyard', Colors.brown, Icons.place),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Build dynamic boundaries legend with toggle functionality
+  Widget _buildBoundariesLegend() {
+    return SizedBox(
+      width: 200, // Same width as amenities legend
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header with toggle button
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _showPhaseBoundariesLegend = !_showPhaseBoundariesLegend;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: _showBoundaries ? const Color(0xFF1E3C90).withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      topRight: Radius.circular(12),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.layers,
+                        color: _showBoundaries ? const Color(0xFF1E3C90) : Colors.grey,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Boundaries',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: _showBoundaries ? const Color(0xFF1E3C90) : Colors.grey,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // Toggle button for boundaries visibility
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _showBoundaries = !_showBoundaries;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: _showBoundaries ? const Color(0xFF1E3C90) : Colors.grey,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Icon(
+                            _showBoundaries ? Icons.visibility : Icons.visibility_off,
+                            color: Colors.white,
+                            size: 14,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      // Collapse/expand button
+                      Icon(
+                        _showPhaseBoundariesLegend ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                        color: Colors.grey[600],
+                        size: 18,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              // Legend content (collapsible)
+              if (_showPhaseBoundariesLegend) ...[
+                Container(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_boundaryPolygons.isEmpty) ...[
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.info_outline, color: Colors.grey[600], size: 14),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Loading boundaries...',
+                                  style: TextStyle(
+                                    fontFamily: 'Inter',
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ] else ...[
+                        ..._boundaryPolygons.take(4).map((boundary) => 
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 6),
+                            child: _buildLegendItem(boundary.phaseName, boundary.color),
+                          ),
+                        ),
+                        if (_boundaryPolygons.length > 4)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              '+ ${_boundaryPolygons.length - 4} more',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 10,
+                                color: Colors.grey[600],
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
 }

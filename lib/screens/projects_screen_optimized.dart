@@ -12,14 +12,16 @@ import '../data/models/plot_model.dart';
 import '../data/monuments_data.dart';
 import '../core/services/polygon_renderer_service.dart';
 import '../core/services/instant_boundary_service.dart';
-import '../core/services/optimized_plots_service.dart';
 import '../core/services/plots_cache_service_enhanced.dart';
+import '../core/services/enhanced_plots_api_service.dart';
+import '../core/services/modern_filter_manager.dart';
 import '../core/services/amenities_marker_service.dart';
-import '../services/performance_service.dart';
-import '../services/plots_cache_service_enhanced.dart';
+import '../core/services/plot_selection_handler.dart';
+import '../core/services/enhanced_polygon_service.dart';
 import 'sidebar_drawer.dart';
 import '../ui/widgets/modern_filters_panel.dart';
-import '../ui/widgets/plot_info_card.dart';
+import '../ui/widgets/enhanced_plot_info_card.dart';
+import '../ui/widgets/rectangular_toggle_button.dart';
 
 /// Optimized version of ProjectsScreen that maintains the exact same UI
 /// but adds performance optimizations behind the scenes
@@ -86,6 +88,9 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
   // Selected plot for details
   PlotModel? _selectedPlot;
   
+  // Modern filter manager
+  final ModernFilterManager _filterManager = ModernFilterManager();
+  
   // Boundary polygons
   List<BoundaryPolygon> _boundaryPolygons = [];
   bool _isLoadingBoundaries = true;
@@ -118,7 +123,7 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
     });
 
     // Start performance tracking
-    PerformanceService.startTimer('projects_screen_load');
+    // PerformanceService.startTimer('projects_screen_load');
 
     // Load data in parallel for better performance
     await Future.wait([
@@ -134,7 +139,7 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
     });
 
     // Track performance
-    PerformanceService.stopTimer('projects_screen_load');
+    // PerformanceService.stopTimer('projects_screen_load');
   }
 
   void _initializeAnimations() {
@@ -178,24 +183,8 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
   }
 
   Future<void> _loadPlots() async {
-    try {
-      final plotsProvider = Provider.of<PlotsProvider>(context, listen: false);
-      
-      // Use optimized plots service for better performance
-      final plots = await OptimizedPlotsService.loadPlotsOptimized(
-        zoomLevel: _zoom.round(),
-        forceRefresh: false,
-        useCache: true,
-      );
-      
-      // Update provider with optimized plots
-      plotsProvider.setPlotsFromCache(plots);
-      
-      print('Optimized loading: Loaded ${plots.length} plots with optimization');
-    } catch (e) {
-      print('Error loading plots: $e');
-      // Handle error gracefully without crashing
-    }
+    // Plots API removed - no longer loading plots on map screen
+    print('Plots API removed - skipping plot loading');
   }
 
   Future<void> _loadBoundaryPolygons() async {
@@ -288,14 +277,7 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
               PolygonLayer(
                 polygons: _getBoundaryPolygons(),
               ),
-              // Plot polygons - optimized rendering
-              Consumer<PlotsProvider>(
-                builder: (context, plotsProvider, child) {
-                  return PolygonLayer(
-                    polygons: _getOptimizedPolygons(plotsProvider),
-                  );
-                },
-              ),
+              // Plot polygons removed - no longer displaying plots on map
               // Amenities markers (only show when toggle is on and at zoom level 12+)
               if (_showAmenities)
                 MarkerLayer(
@@ -358,108 +340,7 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
               ),
             )
           else
-            Consumer<PlotsProvider>(
-              builder: (context, plotsProvider, child) {
-                if (plotsProvider.isLoading) {
-                  return Container(
-                    color: Colors.white,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF20B2AA)),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Loading plots...',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-              
-              if (plotsProvider.error != null) {
-                return Center(
-                  child: Container(
-                    margin: const EdgeInsets.all(20),
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          color: Colors.red[600],
-                          size: 48,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Error Loading Plots',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.red[600],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          plotsProvider.error!,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            plotsProvider.fetchPlots();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF20B2AA),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text(
-                            'Retry',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }
-              
-              return const SizedBox.shrink();
-            },
-          ),
+            // Plots API removed - no longer showing loading/error states for plots
           
           // Top Header
           Positioned(
@@ -548,31 +429,7 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
                           ),
                         ),
                         const SizedBox(width: 8),
-                        // Plot count indicator
-                        Consumer<PlotsProvider>(
-                          builder: (context, plotsProvider, child) {
-                            final plotCount = plotsProvider.filteredPlots.where((plot) => 
-                              plot.polygonCoordinates.isNotEmpty
-                            ).length;
-                            
-                            return Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                '$plotCount Plots',
-                                style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+                        // Plot count removed - plots API no longer used
                         const SizedBox(width: 8),
                         // Performance indicator
                         Container(
@@ -610,6 +467,40 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
             ),
           ),
           
+          // Map Controls (Top Left of Map)
+          Positioned(
+            top: 140,
+            left: 20,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Amenities Button
+                RectangularToggleButton(
+                  text: 'Amenities',
+                  icon: Icons.location_on,
+                  isActive: _showAmenities,
+                  onPressed: () {
+                    setState(() {
+                      _showAmenities = !_showAmenities;
+                    });
+                  },
+                ),
+                const SizedBox(height: 8),
+                // Boundaries Button
+                RectangularToggleButton(
+                  text: 'Boundaries',
+                  icon: Icons.layers,
+                  isActive: _showBoundaries,
+                  onPressed: () {
+                    setState(() {
+                      _showBoundaries = !_showBoundaries;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+          
           // Expandable Map Controls
           Positioned(
             bottom: 20,
@@ -619,39 +510,6 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
               children: [
                 // Expanded Controls (shown when _showMapControls is true)
                 if (_showMapControls) ...[
-                  // Toggle Amenities Button
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        setState(() {
-                          _showAmenities = !_showAmenities;
-                        });
-                      },
-                      backgroundColor: _showAmenities ? const Color(0xFF20B2AA) : Colors.grey,
-                      child: Icon(
-                        _showAmenities ? Icons.location_on : Icons.location_off,
-                        color: Colors.white,
-                      ),
-                      tooltip: _showAmenities ? 'Hide Amenities' : 'Show Amenities',
-                    ),
-                  ),
-                  // Toggle Boundaries Button
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        setState(() {
-                          _showBoundaries = !_showBoundaries;
-                        });
-                      },
-                      backgroundColor: _showBoundaries ? const Color(0xFF20B2AA) : Colors.grey,
-                      child: Icon(
-                        _showBoundaries ? Icons.layers : Icons.layers_outlined,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
                   // All Phases Button
                   Container(
                     margin: const EdgeInsets.only(bottom: 12),
@@ -716,42 +574,55 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
     );
   }
 
-  // Optimized polygon rendering
-  List<Polygon> _getOptimizedPolygons(PlotsProvider plotsProvider) {
-    try {
-      // Get filtered plots with valid polygon coordinates
-      final plotsWithPolygons = plotsProvider.filteredPlots.where((plot) => 
-        plot.polygonCoordinates.isNotEmpty
-      ).toList();
-      
-      if (plotsWithPolygons.isEmpty) {
-        return [];
-      }
-      
-      // Limit polygons for performance (show max 50 polygons at once)
-      final limitedPlots = plotsWithPolygons.take(50).toList();
-      
-      return PolygonRendererService.createPlotPolygons(limitedPlots);
-    } catch (e) {
-      print('Error creating polygons: $e');
-      return [];
-    }
-  }
+  // Plot polygon rendering removed - no longer displaying plots on map
 
   // Performance optimization: Handle zoom level changes
   void _handleZoomChange(int newZoomLevel) {
-    // Only reload if zoom level changed significantly (more than 2 levels)
-    if ((newZoomLevel - _zoom.round()).abs() > 2) {
-      final plotsProvider = Provider.of<PlotsProvider>(context, listen: false);
-      plotsProvider.updateZoomLevel(newZoomLevel);
-    }
+    // Plots API removed - no longer handling zoom level changes for plots
   }
 
   // All other methods remain exactly the same as the original projects_screen.dart
   // ... (keeping all existing functionality intact)
   
   void _handleMapTap(LatLng point) {
-    // Implementation remains the same as original
+    try {
+      // Plots API removed - only handling amenities now
+      print('Map tapped at: $point');
+      
+      // Check for amenities only
+      if (_showAmenities && _zoom >= 12.0) {
+        // Find amenity at tapped point
+        final tappedAmenity = _findAmenityAtPoint(point);
+        if (tappedAmenity != null) {
+          print('Amenity tapped: ${tappedAmenity.amenityType} - Showing amenity information');
+          
+          setState(() {
+            _selectedAmenity = tappedAmenity;
+            _showProjectDetails = false;
+            _selectedPlot = null;
+          });
+          _showAmenityInfo(tappedAmenity);
+          return;
+        }
+      }
+      
+      // Clear selection if no amenity was tapped
+      print('No amenity found at tap point - Clearing selection');
+      
+      setState(() {
+        _showProjectDetails = false;
+        _selectedPlot = null;
+        _selectedAmenity = null;
+      });
+    } catch (e) {
+      print('Error in map tap handler: $e');
+      // Clear any existing selections on error
+      setState(() {
+        _showProjectDetails = false;
+        _selectedPlot = null;
+        _selectedAmenity = null;
+      });
+    }
   }
 
   String _getTileLayerUrl() {
@@ -876,17 +747,61 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
     if (zoomLevel < 14.0) {
       // Show only 30% of amenities at zoom levels 12-13
       final maxAmenities = (amenityMarkers.length * 0.3).round();
-      filteredMarkers = amenityMarkers.take(maxAmenities).toList();
-      print('Limited to $maxAmenities amenities for zoom level $zoomLevel');
+      // Use sampling instead of .take() to ensure all phases are represented
+      filteredMarkers = _sampleAmenitiesEvenly(amenityMarkers, maxAmenities);
+      print('Limited to $maxAmenities amenities for zoom level $zoomLevel (evenly sampled)');
     } else if (zoomLevel < 16.0) {
       // Show 60% of amenities at zoom levels 14-15
       final maxAmenities = (amenityMarkers.length * 0.6).round();
-      filteredMarkers = amenityMarkers.take(maxAmenities).toList();
-      print('Limited to $maxAmenities amenities for zoom level $zoomLevel');
+      // Use sampling instead of .take() to ensure all phases are represented
+      filteredMarkers = _sampleAmenitiesEvenly(amenityMarkers, maxAmenities);
+      print('Limited to $maxAmenities amenities for zoom level $zoomLevel (evenly sampled)');
     }
     
     print('Rendering ${filteredMarkers.length} amenity MARKERS with dynamic sizing');
     return filteredMarkers.map((amenityMarker) => _createDynamicAmenityMarker(amenityMarker, zoomLevel)).toList();
+  }
+
+  /// Sample amenities evenly across all phases to ensure fair representation
+  List<AmenityMarker> _sampleAmenitiesEvenly(List<AmenityMarker> amenityMarkers, int maxAmenities) {
+    if (maxAmenities >= amenityMarkers.length) {
+      return amenityMarkers;
+    }
+    
+    // Group amenities by phase
+    final Map<String, List<AmenityMarker>> amenitiesByPhase = {};
+    for (final amenity in amenityMarkers) {
+      amenitiesByPhase.putIfAbsent(amenity.phase, () => []).add(amenity);
+    }
+    
+    print('Amenities by phase: ${amenitiesByPhase.keys.map((phase) => '$phase: ${amenitiesByPhase[phase]!.length}').join(', ')}');
+    
+    // Calculate how many amenities to take from each phase
+    final phases = amenitiesByPhase.keys.toList();
+    final amenitiesPerPhase = (maxAmenities / phases.length).round();
+    
+    final List<AmenityMarker> sampledAmenities = [];
+    
+    for (final phase in phases) {
+      final phaseAmenities = amenitiesByPhase[phase]!;
+      final takeCount = amenitiesPerPhase.clamp(0, phaseAmenities.length);
+      
+      // Use random sampling to avoid always taking the first amenities
+      final shuffled = List<AmenityMarker>.from(phaseAmenities)..shuffle();
+      sampledAmenities.addAll(shuffled.take(takeCount));
+      
+      print('Phase $phase: taking $takeCount out of ${phaseAmenities.length} amenities');
+    }
+    
+    // If we still need more amenities, fill from remaining
+    if (sampledAmenities.length < maxAmenities) {
+      final remaining = amenityMarkers.where((a) => !sampledAmenities.contains(a)).toList();
+      final needed = maxAmenities - sampledAmenities.length;
+      sampledAmenities.addAll(remaining.take(needed));
+    }
+    
+    print('Sampled ${sampledAmenities.length} amenities evenly across phases');
+    return sampledAmenities;
   }
 
   /// Create amenity marker with dynamic sizing based on zoom level
@@ -1048,5 +963,122 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
     if (_activeFilters.isEmpty) {
       _activeFilters.add('All Plots');
     }
+  }
+
+  /// Find amenity at a specific point
+  AmenityMarker? _findAmenityAtPoint(LatLng point) {
+    const double tolerance = 0.0001; // Small tolerance for click detection
+    
+    print('Finding amenity at point: $point');
+    print('Available amenities: ${_amenitiesMarkers.length}');
+    
+    for (final amenity in _amenitiesMarkers) {
+      final distance = _calculateDistance(point, amenity.point);
+      print('Distance to ${amenity.amenityType}: $distance (tolerance: $tolerance)');
+      
+      if (distance <= tolerance) {
+        print('Found amenity: ${amenity.amenityType}');
+        return amenity;
+      }
+    }
+    
+    print('No amenity found at point');
+    return null;
+  }
+
+  /// Calculate distance between two points
+  double _calculateDistance(LatLng point1, LatLng point2) {
+    final latDiff = point1.latitude - point2.latitude;
+    final lngDiff = point1.longitude - point2.longitude;
+    return (latDiff * latDiff + lngDiff * lngDiff);
+  }
+
+  /// Show amenity information dialog
+  void _showAmenityInfo(AmenityMarker amenity) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            Icon(
+              _getAmenityIcon(amenity.amenityType),
+              color: _getAmenityColor(amenity.amenityType),
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                amenity.amenityType,
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildInfoRow('Phase', 'Phase ${amenity.phase}'),
+            const SizedBox(height: 8),
+            _buildInfoRow('Type', amenity.amenityType),
+            const SizedBox(height: 8),
+            _buildInfoRow('Location', '${amenity.point.latitude.toStringAsFixed(6)}, ${amenity.point.longitude.toStringAsFixed(6)}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text(
+              'Close',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build info row for amenity dialog
+  Widget _buildInfoRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 80,
+          child: Text(
+            '$label:',
+            style: const TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
