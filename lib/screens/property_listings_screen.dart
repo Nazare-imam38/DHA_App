@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../services/language_service.dart';
-import 'filters_screen.dart';
 import 'sidebar_drawer.dart';
 
 class PropertyListingsScreen extends StatefulWidget {
@@ -13,6 +12,9 @@ class PropertyListingsScreen extends StatefulWidget {
 }
 
 class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
+  String _selectedPropertyType = 'All';
+  String _selectedPriceRange = 'Any';
+  String _selectedLocation = 'Any';
 
   final List<Map<String, dynamic>> _properties = [
     {
@@ -110,11 +112,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                         ),
                         IconButton(
                           onPressed: () {
-                            // Navigate to filters
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const FiltersScreen()),
-                            );
+                            _showFilterBottomSheet();
                           },
                           icon: const Icon(Icons.tune, color: Colors.white),
                         ),
@@ -412,6 +410,252 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
           icon,
           color: const Color(0xFF20B2AA),
           size: 16,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterSection(String title, IconData icon, List<String> options, String selectedValue, Function(String) onChanged) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Colors.grey[200]!),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: _getFilterIconColor(title).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  color: _getFilterIconColor(title),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: options.map((option) {
+                bool isSelected = selectedValue == option;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: GestureDetector(
+                    onTap: () => onChanged(option),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected ? _getFilterIconColor(title) : Colors.grey[100],
+                        borderRadius: BorderRadius.circular(20),
+                        border: isSelected ? null : Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: Text(
+                        option,
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: isSelected ? Colors.white : Colors.grey[700],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getFilterIconColor(String title) {
+    switch (title) {
+      case 'Property Type':
+        return const Color(0xFF1E3C90);
+      case 'Price Range':
+        return Colors.green;
+      case 'Location':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  void _showFilterBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.only(top: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            
+            // Header
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.tune, color: Colors.white, size: 24),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Filter Properties',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Icon(Icons.close, color: Colors.white, size: 24),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Filter Content
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    // Property Type Filter
+                    _buildFilterSection(
+                      'Property Type',
+                      Icons.home,
+                      [
+                        'All', 'Houses', 'Flats', 'Plots', 'Commercial'
+                      ],
+                      _selectedPropertyType,
+                      (value) => setState(() => _selectedPropertyType = value),
+                    ),
+                    
+                    // Price Range Filter
+                    _buildFilterSection(
+                      'Price Range',
+                      Icons.attach_money,
+                      [
+                        'Any', 'Under 5M', '5M - 10M', '10M - 20M', 'Above 20M'
+                      ],
+                      _selectedPriceRange,
+                      (value) => setState(() => _selectedPriceRange = value),
+                    ),
+                    
+                    // Location Filter
+                    _buildFilterSection(
+                      'Location',
+                      Icons.location_on,
+                      [
+                        'Any', 'Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'Phase 5', 'Phase 6', 'Phase 7'
+                      ],
+                      _selectedLocation,
+                      (value) => setState(() => _selectedLocation = value),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            
+            // Filter Actions
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                border: Border(
+                  top: BorderSide(color: Colors.grey[200]!),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _selectedPropertyType = 'All';
+                          _selectedPriceRange = 'Any';
+                          _selectedLocation = 'Any';
+                        });
+                      },
+                      icon: const Icon(Icons.clear, size: 16),
+                      label: const Text('Clear All'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.grey[600],
+                        side: BorderSide(color: Colors.grey[300]!),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        // Apply filters logic can be added here
+                      },
+                      icon: const Icon(Icons.check, size: 16),
+                      label: const Text('Apply Filters'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1E3C90),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

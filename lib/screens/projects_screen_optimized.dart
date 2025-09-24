@@ -478,7 +478,7 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
                 RectangularToggleButton(
                   text: 'Amenities',
                   icon: Icons.location_on,
-                  isActive: _showAmenities,
+                  isSelected: _showAmenities,
                   onPressed: () {
                     setState(() {
                       _showAmenities = !_showAmenities;
@@ -490,7 +490,7 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
                 RectangularToggleButton(
                   text: 'Boundaries',
                   icon: Icons.layers,
-                  isActive: _showBoundaries,
+                  isSelected: _showBoundaries,
                   onPressed: () {
                     setState(() {
                       _showBoundaries = !_showBoundaries;

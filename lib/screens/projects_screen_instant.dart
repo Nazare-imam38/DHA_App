@@ -938,6 +938,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 // Amenities Button
                 RectangularToggleButton(
                   text: 'Amenities',
+                  icon: Icons.location_on,
                   isSelected: _showAmenities,
                   onPressed: () {
                     setState(() {
@@ -955,6 +956,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 // Boundaries Button
                 RectangularToggleButton(
                   text: 'Boundaries',
+                  icon: Icons.layers,
                   isSelected: _showBoundaries,
                   onPressed: () {
                     setState(() {

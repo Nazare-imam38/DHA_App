@@ -124,12 +124,6 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                             ),
                           ),
                         ),
-                        IconButton(
-                          onPressed: () {
-                            _showFilterBottomSheet();
-                          },
-                          icon: const Icon(Icons.filter_list, color: Colors.white),
-                        ),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -233,7 +227,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
   }
 
   Widget _buildBookingsList() {
-    final bookings = [
+    final allBookings = [
       {
         'id': 'BK001',
         'type': 'Plot',
@@ -307,6 +301,24 @@ class _FavoritesScreenState extends State<FavoritesScreen>
         'transactionId': 'N/A',
       },
     ];
+
+    // Filter bookings based on selected filter
+    List<Map<String, dynamic>> filteredBookings = allBookings.where((booking) {
+      if (_selectedFilter == 'All') {
+        return true;
+      } else if (_selectedFilter == 'Pending') {
+        return booking['paymentStatus'] == 'Pending';
+      } else if (_selectedFilter == 'Paid') {
+        return booking['paymentStatus'] == 'Paid';
+      } else if (_selectedFilter == 'Cancelled') {
+        return booking['paymentStatus'] == 'Cancelled';
+      } else if (_selectedFilter == 'Completed') {
+        return booking['bookingStatus'] == 'Completed';
+      }
+      return true;
+    }).toList();
+
+    final bookings = filteredBookings;
 
     if (bookings.isEmpty) {
       return Center(
@@ -1020,75 +1032,6 @@ class _FavoritesScreenState extends State<FavoritesScreen>
     );
   }
 
-  void _showFilterBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.4,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'Filter Bookings',
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 20),
-              _buildFilterOption('All Bookings', Icons.list),
-              _buildFilterOption('Pending Payment', Icons.pending),
-              _buildFilterOption('Paid Bookings', Icons.check_circle),
-              _buildFilterOption('Cancelled Bookings', Icons.cancel),
-              _buildFilterOption('Completed Bookings', Icons.done_all),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFilterOption(String title, IconData icon) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.grey[600], size: 20),
-          const SizedBox(width: 12),
-          Text(
-            title,
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 16,
-              color: Colors.black,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class BookingDetailsScreen extends StatelessWidget {
