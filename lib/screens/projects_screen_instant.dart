@@ -61,6 +61,10 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   bool _showProjectDetails = false;
   bool _isDataLoading = false; // Changed from _isLoading to be more specific
   
+  // Bottom sheet state
+  bool _isBottomSheetExpanded = false;
+  final DraggableScrollableController _bottomSheetController = DraggableScrollableController();
+  
   // Filter states
   String? _selectedEvent;
   RangeValues _priceRange = const RangeValues(0, 10000000);
@@ -148,6 +152,18 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     _filterManager.onPlotsUpdated = (plots) {
       setState(() {
         _plots = plots;
+        print('✅ Filter Manager: Updated plots count to ${plots.length}');
+        
+        // Debug: Check if plots have polygon coordinates
+        if (plots.isNotEmpty) {
+          final plotsWithPolygons = plots.where((plot) => plot.polygonCoordinates.isNotEmpty).toList();
+          print('📊 Plots with valid polygons: ${plotsWithPolygons.length}/${plots.length}');
+          
+          if (plotsWithPolygons.isNotEmpty) {
+            print('📍 First plot with polygons: ${plotsWithPolygons.first.plotNo}');
+            print('📍 Polygon count: ${plotsWithPolygons.first.polygonCoordinates.length}');
+          }
+        }
       });
     };
     
@@ -162,6 +178,20 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         print('Filter Manager Error: $error');
       }
     };
+    
+    // Load initial plots
+    _loadInitialPlots();
+  }
+  
+  /// Load initial plots for filtering
+  Future<void> _loadInitialPlots() async {
+    try {
+      print('Loading initial plots for filtering...');
+      await _filterManager.loadInitialPlots();
+      print('✅ Initial plots loaded successfully');
+    } catch (e) {
+      print('❌ Error loading initial plots: $e');
+    }
   }
 
   /// Apply filters to modern filter manager
@@ -186,10 +216,36 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
     print('Modern Filter Manager: Applied filters - Price: ${priceRange?.start}-${priceRange?.end}, Type: $plotType, Phase: $dhaPhase, Size: $plotSize');
     
-    // Navigate to filtered plots after a short delay
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      _navigateToFilteredPlots();
-    });
+    // The filter manager will automatically update _plots through the callback
+    // No need to navigate immediately - let the polygons update first
+    print('✅ Filters applied - Plot polygons will update automatically');
+  }
+
+  /// Navigate to a specific plot on the map
+  void _navigateToPlot(PlotModel plot) {
+    try {
+      print('🧭 Navigating to plot ${plot.plotNo}');
+      
+      if (plot.latitude != null && plot.longitude != null) {
+        final plotLocation = LatLng(plot.latitude!, plot.longitude!);
+        
+        // Animate to plot location using flutter_map API
+        _mapController.move(plotLocation, 16.0);
+        
+        // Select the plot
+        setState(() {
+          _selectedPlot = plot;
+          _showProjectDetails = true;
+          _selectedAmenity = null;
+        });
+        
+        print('✅ Navigated to plot ${plot.plotNo} at ${plot.latitude}, ${plot.longitude}');
+      } else {
+        print('❌ Plot ${plot.plotNo} has no coordinates, cannot navigate');
+      }
+    } catch (e) {
+      print('❌ Error navigating to plot: $e');
+    }
   }
 
   /// Navigate map to show filtered plots
@@ -735,6 +791,10 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               PolygonLayer(
                 polygons: _getFilteredPlotPolygons(),
               ),
+              // Plot markers - showing home icons for each plot
+              MarkerLayer(
+                markers: _getPlotMarkers(),
+              ),
                // Amenities markers (only show when toggle is on and at zoom level 12+)
                // NOTE: We only want MARKERS, not polygons for amenities
                if (_showAmenities)
@@ -882,7 +942,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                '${_filterManager.plotCount} Plots',
+                                '${_plots.length} Plots',
                                 style: TextStyle(
                                   fontFamily: 'Inter',
                                   color: Colors.white,
@@ -1169,8 +1229,29 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
           // Clean UI with only rectangular toggle buttons
 
-            // Plot Details Card is now handled by PlotSelectionHandler
-            // No need for duplicate card display here
+          // Bottom Sheet for Filtered Plots (matches web app design)
+          _buildBottomSheet(),
+
+          // Plot Details Card - Show when a plot is selected
+          if (_selectedPlot != null)
+            Positioned(
+              bottom: 20,
+              left: 20,
+              right: 20,
+              child: EnhancedPlotInfoCard(
+                plot: _selectedPlot!,
+                onClose: () {
+                  setState(() {
+                    _selectedPlot = null;
+                    _showProjectDetails = false;
+                  });
+                },
+                onBookNow: () {
+                  // TODO: Implement booking functionality
+                  print('Book now for plot ${_selectedPlot!.plotNo}');
+                },
+              ),
+            ),
         ],
       ),
     );
@@ -1225,11 +1306,94 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     return polygons;
   }
 
+  /// Get plot markers (home icons) for rendering
+  List<Marker> _getPlotMarkers() {
+    try {
+      print('🏠 Creating plot markers for ${_plots.length} plots');
+      
+      if (_plots.isEmpty) {
+        print('❌ No plots to create markers for');
+        return [];
+      }
+
+      final markers = <Marker>[];
+      
+      for (final plot in _plots) {
+        // Only create markers for plots with valid coordinates
+        if (plot.latitude != null && plot.longitude != null) {
+          final marker = Marker(
+            point: LatLng(plot.latitude!, plot.longitude!),
+            width: 32,
+            height: 32,
+            child: GestureDetector(
+              onTap: () {
+                print('🏠 Plot marker tapped: ${plot.plotNo}');
+                setState(() {
+                  _selectedPlot = plot;
+                  _showProjectDetails = true;
+                  _selectedAmenity = null;
+                });
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: _getPlotMarkerColor(plot),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.white, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.home,
+                  color: Colors.white,
+                  size: 18,
+                ),
+              ),
+            ),
+          );
+          
+          markers.add(marker);
+          print('🏠 Added marker for plot ${plot.plotNo} at ${plot.latitude}, ${plot.longitude}');
+        } else {
+          print('⚠️ Plot ${plot.plotNo} has no coordinates, skipping marker');
+        }
+      }
+      
+      print('✅ Created ${markers.length} plot markers');
+      return markers;
+    } catch (e) {
+      print('❌ Error creating plot markers: $e');
+      return [];
+    }
+  }
+
+  /// Get plot marker color based on status
+  Color _getPlotMarkerColor(PlotModel plot) {
+    switch (plot.status.toLowerCase()) {
+      case 'available':
+        return const Color(0xFF4CAF50); // Green
+      case 'sold':
+        return Colors.red;
+      case 'reserved':
+        return Colors.orange;
+      case 'unsold':
+        return const Color(0xFF1E3C90); // Blue
+      default:
+        return Colors.grey;
+    }
+  }
+
   /// Get filtered plot polygons for rendering
   List<Polygon> _getFilteredPlotPolygons() {
     try {
+      print('🔍 _getFilteredPlotPolygons called - _plots count: ${_plots.length}');
+      
       if (_plots.isEmpty) {
-        print('No filtered plots to render');
+        print('❌ No filtered plots to render (plots count: ${_plots.length})');
         return [];
       }
 
@@ -1238,18 +1402,32 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         plot.polygonCoordinates.isNotEmpty
       ).toList();
       
+      print('📊 Plots with valid polygons: ${plotsWithPolygons.length}/${_plots.length}');
+      
       if (plotsWithPolygons.isEmpty) {
-        print('No plots with valid polygons found');
+        print('❌ No plots with valid polygons found (total plots: ${_plots.length})');
+        
+        // Debug: Check why plots don't have polygon coordinates
+        for (int i = 0; i < _plots.length && i < 3; i++) {
+          final plot = _plots[i];
+          print('🔍 Plot ${i + 1}: ${plot.plotNo} - Polygon count: ${plot.polygonCoordinates.length}');
+          if (plot.polygonCoordinates.isEmpty) {
+            print('🔍 Plot ${plot.plotNo} has no polygon coordinates');
+          }
+        }
         return [];
       }
       
       // Limit polygons for performance (show max 100 polygons at once)
       final limitedPlots = plotsWithPolygons.take(100).toList();
       
-      print('✅ Rendering ${limitedPlots.length} filtered plot polygons');
-      return EnhancedPolygonService.createPlotPolygons(limitedPlots);
+      print('✅ Rendering ${limitedPlots.length} filtered plot polygons (from ${_plots.length} total plots)');
+      final polygons = EnhancedPolygonService.createPlotPolygons(limitedPlots);
+      print('✅ Created ${polygons.length} polygon objects');
+      return polygons;
     } catch (e) {
       print('❌ Error creating filtered plot polygons: $e');
+      print('❌ Stack trace: ${StackTrace.current}');
       return [];
     }
   }
@@ -1257,12 +1435,13 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   void _handleMapTap(LatLng point) {
     try {
       print('Map tapped at: $point');
+      print('Available plots for tap detection: ${_plots.length}');
       
       // PRIORITY 1: Check for filtered plot polygons first
       final tappedPlot = EnhancedPolygonService.findPlotAtPoint(point, _plots);
       
       if (tappedPlot != null) {
-        print('Filtered plot tapped: ${tappedPlot.plotNo} - Showing plot information');
+        print('✅ Filtered plot tapped: ${tappedPlot.plotNo} - Showing plot information');
         
         // Validate plot data before proceeding
         if (tappedPlot.plotNo.isNotEmpty) {
@@ -1274,9 +1453,10 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
             _showProjectDetails = true;
             _selectedAmenity = null;
           });
+          print('✅ Plot info card should now be visible for plot ${tappedPlot.plotNo}');
           return;
         } else {
-          print('Plot tapped but plot number is empty, skipping');
+          print('❌ Plot tapped but plot number is empty, skipping');
         }
       }
       
@@ -1957,6 +2137,319 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  /// Build bottom sheet for filtered plots (matches web app design)
+  Widget _buildBottomSheet() {
+    return DraggableScrollableSheet(
+      controller: _bottomSheetController,
+      initialChildSize: 0.15, // Start with 15% of screen height
+      minChildSize: 0.15, // Minimum 15% of screen height
+      maxChildSize: 0.85, // Maximum 85% of screen height
+      builder: (context, scrollController) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 10,
+                offset: Offset(0, -2),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              // Handle bar
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              
+              // Header with plot count and tabs
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  children: [
+                    // Plot count badge and title
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E3C90),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '${_plots.length} plots',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Text(
+                            'Filtered Results',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 16),
+                    
+                    // Tabs (List View / Selected)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _isBottomSheetExpanded = true;
+                              });
+                              _bottomSheetController.animateTo(
+                                0.85,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              decoration: const BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Color(0xFF1E3C90),
+                                    width: 2,
+                                  ),
+                                ),
+                              ),
+                              child: const Text(
+                                'List View',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF1E3C90),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              // Handle Selected tab
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              child: Text(
+                                'Selected',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Search bar
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search By Plot Number, Sector...',
+                      hintStyle: TextStyle(color: Colors.grey[500]),
+                      prefixIcon: Icon(Icons.search, color: Colors.grey[500]),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Plot list
+              Expanded(
+                child: _plots.isEmpty
+                    ? Center(
+                        child: Text(
+                          'No plots found matching your filters',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        controller: scrollController,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        itemCount: _plots.length,
+                        itemBuilder: (context, index) {
+                          final plot = _plots[index];
+                          return _buildPlotCard(plot);
+                        },
+                      ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// Build individual plot card
+  Widget _buildPlotCard(PlotModel plot) {
+    return GestureDetector(
+      onTap: () {
+        print('🏠 Plot card tapped: ${plot.plotNo}');
+        _navigateToPlot(plot);
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey[200]!),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Plot header
+            Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E3C90),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Plot ${plot.plotNo}',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: _getPlotMarkerColor(plot),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          plot.status,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Colors.grey,
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 12),
+            
+            // Plot details
+            Row(
+              children: [
+                _buildDetailChip(Icons.location_on, 'Sector ${plot.sector}'),
+                const SizedBox(width: 8),
+                _buildDetailChip(Icons.home, 'Street ${plot.streetNo}'),
+                const SizedBox(width: 8),
+                _buildDetailChip(Icons.straighten, plot.size),
+                const SizedBox(width: 8),
+                _buildDetailChip(Icons.flag, 'Phase ${plot.phase}'),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Build detail chip
+  Widget _buildDetailChip(IconData icon, String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: Colors.grey[600]),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 10,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }

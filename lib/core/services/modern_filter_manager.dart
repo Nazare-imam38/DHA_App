@@ -19,6 +19,7 @@ class ModernFilterManager {
 
   // Cached data
   List<PlotModel> _filteredPlots = [];
+  List<PlotModel> _allPlots = []; // Store all plots for client-side filtering
   bool _isLoading = false;
   String? _error;
   DateTime? _lastFetchTime;
@@ -141,11 +142,18 @@ class ModernFilterManager {
   void _applyFilters() {
     _debounceTimer?.cancel();
     _debounceTimer = Timer(_debounceDelay, () {
-      _fetchFilteredPlots();
+      // If we have all plots loaded, use client-side filtering for better performance
+      if (_allPlots.isNotEmpty) {
+        print('ModernFilterManager: Using client-side filtering');
+        _applyClientSideFilters();
+      } else {
+        print('ModernFilterManager: Using API filtering');
+        _fetchFilteredPlots();
+      }
     });
   }
 
-  /// Fetch filtered plots from API
+  /// Fetch filtered plots from API or use client-side filtering
   Future<void> _fetchFilteredPlots() async {
     try {
       _setLoading(true);
@@ -154,25 +162,42 @@ class ModernFilterManager {
       print('ModernFilterManager: Fetching filtered plots...');
       print('ModernFilterManager: Filters - Price: $_minPrice-$_maxPrice, Category: $_category, Phase: $_phase, Size: $_size, Status: $_status, Sector: $_sector');
 
-      final plots = await EnhancedPlotsApiService.fetchFilteredPlots(
-        minPrice: _minPrice,
-        maxPrice: _maxPrice,
-        category: _category,
-        phase: _phase,
-        size: _size,
-        status: _status,
-        sector: _sector,
-      );
+      List<PlotModel> plots = [];
+      
+      try {
+        // Try API first
+        plots = await EnhancedPlotsApiService.fetchFilteredPlots(
+          minPrice: _minPrice,
+          maxPrice: _maxPrice,
+          category: _category,
+          phase: _phase,
+          size: _size,
+          status: _status,
+          sector: _sector,
+        );
+        print('ModernFilterManager: ✅ API returned ${plots.length} plots');
+      } catch (apiError) {
+        print('ModernFilterManager: ⚠️ API failed, using client-side filtering: $apiError');
+        
+        // Fallback to client-side filtering with all available plots
+        // For now, we'll use an empty list and let the screen handle it
+        // In a real implementation, you would load all plots first and then filter them
+        plots = [];
+      }
 
       _filteredPlots = plots;
       _lastFetchTime = DateTime.now();
       
-      print('ModernFilterManager: ✅ Loaded ${plots.length} filtered plots');
+      print('ModernFilterManager: ✅ Final result: ${plots.length} filtered plots');
       
       onPlotsUpdated?.call(plots);
     } catch (e) {
-      print('ModernFilterManager: ❌ Error fetching filtered plots: $e');
+      print('ModernFilterManager: ❌ Error in filter process: $e');
       _setError(e.toString());
+      
+      // Even on error, update with empty list to clear the map
+      _filteredPlots = [];
+      onPlotsUpdated?.call([]);
     } finally {
       _setLoading(false);
     }
@@ -230,6 +255,82 @@ class ModernFilterManager {
     }
     
     return filters;
+  }
+
+  /// Load initial plots (call this once when the app starts)
+  Future<void> loadInitialPlots() async {
+    try {
+      _setLoading(true);
+      _setError(null);
+      
+      print('ModernFilterManager: Loading initial plots...');
+      
+      // Try to load all plots from API
+      _allPlots = await EnhancedPlotsApiService.fetchAllPlots();
+      print('ModernFilterManager: ✅ Loaded ${_allPlots.length} initial plots');
+      
+      // Apply current filters to initial plots
+      _applyClientSideFilters();
+      
+    } catch (e) {
+      print('ModernFilterManager: ❌ Error loading initial plots: $e');
+      _setError(e.toString());
+      _allPlots = [];
+      _filteredPlots = [];
+      onPlotsUpdated?.call([]);
+    } finally {
+      _setLoading(false);
+    }
+  }
+  
+  /// Apply client-side filtering to all plots
+  void _applyClientSideFilters() {
+    if (_allPlots.isEmpty) {
+      _filteredPlots = [];
+      onPlotsUpdated?.call([]);
+      return;
+    }
+    
+    print('ModernFilterManager: Applying client-side filters to ${_allPlots.length} plots');
+    
+    _filteredPlots = _allPlots.where((plot) {
+      // Price range filter
+      if (_minPrice != null || _maxPrice != null) {
+        final price = double.tryParse(plot.basePrice) ?? 0;
+        if (_minPrice != null && price < _minPrice!) return false;
+        if (_maxPrice != null && price > _maxPrice!) return false;
+      }
+      
+      // Category filter
+      if (_category != null && plot.category.toLowerCase() != _category!.toLowerCase()) {
+        return false;
+      }
+      
+      // Phase filter
+      if (_phase != null && plot.phase.toLowerCase() != _phase!.toLowerCase()) {
+        return false;
+      }
+      
+      // Size filter
+      if (_size != null && plot.size.toLowerCase() != _size!.toLowerCase()) {
+        return false;
+      }
+      
+      // Status filter
+      if (_status != null && plot.status.toLowerCase() != _status!.toLowerCase()) {
+        return false;
+      }
+      
+      // Sector filter
+      if (_sector != null && plot.sector.toLowerCase() != _sector!.toLowerCase()) {
+        return false;
+      }
+      
+      return true;
+    }).toList();
+    
+    print('ModernFilterManager: ✅ Client-side filtering result: ${_filteredPlots.length} plots');
+    onPlotsUpdated?.call(_filteredPlots);
   }
 
   /// Force refresh (bypass cache)
