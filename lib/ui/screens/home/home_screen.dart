@@ -342,44 +342,57 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
               child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                  child: Row(
-                  children: [
-                      // Menu button
-                      GestureDetector(
+                child: Container(
+                  height: 56, // Fixed height for consistent centering
+                  child: Stack(
+                    children: [
+                      // Perfectly centered title using absolute positioning
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        bottom: 0,
+                        child: Center(
+                          child: Text(
+                            l10n.home,
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Menu button positioned on the left
+                      Positioned(
+                        left: 16,
+                        top: 0,
+                        bottom: 0,
+                        child: Center(
+                          child: GestureDetector(
                             onTap: () {
                               _scaffoldKey.currentState?.openDrawer();
                             },
                             child: Container(
-                          padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Icon(
                                 Icons.menu,
-                              color: Colors.white,
-                            size: 24,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ),
                           ),
-                                  ),
-                                ),
-                                const Spacer(),
-                      // App title
-                                        Text(
-                        l10n.home,
-                                          style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                          letterSpacing: 1,
                         ),
                       ),
-                                      const Spacer(),
-                                  ],
-                                ),
-                              ),
+                    ],
+                  ),
+                ),
               ),
             ),
             
