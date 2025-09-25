@@ -112,7 +112,11 @@ class SmartFilterManager {
     String? size,
   }) {
     return plots.where((plot) {
-      if (phase != null && plot.phase != phase) return false;
+      if (phase != null) {
+        final normalizedSelectedPhase = _normalizePhaseValue(phase);
+        final normalizedPlotPhase = _normalizePhaseValue(plot.phase);
+        if (normalizedPlotPhase != normalizedSelectedPhase) return false;
+      }
       if (category != null && plot.category.toLowerCase() != category.toLowerCase()) return false;
       if (status != null && plot.status.toLowerCase() != status.toLowerCase()) return false;
       if (sector != null && plot.sector.toLowerCase() != sector.toLowerCase()) return false;
@@ -304,6 +308,36 @@ class SmartFilterManager {
     };
   }
   
+  /// Normalize phase values for consistent comparison
+  /// Handles variations like "Phase 1" vs "Phase1" vs "1"
+  static String _normalizePhaseValue(String phase) {
+    if (phase.isEmpty) return phase;
+    
+    // Remove extra spaces and convert to lowercase for comparison
+    final normalized = phase.trim().toLowerCase();
+    
+    // Handle common phase variations
+    if (normalized.contains('phase')) {
+      // Extract number from "Phase X" or "PhaseX"
+      final match = RegExp(r'phase\s*(\d+)').firstMatch(normalized);
+      if (match != null) {
+        return 'phase${match.group(1)}';
+      }
+    }
+    
+    // Handle direct numbers like "1", "2"
+    if (RegExp(r'^\d+$').hasMatch(normalized)) {
+      return 'phase$normalized';
+    }
+    
+    // Handle RVS variations
+    if (normalized.contains('rvs')) {
+      return 'rvs';
+    }
+    
+    return normalized;
+  }
+
   /// Clear filter cache
   static void clearFilterCache() {
     _filterCache.clear();

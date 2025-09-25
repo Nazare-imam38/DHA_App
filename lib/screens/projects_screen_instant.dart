@@ -23,6 +23,10 @@ import '../core/services/plot_selection_handler.dart';
 import 'sidebar_drawer.dart';
 import '../ui/widgets/modern_filters_panel.dart';
 import '../ui/widgets/rectangular_toggle_button.dart';
+import '../ui/widgets/selected_plot_details_widget.dart';
+import '../ui/widgets/plot_details_popup.dart';
+import '../data/models/plot_details_model.dart';
+import '../core/services/plot_details_service.dart';
 
 /// Model class for amenity markers
 class AmenityMarker {
@@ -63,7 +67,12 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   
   // Bottom sheet state
   bool _isBottomSheetExpanded = false;
+  bool _isBottomSheetVisible = false; // Controls visibility based on filters
   final DraggableScrollableController _bottomSheetController = DraggableScrollableController();
+  bool _isBottomSheetInitialized = false;
+  
+  // Plot polygon visibility
+  bool _showPlotPolygons = true; // Always show plot polygons
   
   // Filter states
   String? _selectedEvent;
@@ -107,6 +116,11 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   
   // Selected plot for details
   PlotModel? _selectedPlot;
+  
+  // Selected plot details
+  PlotDetailsModel? _selectedPlotDetails;
+  bool _showSelectedPlotDetails = false;
+  bool _isLoadingPlotDetails = false;
   
   // Plot data
   List<PlotModel> _plots = [];
@@ -216,9 +230,31 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
     print('Modern Filter Manager: Applied filters - Price: ${priceRange?.start}-${priceRange?.end}, Type: $plotType, Phase: $dhaPhase, Size: $plotSize');
     
+    // Update bottom sheet visibility based on active filters
+    _updateBottomSheetVisibility();
+    
     // The filter manager will automatically update _plots through the callback
     // No need to navigate immediately - let the polygons update first
     print('✅ Filters applied - Plot polygons will update automatically');
+  }
+
+  /// Update bottom sheet visibility based on active filters
+  void _updateBottomSheetVisibility() {
+    final hasActiveFilters = _activeFilters.isNotEmpty && 
+                            _activeFilters.first != 'All Plots' &&
+                            (_selectedPlotType != null || 
+                             _selectedDhaPhase != null || 
+                             _selectedPlotSize != null ||
+                             _priceRange.start > 0 || 
+                             _priceRange.end < 10000000);
+    
+    setState(() {
+      _isBottomSheetVisible = hasActiveFilters;
+      _showPlotPolygons = true; // Always show plot polygons when filters are applied
+    });
+    
+    print('Bottom sheet visibility: $_isBottomSheetVisible (Active filters: ${_activeFilters.length})');
+    print('Plot polygons visibility: $_showPlotPolygons');
   }
 
   /// Navigate to a specific plot on the map
@@ -521,49 +557,66 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       // Convert to markers for compatibility
       final amenityMarkers = <AmenityMarker>[];
       for (final feature in amenitiesFeatures) {
-        final icon = geojson.AmenitiesGeoJsonService.getAmenityIcon(feature.type);
-        final color = geojson.AmenitiesGeoJsonService.getAmenityColor(feature.type);
-        final point = feature.getMarkerCoordinates();
-        
-        print('Creating marker for ${feature.type} at ${point.latitude}, ${point.longitude}');
-        
-        final marker = Marker(
-          point: point,
-          width: 32,
-          height: 32,
-          child: GestureDetector(
-            onTap: () {
-              print('Tapped on ${feature.type} at ${feature.phase}');
-              _handleAmenityTap(feature);
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: color, width: 2),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Icon(
-                icon,
-                color: color,
-                size: 18,
+        try {
+          // Null safety checks
+          if (feature.type.isEmpty) {
+            print('Skipping amenity with empty type');
+            continue;
+          }
+          
+          final icon = geojson.AmenitiesGeoJsonService.getAmenityIcon(feature.type);
+          final color = geojson.AmenitiesGeoJsonService.getAmenityColor(feature.type);
+          final point = feature.getMarkerCoordinates();
+          
+          // Additional null safety checks
+          if (point.latitude.isNaN || point.longitude.isNaN) {
+            print('Skipping amenity with invalid coordinates: ${point.latitude}, ${point.longitude}');
+            continue;
+          }
+          
+          print('Creating marker for ${feature.type} at ${point.latitude}, ${point.longitude}');
+          
+          final marker = Marker(
+            point: point,
+            width: 32,
+            height: 32,
+            child: GestureDetector(
+              onTap: () {
+                print('Tapped on ${feature.type} at ${feature.phase}');
+                _handleAmenityTap(feature);
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: color, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 18,
+                ),
               ),
             ),
-          ),
-        );
-        
-        amenityMarkers.add(AmenityMarker(
-          marker: marker,
-          amenityType: feature.type,
-          phase: feature.phase,
-          point: point,
-        ));
+          );
+          
+          amenityMarkers.add(AmenityMarker(
+            marker: marker,
+            amenityType: feature.type,
+            phase: feature.phase,
+            point: point,
+          ));
+        } catch (e) {
+          print('Error creating amenity marker for ${feature.type}: $e');
+          continue;
+        }
       }
       
       setState(() {
@@ -591,6 +644,12 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     print('zoomLevel: $zoomLevel');
     print('amenityMarkers.length: ${amenityMarkers.length}');
     
+    // Null safety check
+    if (amenityMarkers.isEmpty) {
+      print('No amenity markers available');
+      return [];
+    }
+    
     // Lazy loading: Only show amenities at zoom level 12 and above
     if (zoomLevel < 12.0) {
       print('Zoom level too low: $zoomLevel < 12.0 - No amenities shown');
@@ -614,7 +673,20 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     }
     
     print('Rendering ${filteredMarkers.length} amenity MARKERS with dynamic sizing');
-    return filteredMarkers.map((amenityMarker) => _createDynamicAmenityMarker(amenityMarker, zoomLevel)).toList();
+    
+    // Create markers with null safety
+    final markers = <Marker>[];
+    for (final amenityMarker in filteredMarkers) {
+      try {
+        final marker = _createDynamicAmenityMarker(amenityMarker, zoomLevel);
+        markers.add(marker);
+      } catch (e) {
+        print('Error creating dynamic amenity marker: $e');
+        continue;
+      }
+    }
+    
+    return markers;
   }
 
   /// Sample amenities evenly across all phases to ensure fair representation
@@ -661,6 +733,28 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   /// Create amenity marker with dynamic sizing based on zoom level
   Marker _createDynamicAmenityMarker(AmenityMarker amenityMarker, double zoomLevel) {
+    // Comprehensive null safety checks
+    if (amenityMarker.amenityType.isEmpty) {
+      print('Warning: Amenity marker has empty type');
+      return Marker(
+        point: amenityMarker.point,
+        width: 20,
+        height: 20,
+        child: const Icon(Icons.place, color: Colors.grey),
+      );
+    }
+    
+    // Check for valid coordinates
+    if (amenityMarker.point.latitude.isNaN || amenityMarker.point.longitude.isNaN) {
+      print('Warning: Amenity marker has invalid coordinates');
+      return Marker(
+        point: const LatLng(0, 0),
+        width: 20,
+        height: 20,
+        child: const Icon(Icons.place, color: Colors.grey),
+      );
+    }
+    
     // Dynamic icon sizing based on zoom level
     double iconSize;
     if (zoomLevel >= 16.0) {
@@ -705,41 +799,59 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   /// Get amenity color based on type
   Color _getAmenityColor(String amenityType) {
-    switch (amenityType.toLowerCase()) {
-      case 'park':
-        return Colors.green;
-      case 'masjid':
-        return Colors.blue;
-      case 'school':
-        return Colors.orange;
-      case 'play ground':
-        return Colors.lightGreen;
-      case 'graveyard':
-        return Colors.brown;
-      case 'health facility':
-        return Colors.red;
-      default:
-        return Colors.purple;
+    try {
+      if (amenityType.isEmpty) {
+        return Colors.grey;
+      }
+      
+      switch (amenityType.toLowerCase()) {
+        case 'park':
+          return Colors.green;
+        case 'masjid':
+          return Colors.blue;
+        case 'school':
+          return Colors.orange;
+        case 'play ground':
+          return Colors.lightGreen;
+        case 'graveyard':
+          return Colors.brown;
+        case 'health facility':
+          return Colors.red;
+        default:
+          return Colors.purple;
+      }
+    } catch (e) {
+      print('Error getting amenity color for $amenityType: $e');
+      return Colors.grey;
     }
   }
 
   /// Get amenity icon based on type
   IconData _getAmenityIcon(String amenityType) {
-    switch (amenityType.toLowerCase()) {
-      case 'park':
-        return Icons.park;
-      case 'masjid':
-        return Icons.mosque;
-      case 'school':
-        return Icons.school;
-      case 'play ground':
-        return Icons.sports_soccer;
-      case 'graveyard':
+    try {
+      if (amenityType.isEmpty) {
         return Icons.place;
-      case 'health facility':
-        return Icons.local_hospital;
-      default:
-        return Icons.place;
+      }
+      
+      switch (amenityType.toLowerCase()) {
+        case 'park':
+          return Icons.park;
+        case 'masjid':
+          return Icons.mosque;
+        case 'school':
+          return Icons.school;
+        case 'play ground':
+          return Icons.sports_soccer;
+        case 'graveyard':
+          return Icons.place;
+        case 'health facility':
+          return Icons.local_hospital;
+        default:
+          return Icons.place;
+      }
+    } catch (e) {
+      print('Error getting amenity icon for $amenityType: $e');
+      return Icons.place;
     }
   }
 
@@ -788,6 +900,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 polygons: _getBoundaryPolygons(),
               ),
               // Plot polygons - showing filtered plots
+              if (_showPlotPolygons)
               PolygonLayer(
                 polygons: _getFilteredPlotPolygons(),
               ),
@@ -1124,10 +1237,15 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
             ),
           ),
 
-          // Modern Filters Panel
+          // Modern Filters Panel - Fixed positioning with proper constraints
           Positioned(
-            top: 180,
+            top: 120,
             right: 8,
+            child: Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.6,
+                maxWidth: MediaQuery.of(context).size.width * 0.75,
+              ),
             child: ModernFiltersPanel(
               isVisible: _showFilters,
               onClose: () {
@@ -1149,6 +1267,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                   
                   // Apply filters to modern filter manager
                   _applyFiltersToManager(filters);
+                  
+                  // Update bottom sheet visibility
+                  _updateBottomSheetVisibility();
                 });
               },
               initialFilters: {
@@ -1159,71 +1280,96 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               },
               // Plots API removed - no longer using plot filters
             ),
+            ),
           ),
 
-          // Expandable Map Controls
+          // Collapsible Map Controls (Bottom Right) - Always visible above bottom sheet
           Positioned(
-            bottom: 20,
+            bottom: _isBottomSheetVisible && _isBottomSheetExpanded ? 250 : 20, // Higher when bottom sheet is expanded
             right: 20,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Expanded Controls (shown when _showMapControls is true)
-                if (_showMapControls) ...[
-                  // All Phases Button
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        setState(() {
-                          _selectedPhase = 'All Phases';
-                        });
-                        _centerMapOnBoundaries();
-                      },
-                      backgroundColor: const Color(0xFF20B2AA),
-                      child: const Icon(Icons.home_work, color: Colors.white),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Expanded Controls (shown when _showMapControls is true)
+                  AnimatedOpacity(
+                    opacity: _showMapControls ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 200),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      height: _showMapControls ? null : 0,
+                      child: _showMapControls ? Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // All Phases Button
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            child: FloatingActionButton(
+                              onPressed: _showAllPhases,
+                              backgroundColor: const Color(0xFF20B2AA),
+                              child: const Icon(Icons.home_work, color: Colors.white),
+                              tooltip: 'Show All Phases',
+                            ),
+                          ),
+                          // Zoom In Button
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            child: FloatingActionButton(
+                              onPressed: _zoomIn,
+                              backgroundColor: const Color(0xFF20B2AA),
+                              mini: true,
+                              child: const Icon(Icons.add, color: Colors.white),
+                              tooltip: 'Zoom In',
+                            ),
+                          ),
+                          // Zoom Out Button
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            child: FloatingActionButton(
+                              onPressed: _zoomOut,
+                              backgroundColor: const Color(0xFF20B2AA),
+                              mini: true,
+                              child: const Icon(Icons.remove, color: Colors.white),
+                              tooltip: 'Zoom Out',
+                            ),
+                          ),
+                          // Layer Toggle Button
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            child: FloatingActionButton(
+                              onPressed: _showViewTypeSelector,
+                              backgroundColor: const Color(0xFF20B2AA),
+                              mini: true,
+                              child: const Icon(Icons.layers, color: Colors.white),
+                              tooltip: 'Change Map View',
+                            ),
+                          ),
+                        ],
+                      ) : const SizedBox.shrink(),
                     ),
                   ),
-                  // Zoom In Button
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        _mapController.move(_mapController.camera.center, _mapController.camera.zoom + 1);
-                      },
-                      backgroundColor: const Color(0xFF20B2AA),
-                      mini: true,
-                      child: const Icon(Icons.add, color: Colors.white),
+                  // Main Toggle Button (always visible)
+                  FloatingActionButton(
+                    onPressed: () {
+                      setState(() {
+                        _showMapControls = !_showMapControls;
+                      });
+                    },
+                    backgroundColor: const Color(0xFF20B2AA),
+                    child: AnimatedRotation(
+                      turns: _showMapControls ? 0.125 : 0.0, // 45 degree rotation
+                      duration: const Duration(milliseconds: 300),
+                      child: Icon(
+                        _showMapControls ? Icons.close : Icons.menu,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  // Zoom Out Button
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        _mapController.move(_mapController.camera.center, _mapController.camera.zoom - 1);
-                      },
-                      backgroundColor: const Color(0xFF20B2AA),
-                      mini: true,
-                      child: const Icon(Icons.remove, color: Colors.white),
-                    ),
+                    tooltip: _showMapControls ? 'Close Controls' : 'Open Controls',
                   ),
                 ],
-                // Main Toggle Button (always visible)
-                FloatingActionButton(
-                  onPressed: () {
-                    setState(() {
-                      _showMapControls = !_showMapControls;
-                    });
-                  },
-                  backgroundColor: const Color(0xFF20B2AA),
-                  child: Icon(
-                    _showMapControls ? Icons.close : Icons.menu,
-                    color: Colors.white,
-                  ),
-                  tooltip: _showMapControls ? 'Close Controls' : 'Open Controls',
-                ),
-              ],
+              ),
             ),
           ),
 
@@ -1232,26 +1378,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           // Bottom Sheet for Filtered Plots (matches web app design)
           _buildBottomSheet(),
 
-          // Plot Details Card - Show when a plot is selected
-          if (_selectedPlot != null)
-            Positioned(
-              bottom: 20,
-              left: 20,
-              right: 20,
-              child: EnhancedPlotInfoCard(
-                plot: _selectedPlot!,
-                onClose: () {
-                  setState(() {
-                    _selectedPlot = null;
-                    _showProjectDetails = false;
-                  });
-                },
-                onBookNow: () {
-                  // TODO: Implement booking functionality
-                  print('Book now for plot ${_selectedPlot!.plotNo}');
-                },
-              ),
-            ),
+          // Plot Details Popup - Show when a plot is selected on map
+          if (_selectedPlot != null && _selectedPlotDetails != null)
+            _buildPlotDetailsPopup(),
         ],
       ),
     );
@@ -1397,33 +1526,54 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         return [];
       }
 
-      // Get plots with valid polygon coordinates
-      final plotsWithPolygons = _plots.where((plot) => 
-        plot.polygonCoordinates.isNotEmpty
-      ).toList();
+      // Create simple rectangular polygons for each plot if no complex polygons exist
+      final polygons = <Polygon>[];
       
-      print('📊 Plots with valid polygons: ${plotsWithPolygons.length}/${_plots.length}');
-      
-      if (plotsWithPolygons.isEmpty) {
-        print('❌ No plots with valid polygons found (total plots: ${_plots.length})');
-        
-        // Debug: Check why plots don't have polygon coordinates
-        for (int i = 0; i < _plots.length && i < 3; i++) {
-          final plot = _plots[i];
-          print('🔍 Plot ${i + 1}: ${plot.plotNo} - Polygon count: ${plot.polygonCoordinates.length}');
-          if (plot.polygonCoordinates.isEmpty) {
-            print('🔍 Plot ${plot.plotNo} has no polygon coordinates');
-          }
+      for (final plot in _plots.take(50)) { // Limit to 50 for performance
+        if (plot.latitude != null && plot.longitude != null) {
+          // Create a simple rectangular polygon around the plot center
+          final center = LatLng(plot.latitude!, plot.longitude!);
+          final offset = 0.0001; // Small offset to create a rectangle
+          
+          final plotPolygon = [
+            LatLng(center.latitude - offset, center.longitude - offset),
+            LatLng(center.latitude + offset, center.longitude - offset),
+            LatLng(center.latitude + offset, center.longitude + offset),
+            LatLng(center.latitude - offset, center.longitude + offset),
+            LatLng(center.latitude - offset, center.longitude - offset), // Close polygon
+          ];
+          
+          final isSelected = _selectedPlot != null && _selectedPlot!.plotNo == plot.plotNo;
+          
+          polygons.add(
+            Polygon(
+              points: plotPolygon,
+              color: isSelected 
+                ? const Color(0xFF1E3C90).withOpacity(0.4) // Blue for selected
+                : const Color(0xFFFF9800).withOpacity(0.3), // Orange for others (like in image)
+              borderColor: isSelected 
+                ? const Color(0xFF1E3C90) 
+                : const Color(0xFFFF9800),
+              borderStrokeWidth: isSelected ? 3.0 : 2.0,
+              label: plot.plotNo,
+              labelStyle: TextStyle(
+                color: Colors.white,
+                fontSize: isSelected ? 14 : 12,
+                fontWeight: FontWeight.bold,
+                shadows: const [
+                  Shadow(
+                    color: Colors.black,
+                    blurRadius: 2,
+                  ),
+                ],
+              ),
+              labelPlacement: PolygonLabelPlacement.polylabel,
+            ),
+          );
         }
-        return [];
       }
       
-      // Limit polygons for performance (show max 100 polygons at once)
-      final limitedPlots = plotsWithPolygons.take(100).toList();
-      
-      print('✅ Rendering ${limitedPlots.length} filtered plot polygons (from ${_plots.length} total plots)');
-      final polygons = EnhancedPolygonService.createPlotPolygons(limitedPlots);
-      print('✅ Created ${polygons.length} polygon objects');
+      print('✅ Created ${polygons.length} plot polygons');
       return polygons;
     } catch (e) {
       print('❌ Error creating filtered plot polygons: $e');
@@ -1926,6 +2076,154 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     _mapController.move(center, zoom);
   }
 
+  /// Zoom in on the map
+  void _zoomIn() {
+    final currentZoom = _mapController.camera.zoom;
+    final newZoom = (currentZoom + 1).clamp(8.0, 20.0);
+    _mapController.move(_mapController.camera.center, newZoom);
+    setState(() {
+      _zoom = newZoom;
+    });
+  }
+
+  /// Zoom out on the map
+  void _zoomOut() {
+    final currentZoom = _mapController.camera.zoom;
+    final newZoom = (currentZoom - 1).clamp(8.0, 20.0);
+    _mapController.move(_mapController.camera.center, newZoom);
+    setState(() {
+      _zoom = newZoom;
+    });
+  }
+
+  /// Show all phases with optimal zoom
+  void _showAllPhases() {
+    setState(() {
+      _selectedPhase = 'All Phases';
+    });
+    _centerMapOnBoundaries();
+  }
+
+  /// Select a plot and show its details
+  Future<void> _selectPlot(PlotModel plot) async {
+    try {
+      print('🎯 Selecting plot: ${plot.plotNo}');
+      
+      setState(() {
+        _isLoadingPlotDetails = true;
+        _showSelectedPlotDetails = true;
+        _selectedPlot = plot; // Set selected plot immediately
+        _showPlotPolygons = true; // Ensure polygons are visible
+      });
+
+      // Navigate to plot location on map first
+      if (plot.latitude != null && plot.longitude != null) {
+        final plotLocation = LatLng(plot.latitude!, plot.longitude!);
+        _mapController.move(plotLocation, 16.0);
+        print('🗺️ Navigating to plot location: ${plot.latitude}, ${plot.longitude}');
+      }
+
+      // Fetch detailed plot information
+      final plotDetails = await PlotDetailsService.fetchPlotDetails(plot.plotNo);
+      
+      if (plotDetails != null) {
+        setState(() {
+          _selectedPlotDetails = plotDetails;
+          _isLoadingPlotDetails = false;
+        });
+
+        // Expand bottom sheet to show selected plot details
+        _safeAnimateBottomSheet(0.7);
+
+        print('✅ Plot selected successfully: ${plot.plotNo}');
+        print('✅ Plot polygon should be highlighted in blue');
+        print('✅ Plot info card should be visible on map');
+      } else {
+        setState(() {
+          _isLoadingPlotDetails = false;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to load plot details'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      print('❌ Error selecting plot: $e');
+      setState(() {
+        _isLoadingPlotDetails = false;
+      });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  /// Clear plot selection
+  void _clearPlotSelection() {
+    setState(() {
+      _selectedPlotDetails = null;
+      _selectedPlot = null;
+      _showSelectedPlotDetails = false;
+      _isLoadingPlotDetails = false;
+      // Also hide the bottom sheet when clearing selection
+      _isBottomSheetVisible = false;
+    });
+    print('🗑️ Plot selection cleared');
+  }
+
+  /// Safely animate bottom sheet
+  void _safeAnimateBottomSheet(double size) {
+    if (_isBottomSheetInitialized && _bottomSheetController.isAttached) {
+      try {
+        _bottomSheetController.animateTo(
+          size,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+        print('📱 Animating bottom sheet to: ${(size * 100).toInt()}%');
+      } catch (e) {
+        print('Error animating bottom sheet: $e');
+      }
+    } else {
+      // If not initialized, wait a bit and try again
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (_isBottomSheetInitialized && _bottomSheetController.isAttached) {
+          try {
+            _bottomSheetController.animateTo(
+              size,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+            print('📱 Animating bottom sheet to: ${(size * 100).toInt()}% (delayed)');
+          } catch (e) {
+            print('Error animating bottom sheet (delayed): $e');
+          }
+        }
+      });
+    }
+  }
+
+  /// Navigate to plot on map
+  void _navigateToPlotOnMap(PlotModel plot) {
+    if (plot.latitude != null && plot.longitude != null) {
+      final plotLocation = LatLng(plot.latitude!, plot.longitude!);
+      _mapController.move(plotLocation, 16.0);
+      
+      setState(() {
+        _selectedPlot = plot;
+        _showProjectDetails = true;
+        _selectedAmenity = null;
+      });
+    }
+  }
+
   void _updateActiveFilters() {
     _activeFilters.clear();
     
@@ -1966,6 +2264,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     if (_activeFilters.isEmpty) {
       _activeFilters.add('All Plots');
     }
+    
+    // Update bottom sheet visibility after updating filters
+    _updateBottomSheetVisibility();
   }
 
   // Performance optimization: Handle zoom level changes
@@ -2143,12 +2444,25 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   /// Build bottom sheet for filtered plots (matches web app design)
   Widget _buildBottomSheet() {
+    // Only show bottom sheet if filters are applied
+    if (!_isBottomSheetVisible) {
+      return const SizedBox.shrink();
+    }
+
     return DraggableScrollableSheet(
       controller: _bottomSheetController,
-      initialChildSize: 0.15, // Start with 15% of screen height
+      initialChildSize: _showSelectedPlotDetails ? 0.4 : 0.15, // Show more space when plot is selected
       minChildSize: 0.15, // Minimum 15% of screen height
-      maxChildSize: 0.85, // Maximum 85% of screen height
+      maxChildSize: _showSelectedPlotDetails ? 0.7 : 0.85, // Less coverage when plot is selected
       builder: (context, scrollController) {
+        // Initialize the bottom sheet controller
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!_isBottomSheetInitialized) {
+            setState(() {
+              _isBottomSheetInitialized = true;
+            });
+          }
+        });
         return Container(
           decoration: const BoxDecoration(
             color: Colors.white,
@@ -2166,14 +2480,54 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           ),
           child: Column(
             children: [
-              // Handle bar
+              // Handle bar with expand/collapse controls
               Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Handle bar (moved to left)
+                    Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    // Expand/Collapse button (moved to extreme right, no background)
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isBottomSheetExpanded = !_isBottomSheetExpanded;
+                        });
+                        
+                        if (_isBottomSheetExpanded) {
+                          // Expand to appropriate size based on content
+                          if (_showSelectedPlotDetails) {
+                            _safeAnimateBottomSheet(0.7);
+                        } else {
+                          _safeAnimateBottomSheet(0.85);
+                        }
+                        } else {
+                          // Collapse to minimum size
+                          _safeAnimateBottomSheet(0.15);
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.transparent, // Remove background color
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Icon(
+                          _isBottomSheetExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
+                          color: Colors.grey[600], // Change to grey color
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               
@@ -2211,6 +2565,27 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                             ),
                           ),
                         ),
+                        // Close button for bottom sheet
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _isBottomSheetVisible = false;
+                              _isBottomSheetExpanded = false;
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.grey,
+                              size: 18,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                     
@@ -2224,30 +2599,27 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                             onTap: () {
                               setState(() {
                                 _isBottomSheetExpanded = true;
+                                _showSelectedPlotDetails = false;
                               });
-                              _bottomSheetController.animateTo(
-                                0.85,
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
+                              _safeAnimateBottomSheet(0.85);
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 12),
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                 border: Border(
                                   bottom: BorderSide(
-                                    color: Color(0xFF1E3C90),
+                                    color: _showSelectedPlotDetails ? Colors.grey[300]! : const Color(0xFF1E3C90),
                                     width: 2,
                                   ),
                                 ),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'List View',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: Color(0xFF1E3C90),
+                                  color: _showSelectedPlotDetails ? Colors.grey[600] : const Color(0xFF1E3C90),
                                 ),
                               ),
                             ),
@@ -2256,18 +2628,55 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                         Expanded(
                           child: GestureDetector(
                             onTap: () {
-                              // Handle Selected tab
+                              if (_selectedPlotDetails != null) {
+                                setState(() {
+                                  _showSelectedPlotDetails = true;
+                                  _isBottomSheetExpanded = true;
+                                });
+                                _safeAnimateBottomSheet(0.7);
+                              }
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 12),
-                              child: Text(
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: _showSelectedPlotDetails ? const Color(0xFF1E3C90) : Colors.grey[300]!,
+                                    width: 2,
+                                  ),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
                                 'Selected',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey[600],
-                                ),
+                                      fontWeight: FontWeight.w600,
+                                      color: _showSelectedPlotDetails ? const Color(0xFF1E3C90) : Colors.grey[600],
+                                    ),
+                                  ),
+                                  if (_selectedPlotDetails != null) ...[
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF1E3C90),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Text(
+                                        '1',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                                  ],
+                      ],
                               ),
                             ),
                           ),
@@ -2303,27 +2712,29 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               
               const SizedBox(height: 16),
               
-              // Plot list
+              // Plot list or selected plot details
               Expanded(
-                child: _plots.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No plots found matching your filters',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[600],
+                child: _showSelectedPlotDetails && _selectedPlotDetails != null
+                    ? _buildSelectedPlotContent()
+                    : _plots.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No plots found matching your filters',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            controller: scrollController,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            itemCount: _plots.length,
+                            itemBuilder: (context, index) {
+                              final plot = _plots[index];
+                              return _buildPlotCard(plot);
+                            },
                           ),
-                        ),
-                      )
-                    : ListView.builder(
-                        controller: scrollController,
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        itemCount: _plots.length,
-                        itemBuilder: (context, index) {
-                          final plot = _plots[index];
-                          return _buildPlotCard(plot);
-                        },
-                      ),
               ),
             ],
           ),
@@ -2337,90 +2748,453 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     return GestureDetector(
       onTap: () {
         print('🏠 Plot card tapped: ${plot.plotNo}');
-        _navigateToPlot(plot);
+        _selectPlot(plot);
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey[200]!),
+          border: Border.all(color: Colors.grey[300]!, width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withOpacity(0.12),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
               blurRadius: 4,
-              offset: const Offset(0, 2),
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+          child: Stack(
+            children: [
+              // Red vertical bar on the left
+              Positioned(
+                left: 0,
+                top: 0,
+                bottom: 0,
+                child: Container(
+                  width: 4,
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      bottomLeft: Radius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+              
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header with logo and plot info
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        // DHA Logo with text
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1E3C90),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: const Icon(
+                                Icons.home,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            const Text(
+                              'DHA',
+                              style: TextStyle(
+                                fontSize: 8,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF1E3C90),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                               Text(
+                                 'Plot ${plot.plotNo}',
+                                 style: const TextStyle(
+                                   fontSize: 16,
+                                   fontWeight: FontWeight.w700,
+                                   color: Colors.black,
+                                   letterSpacing: 0.3,
+                                 ),
+                               ),
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: Colors.green[600],
+                                  borderRadius: BorderRadius.circular(14),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.green.withOpacity(0.3),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: const Text(
+                                  'Available',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.2,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // View button
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[50],
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: const Color(0xFF1E3C90).withOpacity(0.3)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF1E3C90).withOpacity(0.1),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Text(
+                            'View',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF1E3C90),
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Plot details chips with icons in 2x2 grid with colors
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: _buildDetailChipWithIcon(
+                            Icons.location_on,
+                            'Sector ${plot.sector}',
+                            backgroundColor: Colors.blue[50],
+                            iconColor: Colors.blue[600],
+                            textColor: Colors.blue[700],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildDetailChipWithIcon(
+                            Icons.home,
+                            'St. ${plot.streetNo}',
+                            backgroundColor: Colors.green[50],
+                            iconColor: Colors.green[600],
+                            textColor: Colors.green[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: _buildDetailChipWithIcon(
+                            Icons.straighten,
+                            plot.size,
+                            backgroundColor: Colors.orange[50],
+                            iconColor: Colors.orange[600],
+                            textColor: Colors.orange[700],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildDetailChipWithIcon(
+                            Icons.flag,
+                            plot.phase,
+                            backgroundColor: Colors.purple[50],
+                            iconColor: Colors.purple[600],
+                            textColor: Colors.purple[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              
+              // RVS ribbon in bottom-right corner
+              if (plot.phase == 'RVS')
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    width: 50,
+                    height: 30,
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        bottomRight: Radius.circular(12),
+                      ),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'RVS',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+      ),
+    );
+  }
+
+  /// Build detail chip with icon and colors (enhanced visibility)
+  Widget _buildDetailChipWithIcon(IconData icon, String text, {Color? backgroundColor, Color? iconColor, Color? textColor}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: backgroundColor ?? Colors.grey[50],
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: (iconColor ?? Colors.grey[600]!).withOpacity(0.3),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (iconColor ?? Colors.grey[600]!).withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: iconColor ?? Colors.grey[600],
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 11,
+                color: textColor ?? Colors.grey[600],
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.2,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build detail chip
+  Widget _buildDetailChip(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 10,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
+      ),
+    );
+  }
+
+  /// Build plot details popup positioned on the plot location
+  Widget _buildPlotDetailsPopup() {
+    if (_selectedPlot == null || _selectedPlotDetails == null) {
+      return const SizedBox.shrink();
+    }
+
+    // Get screen dimensions
+    final screenSize = MediaQuery.of(context).size;
+    final popupWidth = 220.0; // Smaller width for compact display
+    final popupHeight = 120.0; // Smaller height for compact display
+    
+    // Calculate position to be attached to the plot polygon
+    // Position the card to appear to be "attached" to the plot
+    double left, top;
+    
+    if (_selectedPlot!.latitude != null && _selectedPlot!.longitude != null) {
+      // Position the card to appear attached to the plot polygon
+      // Position it in the upper portion of the screen, not covering the whole screen
+      left = screenSize.width * 0.1; // 10% from left edge
+      top = screenSize.height * 0.08; // 8% from top (higher up)
+    } else {
+      // Fallback to center positioning
+      left = (screenSize.width - popupWidth) / 2;
+      top = screenSize.height * 0.2;
+    }
+    
+    // Ensure popup stays within screen bounds
+    left = left.clamp(10.0, screenSize.width - popupWidth - 10);
+    top = top.clamp(60.0, screenSize.height - popupHeight - 60);
+    
+    return Positioned(
+      left: left,
+      top: top,
+      child: Container(
+        width: popupWidth,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Plot header
-            Row(
-              children: [
-                Container(
-                  width: 4,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E3C90),
-                    borderRadius: BorderRadius.circular(2),
+            // Header with close button
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: const BoxDecoration(
+                color: Color(0xFF1E3C90),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    'Plot ${_selectedPlot!.plotNo}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Plot ${plot.plotNo}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: _getPlotMarkerColor(plot),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          plot.status,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedPlot = null;
+                        _selectedPlotDetails = null;
+                        _showProjectDetails = false;
+                      });
+                    },
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 16,
+                    ),
                   ),
-                ),
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: Colors.grey,
-                ),
-              ],
+                ],
+              ),
             ),
             
-            const SizedBox(height: 12),
-            
-            // Plot details
-            Row(
-              children: [
-                _buildDetailChip(Icons.location_on, 'Sector ${plot.sector}'),
-                const SizedBox(width: 8),
-                _buildDetailChip(Icons.home, 'Street ${plot.streetNo}'),
-                const SizedBox(width: 8),
-                _buildDetailChip(Icons.straighten, plot.size),
-                const SizedBox(width: 8),
-                _buildDetailChip(Icons.flag, 'Phase ${plot.phase}'),
-              ],
+            // Content
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Status badges
+                  Row(
+                    children: [
+                      _buildStatusBadge('Residential', Colors.red),
+                      const SizedBox(width: 6),
+                      _buildStatusBadge('Selected', Colors.blue),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 8),
+                  
+                  // Plot details - compact version
+                  _buildCompactPopupDetailRow('Phase', _selectedPlotDetails!.phase),
+                  _buildCompactPopupDetailRow('Street', _selectedPlotDetails!.street),
+                  _buildCompactPopupDetailRow('Size', _selectedPlotDetails!.size),
+                  _buildCompactPopupDetailRow('Price', 'PKR ${_formatPrice(_selectedPlotDetails!.lumpSumPrice)}'),
+                  
+                  const SizedBox(height: 8),
+                  
+                  // View Details Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _showSelectedPlotDetails = true;
+                        });
+                        _safeAnimateBottomSheet(0.85);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1E3C90),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                      child: const Text(
+                        'View Details',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -2428,28 +3202,139 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     );
   }
 
-  /// Build detail chip
-  Widget _buildDetailChip(IconData icon, String text) {
+  Widget _buildStatusBadge(String label, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPopupDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 12, color: Colors.grey[600]),
-          const SizedBox(width: 4),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 10,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
+          SizedBox(
+            width: 60,
+            child: Text(
+              '$label:',
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 11,
+                color: Colors.black54,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Build compact detail row for popup
+  Widget _buildCompactPopupDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 1),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 50,
+            child: Text(
+              '$label:',
+              style: const TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatPrice(double price) {
+    return price.toStringAsFixed(0).replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
+  }
+
+  /// Build selected plot content
+  Widget _buildSelectedPlotContent() {
+    if (_isLoadingPlotDetails) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF20B2AA)),
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Loading plot details...',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black54,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_selectedPlotDetails == null) {
+      return const Center(
+        child: Text(
+          'No plot details available',
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.black54,
+          ),
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: SelectedPlotDetailsWidget(
+        plotDetails: _selectedPlotDetails!,
+        onClearSelection: _clearPlotSelection,
       ),
     );
   }

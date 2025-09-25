@@ -306,9 +306,17 @@ class ModernFilterManager {
         return false;
       }
       
-      // Phase filter
-      if (_phase != null && plot.phase.toLowerCase() != _phase!.toLowerCase()) {
-        return false;
+      // Phase filter - handle different phase formats
+      if (_phase != null) {
+        final plotPhase = plot.phase.toLowerCase();
+        final filterPhase = _phase!.toLowerCase();
+        
+        // Convert filter phase to match API format
+        String apiFilterPhase = _convertPhaseToApiFormat(filterPhase);
+        
+        if (plotPhase != apiFilterPhase.toLowerCase()) {
+          return false;
+        }
       }
       
       // Size filter
@@ -337,6 +345,31 @@ class ModernFilterManager {
   Future<void> forceRefresh() async {
     _lastFetchTime = null;
     await _fetchFilteredPlots();
+  }
+
+  /// Convert phase names to API format for client-side filtering
+  String _convertPhaseToApiFormat(String phase) {
+    // Handle different phase formats
+    if (phase.toLowerCase().contains('phase')) {
+      // Extract number from "Phase 1", "Phase 2", etc.
+      final match = RegExp(r'phase\s*(\d+)', caseSensitive: false).firstMatch(phase);
+      if (match != null) {
+        return match.group(1)!;
+      }
+    }
+    
+    // Handle RVS and other special cases
+    if (phase.toUpperCase() == 'RVS') {
+      return 'RVS';
+    }
+    
+    // If it's already a number, return as is
+    if (RegExp(r'^\d+$').hasMatch(phase)) {
+      return phase;
+    }
+    
+    // Default fallback
+    return phase;
   }
 
   /// Dispose resources

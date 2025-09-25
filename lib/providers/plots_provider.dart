@@ -121,6 +121,9 @@ class PlotsProvider with ChangeNotifier {
       if (_plots.isNotEmpty) {
         print('First plot: ${_plots.first.plotNo}, polygons: ${_plots.first.polygonCoordinates.length}');
       }
+      
+      // Debug phase values to help identify filtering issues
+      _debugPhaseValues();
     } catch (e) {
       _error = e.toString();
       _plots = [];
@@ -242,6 +245,12 @@ class PlotsProvider with ChangeNotifier {
   }
 
   void _applyFilters() async {
+    // Debug filtering process
+    print('=== APPLYING FILTERS ===');
+    print('Selected phase: $_selectedPhase');
+    print('Selected category: $_selectedCategory');
+    print('Total plots: ${_plots.length}');
+    
     // Use smart filter manager for enterprise-grade performance
     try {
       _filteredPlots = await SmartFilterManager.applyFilters(
@@ -265,6 +274,9 @@ class PlotsProvider with ChangeNotifier {
       if (_searchedPlot != null) {
         _filteredPlots = [_searchedPlot!];
       }
+      
+      print('Filtered plots: ${_filteredPlots.length}');
+      print('========================');
       
       notifyListeners();
     } catch (e) {
@@ -303,9 +315,13 @@ class PlotsProvider with ChangeNotifier {
       if (price < _priceRange.start || price > _priceRange.end) {
         return false;
       }
-      // Phase filter
-      if (_selectedPhase != null && plot.phase != _selectedPhase) {
-        return false;
+      // Phase filter - normalize phase values for comparison
+      if (_selectedPhase != null) {
+        final normalizedSelectedPhase = _normalizePhaseValue(_selectedPhase!);
+        final normalizedPlotPhase = _normalizePhaseValue(plot.phase);
+        if (normalizedPlotPhase != normalizedSelectedPhase) {
+          return false;
+        }
       }
 
       // Category filter
@@ -489,6 +505,61 @@ class PlotsProvider with ChangeNotifier {
     final maxPrice = prices.reduce((a, b) => a > b ? a : b);
     
     return RangeValues(minPrice, maxPrice);
+  }
+
+  /// Normalize phase values for consistent comparison
+  /// Handles variations like "Phase 1" vs "Phase1" vs "1"
+  String _normalizePhaseValue(String phase) {
+    if (phase.isEmpty) return phase;
+    
+    // Remove extra spaces and convert to lowercase for comparison
+    final normalized = phase.trim().toLowerCase();
+    
+    // Handle common phase variations
+    if (normalized.contains('phase')) {
+      // Extract number from "Phase X" or "PhaseX"
+      final match = RegExp(r'phase\s*(\d+)').firstMatch(normalized);
+      if (match != null) {
+        return 'phase${match.group(1)}';
+      }
+    }
+    
+    // Handle direct numbers like "1", "2"
+    if (RegExp(r'^\d+$').hasMatch(normalized)) {
+      return 'phase$normalized';
+    }
+    
+    // Handle RVS variations
+    if (normalized.contains('rvs')) {
+      return 'rvs';
+    }
+    
+    return normalized;
+  }
+
+  /// Debug method to log phase values from API
+  void _debugPhaseValues() {
+    if (_plots.isEmpty) return;
+    
+    final phaseValues = _plots.map((plot) => plot.phase).toSet().toList();
+    phaseValues.sort();
+    
+    print('=== PHASE VALUES DEBUG ===');
+    print('Available phases from API: $phaseValues');
+    print('Selected phase: $_selectedPhase');
+    if (_selectedPhase != null) {
+      print('Normalized selected phase: ${_normalizePhaseValue(_selectedPhase!)}');
+    }
+    
+    // Show sample plots for each phase
+    for (final phase in phaseValues.take(5)) { // Show first 5 phases
+      final plotsInPhase = _plots.where((plot) => plot.phase == phase).take(3);
+      print('Phase "$phase" has ${_plots.where((plot) => plot.phase == phase).length} plots');
+      for (final plot in plotsInPhase) {
+        print('  - Plot ${plot.plotNo}: category=${plot.category}, status=${plot.status}');
+      }
+    }
+    print('========================');
   }
 
   // Get plot statistics

@@ -26,7 +26,11 @@ class EnhancedPlotsApiService {
     if (minPrice != null) queryParams['price_min'] = minPrice.toString();
     if (maxPrice != null) queryParams['price_max'] = maxPrice.toString();
     if (category != null) queryParams['category'] = category;
-    if (phase != null) queryParams['phase'] = phase;
+    if (phase != null) {
+      // Convert phase names to API format
+      String apiPhase = _convertPhaseToApiFormat(phase);
+      queryParams['phase'] = apiPhase;
+    }
     if (size != null) queryParams['size'] = size;
     if (status != null) queryParams['status'] = status;
     if (sector != null) queryParams['sector'] = sector;
@@ -118,6 +122,38 @@ class EnhancedPlotsApiService {
     return fetchFilteredPlots();
   }
 
+  /// Convert phase names to API format
+  static String _convertPhaseToApiFormat(String phase) {
+    print('EnhancedPlotsApiService: Converting phase "$phase" to API format');
+    
+    // Handle different phase formats
+    if (phase.toLowerCase().contains('phase')) {
+      // Extract number from "Phase 1", "Phase 2", etc.
+      final match = RegExp(r'phase\s*(\d+)', caseSensitive: false).firstMatch(phase);
+      if (match != null) {
+        final number = match.group(1);
+        print('EnhancedPlotsApiService: Converted "$phase" to "$number"');
+        return number!;
+      }
+    }
+    
+    // Handle RVS and other special cases
+    if (phase.toUpperCase() == 'RVS') {
+      print('EnhancedPlotsApiService: Keeping RVS as is');
+      return 'RVS';
+    }
+    
+    // If it's already a number, return as is
+    if (RegExp(r'^\d+$').hasMatch(phase)) {
+      print('EnhancedPlotsApiService: Phase is already a number: $phase');
+      return phase;
+    }
+    
+    // Default fallback
+    print('EnhancedPlotsApiService: Using phase as-is: $phase');
+    return phase;
+  }
+
   /// Test API connectivity with filters
   static Future<Map<String, dynamic>> testFilteredApi({
     double? minPrice,
@@ -137,7 +173,11 @@ class EnhancedPlotsApiService {
       if (minPrice != null) queryParams['price_min'] = minPrice.toString();
       if (maxPrice != null) queryParams['price_max'] = maxPrice.toString();
       if (category != null) queryParams['category'] = category;
-      if (phase != null) queryParams['phase'] = phase;
+      if (phase != null) {
+        // Convert phase names to API format
+        String apiPhase = _convertPhaseToApiFormat(phase);
+        queryParams['phase'] = apiPhase;
+      }
       if (size != null) queryParams['size'] = size;
       if (status != null) queryParams['status'] = status;
       if (sector != null) queryParams['sector'] = sector;
