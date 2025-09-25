@@ -2133,7 +2133,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         });
 
         // Expand bottom sheet to show selected plot details
-        _safeAnimateBottomSheet(0.7);
+        _safeAnimateBottomSheet(0.6);
 
         print('✅ Plot selected successfully: ${plot.plotNo}');
         print('✅ Plot polygon should be highlighted in blue');
@@ -2451,9 +2451,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
     return DraggableScrollableSheet(
       controller: _bottomSheetController,
-      initialChildSize: _showSelectedPlotDetails ? 0.4 : 0.15, // Show more space when plot is selected
+      initialChildSize: _showSelectedPlotDetails ? 0.35 : 0.15, // Show more space when plot is selected
       minChildSize: 0.15, // Minimum 15% of screen height
-      maxChildSize: _showSelectedPlotDetails ? 0.7 : 0.85, // Less coverage when plot is selected
+      maxChildSize: _showSelectedPlotDetails ? 0.6 : 0.75, // Reduced to account for bottom navigation bar
       builder: (context, scrollController) {
         // Initialize the bottom sheet controller
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -2464,6 +2464,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           }
         });
         return Container(
+          margin: EdgeInsets.only(
+            bottom: MediaQuery.of(context).padding.bottom,
+          ),
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
@@ -2505,9 +2508,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                         if (_isBottomSheetExpanded) {
                           // Expand to appropriate size based on content
                           if (_showSelectedPlotDetails) {
-                            _safeAnimateBottomSheet(0.7);
+                            _safeAnimateBottomSheet(0.6);
                         } else {
-                          _safeAnimateBottomSheet(0.85);
+                          _safeAnimateBottomSheet(0.75);
                         }
                         } else {
                           // Collapse to minimum size
@@ -2601,7 +2604,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                 _isBottomSheetExpanded = true;
                                 _showSelectedPlotDetails = false;
                               });
-                              _safeAnimateBottomSheet(0.85);
+                              _safeAnimateBottomSheet(0.75);
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -2633,7 +2636,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                   _showSelectedPlotDetails = true;
                                   _isBottomSheetExpanded = true;
                                 });
-                                _safeAnimateBottomSheet(0.7);
+                                _safeAnimateBottomSheet(0.6);
                               }
                             },
                             child: Container(
@@ -2728,7 +2731,11 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                           )
                         : ListView.builder(
                             controller: scrollController,
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            padding: const EdgeInsets.only(
+                              left: 20,
+                              right: 20,
+                              bottom: 20, // Add bottom padding to prevent content from being cut off
+                            ),
                             itemCount: _plots.length,
                             itemBuilder: (context, index) {
                               final plot = _plots[index];
@@ -3174,7 +3181,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                         setState(() {
                           _showSelectedPlotDetails = true;
                         });
-                        _safeAnimateBottomSheet(0.85);
+                        _safeAnimateBottomSheet(0.75);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1E3C90),
@@ -3331,7 +3338,11 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     }
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.only(
+        left: 20,
+        right: 20,
+        bottom: 20, // Add bottom padding to prevent content from being cut off
+      ),
       child: SelectedPlotDetailsWidget(
         plotDetails: _selectedPlotDetails!,
         onClearSelection: _clearPlotSelection,
