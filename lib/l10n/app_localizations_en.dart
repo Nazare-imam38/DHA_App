@@ -156,12 +156,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get propertiesCount => 'Properties';
 
   @override
-  String get residentialCount => '75';
-
-  @override
-  String get commercialCount => '15';
-
-  @override
   String get selectLanguage => 'Select Language';
 
   @override

@@ -72,40 +72,47 @@ class PlotModel {
   });
 
   factory PlotModel.fromJson(Map<String, dynamic> json) {
-    // Parse GeoJSON to extract coordinates
-    final geoJsonString = json['st_asgeojson'] as String;
-    final geoJson = jsonDecode(geoJsonString);
-    final coordinates = _extractCoordinates(geoJson);
-    
-    return PlotModel(
-      id: json['id'] as int,
-      eventHistoryId: json['event_history_id'] as String?,
-      plotNo: json['plot_no'] as String,
-      size: json['size'] as String,
-      category: json['category'] as String,
-      catArea: json['cat_area'] as String,
-      dimension: json['dimension'] as String?,
-      phase: json['phase'] as String,
-      sector: json['sector'] as String,
-      streetNo: json['street_no'] as String,
-      block: json['block'] as String?,
-      status: json['status'] as String,
-      tokenAmount: json['token_amount'] as String,
-      remarks: json['remarks'] as String?,
-      basePrice: json['base_price'] as String,
-      holdBy: json['hold_by'] as String?,
-      expireTime: json['expire_time'] as String?,
-      oneYrPlan: json['one_yr_plan'] as String,
-      twoYrsPlan: json['two_yrs_plan'] as String,
-      twoFiveYrsPlan: json['two_five_yrs_plan'] as String,
-      threeYrsPlan: json['three_yrs_plan'] as String,
-      stAsgeojson: json['st_asgeojson'] as String,
-      eventHistory: EventHistory.fromJson(json['event_history'] as Map<String, dynamic>),
-      latitude: coordinates['latitude'],
-      longitude: coordinates['longitude'],
-      expoBasePrice: json['expo_base_price'] as String?,
-      vloggerBasePrice: json['vlogger_base_price'] as String?,
-    );
+    try {
+      // Parse GeoJSON to extract coordinates
+      final geoJsonString = json['st_asgeojson'] as String;
+      final geoJson = jsonDecode(geoJsonString);
+      final coordinates = _extractCoordinates(geoJson);
+      
+      return PlotModel(
+        id: json['id'] as int,
+        eventHistoryId: json['event_history_id']?.toString(),
+        plotNo: json['plot_no']?.toString() ?? '',
+        size: json['size']?.toString() ?? '',
+        category: json['category']?.toString() ?? '',
+        catArea: json['cat_area']?.toString() ?? '',
+        dimension: json['dimension']?.toString(),
+        phase: json['phase']?.toString() ?? '',
+        sector: json['sector']?.toString() ?? '',
+        streetNo: json['street_no']?.toString() ?? '',
+        block: json['block']?.toString(),
+        status: json['status']?.toString() ?? '',
+        tokenAmount: json['token_amount']?.toString() ?? '',
+        remarks: json['remarks']?.toString(),
+        basePrice: json['expo_base_price']?.toString() ?? json['base_price']?.toString() ?? '',
+        holdBy: json['hold_by']?.toString(),
+        expireTime: json['expire_time']?.toString(),
+        oneYrPlan: json['one_yr_ep']?.toString() ?? '0',
+        twoYrsPlan: json['two_yrs_ep']?.toString() ?? '0',
+        twoFiveYrsPlan: json['two_five_yrs_ep']?.toString() ?? '0',
+        threeYrsPlan: json['three_yrs_ep']?.toString() ?? '0',
+        stAsgeojson: json['st_asgeojson'] as String,
+        eventHistory: EventHistory.fromJson(json['event_history'] as Map<String, dynamic>),
+        latitude: coordinates['latitude'],
+        longitude: coordinates['longitude'],
+        expoBasePrice: json['expo_base_price']?.toString(),
+        vloggerBasePrice: json['vlogger_base_price']?.toString(),
+      );
+    } catch (e) {
+      print('PlotModel: Error parsing plot ${json['id']}: $e');
+      print('PlotModel: Problematic JSON keys: ${json.keys.toList()}');
+      print('PlotModel: JSON values: ${json.values.toList()}');
+      rethrow;
+    }
   }
 
   static Map<String, double?> _extractCoordinates(Map<String, dynamic> geoJson) {
@@ -507,19 +514,69 @@ class PlotModel {
 }
 
 class EventHistory {
-  final List<dynamic> event;
+  final int id;
+  final int eventId;
+  final bool isBidding;
+  final Event event;
 
-  EventHistory({required this.event});
+  EventHistory({
+    required this.id,
+    required this.eventId,
+    required this.isBidding,
+    required this.event,
+  });
 
   factory EventHistory.fromJson(Map<String, dynamic> json) {
     return EventHistory(
-      event: json['event'] as List<dynamic>? ?? [],
+      id: json['id'] as int,
+      eventId: json['event_id'] as int,
+      isBidding: json['is_bidding'] as bool,
+      event: Event.fromJson(json['event'] as Map<String, dynamic>),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'event': event,
+      'id': id,
+      'event_id': eventId,
+      'is_bidding': isBidding,
+      'event': event.toJson(),
+    };
+  }
+}
+
+class Event {
+  final int id;
+  final String title;
+  final String status;
+  final String startDate;
+  final String endDate;
+
+  Event({
+    required this.id,
+    required this.title,
+    required this.status,
+    required this.startDate,
+    required this.endDate,
+  });
+
+  factory Event.fromJson(Map<String, dynamic> json) {
+    return Event(
+      id: json['id'] as int,
+      title: json['title'] as String,
+      status: json['status'] as String,
+      startDate: json['start_date'] as String,
+      endDate: json['end_date'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'status': status,
+      'start_date': startDate,
+      'end_date': endDate,
     };
   }
 }
@@ -537,11 +594,22 @@ class PlotsResponse {
 
   factory PlotsResponse.fromJson(Map<String, dynamic> json) {
     return PlotsResponse(
-      status: json['status'] as String? ?? 'error',
+      status: json['status'] as String? ?? 'success',
       plots: (json['plots'] as List<dynamic>?)
           ?.map((plot) => PlotModel.fromJson(plot as Map<String, dynamic>))
           .toList() ?? [],
       message: json['message'] as String?,
+    );
+  }
+
+  // Handle direct array response from API
+  factory PlotsResponse.fromJsonArray(List<dynamic> jsonArray) {
+    return PlotsResponse(
+      status: 'success',
+      plots: jsonArray
+          .map((plot) => PlotModel.fromJson(plot as Map<String, dynamic>))
+          .toList(),
+      message: null,
     );
   }
 

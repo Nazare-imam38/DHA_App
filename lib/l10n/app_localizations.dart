@@ -392,18 +392,6 @@ abstract class AppLocalizations {
   /// **'Properties'**
   String get propertiesCount;
 
-  /// No description provided for @residentialCount.
-  ///
-  /// In en, this message translates to:
-  /// **'75'**
-  String get residentialCount;
-
-  /// No description provided for @commercialCount.
-  ///
-  /// In en, this message translates to:
-  /// **'15'**
-  String get commercialCount;
-
   /// No description provided for @selectLanguage.
   ///
   /// In en, this message translates to:

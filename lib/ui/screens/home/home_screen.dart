@@ -4,6 +4,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../services/language_service.dart';
 import '../../../screens/property_listings_screen.dart';
 import '../../../screens/projects_screen_instant.dart';
+import '../../../providers/plot_stats_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onNavigateToProjects;
@@ -170,17 +171,11 @@ class _HomeScreenState extends State<HomeScreen>
       CurvedAnimation(parent: _parallaxController, curve: Curves.easeInOut),
     );
     
-    // Counter Animations
-    _residentialCounterAnimation = Tween<double>(begin: 0.0, end: 75.0).animate(
-      CurvedAnimation(parent: _counterAnimationController, curve: Curves.easeOutCubic),
-    );
+    // Initialize counter animations with default values
+    _initializeCounterAnimations();
     
-    _commercialCounterAnimation = Tween<double>(begin: 0.0, end: 15.0).animate(
-      CurvedAnimation(parent: _counterAnimationController, curve: Curves.easeOutCubic),
-    );
-    
-    // Start animations with staggered timing
-    _startAnimations();
+    // Fetch plot statistics and start animations
+    _fetchPlotStatsAndStartAnimations();
   }
 
   @override
@@ -193,29 +188,72 @@ class _HomeScreenState extends State<HomeScreen>
     super.dispose();
   }
 
-  void _startAnimations() {
+  /// Initialize counter animations with default values
+  void _initializeCounterAnimations() {
+    _residentialCounterAnimation = Tween<double>(begin: 0.0, end: 75.0).animate(
+      CurvedAnimation(parent: _counterAnimationController, curve: Curves.easeOutCubic),
+    );
+    
+    _commercialCounterAnimation = Tween<double>(begin: 0.0, end: 15.0).animate(
+      CurvedAnimation(parent: _counterAnimationController, curve: Curves.easeOutCubic),
+    );
+  }
+
+  /// Update counter animations with new values
+  void _updateCounterAnimations(int residentialCount, int commercialCount) {
+    _residentialCounterAnimation = Tween<double>(begin: 0.0, end: residentialCount.toDouble()).animate(
+      CurvedAnimation(parent: _counterAnimationController, curve: Curves.easeOutCubic),
+    );
+    
+    _commercialCounterAnimation = Tween<double>(begin: 0.0, end: commercialCount.toDouble()).animate(
+      CurvedAnimation(parent: _counterAnimationController, curve: Curves.easeOutCubic),
+    );
+  }
+
+  /// Fetch plot statistics and start animations
+  Future<void> _fetchPlotStatsAndStartAnimations() async {
     // Start hero animation first
     _heroAnimationController.forward();
     
-    // Start card animation after a delay
+    // Start other animations with delay
     Future.delayed(const Duration(milliseconds: 300), () {
       _cardAnimationController.forward();
     });
     
-    // Start text animation after cards
     Future.delayed(const Duration(milliseconds: 600), () {
       _textAnimationController.forward();
     });
     
-    // Start counter animation with a delay
-    Future.delayed(const Duration(milliseconds: 800), () {
-      _counterAnimationController.forward();
+    Future.delayed(const Duration(milliseconds: 900), () {
+      _parallaxController.forward();
     });
     
-    // Start parallax animation
-    _parallaxController.forward();
-    
+    // Fetch plot statistics in the background
+    try {
+      final plotStatsProvider = Provider.of<PlotStatsProvider>(context, listen: false);
+      await plotStatsProvider.fetchPlotStats();
+      
+      // Update counter animations with fetched data
+      if (plotStatsProvider.hasPlotStats) {
+        _updateCounterAnimations(
+          plotStatsProvider.residentialCount,
+          plotStatsProvider.commercialCount,
+        );
+        
+        // Restart counter animation with new values
+        _counterAnimationController.reset();
+        _counterAnimationController.forward();
+      } else {
+        // Use fallback values and start counter animation
+        _counterAnimationController.forward();
+      }
+    } catch (e) {
+      print('Error fetching plot statistics: $e');
+      // Use fallback values and start counter animation
+      _counterAnimationController.forward();
+    }
   }
+
 
   void _filterPropertiesByType(String type) {
     setState(() {
@@ -563,30 +601,37 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       child: Column(
                         children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildPropertyTypeCard(
-                                  l10n.residentialProperties,
-                                  '75',
-                                  l10n.propertiesCount,
-                                  Icons.home,
-                                  const Color(0xFF20B2AA),
-                                  animation: _residentialCounterAnimation,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _buildPropertyTypeCard(
-                                  l10n.commercialProperties,
-                                  '15',
-                                  l10n.propertiesCount,
-                                  Icons.business,
-                                  const Color(0xFF1E3C90),
-                                  animation: _commercialCounterAnimation,
-                                ),
-                              ),
-                            ],
+                          Consumer<PlotStatsProvider>(
+                            builder: (context, plotStatsProvider, child) {
+                              // Get plot statistics with fallback values
+                              final stats = plotStatsProvider.getPlotStatsWithFallback();
+                              
+                              return Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildPropertyTypeCard(
+                                      l10n.residentialProperties,
+                                      stats['residential'].toString(),
+                                      l10n.propertiesCount,
+                                      Icons.home,
+                                      const Color(0xFF20B2AA),
+                                      animation: _residentialCounterAnimation,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _buildPropertyTypeCard(
+                                      l10n.commercialProperties,
+                                      stats['commercial'].toString(),
+                                      l10n.propertiesCount,
+                                      Icons.business,
+                                      const Color(0xFF1E3C90),
+                                      animation: _commercialCounterAnimation,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         ],
                       ),

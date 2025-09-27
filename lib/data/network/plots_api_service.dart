@@ -5,7 +5,7 @@ import '../models/plot_model.dart';
 import '../repository/plots_repository.dart';
 
 class PlotsApiService {
-  static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
+  static const String baseUrl = 'https://backend-apis.dhamarketplace.com/api';
   
   static Future<List<PlotModel>> fetchPlots({int retryCount = 3}) async {
     int attempts = 0;

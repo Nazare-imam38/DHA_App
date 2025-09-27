@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/auth_models.dart';
 
 class AuthService {
-  static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
+  static const String baseUrl = 'https://backend-apis.dhamarketplace.com/api';
   
   // SharedPreferences keys
   static const String _tokenKey = 'access_token';

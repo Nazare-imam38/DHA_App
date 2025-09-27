@@ -192,6 +192,25 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         print('Filter Manager Error: $error');
       }
     };
+
+    // Progressive filtering callbacks
+    _filterManager.onCategoriesUpdated = (categories) {
+      print('✅ Filter Manager: Available categories updated: $categories');
+      // Update the filter panel with available categories
+      _updateFilterPanelCategories(categories);
+    };
+
+    _filterManager.onPhasesUpdated = (phases) {
+      print('✅ Filter Manager: Available phases updated: $phases');
+      // Update the filter panel with available phases
+      _updateFilterPanelPhases(phases);
+    };
+
+    _filterManager.onSizesUpdated = (sizes) {
+      print('✅ Filter Manager: Available sizes updated: $sizes');
+      // Update the filter panel with available sizes
+      _updateFilterPanelSizes(sizes);
+    };
     
     // Load initial plots
     _loadInitialPlots();
@@ -206,6 +225,27 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     } catch (e) {
       print('❌ Error loading initial plots: $e');
     }
+  }
+
+  /// Update filter panel with available categories
+  void _updateFilterPanelCategories(List<String> categories) {
+    // This will be called when the filter panel is created
+    // The actual update will happen in the filter panel widget
+    print('📊 Available categories for filter panel: $categories');
+  }
+
+  /// Update filter panel with available phases
+  void _updateFilterPanelPhases(List<String> phases) {
+    // This will be called when the filter panel is created
+    // The actual update will happen in the filter panel widget
+    print('📊 Available phases for filter panel: $phases');
+  }
+
+  /// Update filter panel with available sizes
+  void _updateFilterPanelSizes(List<String> sizes) {
+    // This will be called when the filter panel is created
+    // The actual update will happen in the filter panel widget
+    print('📊 Available sizes for filter panel: $sizes');
   }
 
   /// Apply filters to modern filter manager
@@ -1278,7 +1318,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 'plotSize': _selectedPlotSize,
                 'priceRange': _priceRange,
               },
-              // Plots API removed - no longer using plot filters
+              // Pass dynamic filter options from the filter manager
+              enabledPhases: _filterManager.availablePhases,
+              enabledSizes: _filterManager.availableSizes,
             ),
             ),
           ),

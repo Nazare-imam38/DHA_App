@@ -10,16 +10,16 @@ API Endpoint → PlotsApiService → PlotsProvider → ProjectsScreen → Map Di
 ### **2. API Endpoints Used**
 
 #### **Primary Endpoint**
-- **URL**: `https://testingbackend.dhamarketplace.com/api/plots`
+- **URL**: `https://backend-apis.dhamarketplace.com/api/plots`
 - **Method**: GET
 - **Purpose**: Fetch all plots data
 - **Response**: Array of PlotModel objects
 
 #### **Filter Endpoints**
-- **Price Range**: `https://testingbackend.dhamarketplace.com/api/filter-plots-range`
-- **Phase Filter**: `https://testingbackend.dhamarketplace.com/api/plots?phase={phase}`
-- **Category Filter**: `https://testingbackend.dhamarketplace.com/api/plots?category={category}`
-- **Status Filter**: `https://testingbackend.dhamarketplace.com/api/plots?status={status}`
+- **Price Range**: `https://backend-apis.dhamarketplace.com/api/filter-plots-range`
+- **Phase Filter**: `https://backend-apis.dhamarketplace.com/api/plots?phase={phase}`
+- **Category Filter**: `https://backend-apis.dhamarketplace.com/api/plots?category={category}`
+- **Status Filter**: `https://backend-apis.dhamarketplace.com/api/plots?status={status}`
 
 ### **3. Data Loading Process**
 

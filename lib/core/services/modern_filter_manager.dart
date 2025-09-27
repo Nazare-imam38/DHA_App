@@ -1,6 +1,7 @@
 import 'dart:async';
 import '../../data/models/plot_model.dart';
 import 'enhanced_plots_api_service.dart';
+import '../../services/progressive_filter_service.dart' as ProgressiveFilter;
 
 /// Modern filter manager for handling plot filtering with API integration
 class ModernFilterManager {
@@ -24,6 +25,14 @@ class ModernFilterManager {
   String? _error;
   DateTime? _lastFetchTime;
 
+  // Progressive filtering state
+  List<String> _availableCategories = [];
+  List<String> _availablePhases = [];
+  List<String> _availableSizes = [];
+  bool _categoriesLoaded = false;
+  bool _phasesLoaded = false;
+  bool _sizesLoaded = false;
+
   // Debounce timer for API calls
   Timer? _debounceTimer;
   static const Duration _debounceDelay = Duration(milliseconds: 500);
@@ -32,6 +41,9 @@ class ModernFilterManager {
   Function(List<PlotModel>)? onPlotsUpdated;
   Function(bool)? onLoadingChanged;
   Function(String?)? onErrorChanged;
+  Function(List<String>)? onCategoriesUpdated;
+  Function(List<String>)? onPhasesUpdated;
+  Function(List<String>)? onSizesUpdated;
 
   // Getters
   List<PlotModel> get filteredPlots => _filteredPlots;
@@ -47,6 +59,14 @@ class ModernFilterManager {
   String? get size => _size;
   String? get status => _status;
   String? get sector => _sector;
+
+  // Progressive filtering getters
+  List<String> get availableCategories => _availableCategories;
+  List<String> get availablePhases => _availablePhases;
+  List<String> get availableSizes => _availableSizes;
+  bool get categoriesLoaded => _categoriesLoaded;
+  bool get phasesLoaded => _phasesLoaded;
+  bool get sizesLoaded => _sizesLoaded;
 
   // Active filters count
   int get activeFiltersCount {
@@ -142,15 +162,76 @@ class ModernFilterManager {
   void _applyFilters() {
     _debounceTimer?.cancel();
     _debounceTimer = Timer(_debounceDelay, () {
-      // If we have all plots loaded, use client-side filtering for better performance
-      if (_allPlots.isNotEmpty) {
-        print('ModernFilterManager: Using client-side filtering');
-        _applyClientSideFilters();
-      } else {
-        print('ModernFilterManager: Using API filtering');
-        _fetchFilteredPlots();
-      }
+      print('ModernFilterManager: Using progressive API filtering');
+      _applyProgressiveFilters();
     });
+  }
+
+  /// Apply progressive filtering workflow
+  Future<void> _applyProgressiveFilters() async {
+    try {
+      _setLoading(true);
+      _setError(null);
+
+      // Step 1: Filter by price range first
+      if (_minPrice != null && _maxPrice != null) {
+        print('ModernFilterManager: Step 1 - Filtering by price range $_minPrice - $_maxPrice');
+        
+        // Load available categories for this price range
+        await _loadAvailableCategories();
+        
+        // If no category selected, show all plots for this price range
+        if (_category == null) {
+          await _fetchPlotsByPriceRange();
+          return;
+        }
+        
+        // Step 2: Filter by category
+        if (_category != null) {
+          print('ModernFilterManager: Step 2 - Filtering by category $_category');
+          
+          // Load available phases for this category and price range
+          await _loadAvailablePhases();
+          
+          // If no phase selected, show plots for this category and price range
+          if (_phase == null) {
+            await _fetchPlotsByCategory();
+            return;
+          }
+          
+          // Step 3: Filter by phase
+          if (_phase != null) {
+            print('ModernFilterManager: Step 3 - Filtering by phase $_phase');
+            
+            // Load available sizes for this phase, category and price range
+            await _loadAvailableSizes();
+            
+            // If no size selected, show plots for this phase, category and price range
+            if (_size == null) {
+              await _fetchPlotsByPhase();
+              return;
+            }
+            
+            // Step 4: Filter by size (final filter)
+            if (_size != null) {
+              print('ModernFilterManager: Step 4 - Filtering by size $_size');
+              await _fetchPlotsBySize();
+              return;
+            }
+          }
+        }
+      } else {
+        // No price range set, load all plots
+        await loadInitialPlots();
+      }
+    } catch (e) {
+      print('ModernFilterManager: ❌ Error in progressive filtering: $e');
+      _setError(e.toString());
+      _filteredPlots = [];
+      onPlotsUpdated?.call([]);
+    } finally {
+      _setLoading(false);
+    }
   }
 
   /// Fetch filtered plots from API or use client-side filtering
@@ -266,8 +347,12 @@ class ModernFilterManager {
       print('ModernFilterManager: Loading initial plots...');
       
       // Try to load all plots from API
-      _allPlots = await EnhancedPlotsApiService.fetchAllPlots();
-      print('ModernFilterManager: ✅ Loaded ${_allPlots.length} initial plots');
+      final rawPlots = await EnhancedPlotsApiService.fetchAllPlots();
+      print('ModernFilterManager: Raw API returned ${rawPlots.length} plots');
+      
+      // Deduplicate plots by plotNo to prevent duplicate markers
+      _allPlots = _deduplicatePlots(rawPlots);
+      print('ModernFilterManager: ✅ After deduplication: ${_allPlots.length} unique plots');
       
       // Apply current filters to initial plots
       _applyClientSideFilters();
@@ -370,6 +455,235 @@ class ModernFilterManager {
     
     // Default fallback
     return phase;
+  }
+
+  /// Deduplicate plots by plotNo to prevent duplicate markers
+  List<PlotModel> _deduplicatePlots(List<PlotModel> plots) {
+    print('ModernFilterManager: Deduplicating ${plots.length} plots...');
+    
+    final Map<String, PlotModel> uniquePlots = {};
+    int duplicatesFound = 0;
+    
+    for (final plot in plots) {
+      final plotKey = plot.plotNo.toLowerCase().trim();
+      
+      if (uniquePlots.containsKey(plotKey)) {
+        duplicatesFound++;
+        print('ModernFilterManager: ⚠️ Found duplicate plot: ${plot.plotNo}');
+        
+        // Keep the plot with more complete data (has coordinates)
+        final existingPlot = uniquePlots[plotKey]!;
+        if (plot.latitude != null && plot.longitude != null && 
+            (existingPlot.latitude == null || existingPlot.longitude == null)) {
+          uniquePlots[plotKey] = plot;
+          print('ModernFilterManager: ✅ Replaced with plot that has coordinates');
+        }
+      } else {
+        uniquePlots[plotKey] = plot;
+      }
+    }
+    
+    final deduplicatedPlots = uniquePlots.values.toList();
+    print('ModernFilterManager: ✅ Deduplication complete: ${duplicatesFound} duplicates removed');
+    print('ModernFilterManager: ✅ Final unique plots: ${deduplicatedPlots.length}');
+    
+    return deduplicatedPlots;
+  }
+
+  /// Load available categories for current price range
+  Future<void> _loadAvailableCategories() async {
+    if (_minPrice == null || _maxPrice == null) return;
+    
+    try {
+      _availableCategories = await ProgressiveFilter.ProgressiveFilterService.getAvailableCategories(
+        priceFrom: _minPrice!,
+        priceTo: _maxPrice!,
+      );
+      _categoriesLoaded = true;
+      onCategoriesUpdated?.call(_availableCategories);
+      print('ModernFilterManager: ✅ Loaded ${_availableCategories.length} available categories');
+    } catch (e) {
+      print('ModernFilterManager: ❌ Error loading categories: $e');
+      _availableCategories = [];
+      _categoriesLoaded = false;
+    }
+  }
+
+  /// Load available phases for current category and price range
+  Future<void> _loadAvailablePhases() async {
+    if (_category == null || _minPrice == null || _maxPrice == null) return;
+    
+    try {
+      _availablePhases = await ProgressiveFilter.ProgressiveFilterService.getAvailablePhases(
+        category: _category!,
+        priceFrom: _minPrice!,
+        priceTo: _maxPrice!,
+      );
+      _phasesLoaded = true;
+      onPhasesUpdated?.call(_availablePhases);
+      print('ModernFilterManager: ✅ Loaded ${_availablePhases.length} available phases');
+    } catch (e) {
+      print('ModernFilterManager: ❌ Error loading phases: $e');
+      _availablePhases = [];
+      _phasesLoaded = false;
+    }
+  }
+
+  /// Load available sizes for current filters
+  Future<void> _loadAvailableSizes() async {
+    if (_phase == null || _category == null || _minPrice == null || _maxPrice == null) return;
+    
+    try {
+      _availableSizes = await ProgressiveFilter.ProgressiveFilterService.getAvailableSizes(
+        phase: _phase!,
+        category: _category!,
+        priceFrom: _minPrice!,
+        priceTo: _maxPrice!,
+      );
+      _sizesLoaded = true;
+      onSizesUpdated?.call(_availableSizes);
+      print('ModernFilterManager: ✅ Loaded ${_availableSizes.length} available sizes');
+    } catch (e) {
+      print('ModernFilterManager: ❌ Error loading sizes: $e');
+      _availableSizes = [];
+      _sizesLoaded = false;
+    }
+  }
+
+  /// Fetch plots by price range only
+  Future<void> _fetchPlotsByPriceRange() async {
+    try {
+      final response = await ProgressiveFilter.ProgressiveFilterService.filterByPriceRange(
+        priceFrom: _minPrice!,
+        priceTo: _maxPrice!,
+      );
+      
+      _filteredPlots = _convertToPlotModels(response.plots);
+      onPlotsUpdated?.call(_filteredPlots);
+      print('ModernFilterManager: ✅ Price range filter returned ${_filteredPlots.length} plots');
+    } catch (e) {
+      print('ModernFilterManager: ❌ Error fetching plots by price range: $e');
+      _filteredPlots = [];
+      onPlotsUpdated?.call([]);
+    }
+  }
+
+  /// Fetch plots by category and price range
+  Future<void> _fetchPlotsByCategory() async {
+    try {
+      final response = await ProgressiveFilter.ProgressiveFilterService.filterByCategory(
+        category: _category!,
+        priceFrom: _minPrice!,
+        priceTo: _maxPrice!,
+      );
+      
+      _filteredPlots = _convertToPlotModels(response.plots);
+      onPlotsUpdated?.call(_filteredPlots);
+      print('ModernFilterManager: ✅ Category filter returned ${_filteredPlots.length} plots');
+    } catch (e) {
+      print('ModernFilterManager: ❌ Error fetching plots by category: $e');
+      _filteredPlots = [];
+      onPlotsUpdated?.call([]);
+    }
+  }
+
+  /// Fetch plots by phase, category and price range
+  Future<void> _fetchPlotsByPhase() async {
+    try {
+      final response = await ProgressiveFilter.ProgressiveFilterService.filterByPhase(
+        phase: _phase!,
+        category: _category!,
+        priceFrom: _minPrice!,
+        priceTo: _maxPrice!,
+      );
+      
+      _filteredPlots = _convertToPlotModels(response.plots);
+      onPlotsUpdated?.call(_filteredPlots);
+      print('ModernFilterManager: ✅ Phase filter returned ${_filteredPlots.length} plots');
+    } catch (e) {
+      print('ModernFilterManager: ❌ Error fetching plots by phase: $e');
+      _filteredPlots = [];
+      onPlotsUpdated?.call([]);
+    }
+  }
+
+  /// Fetch plots by size, phase, category and price range
+  Future<void> _fetchPlotsBySize() async {
+    try {
+      final response = await ProgressiveFilter.ProgressiveFilterService.filterBySize(
+        size: _size!,
+        phase: _phase!,
+        category: _category!,
+        priceFrom: _minPrice!,
+        priceTo: _maxPrice!,
+      );
+      
+      _filteredPlots = _convertToPlotModels(response.plots);
+      onPlotsUpdated?.call(_filteredPlots);
+      print('ModernFilterManager: ✅ Size filter returned ${_filteredPlots.length} plots');
+    } catch (e) {
+      print('ModernFilterManager: ❌ Error fetching plots by size: $e');
+      _filteredPlots = [];
+      onPlotsUpdated?.call([]);
+    }
+  }
+
+  /// Convert PlotData to PlotModel
+  List<PlotModel> _convertToPlotModels(List<ProgressiveFilter.PlotData> plots) {
+    return plots.map((plot) => PlotModel(
+      id: plot.id,
+      plotNo: plot.plotNo,
+      size: plot.size,
+      category: plot.category,
+      catArea: plot.catArea,
+      dimension: plot.dimension,
+      phase: plot.phase,
+      sector: plot.sector,
+      streetNo: plot.streetNo,
+      block: plot.block,
+      status: plot.status,
+      tokenAmount: plot.tokenAmount,
+      remarks: plot.remarks,
+      holdBy: plot.holdBy,
+      expireTime: plot.expireTime,
+      basePrice: plot.expoBasePrice,
+      oneYrPlan: plot.oneYrEp,
+      twoYrsPlan: plot.twoYrsEp,
+      twoFiveYrsPlan: plot.twoFiveYrsEp,
+      threeYrsPlan: plot.threeYrsEp,
+      stAsgeojson: plot.stAsgeojson,
+      eventHistory: _convertEventHistory(plot.eventHistory),
+      expoBasePrice: plot.expoBasePrice,
+      vloggerBasePrice: plot.vloggerBasePrice,
+    )).toList();
+  }
+
+  /// Convert EventHistory from progressive filter service to PlotModel EventHistory
+  EventHistory _convertEventHistory(ProgressiveFilter.EventHistory serviceEventHistory) {
+    return EventHistory(
+      id: serviceEventHistory.id,
+      eventId: serviceEventHistory.eventId,
+      isBidding: serviceEventHistory.isBidding,
+      event: Event(
+        id: serviceEventHistory.event.id,
+        title: serviceEventHistory.event.title,
+        status: serviceEventHistory.event.status,
+        startDate: serviceEventHistory.event.startDate,
+        endDate: serviceEventHistory.event.endDate,
+      ),
+    );
+  }
+
+  /// Parse GeoJSON string to polygon coordinates
+  List<List<double>> _parseGeoJson(String geoJsonString) {
+    try {
+      // This is a simplified parser - in production you'd use a proper GeoJSON library
+      // For now, return empty list as the existing system handles polygon parsing
+      return [];
+    } catch (e) {
+      print('ModernFilterManager: Error parsing GeoJSON: $e');
+      return [];
+    }
   }
 
   /// Dispose resources

@@ -156,12 +156,6 @@ class AppLocalizationsUr extends AppLocalizations {
   String get propertiesCount => 'پراپرٹیز';
 
   @override
-  String get residentialCount => '75';
-
-  @override
-  String get commercialCount => '15';
-
-  @override
   String get selectLanguage => 'زبان منتخب کریں';
 
   @override

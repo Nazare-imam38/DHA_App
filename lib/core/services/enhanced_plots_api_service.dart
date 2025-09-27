@@ -89,8 +89,10 @@ class EnhancedPlotsApiService {
               }
             }
             
-            print('EnhancedPlotsApiService: ✅ Successfully loaded ${plots.length} filtered plots');
-            return plots;
+            // Deduplicate plots to prevent duplicate markers
+            final deduplicatedPlots = _deduplicatePlots(plots);
+            print('EnhancedPlotsApiService: ✅ After deduplication: ${deduplicatedPlots.length} unique plots');
+            return deduplicatedPlots;
             
           } catch (parseError) {
             print('EnhancedPlotsApiService: ❌ JSON parsing error: $parseError');
@@ -152,6 +154,39 @@ class EnhancedPlotsApiService {
     // Default fallback
     print('EnhancedPlotsApiService: Using phase as-is: $phase');
     return phase;
+  }
+
+  /// Deduplicate plots by plotNo to prevent duplicate markers
+  static List<PlotModel> _deduplicatePlots(List<PlotModel> plots) {
+    print('EnhancedPlotsApiService: Deduplicating ${plots.length} plots...');
+    
+    final Map<String, PlotModel> uniquePlots = {};
+    int duplicatesFound = 0;
+    
+    for (final plot in plots) {
+      final plotKey = plot.plotNo.toLowerCase().trim();
+      
+      if (uniquePlots.containsKey(plotKey)) {
+        duplicatesFound++;
+        print('EnhancedPlotsApiService: ⚠️ Found duplicate plot: ${plot.plotNo}');
+        
+        // Keep the plot with more complete data (has coordinates)
+        final existingPlot = uniquePlots[plotKey]!;
+        if (plot.latitude != null && plot.longitude != null && 
+            (existingPlot.latitude == null || existingPlot.longitude == null)) {
+          uniquePlots[plotKey] = plot;
+          print('EnhancedPlotsApiService: ✅ Replaced with plot that has coordinates');
+        }
+      } else {
+        uniquePlots[plotKey] = plot;
+      }
+    }
+    
+    final deduplicatedPlots = uniquePlots.values.toList();
+    print('EnhancedPlotsApiService: ✅ Deduplication complete: ${duplicatesFound} duplicates removed');
+    print('EnhancedPlotsApiService: ✅ Final unique plots: ${deduplicatedPlots.length}');
+    
+    return deduplicatedPlots;
   }
 
   /// Test API connectivity with filters

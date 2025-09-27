@@ -48,8 +48,6 @@
   "residentialProperties": "Residential",
   "commercialProperties": "Commercial",
   "propertiesCount": "Properties",
-  "residentialCount": "75",
-  "commercialCount": "15",
   "selectLanguage": "Select Language",
   "languageChanged": "Language Changed",
   "languageChangedMessage": "App language has been changed to {language} successfully!",

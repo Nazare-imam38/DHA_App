@@ -18,6 +18,7 @@ class ModernFiltersPanel extends StatefulWidget {
     this.enabledSizes,
   }) : super(key: key);
 
+
   @override
   State<ModernFiltersPanel> createState() => _ModernFiltersPanelState();
 }
@@ -45,9 +46,15 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
   bool _isDhaPhaseExpanded = false;
   bool _isPlotSizeExpanded = false;
 
-  // Static options
-  final List<String> _plotTypes = ['Commercial', 'Residential'];
-  final List<String> _dhaPhasesStatic = ['Phase 1','Phase 2','Phase 3','Phase 4','Phase 5','Phase 6','Phase 7','RVS'];
+  // Dynamic options (will be updated based on API responses)
+  List<String> _plotTypes = ['Commercial', 'Residential'];
+  List<String> _dhaPhasesStatic = ['Phase 1','Phase 2','Phase 3','Phase 4','Phase 5','Phase 6','Phase 7','RVS'];
+  List<String> _availablePlotSizes = [];
+  
+  // Dynamic filter states
+  bool _categoriesEnabled = true;
+  bool _phasesEnabled = true;
+  bool _sizesEnabled = true;
 
   // Active filters
   List<String> _activeFilters = [];
@@ -122,6 +129,30 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
     _slideController.dispose();
     _fadeController.dispose();
     super.dispose();
+  }
+
+  /// Update available categories dynamically
+  void updateAvailableCategories(List<String> categories) {
+    setState(() {
+      _plotTypes = categories;
+      _categoriesEnabled = categories.isNotEmpty;
+    });
+  }
+
+  /// Update available phases dynamically
+  void updateAvailablePhases(List<String> phases) {
+    setState(() {
+      _dhaPhasesStatic = phases;
+      _phasesEnabled = phases.isNotEmpty;
+    });
+  }
+
+  /// Update available sizes dynamically
+  void updateAvailableSizes(List<String> sizes) {
+    setState(() {
+      _availablePlotSizes = sizes;
+      _sizesEnabled = sizes.isNotEmpty;
+    });
   }
 
   void _updateActiveFilters() {
@@ -255,16 +286,16 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                               
                             _buildFilterCard(
                               icon: Icons.home,
-                              iconColor: const Color(0xFF4CAF50),
+                              iconColor: _categoriesEnabled ? const Color(0xFF4CAF50) : Colors.grey,
                               title: 'Plot Type',
                               isExpanded: _isPlotTypeExpanded,
                               hasSelection: _selectedPlotType != null,
                               selectionCount: _selectedPlotType != null ? 1 : 0,
-                              onTap: () {
+                              onTap: _categoriesEnabled ? () {
                                 setState(() {
                                   _isPlotTypeExpanded = !_isPlotTypeExpanded;
                                 });
-                              },
+                              } : () {},
                               children: _plotTypes.map((type) => _buildFilterOption(
                                 type,
                                 _selectedPlotType == type,
@@ -283,16 +314,16 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                               
                             _buildFilterCard(
                               icon: Icons.location_on,
-                              iconColor: const Color(0xFFF44336),
+                              iconColor: _phasesEnabled ? const Color(0xFFF44336) : Colors.grey,
                               title: 'DHA Phase',
                               isExpanded: _isDhaPhaseExpanded,
                               hasSelection: _selectedDhaPhase != null,
                               selectionTag: _selectedDhaPhase ?? 'Select Phase',
-                              onTap: () {
+                              onTap: _phasesEnabled ? () {
                                 setState(() {
                                   _isDhaPhaseExpanded = !_isDhaPhaseExpanded;
                                 });
-                              },
+                              } : () {},
                               children: (_getEnabledPhases()).map((phase) => _buildFilterOptionDisabled(
                                 phase,
                                 _selectedDhaPhase == phase,
@@ -313,16 +344,16 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                               
                             _buildFilterCard(
                               icon: Icons.straighten,
-                              iconColor: const Color(0xFFFF9800),
+                              iconColor: _sizesEnabled ? const Color(0xFFFF9800) : Colors.grey,
                               title: 'Plot Size',
                               isExpanded: _isPlotSizeExpanded,
                               hasSelection: _selectedPlotSize != null,
                               selectionTag: _selectedPlotSize ?? 'Select Size',
-                              onTap: () {
+                              onTap: _sizesEnabled ? () {
                                 setState(() {
                                   _isPlotSizeExpanded = !_isPlotSizeExpanded;
                                 });
-                              },
+                              } : () {},
                               children: (_getEnabledSizes()).map((size) => _buildFilterOptionDisabled(
                                 size,
                                 _selectedPlotSize == size,
@@ -796,7 +827,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
   }
 
   List<String> _getEnabledSizes() {
-    return widget.enabledSizes != null ? widget.enabledSizes! : <String>[];
+    return _availablePlotSizes.isNotEmpty ? _availablePlotSizes : (widget.enabledSizes ?? []);
   }
 
   bool _isSizeEnabled(String size) {

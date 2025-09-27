@@ -48,8 +48,6 @@
   "residentialProperties": "رہائشی",
   "commercialProperties": "کمرشل",
   "propertiesCount": "پراپرٹیز",
-  "residentialCount": "75",
-  "commercialCount": "15",
   "selectLanguage": "زبان منتخب کریں",
   "languageChanged": "زبان تبدیل ہو گئی",
   "languageChangedMessage": "ایپ کی زبان {language} میں کامیابی سے تبدیل ہو گئی ہے!",

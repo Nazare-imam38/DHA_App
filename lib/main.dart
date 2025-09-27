@@ -8,6 +8,7 @@ import 'screens/main_wrapper.dart';
 import 'services/language_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/plots_provider.dart';
+import 'providers/plot_stats_provider.dart';
 import 'core/services/location_service.dart';
 import 'core/services/instant_boundary_service.dart';
 import 'core/services/enterprise_api_manager.dart';
@@ -153,6 +154,9 @@ class _DHAMarketplaceAppState extends State<DHAMarketplaceApp> {
         ),
         ChangeNotifierProvider<PlotsProvider>(
           create: (context) => PlotsProvider(),
+        ),
+        ChangeNotifierProvider<PlotStatsProvider>(
+          create: (context) => PlotStatsProvider(),
         ),
         ChangeNotifierProvider<LocationService>(
           create: (context) => LocationService(),
