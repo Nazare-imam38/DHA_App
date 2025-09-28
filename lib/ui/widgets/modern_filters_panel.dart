@@ -267,7 +267,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                           children: [
                             _buildFilterCard(
                               icon: Icons.currency_rupee,
-                              iconColor: const Color(0xFF4CAF50),
+                              iconColor: const Color(0xFF20B2AA),
                               title: 'Price Range',
                               isExpanded: _isPriceRangeExpanded,
                               hasSelection: _priceRange.start > 5475000 || _priceRange.end < 565000000,
@@ -286,7 +286,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                               
                             _buildFilterCard(
                               icon: Icons.home,
-                              iconColor: _categoriesEnabled ? const Color(0xFF4CAF50) : Colors.grey,
+                              iconColor: _categoriesEnabled ? const Color(0xFF20B2AA) : Colors.grey,
                               title: 'Plot Type',
                               isExpanded: _isPlotTypeExpanded,
                               hasSelection: _selectedPlotType != null,
@@ -314,7 +314,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                               
                             _buildFilterCard(
                               icon: Icons.location_city,
-                              iconColor: _phasesEnabled ? const Color(0xFF4CAF50) : Colors.grey,
+                              iconColor: _phasesEnabled ? const Color(0xFF20B2AA) : Colors.grey,
                               title: 'DHA Phase',
                               isExpanded: _isDhaPhaseExpanded,
                               hasSelection: _selectedDhaPhase != null,
@@ -344,7 +344,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                               
                             _buildFilterCard(
                               icon: Icons.straighten,
-                              iconColor: _sizesEnabled ? const Color(0xFF4CAF50) : Colors.grey,
+                              iconColor: _sizesEnabled ? const Color(0xFF20B2AA) : Colors.grey,
                               title: 'Plot Size',
                               isExpanded: _isPlotSizeExpanded,
                               hasSelection: _selectedPlotSize != null,
@@ -413,11 +413,11 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: const Color(0xFF4CAF50),
+              color: const Color(0xFF20B2AA),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF4CAF50).withOpacity(0.3),
+                  color: const Color(0xFF20B2AA).withOpacity(0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -460,11 +460,11 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: const Color(0xFF4CAF50),
+              color: const Color(0xFF20B2AA),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF4CAF50).withOpacity(0.3),
+                  color: const Color(0xFF20B2AA).withOpacity(0.3),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -910,7 +910,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
             children: [
               const Icon(
                 Icons.filter_alt,
-                color: Color(0xFF4CAF50),
+                color: Color(0xFF2196F3),
                 size: 20,
               ),
               const SizedBox(width: 8),
@@ -932,7 +932,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                     fontFamily: 'Inter',
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF4CAF50),
+                    color: Color(0xFF20B2AA),
                   ),
                 ),
               ),
@@ -953,8 +953,8 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
   }
 
   Widget _buildFilterChip(String filter) {
-    // Use petal green for all filter types
-    Color chipColor = const Color(0xFF4CAF50); // Consistent petal green
+    // Use Light Sea Green for all filter types
+    Color chipColor = const Color(0xFF20B2AA); // Consistent Light Sea Green
     
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -1078,10 +1078,10 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: value ? const Color(0xFF4CAF50).withOpacity(0.1) : Colors.grey[50],
+              color: value ? const Color(0xFF20B2AA).withOpacity(0.1) : Colors.grey[50],
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: value ? const Color(0xFF4CAF50) : Colors.grey[300]!,
+              color: value ? const Color(0xFF20B2AA) : Colors.grey[300]!,
               width: value ? 2 : 1,
             ),
           ),
@@ -1091,10 +1091,10 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                 width: 20,
                 height: 20,
                 decoration: BoxDecoration(
-                  color: value ? const Color(0xFF4CAF50) : Colors.transparent,
+                  color: value ? const Color(0xFF20B2AA) : Colors.transparent,
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(
-                    color: value ? const Color(0xFF4CAF50) : Colors.grey[400]!,
+                    color: value ? const Color(0xFF20B2AA) : Colors.grey[400]!,
                     width: 2,
                   ),
                 ),
@@ -1114,7 +1114,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                     fontFamily: 'Inter',
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: value ? const Color(0xFF4CAF50) : const Color(0xFF1A1A1A),
+                    color: value ? const Color(0xFF20B2AA) : const Color(0xFF1A1A1A),
                   ),
                 ),
               ),
