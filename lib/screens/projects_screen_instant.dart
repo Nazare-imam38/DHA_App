@@ -2220,16 +2220,25 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     print('🗑️ Plot selection cleared');
   }
 
-  /// Safely animate bottom sheet
+  /// Safely animate bottom sheet with overflow prevention
   void _safeAnimateBottomSheet(double size) {
+    // Calculate safe maximum size to prevent overflow
+    final screenHeight = MediaQuery.of(context).size.height;
+    final safeAreaBottom = MediaQuery.of(context).padding.bottom;
+    final navigationBarHeight = 80.0; // Approximate navigation bar height
+    final maxSafeSize = (screenHeight - safeAreaBottom - navigationBarHeight) / screenHeight;
+    
+    // Ensure size doesn't exceed safe maximum
+    final safeSize = size.clamp(0.15, maxSafeSize);
+    
     if (_isBottomSheetInitialized && _bottomSheetController.isAttached) {
       try {
         _bottomSheetController.animateTo(
-          size,
+          safeSize,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
-        print('📱 Animating bottom sheet to: ${(size * 100).toInt()}%');
+        print('📱 Animating bottom sheet to: ${(safeSize * 100).toInt()}% (safe size)');
       } catch (e) {
         print('Error animating bottom sheet: $e');
       }
@@ -2239,11 +2248,11 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         if (_isBottomSheetInitialized && _bottomSheetController.isAttached) {
           try {
             _bottomSheetController.animateTo(
-              size,
+              safeSize,
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
             );
-            print('📱 Animating bottom sheet to: ${(size * 100).toInt()}% (delayed)');
+            print('📱 Animating bottom sheet to: ${(safeSize * 100).toInt()}% (safe size, delayed)');
           } catch (e) {
             print('Error animating bottom sheet (delayed): $e');
           }
@@ -2491,6 +2500,12 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       return const SizedBox.shrink();
     }
 
+    // Calculate safe area heights to prevent overflow
+    final screenHeight = MediaQuery.of(context).size.height;
+    final safeAreaBottom = MediaQuery.of(context).padding.bottom;
+    final navigationBarHeight = 80.0; // Approximate navigation bar height
+    final availableHeight = screenHeight - safeAreaBottom - navigationBarHeight;
+    
     return DraggableScrollableSheet(
       controller: _bottomSheetController,
       initialChildSize: _showSelectedPlotDetails ? 0.35 : 0.15, // Show more space when plot is selected
@@ -2507,7 +2522,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         });
         return Container(
           margin: EdgeInsets.only(
-            bottom: MediaQuery.of(context).padding.bottom + 80, // Add extra space for bottom navigation bar
+            bottom: safeAreaBottom,
           ),
           decoration: const BoxDecoration(
             color: Colors.white,
@@ -2524,6 +2539,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
             ],
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min, // Prevent overflow by using minimum size
             children: [
               // Handle bar with expand/collapse controls
               Container(
@@ -2550,9 +2566,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                         if (_isBottomSheetExpanded) {
                           // Expand to appropriate size based on content
                           if (_showSelectedPlotDetails) {
-                            _safeAnimateBottomSheet(0.5);
+                            _safeAnimateBottomSheet(0.6);
                         } else {
-                          _safeAnimateBottomSheet(0.6);
+                          _safeAnimateBottomSheet(0.75);
                         }
                         } else {
                           // Collapse to minimum size
@@ -2646,7 +2662,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                 _isBottomSheetExpanded = true;
                                 _showSelectedPlotDetails = false;
                               });
-                              _safeAnimateBottomSheet(0.6);
+                              _safeAnimateBottomSheet(0.75);
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -2678,7 +2694,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                   _showSelectedPlotDetails = true;
                                   _isBottomSheetExpanded = true;
                                 });
-                                _safeAnimateBottomSheet(0.5);
+                                _safeAnimateBottomSheet(0.6);
                               }
                             },
                             child: Container(
@@ -2757,26 +2773,27 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               
               const SizedBox(height: 16),
               
-              // Plot list or selected plot details
+              // Plot list or selected plot details - Use Flexible instead of Expanded to prevent overflow
               Flexible(
-                child: Container(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.5, // Limit max height
-                  ),
-                  child: _showSelectedPlotDetails && _selectedPlotDetails != null
-                      ? _buildSelectedPlotContent()
-                      : _plots.isEmpty
-                          ? Center(
-                              child: Text(
-                                'No plots found matching your filters',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey[600],
-                                ),
+                child: _showSelectedPlotDetails && _selectedPlotDetails != null
+                    ? _buildSelectedPlotContent()
+                    : _plots.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No plots found matching your filters',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
                               ),
-                            )
-                          : ListView.builder(
+                            ),
+                          )
+                        : ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxHeight: availableHeight * 0.6, // Limit height to prevent overflow
+                            ),
+                            child: ListView.builder(
                               controller: scrollController,
+                              shrinkWrap: true, // Allow ListView to shrink to content size
                               padding: const EdgeInsets.only(
                                 left: 20,
                                 right: 20,
@@ -2788,7 +2805,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                 return _buildPlotCard(plot);
                               },
                             ),
-                ),
+                          ),
               ),
             ],
           ),
@@ -3351,6 +3368,12 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   /// Build selected plot content
   Widget _buildSelectedPlotContent() {
+    // Calculate safe area heights to prevent overflow
+    final screenHeight = MediaQuery.of(context).size.height;
+    final safeAreaBottom = MediaQuery.of(context).padding.bottom;
+    final navigationBarHeight = 80.0; // Approximate navigation bar height
+    final availableHeight = screenHeight - safeAreaBottom - navigationBarHeight;
+    
     if (_isLoadingPlotDetails) {
       return const Center(
         child: Column(
@@ -3384,15 +3407,20 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       );
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.only(
-        left: 20,
-        right: 20,
-        bottom: 20, // Add bottom padding to prevent content from being cut off
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: availableHeight * 0.6, // Limit height to prevent overflow
       ),
-      child: SelectedPlotDetailsWidget(
-        plotDetails: _selectedPlotDetails!,
-        onClearSelection: _clearPlotSelection,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.only(
+          left: 20,
+          right: 20,
+          bottom: 20, // Add bottom padding to prevent content from being cut off
+        ),
+        child: SelectedPlotDetailsWidget(
+          plotDetails: _selectedPlotDetails!,
+          onClearSelection: _clearPlotSelection,
+        ),
       ),
     );
   }
