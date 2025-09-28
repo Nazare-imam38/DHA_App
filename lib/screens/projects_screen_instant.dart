@@ -2495,7 +2495,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       controller: _bottomSheetController,
       initialChildSize: _showSelectedPlotDetails ? 0.35 : 0.15, // Show more space when plot is selected
       minChildSize: 0.15, // Minimum 15% of screen height
-      maxChildSize: _showSelectedPlotDetails ? 0.6 : 0.75, // Reduced to account for bottom navigation bar
+      maxChildSize: _showSelectedPlotDetails ? 0.65 : 0.8, // Adjusted to prevent overflow
       builder: (context, scrollController) {
         // Initialize the bottom sheet controller
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -2508,6 +2508,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         return Container(
           margin: EdgeInsets.only(
             bottom: MediaQuery.of(context).padding.bottom,
+          ),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.9, // Prevent overflow
           ),
           decoration: const BoxDecoration(
             color: Colors.white,
@@ -2524,6 +2527,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
             ],
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min, // Prevent overflow
             children: [
               // Handle bar with expand/collapse controls
               Container(
@@ -2550,9 +2554,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                         if (_isBottomSheetExpanded) {
                           // Expand to appropriate size based on content
                           if (_showSelectedPlotDetails) {
-                            _safeAnimateBottomSheet(0.6);
+                            _safeAnimateBottomSheet(0.65);
                         } else {
-                          _safeAnimateBottomSheet(0.75);
+                          _safeAnimateBottomSheet(0.8);
                         }
                         } else {
                           // Collapse to minimum size
@@ -2646,7 +2650,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                 _isBottomSheetExpanded = true;
                                 _showSelectedPlotDetails = false;
                               });
-                              _safeAnimateBottomSheet(0.75);
+                              _safeAnimateBottomSheet(0.8);
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -2678,7 +2682,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                   _showSelectedPlotDetails = true;
                                   _isBottomSheetExpanded = true;
                                 });
-                                _safeAnimateBottomSheet(0.6);
+                                _safeAnimateBottomSheet(0.65);
                               }
                             },
                             child: Container(
@@ -2758,7 +2762,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               const SizedBox(height: 16),
               
               // Plot list or selected plot details
-              Expanded(
+              Flexible(
                 child: _showSelectedPlotDetails && _selectedPlotDetails != null
                     ? _buildSelectedPlotContent()
                     : _plots.isEmpty
