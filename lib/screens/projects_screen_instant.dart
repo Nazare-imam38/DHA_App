@@ -2495,7 +2495,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       controller: _bottomSheetController,
       initialChildSize: _showSelectedPlotDetails ? 0.35 : 0.15, // Show more space when plot is selected
       minChildSize: 0.15, // Minimum 15% of screen height
-      maxChildSize: _showSelectedPlotDetails ? 0.65 : 0.8, // Adjusted to prevent overflow
+      maxChildSize: _showSelectedPlotDetails ? 0.6 : 0.7, // Further reduced to prevent overflow with bottom nav
       builder: (context, scrollController) {
         // Initialize the bottom sheet controller
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -2505,30 +2505,31 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
             });
           }
         });
-        return Container(
-          margin: EdgeInsets.only(
-            bottom: MediaQuery.of(context).padding.bottom,
-          ),
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.9, // Prevent overflow
-          ),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
+        return SafeArea(
+          child: Container(
+            margin: EdgeInsets.only(
+              bottom: MediaQuery.of(context).padding.bottom + 20, // Reduced margin with SafeArea
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 10,
-                offset: Offset(0, -2),
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.7, // Further reduced to prevent overflow
+            ),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
               ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min, // Prevent overflow
-            children: [
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10,
+                  offset: Offset(0, -2),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // Prevent overflow
+              children: [
               // Handle bar with expand/collapse controls
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -2554,9 +2555,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                         if (_isBottomSheetExpanded) {
                           // Expand to appropriate size based on content
                           if (_showSelectedPlotDetails) {
-                            _safeAnimateBottomSheet(0.65);
+                            _safeAnimateBottomSheet(0.6);
                         } else {
-                          _safeAnimateBottomSheet(0.8);
+                          _safeAnimateBottomSheet(0.7);
                         }
                         } else {
                           // Collapse to minimum size
@@ -2650,7 +2651,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                 _isBottomSheetExpanded = true;
                                 _showSelectedPlotDetails = false;
                               });
-                              _safeAnimateBottomSheet(0.8);
+                              _safeAnimateBottomSheet(0.7);
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -2682,7 +2683,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                   _showSelectedPlotDetails = true;
                                   _isBottomSheetExpanded = true;
                                 });
-                                _safeAnimateBottomSheet(0.65);
+                                _safeAnimateBottomSheet(0.6);
                               }
                             },
                             child: Container(
@@ -2790,6 +2791,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                           ),
               ),
             ],
+          ),
           ),
         );
       },
