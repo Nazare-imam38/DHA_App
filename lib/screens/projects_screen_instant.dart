@@ -1327,7 +1327,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
           // Collapsible Map Controls (Bottom Right) - Always visible above bottom sheet
           Positioned(
-            bottom: _isBottomSheetVisible && _isBottomSheetExpanded ? 250 : 20, // Higher when bottom sheet is expanded
+            bottom: _isBottomSheetVisible && _isBottomSheetExpanded ? 200 : 20, // Adjusted for reduced bottom sheet size
             right: 20,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
@@ -2493,9 +2493,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
     return DraggableScrollableSheet(
       controller: _bottomSheetController,
-      initialChildSize: _showSelectedPlotDetails ? 0.35 : 0.15, // Show more space when plot is selected
+      initialChildSize: _showSelectedPlotDetails ? 0.3 : 0.15, // Show more space when plot is selected
       minChildSize: 0.15, // Minimum 15% of screen height
-      maxChildSize: _showSelectedPlotDetails ? 0.6 : 0.7, // Further reduced to prevent overflow with bottom nav
+      maxChildSize: _showSelectedPlotDetails ? 0.5 : 0.65, // Further reduced to account for bottom navigation bar (80px)
       builder: (context, scrollController) {
         // Initialize the bottom sheet controller
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -2508,28 +2508,24 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         return SafeArea(
           child: Container(
             margin: EdgeInsets.only(
-              bottom: MediaQuery.of(context).padding.bottom + 20, // Reduced margin with SafeArea
+              bottom: MediaQuery.of(context).padding.bottom + 80, // Add extra space for bottom navigation bar
             ),
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.7, // Further reduced to prevent overflow
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
             ),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 10,
+                offset: Offset(0, -2),
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 10,
-                  offset: Offset(0, -2),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min, // Prevent overflow
-              children: [
+            ],
+          ),
+          child: Column(
+            children: [
               // Handle bar with expand/collapse controls
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -2555,9 +2551,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                         if (_isBottomSheetExpanded) {
                           // Expand to appropriate size based on content
                           if (_showSelectedPlotDetails) {
-                            _safeAnimateBottomSheet(0.6);
+                            _safeAnimateBottomSheet(0.5);
                         } else {
-                          _safeAnimateBottomSheet(0.7);
+                          _safeAnimateBottomSheet(0.65);
                         }
                         } else {
                           // Collapse to minimum size
@@ -2651,7 +2647,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                 _isBottomSheetExpanded = true;
                                 _showSelectedPlotDetails = false;
                               });
-                              _safeAnimateBottomSheet(0.7);
+                              _safeAnimateBottomSheet(0.65);
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -2683,7 +2679,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                   _showSelectedPlotDetails = true;
                                   _isBottomSheetExpanded = true;
                                 });
-                                _safeAnimateBottomSheet(0.6);
+                                _safeAnimateBottomSheet(0.5);
                               }
                             },
                             child: Container(
@@ -2763,7 +2759,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               const SizedBox(height: 16),
               
               // Plot list or selected plot details
-              Flexible(
+              Expanded(
                 child: _showSelectedPlotDetails && _selectedPlotDetails != null
                     ? _buildSelectedPlotContent()
                     : _plots.isEmpty
@@ -2781,7 +2777,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                             padding: const EdgeInsets.only(
                               left: 20,
                               right: 20,
-                              bottom: 20, // Add bottom padding to prevent content from being cut off
+                              bottom: 100, // Increased bottom padding to prevent content from being cut off by navigation bar
                             ),
                             itemCount: _plots.length,
                             itemBuilder: (context, index) {
@@ -2791,7 +2787,6 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                           ),
               ),
             ],
-          ),
           ),
         );
       },
