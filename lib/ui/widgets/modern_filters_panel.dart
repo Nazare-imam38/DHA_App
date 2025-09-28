@@ -232,27 +232,27 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: Container(
-              width: 280,
+              width: MediaQuery.of(context).size.width * 0.75,
               constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.5,
-                minHeight: 150,
+                maxHeight: MediaQuery.of(context).size.height * 0.7,
+                minHeight: 200,
               ),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
+                  topLeft: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 20,
-                    offset: const Offset(-4, 0),
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 15,
+                    offset: const Offset(-2, 0),
                   ),
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 40,
-                    offset: const Offset(-8, 0),
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 30,
+                    offset: const Offset(-5, 0),
                   ),
                 ],
               ),
@@ -262,11 +262,11 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                     _buildHeader(),
                     Flexible(
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Column(
                           children: [
                             _buildFilterCard(
-                              icon: Icons.attach_money,
+                              icon: Icons.currency_rupee,
                               iconColor: const Color(0xFF4CAF50),
                               title: 'Price Range',
                               isExpanded: _isPriceRangeExpanded,
@@ -282,7 +282,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                               ],
                             ),
                             
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 8),
                               
                             _buildFilterCard(
                               icon: Icons.home,
@@ -310,10 +310,10 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                               )).toList(),
                             ),
                             
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 8),
                               
                             _buildFilterCard(
-                              icon: Icons.location_on,
+                              icon: Icons.location_city,
                               iconColor: _phasesEnabled ? const Color(0xFFF44336) : Colors.grey,
                               title: 'DHA Phase',
                               isExpanded: _isDhaPhaseExpanded,
@@ -340,7 +340,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                               )).toList(),
                             ),
                             
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 8),
                               
                             _buildFilterCard(
                               icon: Icons.straighten,
@@ -370,7 +370,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                               )).toList(),
                             ),
                             
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 8),
                             
                             // Removed all non-required sections to keep UI focused
                             
@@ -394,11 +394,11 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.fromLTRB(20, 16, 16, 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.grey[50],
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
+          topLeft: Radius.circular(20),
         ),
         border: Border(
           bottom: BorderSide(
@@ -410,19 +410,15 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
       child: Row(
         children: [
           Container(
-            width: 32,
-            height: 32,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: BorderRadius.circular(6),
+              color: const Color(0xFF2196F3),
+              borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF1E3C90).withOpacity(0.3),
-                  blurRadius: 4,
+                  color: const Color(0xFF2196F3).withOpacity(0.3),
+                  blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
               ],
@@ -430,10 +426,10 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
             child: const Icon(
               Icons.tune,
               color: Colors.white,
-              size: 16,
+              size: 20,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -442,17 +438,17 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                   'Filters',
                   style: TextStyle(
                     fontFamily: 'Poppins',
-                    fontSize: 16,
+                    fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF1E3C90),
+                    color: Color(0xFF1A1A1A),
                   ),
                 ),
-                const SizedBox(height: 1),
+                const SizedBox(height: 4),
                 Text(
                   'Refine your search',
                   style: TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: 11,
+                    fontSize: 13,
                     fontWeight: FontWeight.w400,
                     color: Colors.grey[600],
                   ),
@@ -462,17 +458,13 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
           ),
           // Filter count badge
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
+              color: const Color(0xFF2196F3),
+              borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF1E3C90).withOpacity(0.3),
+                  color: const Color(0xFF2196F3).withOpacity(0.3),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -484,33 +476,33 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                 const Icon(
                   Icons.filter_list,
                   color: Colors.white,
-                  size: 14,
+                  size: 16,
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 6),
                 Text(
                   '${_activeFilters.length}',
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 8),
-          IconButton(
-            onPressed: widget.onClose,
-            icon: Container(
-              padding: const EdgeInsets.all(6),
+          const SizedBox(width: 12),
+          GestureDetector(
+            onTap: widget.onClose,
+            child: Container(
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
                 Icons.close,
                 color: Colors.grey,
-                size: 16,
+                size: 18,
               ),
             ),
           ),
@@ -533,9 +525,10 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isExpanded ? iconColor.withOpacity(0.3) : Colors.grey.withOpacity(0.1),
           width: isExpanded ? 2 : 1,
@@ -544,8 +537,8 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
           BoxShadow(
             color: isExpanded 
                 ? iconColor.withOpacity(0.1) 
-                : Colors.black.withOpacity(0.05),
-            blurRadius: isExpanded ? 8 : 4,
+                : Colors.black.withOpacity(0.03),
+            blurRadius: isExpanded ? 12 : 6,
             offset: const Offset(0, 2),
           ),
         ],
@@ -555,69 +548,72 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
           GestureDetector(
             onTap: onTap,
             child: Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(20),
               child: Row(
                 children: [
                   Container(
-                    width: 28,
-                    height: 28,
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      ),
-                      borderRadius: BorderRadius.circular(6),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF1E3C90).withOpacity(0.3),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+                      color: iconColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       icon,
-                      color: Colors.white,
-                      size: 14,
+                      color: iconColor,
+                      size: 22,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 16),
                   Expanded(
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF1A1A1A),
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF1A1A1A),
+                          ),
+                        ),
+                        if (selectionTag != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            selectionTag,
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: iconColor,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                   if (hasSelection) ...[
                     if (selectionCount != null) ...[
                       Container(
-                        width: 18,
-                        height: 18,
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
                           color: iconColor,
-                          borderRadius: BorderRadius.circular(9),
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        child: Center(
-                          child: Text(
-                            '$selectionCount',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 9,
-                              fontWeight: FontWeight.w600,
-                            ),
+                        child: Text(
+                          '$selectionCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 12),
                     ] else if (selectionTag != null) ...[
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: iconColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
@@ -630,23 +626,19 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                           selectionTag,
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 9,
+                            fontSize: 10,
                             fontWeight: FontWeight.w600,
                             color: iconColor,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 8),
                     ],
                   ],
-                  AnimatedRotation(
-                    turns: isExpanded ? 0.5 : 0,
-                    duration: const Duration(milliseconds: 200),
-                    child: Icon(
-                      Icons.keyboard_arrow_down,
-                      color: Colors.grey[600],
-                      size: 18,
-                    ),
+                  Icon(
+                    isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                    color: Colors.grey[600],
+                    size: 22,
                   ),
                 ],
               ),
@@ -656,7 +648,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               curve: Curves.easeInOut,
-              padding: const EdgeInsets.fromLTRB(10, 0, 10, 8),
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
               child: Column(
                 children: children,
               ),
