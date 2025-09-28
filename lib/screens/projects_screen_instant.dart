@@ -1327,7 +1327,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
           // Collapsible Map Controls (Bottom Right) - Always visible above bottom sheet
           Positioned(
-            bottom: _isBottomSheetVisible && _isBottomSheetExpanded ? 200 : 20, // Adjusted for reduced bottom sheet size
+            bottom: _isBottomSheetVisible && _isBottomSheetExpanded ? 250 : 20, // Higher when bottom sheet is expanded
             right: 20,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
@@ -2493,9 +2493,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
     return DraggableScrollableSheet(
       controller: _bottomSheetController,
-      initialChildSize: _showSelectedPlotDetails ? 0.3 : 0.15, // Show more space when plot is selected
+      initialChildSize: _showSelectedPlotDetails ? 0.35 : 0.15, // Show more space when plot is selected
       minChildSize: 0.15, // Minimum 15% of screen height
-      maxChildSize: _showSelectedPlotDetails ? 0.5 : 0.65, // Further reduced to account for bottom navigation bar (80px)
+      maxChildSize: _showSelectedPlotDetails ? 0.6 : 0.7, // Reduced to account for bottom navigation bar
       builder: (context, scrollController) {
         // Initialize the bottom sheet controller
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -2505,11 +2505,10 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
             });
           }
         });
-        return SafeArea(
-          child: Container(
-            margin: EdgeInsets.only(
-              bottom: MediaQuery.of(context).padding.bottom + 80, // Add extra space for bottom navigation bar
-            ),
+        return Container(
+          margin: EdgeInsets.only(
+            bottom: MediaQuery.of(context).padding.bottom + 80, // Add extra space for bottom navigation bar
+          ),
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
@@ -2553,7 +2552,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                           if (_showSelectedPlotDetails) {
                             _safeAnimateBottomSheet(0.5);
                         } else {
-                          _safeAnimateBottomSheet(0.65);
+                          _safeAnimateBottomSheet(0.6);
                         }
                         } else {
                           // Collapse to minimum size
@@ -2647,7 +2646,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                 _isBottomSheetExpanded = true;
                                 _showSelectedPlotDetails = false;
                               });
-                              _safeAnimateBottomSheet(0.65);
+                              _safeAnimateBottomSheet(0.6);
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -2759,32 +2758,37 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               const SizedBox(height: 16),
               
               // Plot list or selected plot details
-              Expanded(
-                child: _showSelectedPlotDetails && _selectedPlotDetails != null
-                    ? _buildSelectedPlotContent()
-                    : _plots.isEmpty
-                        ? Center(
-                            child: Text(
-                              'No plots found matching your filters',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey[600],
+              Flexible(
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.5, // Limit max height
+                  ),
+                  child: _showSelectedPlotDetails && _selectedPlotDetails != null
+                      ? _buildSelectedPlotContent()
+                      : _plots.isEmpty
+                          ? Center(
+                              child: Text(
+                                'No plots found matching your filters',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                ),
                               ),
+                            )
+                          : ListView.builder(
+                              controller: scrollController,
+                              padding: const EdgeInsets.only(
+                                left: 20,
+                                right: 20,
+                                bottom: 20, // Add bottom padding to prevent content from being cut off
+                              ),
+                              itemCount: _plots.length,
+                              itemBuilder: (context, index) {
+                                final plot = _plots[index];
+                                return _buildPlotCard(plot);
+                              },
                             ),
-                          )
-                        : ListView.builder(
-                            controller: scrollController,
-                            padding: const EdgeInsets.only(
-                              left: 20,
-                              right: 20,
-                              bottom: 100, // Increased bottom padding to prevent content from being cut off by navigation bar
-                            ),
-                            itemCount: _plots.length,
-                            itemBuilder: (context, index) {
-                              final plot = _plots[index];
-                              return _buildPlotCard(plot);
-                            },
-                          ),
+                ),
               ),
             ],
           ),
