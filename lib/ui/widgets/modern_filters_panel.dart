@@ -314,7 +314,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                               
                             _buildFilterCard(
                               icon: Icons.location_city,
-                              iconColor: _phasesEnabled ? const Color(0xFFF44336) : Colors.grey,
+                              iconColor: _phasesEnabled ? const Color(0xFFE57373) : Colors.grey,
                               title: 'DHA Phase',
                               isExpanded: _isDhaPhaseExpanded,
                               hasSelection: _selectedDhaPhase != null,
@@ -344,7 +344,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                               
                             _buildFilterCard(
                               icon: Icons.straighten,
-                              iconColor: _sizesEnabled ? const Color(0xFFFF9800) : Colors.grey,
+                              iconColor: _sizesEnabled ? const Color(0xFFFFB74D) : Colors.grey,
                               title: 'Plot Size',
                               isExpanded: _isPlotSizeExpanded,
                               hasSelection: _selectedPlotSize != null,
@@ -413,11 +413,11 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: const Color(0xFF2196F3),
+              color: const Color(0xFF4CAF50),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF2196F3).withOpacity(0.3),
+                  color: const Color(0xFF4CAF50).withOpacity(0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -460,11 +460,11 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: const Color(0xFF2196F3),
+              color: const Color(0xFF4CAF50),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF2196F3).withOpacity(0.3),
+                  color: const Color(0xFF4CAF50).withOpacity(0.3),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -932,7 +932,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                     fontFamily: 'Inter',
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF2196F3),
+                    color: Color(0xFF4CAF50),
                   ),
                 ),
               ),
@@ -953,18 +953,28 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
   }
 
   Widget _buildFilterChip(String filter) {
+    // Use different colors for different filter types
+    Color chipColor;
+    if (filter == 'All Plots') {
+      chipColor = const Color(0xFF81C784); // Light green for "All Plots"
+    } else if (filter == 'Phase 6') {
+      chipColor = const Color(0xFF90CAF9); // Light blue for phases
+    } else if (filter == 'Residential' || filter == 'Commercial') {
+      chipColor = const Color(0xFF81C784); // Light green for plot types
+    } else if (filter.contains('Kanal') || filter.contains('Marla')) {
+      chipColor = const Color(0xFF81C784); // Light green for plot sizes
+    } else {
+      chipColor = const Color(0xFF4CAF50); // Default petal green
+    }
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
+        color: chipColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1E3C90).withOpacity(0.3),
+            color: chipColor.withOpacity(0.3),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -975,19 +985,19 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
         children: [
           Text(
             filter,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'Inter',
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: Colors.white,
+              color: filter == 'Phase 6' ? const Color(0xFF1976D2) : const Color(0xFF2E7D32),
             ),
           ),
           const SizedBox(width: 6),
           GestureDetector(
             onTap: () => _removeFilter(filter),
-            child: const Icon(
+            child: Icon(
               Icons.close,
-              color: Colors.white,
+              color: filter == 'Phase 6' ? const Color(0xFF1976D2) : const Color(0xFF2E7D32),
               size: 16,
             ),
           ),
