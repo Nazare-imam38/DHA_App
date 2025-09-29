@@ -29,11 +29,26 @@ class ProgressiveFilterService {
         ).timeout(_timeout);
         
         if (response.statusCode == 200) {
-          final Map<String, dynamic> jsonData = json.decode(response.body);
-          final result = FilteredPlotsResponse.fromJson(jsonData);
+          final dynamic jsonData = json.decode(response.body);
           
-          print('ProgressiveFilterService: ✅ Price filter returned ${result.plots.length} plots');
-          return result;
+          // Handle both Map and List responses
+          if (jsonData is Map<String, dynamic>) {
+            final result = FilteredPlotsResponse.fromJson(jsonData);
+            print('ProgressiveFilterService: ✅ Price filter returned ${result.plots.length} plots');
+            return result;
+          } else if (jsonData is List) {
+            // Handle direct list response
+            final plots = jsonData.map((plot) => PlotData.fromJson(plot)).toList();
+            final result = FilteredPlotsResponse(
+              success: true,
+              plots: plots,
+              counts: PlotCounts(totalCount: plots.length),
+            );
+            print('ProgressiveFilterService: ✅ Price filter returned ${result.plots.length} plots (list format)');
+            return result;
+          } else {
+            throw Exception('Unexpected response format: ${jsonData.runtimeType}');
+          }
         } else {
           throw Exception('Failed to fetch price filtered plots: ${response.statusCode}');
         }
@@ -74,11 +89,26 @@ class ProgressiveFilterService {
         ).timeout(_timeout);
         
         if (response.statusCode == 200) {
-          final Map<String, dynamic> jsonData = json.decode(response.body);
-          final result = FilteredPlotsResponse.fromJson(jsonData);
+          final dynamic jsonData = json.decode(response.body);
           
-          print('ProgressiveFilterService: ✅ Category filter returned ${result.plots.length} plots');
-          return result;
+          // Handle both Map and List responses
+          if (jsonData is Map<String, dynamic>) {
+            final result = FilteredPlotsResponse.fromJson(jsonData);
+            print('ProgressiveFilterService: ✅ Category filter returned ${result.plots.length} plots');
+            return result;
+          } else if (jsonData is List) {
+            // Handle direct list response
+            final plots = jsonData.map((plot) => PlotData.fromJson(plot)).toList();
+            final result = FilteredPlotsResponse(
+              success: true,
+              plots: plots,
+              counts: PlotCounts(totalCount: plots.length),
+            );
+            print('ProgressiveFilterService: ✅ Category filter returned ${result.plots.length} plots (list format)');
+            return result;
+          } else {
+            throw Exception('Unexpected response format: ${jsonData.runtimeType}');
+          }
         } else {
           throw Exception('Failed to fetch category filtered plots: ${response.statusCode}');
         }
@@ -120,11 +150,26 @@ class ProgressiveFilterService {
         ).timeout(_timeout);
         
         if (response.statusCode == 200) {
-          final Map<String, dynamic> jsonData = json.decode(response.body);
-          final result = FilteredPlotsResponse.fromJson(jsonData);
+          final dynamic jsonData = json.decode(response.body);
           
-          print('ProgressiveFilterService: ✅ Phase filter returned ${result.plots.length} plots');
-          return result;
+          // Handle both Map and List responses
+          if (jsonData is Map<String, dynamic>) {
+            final result = FilteredPlotsResponse.fromJson(jsonData);
+            print('ProgressiveFilterService: ✅ Phase filter returned ${result.plots.length} plots');
+            return result;
+          } else if (jsonData is List) {
+            // Handle direct list response
+            final plots = jsonData.map((plot) => PlotData.fromJson(plot)).toList();
+            final result = FilteredPlotsResponse(
+              success: true,
+              plots: plots,
+              counts: PlotCounts(totalCount: plots.length),
+            );
+            print('ProgressiveFilterService: ✅ Phase filter returned ${result.plots.length} plots (list format)');
+            return result;
+          } else {
+            throw Exception('Unexpected response format: ${jsonData.runtimeType}');
+          }
         } else {
           throw Exception('Failed to fetch phase filtered plots: ${response.statusCode}');
         }
@@ -167,11 +212,26 @@ class ProgressiveFilterService {
         ).timeout(_timeout);
         
         if (response.statusCode == 200) {
-          final Map<String, dynamic> jsonData = json.decode(response.body);
-          final result = FilteredPlotsResponse.fromJson(jsonData);
+          final dynamic jsonData = json.decode(response.body);
           
-          print('ProgressiveFilterService: ✅ Size filter returned ${result.plots.length} plots');
-          return result;
+          // Handle both Map and List responses
+          if (jsonData is Map<String, dynamic>) {
+            final result = FilteredPlotsResponse.fromJson(jsonData);
+            print('ProgressiveFilterService: ✅ Size filter returned ${result.plots.length} plots');
+            return result;
+          } else if (jsonData is List) {
+            // Handle direct list response
+            final plots = jsonData.map((plot) => PlotData.fromJson(plot)).toList();
+            final result = FilteredPlotsResponse(
+              success: true,
+              plots: plots,
+              counts: PlotCounts(totalCount: plots.length),
+            );
+            print('ProgressiveFilterService: ✅ Size filter returned ${result.plots.length} plots (list format)');
+            return result;
+          } else {
+            throw Exception('Unexpected response format: ${jsonData.runtimeType}');
+          }
         } else {
           throw Exception('Failed to fetch size filtered plots: ${response.statusCode}');
         }
@@ -358,50 +418,17 @@ class PlotData {
       remarks: json['remarks'] ?? '',
       holdBy: json['hold_by'],
       expireTime: json['expire_time'],
-      expoBasePrice: json['base_price'] ?? '', // Fixed: was 'expo_base_price'
-      oneYrEp: json['one_yr_plan'] ?? '', // Fixed: was 'one_yr_ep'
-      twoYrsEp: json['two_yrs_plan'] ?? '', // Fixed: was 'two_yrs_ep'
-      twoFiveYrsEp: json['two_five_yrs_plan'] ?? '', // Fixed: was 'two_five_yrs_ep'
-      threeYrsEp: json['three_yrs_plan'] ?? '', // Fixed: was 'three_yrs_ep'
-      vloggerBasePrice: json['base_price'] ?? '', // Using base_price as fallback
-      vloggerOneYrPlan: json['one_yr_plan'] ?? '', // Using one_yr_plan as fallback
-      vloggerTwoYrsPlan: json['two_yrs_plan'] ?? '', // Using two_yrs_plan as fallback
+      expoBasePrice: json['expo_base_price'] ?? '',
+      oneYrEp: json['one_yr_ep'] ?? '',
+      twoYrsEp: json['two_yrs_ep'] ?? '',
+      twoFiveYrsEp: json['two_five_yrs_ep'] ?? '',
+      threeYrsEp: json['three_yrs_ep'] ?? '',
+      vloggerBasePrice: json['vlogger_base_price'] ?? '',
+      vloggerOneYrPlan: json['vlogger_one_yr_plan'] ?? '',
+      vloggerTwoYrsPlan: json['vlogger_two_yrs_plan'] ?? '',
       stAsgeojson: json['st_asgeojson'] ?? '',
       eventHistory: EventHistory.fromJson(json['event_history'] ?? {}),
     );
-  }
-
-  /// Convert GeoJSON coordinates to latitude/longitude for map markers
-  Map<String, double> getLatLng() {
-    try {
-      if (stAsgeojson.isEmpty) {
-        return {'lat': 0.0, 'lng': 0.0};
-      }
-
-      // Parse the GeoJSON string
-      final geoJsonData = json.decode(stAsgeojson);
-      
-      if (geoJsonData['type'] == 'MultiPolygon' && 
-          geoJsonData['coordinates'] != null && 
-          geoJsonData['coordinates'].isNotEmpty) {
-        
-        // Get the first polygon's first coordinate
-        final coordinates = geoJsonData['coordinates'][0][0][0];
-        final x = coordinates[0].toDouble();
-        final y = coordinates[1].toDouble();
-        
-        // Convert from EPSG:32643 (UTM Zone 43N) to WGS84 (lat/lng)
-        // This is a simplified conversion - for production, use a proper coordinate transformation library
-        final lat = y / 111320.0; // Approximate conversion
-        final lng = x / 111320.0; // Approximate conversion
-        
-        return {'lat': lat, 'lng': lng};
-      }
-    } catch (e) {
-      print('Error parsing GeoJSON for plot $id: $e');
-    }
-    
-    return {'lat': 0.0, 'lng': 0.0};
   }
 }
 
