@@ -29,8 +29,8 @@ class ProgressiveFilterService {
         ).timeout(_timeout);
         
         if (response.statusCode == 200) {
-          final dynamic responseData = json.decode(response.body);
-          final result = FilteredPlotsResponse.fromJson(responseData);
+          final Map<String, dynamic> jsonData = json.decode(response.body);
+          final result = FilteredPlotsResponse.fromJson(jsonData);
           
           print('ProgressiveFilterService: ✅ Price filter returned ${result.plots.length} plots');
           return result;
@@ -74,8 +74,8 @@ class ProgressiveFilterService {
         ).timeout(_timeout);
         
         if (response.statusCode == 200) {
-          final dynamic responseData = json.decode(response.body);
-          final result = FilteredPlotsResponse.fromJson(responseData);
+          final Map<String, dynamic> jsonData = json.decode(response.body);
+          final result = FilteredPlotsResponse.fromJson(jsonData);
           
           print('ProgressiveFilterService: ✅ Category filter returned ${result.plots.length} plots');
           return result;
@@ -120,8 +120,8 @@ class ProgressiveFilterService {
         ).timeout(_timeout);
         
         if (response.statusCode == 200) {
-          final dynamic responseData = json.decode(response.body);
-          final result = FilteredPlotsResponse.fromJson(responseData);
+          final Map<String, dynamic> jsonData = json.decode(response.body);
+          final result = FilteredPlotsResponse.fromJson(jsonData);
           
           print('ProgressiveFilterService: ✅ Phase filter returned ${result.plots.length} plots');
           return result;
@@ -167,8 +167,8 @@ class ProgressiveFilterService {
         ).timeout(_timeout);
         
         if (response.statusCode == 200) {
-          final dynamic responseData = json.decode(response.body);
-          final result = FilteredPlotsResponse.fromJson(responseData);
+          final Map<String, dynamic> jsonData = json.decode(response.body);
+          final result = FilteredPlotsResponse.fromJson(jsonData);
           
           print('ProgressiveFilterService: ✅ Size filter returned ${result.plots.length} plots');
           return result;
@@ -271,32 +271,13 @@ class FilteredPlotsResponse {
     required this.counts,
   });
 
-  factory FilteredPlotsResponse.fromJson(dynamic json) {
-    // Handle the case where API returns a List directly
-    if (json is List) {
-      return FilteredPlotsResponse(
-        success: true,
-        plots: json.map((plot) => PlotData.fromJson(plot)).toList(),
-        counts: PlotCounts.fromJson({}), // Empty counts for list response
-      );
-    }
-    
-    // Handle the case where API returns a Map with data structure
-    if (json is Map<String, dynamic>) {
-      return FilteredPlotsResponse(
-        success: json['success'] ?? false,
-        plots: (json['data']?['plots'] as List<dynamic>?)
-            ?.map((plot) => PlotData.fromJson(plot))
-            .toList() ?? [],
-        counts: PlotCounts.fromJson(json['data']?['counts'] ?? {}),
-      );
-    }
-    
-    // Fallback for unexpected format
+  factory FilteredPlotsResponse.fromJson(Map<String, dynamic> json) {
     return FilteredPlotsResponse(
-      success: false,
-      plots: [],
-      counts: PlotCounts.fromJson({}),
+      success: json['success'] ?? false,
+      plots: (json['data']['plots'] as List<dynamic>?)
+          ?.map((plot) => PlotData.fromJson(plot))
+          .toList() ?? [],
+      counts: PlotCounts.fromJson(json['data']['counts'] ?? {}),
     );
   }
 }
@@ -377,17 +358,50 @@ class PlotData {
       remarks: json['remarks'] ?? '',
       holdBy: json['hold_by'],
       expireTime: json['expire_time'],
-      expoBasePrice: json['expo_base_price'] ?? '',
-      oneYrEp: json['one_yr_ep'] ?? '',
-      twoYrsEp: json['two_yrs_ep'] ?? '',
-      twoFiveYrsEp: json['two_five_yrs_ep'] ?? '',
-      threeYrsEp: json['three_yrs_ep'] ?? '',
-      vloggerBasePrice: json['vlogger_base_price'] ?? '',
-      vloggerOneYrPlan: json['vlogger_one_yr_plan'] ?? '',
-      vloggerTwoYrsPlan: json['vlogger_two_yrs_plan'] ?? '',
+      expoBasePrice: json['base_price'] ?? '', // Fixed: was 'expo_base_price'
+      oneYrEp: json['one_yr_plan'] ?? '', // Fixed: was 'one_yr_ep'
+      twoYrsEp: json['two_yrs_plan'] ?? '', // Fixed: was 'two_yrs_ep'
+      twoFiveYrsEp: json['two_five_yrs_plan'] ?? '', // Fixed: was 'two_five_yrs_ep'
+      threeYrsEp: json['three_yrs_plan'] ?? '', // Fixed: was 'three_yrs_ep'
+      vloggerBasePrice: json['base_price'] ?? '', // Using base_price as fallback
+      vloggerOneYrPlan: json['one_yr_plan'] ?? '', // Using one_yr_plan as fallback
+      vloggerTwoYrsPlan: json['two_yrs_plan'] ?? '', // Using two_yrs_plan as fallback
       stAsgeojson: json['st_asgeojson'] ?? '',
       eventHistory: EventHistory.fromJson(json['event_history'] ?? {}),
     );
+  }
+
+  /// Convert GeoJSON coordinates to latitude/longitude for map markers
+  Map<String, double> getLatLng() {
+    try {
+      if (stAsgeojson.isEmpty) {
+        return {'lat': 0.0, 'lng': 0.0};
+      }
+
+      // Parse the GeoJSON string
+      final geoJsonData = json.decode(stAsgeojson);
+      
+      if (geoJsonData['type'] == 'MultiPolygon' && 
+          geoJsonData['coordinates'] != null && 
+          geoJsonData['coordinates'].isNotEmpty) {
+        
+        // Get the first polygon's first coordinate
+        final coordinates = geoJsonData['coordinates'][0][0][0];
+        final x = coordinates[0].toDouble();
+        final y = coordinates[1].toDouble();
+        
+        // Convert from EPSG:32643 (UTM Zone 43N) to WGS84 (lat/lng)
+        // This is a simplified conversion - for production, use a proper coordinate transformation library
+        final lat = y / 111320.0; // Approximate conversion
+        final lng = x / 111320.0; // Approximate conversion
+        
+        return {'lat': lat, 'lng': lng};
+      }
+    } catch (e) {
+      print('Error parsing GeoJSON for plot $id: $e');
+    }
+    
+    return {'lat': 0.0, 'lng': 0.0};
   }
 }
 
