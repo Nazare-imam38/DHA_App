@@ -29,8 +29,8 @@ class ProgressiveFilterService {
         ).timeout(_timeout);
         
         if (response.statusCode == 200) {
-          final Map<String, dynamic> jsonData = json.decode(response.body);
-          final result = FilteredPlotsResponse.fromJson(jsonData);
+          final dynamic responseData = json.decode(response.body);
+          final result = FilteredPlotsResponse.fromJson(responseData);
           
           print('ProgressiveFilterService: ✅ Price filter returned ${result.plots.length} plots');
           return result;
@@ -74,8 +74,8 @@ class ProgressiveFilterService {
         ).timeout(_timeout);
         
         if (response.statusCode == 200) {
-          final Map<String, dynamic> jsonData = json.decode(response.body);
-          final result = FilteredPlotsResponse.fromJson(jsonData);
+          final dynamic responseData = json.decode(response.body);
+          final result = FilteredPlotsResponse.fromJson(responseData);
           
           print('ProgressiveFilterService: ✅ Category filter returned ${result.plots.length} plots');
           return result;
@@ -120,8 +120,8 @@ class ProgressiveFilterService {
         ).timeout(_timeout);
         
         if (response.statusCode == 200) {
-          final Map<String, dynamic> jsonData = json.decode(response.body);
-          final result = FilteredPlotsResponse.fromJson(jsonData);
+          final dynamic responseData = json.decode(response.body);
+          final result = FilteredPlotsResponse.fromJson(responseData);
           
           print('ProgressiveFilterService: ✅ Phase filter returned ${result.plots.length} plots');
           return result;
@@ -167,8 +167,8 @@ class ProgressiveFilterService {
         ).timeout(_timeout);
         
         if (response.statusCode == 200) {
-          final Map<String, dynamic> jsonData = json.decode(response.body);
-          final result = FilteredPlotsResponse.fromJson(jsonData);
+          final dynamic responseData = json.decode(response.body);
+          final result = FilteredPlotsResponse.fromJson(responseData);
           
           print('ProgressiveFilterService: ✅ Size filter returned ${result.plots.length} plots');
           return result;
@@ -271,13 +271,32 @@ class FilteredPlotsResponse {
     required this.counts,
   });
 
-  factory FilteredPlotsResponse.fromJson(Map<String, dynamic> json) {
+  factory FilteredPlotsResponse.fromJson(dynamic json) {
+    // Handle the case where API returns a List directly
+    if (json is List) {
+      return FilteredPlotsResponse(
+        success: true,
+        plots: json.map((plot) => PlotData.fromJson(plot)).toList(),
+        counts: PlotCounts.fromJson({}), // Empty counts for list response
+      );
+    }
+    
+    // Handle the case where API returns a Map with data structure
+    if (json is Map<String, dynamic>) {
+      return FilteredPlotsResponse(
+        success: json['success'] ?? false,
+        plots: (json['data']?['plots'] as List<dynamic>?)
+            ?.map((plot) => PlotData.fromJson(plot))
+            .toList() ?? [],
+        counts: PlotCounts.fromJson(json['data']?['counts'] ?? {}),
+      );
+    }
+    
+    // Fallback for unexpected format
     return FilteredPlotsResponse(
-      success: json['success'] ?? false,
-      plots: (json['data']['plots'] as List<dynamic>?)
-          ?.map((plot) => PlotData.fromJson(plot))
-          .toList() ?? [],
-      counts: PlotCounts.fromJson(json['data']['counts'] ?? {}),
+      success: false,
+      plots: [],
+      counts: PlotCounts.fromJson({}),
     );
   }
 }
