@@ -7,6 +7,47 @@ class ProgressiveFilterService {
   static const Duration _timeout = Duration(seconds: 30);
   static const int _maxRetries = 3;
 
+  /// Load all plots initially (price range 0 to 100,000,000)
+  static Future<FilteredPlotsResponse> loadAllPlots() async {
+    print('ProgressiveFilterService: Loading all plots (price range 0-100,000,000)');
+    
+    final url = '$baseUrl/filtered-plots?price_from=0&price_to=100000000';
+    
+    for (int attempt = 1; attempt <= _maxRetries; attempt++) {
+      try {
+        print('ProgressiveFilterService: Attempt $attempt/$_maxRetries - $url');
+        
+        final response = await http.get(
+          Uri.parse(url),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+        ).timeout(_timeout);
+        
+        if (response.statusCode == 200) {
+          final Map<String, dynamic> jsonData = json.decode(response.body);
+          final result = FilteredPlotsResponse.fromJson(jsonData);
+          
+          print('ProgressiveFilterService: ✅ Loaded ${result.plots.length} total plots');
+          return result;
+        } else {
+          throw Exception('Failed to load all plots: ${response.statusCode}');
+        }
+      } catch (e) {
+        print('ProgressiveFilterService: Attempt $attempt failed: $e');
+        
+        if (attempt == _maxRetries) {
+          throw Exception('Failed to load all plots after $_maxRetries attempts: $e');
+        }
+        
+        await Future.delayed(Duration(seconds: attempt * 2));
+      }
+    }
+    
+    throw Exception('Failed to load all plots');
+  }
+
   /// Step 1: Filter by price range only
   static Future<FilteredPlotsResponse> filterByPriceRange({
     required double priceFrom,
@@ -29,26 +70,11 @@ class ProgressiveFilterService {
         ).timeout(_timeout);
         
         if (response.statusCode == 200) {
-          final dynamic jsonData = json.decode(response.body);
+          final Map<String, dynamic> jsonData = json.decode(response.body);
+          final result = FilteredPlotsResponse.fromJson(jsonData);
           
-          // Handle both Map and List responses
-          if (jsonData is Map<String, dynamic>) {
-            final result = FilteredPlotsResponse.fromJson(jsonData);
-            print('ProgressiveFilterService: ✅ Price filter returned ${result.plots.length} plots');
-            return result;
-          } else if (jsonData is List) {
-            // Handle direct list response
-            final plots = jsonData.map((plot) => PlotData.fromJson(plot)).toList();
-            final result = FilteredPlotsResponse(
-              success: true,
-              plots: plots,
-              counts: PlotCounts(totalCount: plots.length),
-            );
-            print('ProgressiveFilterService: ✅ Price filter returned ${result.plots.length} plots (list format)');
-            return result;
-          } else {
-            throw Exception('Unexpected response format: ${jsonData.runtimeType}');
-          }
+          print('ProgressiveFilterService: ✅ Price filter returned ${result.plots.length} plots');
+          return result;
         } else {
           throw Exception('Failed to fetch price filtered plots: ${response.statusCode}');
         }
@@ -89,26 +115,11 @@ class ProgressiveFilterService {
         ).timeout(_timeout);
         
         if (response.statusCode == 200) {
-          final dynamic jsonData = json.decode(response.body);
+          final Map<String, dynamic> jsonData = json.decode(response.body);
+          final result = FilteredPlotsResponse.fromJson(jsonData);
           
-          // Handle both Map and List responses
-          if (jsonData is Map<String, dynamic>) {
-            final result = FilteredPlotsResponse.fromJson(jsonData);
-            print('ProgressiveFilterService: ✅ Category filter returned ${result.plots.length} plots');
-            return result;
-          } else if (jsonData is List) {
-            // Handle direct list response
-            final plots = jsonData.map((plot) => PlotData.fromJson(plot)).toList();
-            final result = FilteredPlotsResponse(
-              success: true,
-              plots: plots,
-              counts: PlotCounts(totalCount: plots.length),
-            );
-            print('ProgressiveFilterService: ✅ Category filter returned ${result.plots.length} plots (list format)');
-            return result;
-          } else {
-            throw Exception('Unexpected response format: ${jsonData.runtimeType}');
-          }
+          print('ProgressiveFilterService: ✅ Category filter returned ${result.plots.length} plots');
+          return result;
         } else {
           throw Exception('Failed to fetch category filtered plots: ${response.statusCode}');
         }
@@ -150,26 +161,11 @@ class ProgressiveFilterService {
         ).timeout(_timeout);
         
         if (response.statusCode == 200) {
-          final dynamic jsonData = json.decode(response.body);
+          final Map<String, dynamic> jsonData = json.decode(response.body);
+          final result = FilteredPlotsResponse.fromJson(jsonData);
           
-          // Handle both Map and List responses
-          if (jsonData is Map<String, dynamic>) {
-            final result = FilteredPlotsResponse.fromJson(jsonData);
-            print('ProgressiveFilterService: ✅ Phase filter returned ${result.plots.length} plots');
-            return result;
-          } else if (jsonData is List) {
-            // Handle direct list response
-            final plots = jsonData.map((plot) => PlotData.fromJson(plot)).toList();
-            final result = FilteredPlotsResponse(
-              success: true,
-              plots: plots,
-              counts: PlotCounts(totalCount: plots.length),
-            );
-            print('ProgressiveFilterService: ✅ Phase filter returned ${result.plots.length} plots (list format)');
-            return result;
-          } else {
-            throw Exception('Unexpected response format: ${jsonData.runtimeType}');
-          }
+          print('ProgressiveFilterService: ✅ Phase filter returned ${result.plots.length} plots');
+          return result;
         } else {
           throw Exception('Failed to fetch phase filtered plots: ${response.statusCode}');
         }
@@ -212,26 +208,11 @@ class ProgressiveFilterService {
         ).timeout(_timeout);
         
         if (response.statusCode == 200) {
-          final dynamic jsonData = json.decode(response.body);
+          final Map<String, dynamic> jsonData = json.decode(response.body);
+          final result = FilteredPlotsResponse.fromJson(jsonData);
           
-          // Handle both Map and List responses
-          if (jsonData is Map<String, dynamic>) {
-            final result = FilteredPlotsResponse.fromJson(jsonData);
-            print('ProgressiveFilterService: ✅ Size filter returned ${result.plots.length} plots');
-            return result;
-          } else if (jsonData is List) {
-            // Handle direct list response
-            final plots = jsonData.map((plot) => PlotData.fromJson(plot)).toList();
-            final result = FilteredPlotsResponse(
-              success: true,
-              plots: plots,
-              counts: PlotCounts(totalCount: plots.length),
-            );
-            print('ProgressiveFilterService: ✅ Size filter returned ${result.plots.length} plots (list format)');
-            return result;
-          } else {
-            throw Exception('Unexpected response format: ${jsonData.runtimeType}');
-          }
+          print('ProgressiveFilterService: ✅ Size filter returned ${result.plots.length} plots');
+          return result;
         } else {
           throw Exception('Failed to fetch size filtered plots: ${response.statusCode}');
         }
@@ -418,14 +399,14 @@ class PlotData {
       remarks: json['remarks'] ?? '',
       holdBy: json['hold_by'],
       expireTime: json['expire_time'],
-      expoBasePrice: json['expo_base_price'] ?? '',
-      oneYrEp: json['one_yr_ep'] ?? '',
-      twoYrsEp: json['two_yrs_ep'] ?? '',
-      twoFiveYrsEp: json['two_five_yrs_ep'] ?? '',
-      threeYrsEp: json['three_yrs_ep'] ?? '',
-      vloggerBasePrice: json['vlogger_base_price'] ?? '',
-      vloggerOneYrPlan: json['vlogger_one_yr_plan'] ?? '',
-      vloggerTwoYrsPlan: json['vlogger_two_yrs_plan'] ?? '',
+      expoBasePrice: json['base_price'] ?? '', // Fixed: was expo_base_price
+      oneYrEp: json['one_yr_plan'] ?? '', // Fixed: was one_yr_ep
+      twoYrsEp: json['two_yrs_plan'] ?? '', // Fixed: was two_yrs_ep
+      twoFiveYrsEp: json['two_five_yrs_plan'] ?? '', // Fixed: was two_five_yrs_ep
+      threeYrsEp: json['three_yrs_plan'] ?? '', // Fixed: was three_yrs_ep
+      vloggerBasePrice: json['base_price'] ?? '', // Using base_price for vlogger
+      vloggerOneYrPlan: json['one_yr_plan'] ?? '', // Using one_yr_plan for vlogger
+      vloggerTwoYrsPlan: json['two_yrs_plan'] ?? '', // Using two_yrs_plan for vlogger
       stAsgeojson: json['st_asgeojson'] ?? '',
       eventHistory: EventHistory.fromJson(json['event_history'] ?? {}),
     );

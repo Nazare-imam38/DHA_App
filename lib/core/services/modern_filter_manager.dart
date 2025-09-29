@@ -346,9 +346,13 @@ class ModernFilterManager {
       
       print('ModernFilterManager: Loading initial plots...');
       
-      // Try to load all plots from API
-      final rawPlots = await EnhancedPlotsApiService.fetchAllPlots();
-      print('ModernFilterManager: Raw API returned ${rawPlots.length} plots');
+      // Load all plots using ProgressiveFilterService (price range 0-100,000,000)
+      final response = await ProgressiveFilter.ProgressiveFilterService.loadAllPlots();
+      print('ModernFilterManager: ProgressiveFilterService returned ${response.plots.length} plots');
+      
+      // Convert ProgressiveFilter.PlotData to PlotModel
+      final rawPlots = _convertToPlotModels(response.plots);
+      print('ModernFilterManager: Converted to ${rawPlots.length} PlotModel objects');
       
       // Deduplicate plots by plotNo to prevent duplicate markers
       _allPlots = _deduplicatePlots(rawPlots);
