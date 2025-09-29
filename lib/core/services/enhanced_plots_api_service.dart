@@ -67,8 +67,32 @@ class EnhancedPlotsApiService {
           }
           
           try {
-            final List<dynamic> jsonData = json.decode(responseBody);
-            print('EnhancedPlotsApiService: Parsed ${jsonData.length} items from API');
+            final dynamic responseData = json.decode(responseBody);
+            print('EnhancedPlotsApiService: Response type: ${responseData.runtimeType}');
+            
+            List<dynamic> jsonData;
+            
+            // Handle both response formats: List directly or Map with data wrapper
+            if (responseData is List) {
+              // API returns List directly
+              jsonData = responseData;
+              print('EnhancedPlotsApiService: Parsed ${jsonData.length} items from API (List format)');
+            } else if (responseData is Map<String, dynamic>) {
+              // API returns Map with data wrapper
+              if (responseData.containsKey('data') && responseData['data'] is List) {
+                jsonData = responseData['data'] as List<dynamic>;
+                print('EnhancedPlotsApiService: Parsed ${jsonData.length} items from API (Map format with data key)');
+              } else if (responseData.containsKey('plots') && responseData['plots'] is List) {
+                jsonData = responseData['plots'] as List<dynamic>;
+                print('EnhancedPlotsApiService: Parsed ${jsonData.length} items from API (Map format with plots key)');
+              } else {
+                print('EnhancedPlotsApiService: ❌ Unexpected Map format: ${responseData.keys}');
+                return [];
+              }
+            } else {
+              print('EnhancedPlotsApiService: ❌ Unexpected response format: ${responseData.runtimeType}');
+              return [];
+            }
             
             if (jsonData.isEmpty) {
               print('EnhancedPlotsApiService: ⚠️ No plots in API response');

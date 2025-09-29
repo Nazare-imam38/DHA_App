@@ -7,47 +7,6 @@ class ProgressiveFilterService {
   static const Duration _timeout = Duration(seconds: 30);
   static const int _maxRetries = 3;
 
-  /// Load all plots initially (price range 0 to 100,000,000)
-  static Future<FilteredPlotsResponse> loadAllPlots() async {
-    print('ProgressiveFilterService: Loading all plots (price range 0-100,000,000)');
-    
-    final url = '$baseUrl/filtered-plots?price_from=0&price_to=100000000';
-    
-    for (int attempt = 1; attempt <= _maxRetries; attempt++) {
-      try {
-        print('ProgressiveFilterService: Attempt $attempt/$_maxRetries - $url');
-        
-        final response = await http.get(
-          Uri.parse(url),
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-        ).timeout(_timeout);
-        
-        if (response.statusCode == 200) {
-          final Map<String, dynamic> jsonData = json.decode(response.body);
-          final result = FilteredPlotsResponse.fromJson(jsonData);
-          
-          print('ProgressiveFilterService: ✅ Loaded ${result.plots.length} total plots');
-          return result;
-        } else {
-          throw Exception('Failed to load all plots: ${response.statusCode}');
-        }
-      } catch (e) {
-        print('ProgressiveFilterService: Attempt $attempt failed: $e');
-        
-        if (attempt == _maxRetries) {
-          throw Exception('Failed to load all plots after $_maxRetries attempts: $e');
-        }
-        
-        await Future.delayed(Duration(seconds: attempt * 2));
-      }
-    }
-    
-    throw Exception('Failed to load all plots');
-  }
-
   /// Step 1: Filter by price range only
   static Future<FilteredPlotsResponse> filterByPriceRange({
     required double priceFrom,
@@ -316,7 +275,7 @@ class FilteredPlotsResponse {
     return FilteredPlotsResponse(
       success: json['success'] ?? false,
       plots: (json['data']['plots'] as List<dynamic>?)
-          ?.map((plot) => PlotData.fromJson(plot))
+          ?.map((plot) => PlotData.fromJson(plot as Map<String, dynamic>))
           .toList() ?? [],
       counts: PlotCounts.fromJson(json['data']['counts'] ?? {}),
     );
@@ -326,7 +285,7 @@ class FilteredPlotsResponse {
 /// Individual plot data model
 class PlotData {
   final int id;
-  final int eventHistoryId;
+  final int? eventHistoryId;
   final String plotNo;
   final String size;
   final String category;
@@ -341,20 +300,17 @@ class PlotData {
   final String remarks;
   final String? holdBy;
   final String? expireTime;
-  final String expoBasePrice;
-  final String oneYrEp;
-  final String twoYrsEp;
-  final String twoFiveYrsEp;
-  final String threeYrsEp;
-  final String vloggerBasePrice;
-  final String vloggerOneYrPlan;
-  final String vloggerTwoYrsPlan;
+  final String basePrice;
+  final String oneYrPlan;
+  final String twoYrsPlan;
+  final String twoFiveYrsPlan;
+  final String threeYrsPlan;
   final String stAsgeojson;
   final EventHistory eventHistory;
 
   PlotData({
     required this.id,
-    required this.eventHistoryId,
+    this.eventHistoryId,
     required this.plotNo,
     required this.size,
     required this.category,
@@ -369,14 +325,11 @@ class PlotData {
     required this.remarks,
     this.holdBy,
     this.expireTime,
-    required this.expoBasePrice,
-    required this.oneYrEp,
-    required this.twoYrsEp,
-    required this.twoFiveYrsEp,
-    required this.threeYrsEp,
-    required this.vloggerBasePrice,
-    required this.vloggerOneYrPlan,
-    required this.vloggerTwoYrsPlan,
+    required this.basePrice,
+    required this.oneYrPlan,
+    required this.twoYrsPlan,
+    required this.twoFiveYrsPlan,
+    required this.threeYrsPlan,
     required this.stAsgeojson,
     required this.eventHistory,
   });
@@ -384,7 +337,7 @@ class PlotData {
   factory PlotData.fromJson(Map<String, dynamic> json) {
     return PlotData(
       id: json['id'] ?? 0,
-      eventHistoryId: json['event_history_id'] ?? 0,
+      eventHistoryId: json['event_history_id'],
       plotNo: json['plot_no'] ?? '',
       size: json['size'] ?? '',
       category: json['category'] ?? '',
@@ -399,14 +352,11 @@ class PlotData {
       remarks: json['remarks'] ?? '',
       holdBy: json['hold_by'],
       expireTime: json['expire_time'],
-      expoBasePrice: json['base_price'] ?? '', // Fixed: was expo_base_price
-      oneYrEp: json['one_yr_plan'] ?? '', // Fixed: was one_yr_ep
-      twoYrsEp: json['two_yrs_plan'] ?? '', // Fixed: was two_yrs_ep
-      twoFiveYrsEp: json['two_five_yrs_plan'] ?? '', // Fixed: was two_five_yrs_ep
-      threeYrsEp: json['three_yrs_plan'] ?? '', // Fixed: was three_yrs_ep
-      vloggerBasePrice: json['base_price'] ?? '', // Using base_price for vlogger
-      vloggerOneYrPlan: json['one_yr_plan'] ?? '', // Using one_yr_plan for vlogger
-      vloggerTwoYrsPlan: json['two_yrs_plan'] ?? '', // Using two_yrs_plan for vlogger
+      basePrice: json['base_price'] ?? '',
+      oneYrPlan: json['one_yr_plan'] ?? '',
+      twoYrsPlan: json['two_yrs_plan'] ?? '',
+      twoFiveYrsPlan: json['two_five_yrs_plan'] ?? '',
+      threeYrsPlan: json['three_yrs_plan'] ?? '',
       stAsgeojson: json['st_asgeojson'] ?? '',
       eventHistory: EventHistory.fromJson(json['event_history'] ?? {}),
     );
@@ -415,24 +365,17 @@ class PlotData {
 
 /// Event history model
 class EventHistory {
-  final int id;
-  final int eventId;
-  final bool isBidding;
-  final Event event;
+  final List<Event> events;
 
   EventHistory({
-    required this.id,
-    required this.eventId,
-    required this.isBidding,
-    required this.event,
+    required this.events,
   });
 
   factory EventHistory.fromJson(Map<String, dynamic> json) {
     return EventHistory(
-      id: json['id'] ?? 0,
-      eventId: json['event_id'] ?? 0,
-      isBidding: json['is_bidding'] ?? false,
-      event: Event.fromJson(json['event'] ?? {}),
+      events: (json['event'] as List<dynamic>?)
+          ?.map((event) => Event.fromJson(event as Map<String, dynamic>))
+          .toList() ?? [],
     );
   }
 }

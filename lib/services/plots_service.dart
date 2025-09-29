@@ -52,7 +52,17 @@ class PlotsService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return PlotsResponse.fromJson(data);
+        
+        // Handle both response formats: List directly or Map with wrapper
+        if (data is List) {
+          // API returns List directly
+          return PlotsResponse.fromJsonArray(data);
+        } else if (data is Map<String, dynamic>) {
+          // API returns Map with wrapper
+          return PlotsResponse.fromJson(data);
+        } else {
+          throw Exception('Unexpected response format: ${data.runtimeType}');
+        }
       } else {
         throw Exception('Failed to load plots: ${response.statusCode}');
       }
@@ -108,7 +118,17 @@ class PlotsService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return PlotsResponse.fromJson(data);
+        
+        // Handle both response formats: List directly or Map with wrapper
+        if (data is List) {
+          // API returns List directly
+          return PlotsResponse.fromJsonArray(data);
+        } else if (data is Map<String, dynamic>) {
+          // API returns Map with wrapper
+          return PlotsResponse.fromJson(data);
+        } else {
+          throw Exception('Unexpected response format: ${data.runtimeType}');
+        }
       } else {
         throw Exception('Failed to load plots: ${response.statusCode}');
       }

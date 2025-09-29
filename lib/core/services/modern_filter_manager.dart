@@ -346,13 +346,9 @@ class ModernFilterManager {
       
       print('ModernFilterManager: Loading initial plots...');
       
-      // Load all plots using ProgressiveFilterService (price range 0-100,000,000)
-      final response = await ProgressiveFilter.ProgressiveFilterService.loadAllPlots();
-      print('ModernFilterManager: ProgressiveFilterService returned ${response.plots.length} plots');
-      
-      // Convert ProgressiveFilter.PlotData to PlotModel
-      final rawPlots = _convertToPlotModels(response.plots);
-      print('ModernFilterManager: Converted to ${rawPlots.length} PlotModel objects');
+      // Try to load all plots from API
+      final rawPlots = await EnhancedPlotsApiService.fetchAllPlots();
+      print('ModernFilterManager: Raw API returned ${rawPlots.length} plots');
       
       // Deduplicate plots by plotNo to prevent duplicate markers
       _allPlots = _deduplicatePlots(rawPlots);
@@ -650,32 +646,48 @@ class ModernFilterManager {
       remarks: plot.remarks,
       holdBy: plot.holdBy,
       expireTime: plot.expireTime,
-      basePrice: plot.expoBasePrice,
-      oneYrPlan: plot.oneYrEp,
-      twoYrsPlan: plot.twoYrsEp,
-      twoFiveYrsPlan: plot.twoFiveYrsEp,
-      threeYrsPlan: plot.threeYrsEp,
+      basePrice: plot.basePrice,
+      oneYrPlan: plot.oneYrPlan,
+      twoYrsPlan: plot.twoYrsPlan,
+      twoFiveYrsPlan: plot.twoFiveYrsPlan,
+      threeYrsPlan: plot.threeYrsPlan,
       stAsgeojson: plot.stAsgeojson,
       eventHistory: _convertEventHistory(plot.eventHistory),
-      expoBasePrice: plot.expoBasePrice,
-      vloggerBasePrice: plot.vloggerBasePrice,
     )).toList();
   }
 
   /// Convert EventHistory from progressive filter service to PlotModel EventHistory
   EventHistory _convertEventHistory(ProgressiveFilter.EventHistory serviceEventHistory) {
-    return EventHistory(
-      id: serviceEventHistory.id,
-      eventId: serviceEventHistory.eventId,
-      isBidding: serviceEventHistory.isBidding,
-      event: Event(
-        id: serviceEventHistory.event.id,
-        title: serviceEventHistory.event.title,
-        status: serviceEventHistory.event.status,
-        startDate: serviceEventHistory.event.startDate,
-        endDate: serviceEventHistory.event.endDate,
-      ),
-    );
+    // Convert the list of events to a single event (take first one if available)
+    if (serviceEventHistory.events.isNotEmpty) {
+      final event = serviceEventHistory.events.first;
+      return EventHistory(
+        id: 0, // Default value since API doesn't provide this
+        eventId: event.id,
+        isBidding: false, // Default value
+        event: Event(
+          id: event.id,
+          title: event.title,
+          status: event.status,
+          startDate: event.startDate,
+          endDate: event.endDate,
+        ),
+      );
+    } else {
+      // Return empty event history if no events
+      return EventHistory(
+        id: 0,
+        eventId: 0,
+        isBidding: false,
+        event: Event(
+          id: 0,
+          title: '',
+          status: '',
+          startDate: '',
+          endDate: '',
+        ),
+      );
+    }
   }
 
   /// Parse GeoJSON string to polygon coordinates

@@ -9,10 +9,13 @@ import 'polygon_preloader.dart';
 /// Enhanced polygon service for proper plot boundary visualization
 class EnhancedPolygonService {
   /// Create plot polygons using preloaded coordinates for maximum performance
-  static List<Polygon> createPlotPolygons(List<PlotModel> plots) {
+  static List<Polygon> createPlotPolygons(List<PlotModel> plots, {PlotModel? selectedPlot}) {
     final polygons = <Polygon>[];
     
     print('EnhancedPolygonService: Creating polygons for ${plots.length} plots (using preloaded coordinates)');
+    if (selectedPlot != null) {
+      print('EnhancedPolygonService: Selected plot: ${selectedPlot.plotNo}');
+    }
     
     for (final plot in plots) {
       try {
@@ -40,16 +43,23 @@ class EnhancedPolygonService {
               print('EnhancedPolygonService: Last point: ${closedCoordinates.last}');
             }
             
+            // Check if this is the selected plot for highlighting
+            final isSelected = selectedPlot != null && plot.id == selectedPlot.id;
+            
             polygons.add(
               Polygon(
                 points: closedCoordinates,
-                color: _getPlotColor(plot).withOpacity(0.4),
-                borderColor: _getBorderColor(plot),
-                borderStrokeWidth: 2.0,
+                color: isSelected 
+                    ? const Color(0xFF2196F3).withOpacity(0.6) // Blue highlight for selected plot
+                    : _getPlotColor(plot).withOpacity(0.4),
+                borderColor: isSelected 
+                    ? const Color(0xFF1976D2) // Darker blue border for selected plot
+                    : _getBorderColor(plot),
+                borderStrokeWidth: isSelected ? 3.0 : 2.0, // Thicker border for selected plot
                 label: 'Plot ${plot.plotNo}',
-                labelStyle: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
+                labelStyle: TextStyle(
+                  color: isSelected ? Colors.white : Colors.white,
+                  fontSize: isSelected ? 14 : 12, // Larger font for selected plot
                   fontWeight: FontWeight.bold,
                   shadows: [
                     Shadow(
@@ -62,7 +72,7 @@ class EnhancedPolygonService {
               ),
             );
             
-            print('EnhancedPolygonService: Added polygon for plot ${plot.plotNo}');
+            print('EnhancedPolygonService: Added polygon for plot ${plot.plotNo} (selected: $isSelected)');
           } else {
             print('EnhancedPolygonService: Skipped polygon $i for plot ${plot.plotNo} - insufficient points (${coordinates.length})');
           }

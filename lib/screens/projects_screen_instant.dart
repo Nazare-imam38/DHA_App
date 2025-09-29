@@ -302,23 +302,30 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     try {
       print('🧭 Navigating to plot ${plot.plotNo}');
       
-      if (plot.latitude != null && plot.longitude != null) {
+      // Use polygon coordinates for accurate navigation if available
+      if (plot.polygonCoordinates.isNotEmpty) {
+        print('🧭 Using polygon coordinates for navigation to plot ${plot.plotNo}');
+        _centerOnPlotPolygon(plot);
+      } else if (plot.latitude != null && plot.longitude != null) {
         final plotLocation = LatLng(plot.latitude!, plot.longitude!);
         
         // Animate to plot location using flutter_map API
         _mapController.move(plotLocation, 16.0);
         
-        // Select the plot
-        setState(() {
-          _selectedPlot = plot;
-          _showProjectDetails = true;
-          _selectedAmenity = null;
-        });
-        
         print('✅ Navigated to plot ${plot.plotNo} at ${plot.latitude}, ${plot.longitude}');
       } else {
         print('❌ Plot ${plot.plotNo} has no coordinates, cannot navigate');
+        return;
       }
+      
+      // Select the plot
+      setState(() {
+        _selectedPlot = plot;
+        _showProjectDetails = true;
+        _selectedAmenity = null;
+        _showPlotPolygons = true; // Ensure polygons are visible
+      });
+      
     } catch (e) {
       print('❌ Error navigating to plot: $e');
     }
@@ -1568,54 +1575,10 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         return [];
       }
 
-      // Create simple rectangular polygons for each plot if no complex polygons exist
-      final polygons = <Polygon>[];
+      // Use EnhancedPolygonService with selected plot highlighting
+      final polygons = EnhancedPolygonService.createPlotPolygons(_plots, selectedPlot: _selectedPlot);
       
-      for (final plot in _plots.take(50)) { // Limit to 50 for performance
-        if (plot.latitude != null && plot.longitude != null) {
-          // Create a simple rectangular polygon around the plot center
-          final center = LatLng(plot.latitude!, plot.longitude!);
-          final offset = 0.0001; // Small offset to create a rectangle
-          
-          final plotPolygon = [
-            LatLng(center.latitude - offset, center.longitude - offset),
-            LatLng(center.latitude + offset, center.longitude - offset),
-            LatLng(center.latitude + offset, center.longitude + offset),
-            LatLng(center.latitude - offset, center.longitude + offset),
-            LatLng(center.latitude - offset, center.longitude - offset), // Close polygon
-          ];
-          
-          final isSelected = _selectedPlot != null && _selectedPlot!.plotNo == plot.plotNo;
-          
-          polygons.add(
-            Polygon(
-              points: plotPolygon,
-              color: isSelected 
-                ? const Color(0xFF1E3C90).withOpacity(0.4) // Blue for selected
-                : const Color(0xFFFF9800).withOpacity(0.3), // Orange for others (like in image)
-              borderColor: isSelected 
-                ? const Color(0xFF1E3C90) 
-                : const Color(0xFFFF9800),
-              borderStrokeWidth: isSelected ? 3.0 : 2.0,
-              label: plot.plotNo,
-              labelStyle: TextStyle(
-                color: Colors.white,
-                fontSize: isSelected ? 14 : 12,
-                fontWeight: FontWeight.bold,
-                shadows: const [
-                  Shadow(
-                    color: Colors.black,
-                    blurRadius: 2,
-                  ),
-                ],
-              ),
-              labelPlacement: PolygonLabelPlacement.polylabel,
-            ),
-          );
-        }
-      }
-      
-      print('✅ Created ${polygons.length} plot polygons');
+      print('✅ Created ${polygons.length} plot polygons using EnhancedPolygonService');
       return polygons;
     } catch (e) {
       print('❌ Error creating filtered plot polygons: $e');
@@ -2156,17 +2119,50 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         _showSelectedPlotDetails = true;
         _selectedPlot = plot; // Set selected plot immediately
         _showPlotPolygons = true; // Ensure polygons are visible
+        _showProjectDetails = true; // Show plot details popup
       });
 
-      // Navigate to plot location on map first
-      if (plot.latitude != null && plot.longitude != null) {
+      // Navigate to plot using polygon coordinates for accurate positioning
+      print('🎯 Plot has ${plot.polygonCoordinates.length} polygon coordinate sets');
+      
+      if (plot.polygonCoordinates.isNotEmpty) {
+        // Use polygon coordinates for accurate centering
+        print('🎬 Using polygon coordinates for navigation to plot ${plot.plotNo}');
+        _centerOnPlotPolygon(plot);
+      } else if (plot.latitude != null && plot.longitude != null) {
+        // Fallback to center coordinates if no polygon available
         final plotLocation = LatLng(plot.latitude!, plot.longitude!);
-        _mapController.move(plotLocation, 16.0);
-        print('🗺️ Navigating to plot location: ${plot.latitude}, ${plot.longitude}');
+        
+        print('🎯 Using center coordinates: ${plot.latitude}, ${plot.longitude}');
+        print('🎯 Plot location: $plotLocation');
+        
+        // Ensure plot polygons are visible first
+        setState(() {
+          _showPlotPolygons = true;
+        });
+        
+        // Force map to navigate to plot location
+        print('🎬 Starting map navigation to plot ${plot.plotNo}');
+        print('🎬 Current map center: ${_mapController.camera.center}');
+        print('🎬 Target location: $plotLocation');
+        
+        // Use moveAndRotate for better control
+        _mapController.moveAndRotate(plotLocation, 18.0, 0.0);
+        
+        print('🗺️ Map navigation completed for plot ${plot.plotNo}');
+        print('🗺️ New map center: ${_mapController.camera.center}');
+      } else {
+        print('❌ Plot ${plot.plotNo} has no coordinates: lat=${plot.latitude}, lng=${plot.longitude}');
       }
 
-      // Fetch detailed plot information
-      final plotDetails = await PlotDetailsService.fetchPlotDetails(plot.plotNo);
+      // Try to fetch detailed plot information from API first
+      PlotDetailsModel? plotDetails = await PlotDetailsService.fetchPlotDetails(plot.plotNo);
+      
+      // If API fails, use existing plot data as fallback
+      if (plotDetails == null) {
+        print('⚠️ API failed, using existing plot data as fallback');
+        plotDetails = PlotDetailsService.createFromPlotModel(plot);
+      }
       
       if (plotDetails != null) {
         setState(() {
@@ -2177,9 +2173,14 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         // Expand bottom sheet to show selected plot details
         _safeAnimateBottomSheet(0.6);
 
+        // Add a delay to ensure map animation completes and polygon renders before showing info card
+        await Future.delayed(const Duration(milliseconds: 1500));
+
         print('✅ Plot selected successfully: ${plot.plotNo}');
         print('✅ Plot polygon should be highlighted in blue');
         print('✅ Plot info card should be visible on map');
+        print('✅ Selected tab should show real plot data');
+        print('✅ Map should be centered on plot polygon boundary');
       } else {
         setState(() {
           _isLoadingPlotDetails = false;
@@ -2220,25 +2221,16 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     print('🗑️ Plot selection cleared');
   }
 
-  /// Safely animate bottom sheet with overflow prevention
+  /// Safely animate bottom sheet
   void _safeAnimateBottomSheet(double size) {
-    // Calculate safe maximum size to prevent overflow
-    final screenHeight = MediaQuery.of(context).size.height;
-    final safeAreaBottom = MediaQuery.of(context).padding.bottom;
-    final navigationBarHeight = 80.0; // Approximate navigation bar height
-    final maxSafeSize = (screenHeight - safeAreaBottom - navigationBarHeight) / screenHeight;
-    
-    // Ensure size doesn't exceed safe maximum
-    final safeSize = size.clamp(0.15, maxSafeSize);
-    
     if (_isBottomSheetInitialized && _bottomSheetController.isAttached) {
       try {
         _bottomSheetController.animateTo(
-          safeSize,
+          size,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
-        print('📱 Animating bottom sheet to: ${(safeSize * 100).toInt()}% (safe size)');
+        print('📱 Animating bottom sheet to: ${(size * 100).toInt()}%');
       } catch (e) {
         print('Error animating bottom sheet: $e');
       }
@@ -2248,11 +2240,11 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         if (_isBottomSheetInitialized && _bottomSheetController.isAttached) {
           try {
             _bottomSheetController.animateTo(
-              safeSize,
+              size,
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
             );
-            print('📱 Animating bottom sheet to: ${(safeSize * 100).toInt()}% (safe size, delayed)');
+            print('📱 Animating bottom sheet to: ${(size * 100).toInt()}% (delayed)');
           } catch (e) {
             print('Error animating bottom sheet (delayed): $e');
           }
@@ -2263,15 +2255,186 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   /// Navigate to plot on map
   void _navigateToPlotOnMap(PlotModel plot) {
-    if (plot.latitude != null && plot.longitude != null) {
-      final plotLocation = LatLng(plot.latitude!, plot.longitude!);
-      _mapController.move(plotLocation, 16.0);
+    try {
+      print('🎯 Navigating to plot on map: ${plot.plotNo}');
+      
+      // Use polygon coordinates for accurate navigation if available
+      if (plot.polygonCoordinates.isNotEmpty) {
+        print('🎯 Using polygon coordinates for navigation to plot ${plot.plotNo}');
+        _centerOnPlotPolygon(plot);
+      } else if (plot.latitude != null && plot.longitude != null) {
+        final plotLocation = LatLng(plot.latitude!, plot.longitude!);
+        
+        print('🎯 Plot location: $plotLocation');
+        print('🎯 Current map center: ${_mapController.camera.center}');
+        
+        // Navigate to plot location with higher zoom
+        _mapController.moveAndRotate(plotLocation, 18.0, 0.0);
+        
+        print('🎯 Map navigation completed');
+        print('🎯 New map center: ${_mapController.camera.center}');
+      } else {
+        print('❌ Plot ${plot.plotNo} has no coordinates for navigation');
+        return;
+      }
       
       setState(() {
         _selectedPlot = plot;
         _showProjectDetails = true;
         _selectedAmenity = null;
+        _showPlotPolygons = true; // Ensure polygons are visible
       });
+    } catch (e) {
+      print('❌ Error navigating to plot on map: $e');
+    }
+  }
+
+  /// Calculate the plot's screen position based on polygon coordinates
+  Offset? _calculatePlotScreenPosition() {
+    if (_selectedPlot == null) return null;
+    
+    try {
+      // Get polygon coordinates
+      final polygonCoordinates = _selectedPlot!.polygonCoordinates;
+      if (polygonCoordinates.isEmpty) return null;
+      
+      final coordinates = polygonCoordinates.first;
+      if (coordinates.length < 3) return null;
+      
+      // Calculate the center of the polygon
+      double sumLat = 0;
+      double sumLng = 0;
+      int count = 0;
+      
+      for (final coord in coordinates) {
+        sumLat += coord.latitude;
+        sumLng += coord.longitude;
+        count++;
+      }
+      
+      if (count == 0) return null;
+      
+      final centerLat = sumLat / count;
+      final centerLng = sumLng / count;
+      final centerLatLng = LatLng(centerLat, centerLng);
+      
+      // Convert to screen coordinates
+      final screenPosition = _mapController.pointToScreen(centerLatLng);
+      
+      print('📍 Plot polygon center: $centerLatLng');
+      print('📍 Plot screen position: $screenPosition');
+      
+      return screenPosition;
+    } catch (e) {
+      print('❌ Error calculating plot screen position: $e');
+      return null;
+    }
+  }
+
+  /// Update plot info card position when map changes
+  void _updatePlotInfoCardPosition() {
+    if (_selectedPlot != null && _showProjectDetails) {
+      // Trigger a rebuild to recalculate the position
+      setState(() {
+        // This will cause the _buildPlotDetailsPopup to recalculate position
+      });
+    }
+  }
+
+  /// Center map on plot polygon bounds
+  void _centerOnPlotPolygon(PlotModel plot) {
+    try {
+      print('🎯 Attempting to center on polygon for plot ${plot.plotNo}');
+      print('🎯 Plot has ${plot.polygonCoordinates.length} polygon coordinate sets');
+      
+      // Get polygon coordinates from the plot
+      if (plot.polygonCoordinates.isNotEmpty) {
+        final coordinates = plot.polygonCoordinates.first;
+        print('🎯 First polygon has ${coordinates.length} coordinate points');
+        
+        if (coordinates.length >= 3) {
+          // Calculate bounds of the polygon
+          double minLat = coordinates.first.latitude;
+          double maxLat = coordinates.first.latitude;
+          double minLng = coordinates.first.longitude;
+          double maxLng = coordinates.first.longitude;
+          
+          for (final coord in coordinates) {
+            minLat = minLat < coord.latitude ? minLat : coord.latitude;
+            maxLat = maxLat > coord.latitude ? maxLat : coord.latitude;
+            minLng = minLng < coord.longitude ? minLng : coord.longitude;
+            maxLng = maxLng > coord.longitude ? maxLng : coord.longitude;
+          }
+          
+          // Calculate center of the polygon
+          final centerLat = (minLat + maxLat) / 2;
+          final centerLng = (minLng + maxLng) / 2;
+          final center = LatLng(centerLat, centerLng);
+          
+          print('🎯 Polygon bounds: lat($minLat-$maxLat), lng($minLng-$maxLng)');
+          print('🎯 Polygon center: $center');
+          print('🎯 Current map center: ${_mapController.camera.center}');
+          
+          // Calculate appropriate zoom level based on polygon size
+          final latRange = maxLat - minLat;
+          final lngRange = maxLng - minLng;
+          final maxRange = latRange > lngRange ? latRange : lngRange;
+          
+          // Determine zoom level based on polygon size
+          double zoomLevel = 18.0; // Default zoom
+          if (maxRange > 0.01) {
+            zoomLevel = 16.0; // Large polygon
+          } else if (maxRange > 0.005) {
+            zoomLevel = 17.0; // Medium polygon
+          } else if (maxRange > 0.001) {
+            zoomLevel = 18.0; // Small polygon
+          } else {
+            zoomLevel = 19.0; // Very small polygon
+          }
+          
+          print('🎯 Calculated zoom level: $zoomLevel (polygon range: $maxRange)');
+          
+          // Navigate to center of polygon with appropriate zoom
+          print('🎬 Navigating to polygon center: $center with zoom $zoomLevel');
+          _mapController.moveAndRotate(center, zoomLevel, 0.0);
+          
+          // Verify the move worked
+          Future.delayed(const Duration(milliseconds: 100), () {
+            print('🎯 Final map center: ${_mapController.camera.center}');
+            print('🎯 Map zoom: ${_mapController.camera.zoom}');
+          });
+          
+          print('✅ Polygon centering completed for plot ${plot.plotNo}');
+        } else {
+          print('⚠️ Polygon has insufficient points (${coordinates.length}) for plot ${plot.plotNo}');
+          // Fallback to plot coordinates if polygon is invalid
+          if (plot.latitude != null && plot.longitude != null) {
+            final plotLocation = LatLng(plot.latitude!, plot.longitude!);
+            _mapController.moveAndRotate(plotLocation, 18.0, 0.0);
+            print('🎯 Fallback navigation to plot coordinates: $plotLocation');
+          }
+        }
+      } else {
+        print('⚠️ No polygon coordinates available for plot ${plot.plotNo}');
+        print('⚠️ Falling back to plot coordinates: ${plot.latitude}, ${plot.longitude}');
+        
+        // Fallback to plot coordinates if no polygon
+        if (plot.latitude != null && plot.longitude != null) {
+          final plotLocation = LatLng(plot.latitude!, plot.longitude!);
+          _mapController.moveAndRotate(plotLocation, 18.0, 0.0);
+          print('🎯 Fallback navigation to plot coordinates: $plotLocation');
+        }
+      }
+    } catch (e) {
+      print('❌ Error centering on plot polygon: $e');
+      print('❌ Stack trace: ${StackTrace.current}');
+      
+      // Final fallback to plot coordinates
+      if (plot.latitude != null && plot.longitude != null) {
+        final plotLocation = LatLng(plot.latitude!, plot.longitude!);
+        _mapController.moveAndRotate(plotLocation, 18.0, 0.0);
+        print('🎯 Emergency fallback navigation to plot coordinates: $plotLocation');
+      }
     }
   }
 
@@ -2500,17 +2663,11 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       return const SizedBox.shrink();
     }
 
-    // Calculate safe area heights to prevent overflow
-    final screenHeight = MediaQuery.of(context).size.height;
-    final safeAreaBottom = MediaQuery.of(context).padding.bottom;
-    final navigationBarHeight = 80.0; // Approximate navigation bar height
-    final availableHeight = screenHeight - safeAreaBottom - navigationBarHeight;
-    
     return DraggableScrollableSheet(
       controller: _bottomSheetController,
       initialChildSize: _showSelectedPlotDetails ? 0.35 : 0.15, // Show more space when plot is selected
       minChildSize: 0.15, // Minimum 15% of screen height
-      maxChildSize: _showSelectedPlotDetails ? 0.6 : 0.7, // Reduced to account for bottom navigation bar
+      maxChildSize: _showSelectedPlotDetails ? 0.6 : 0.75, // Reduced to account for bottom navigation bar
       builder: (context, scrollController) {
         // Initialize the bottom sheet controller
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -2522,7 +2679,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         });
         return Container(
           margin: EdgeInsets.only(
-            bottom: safeAreaBottom,
+            bottom: MediaQuery.of(context).padding.bottom,
           ),
           decoration: const BoxDecoration(
             color: Colors.white,
@@ -2539,7 +2696,6 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
             ],
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min, // Prevent overflow by using minimum size
             children: [
               // Handle bar with expand/collapse controls
               Container(
@@ -2773,8 +2929,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               
               const SizedBox(height: 16),
               
-              // Plot list or selected plot details - Use Flexible instead of Expanded to prevent overflow
-              Flexible(
+              // Plot list or selected plot details
+              Expanded(
                 child: _showSelectedPlotDetails && _selectedPlotDetails != null
                     ? _buildSelectedPlotContent()
                     : _plots.isEmpty
@@ -2787,24 +2943,18 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                               ),
                             ),
                           )
-                        : ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxHeight: availableHeight * 0.6, // Limit height to prevent overflow
+                        : ListView.builder(
+                            controller: scrollController,
+                            padding: const EdgeInsets.only(
+                              left: 20,
+                              right: 20,
+                              bottom: 20, // Add bottom padding to prevent content from being cut off
                             ),
-                            child: ListView.builder(
-                              controller: scrollController,
-                              shrinkWrap: true, // Allow ListView to shrink to content size
-                              padding: const EdgeInsets.only(
-                                left: 20,
-                                right: 20,
-                                bottom: 20, // Add bottom padding to prevent content from being cut off
-                              ),
-                              itemCount: _plots.length,
-                              itemBuilder: (context, index) {
-                                final plot = _plots[index];
-                                return _buildPlotCard(plot);
-                              },
-                            ),
+                            itemCount: _plots.length,
+                            itemBuilder: (context, index) {
+                              final plot = _plots[index];
+                              return _buildPlotCard(plot);
+                            },
                           ),
               ),
             ],
@@ -3130,22 +3280,62 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
     // Get screen dimensions
     final screenSize = MediaQuery.of(context).size;
-    final popupWidth = 220.0; // Smaller width for compact display
-    final popupHeight = 120.0; // Smaller height for compact display
+    final popupWidth = 280.0; // Larger width to match design
+    final popupHeight = 200.0; // Larger height to match design
     
     // Calculate position to be attached to the plot polygon
-    // Position the card to appear to be "attached" to the plot
     double left, top;
     
-    if (_selectedPlot!.latitude != null && _selectedPlot!.longitude != null) {
-      // Position the card to appear attached to the plot polygon
-      // Position it in the upper portion of the screen, not covering the whole screen
-      left = screenSize.width * 0.1; // 10% from left edge
-      top = screenSize.height * 0.08; // 8% from top (higher up)
+    // Try to get the plot's screen position from polygon coordinates
+    final plotScreenPosition = _calculatePlotScreenPosition();
+    
+    if (plotScreenPosition != null) {
+      // Position the card above the plot polygon
+      left = plotScreenPosition.dx - (popupWidth / 2); // Center horizontally on plot
+      top = plotScreenPosition.dy - popupHeight - 20; // Position above the plot with some margin
+      
+      // If the card would be too close to the bottom (where bottom sheet might be), 
+      // position it to the side instead
+      final bottomSheetArea = screenSize.height * 0.4; // Assume bottom sheet takes up 40% of screen
+      if (top + popupHeight > screenSize.height - bottomSheetArea) {
+        // Position to the right of the plot instead
+        left = plotScreenPosition.dx + 20; // 20px to the right of plot
+        top = plotScreenPosition.dy - (popupHeight / 2); // Center vertically on plot
+        
+        // If it would go off screen to the right, position to the left instead
+        if (left + popupWidth > screenSize.width - 10) {
+          left = plotScreenPosition.dx - popupWidth - 20; // 20px to the left of plot
+        }
+      }
+      
+      print('📍 Plot info card positioned above plot at: left=$left, top=$top');
+      print('📍 Plot screen position: $plotScreenPosition');
+    } else if (_selectedPlot!.latitude != null && _selectedPlot!.longitude != null) {
+      // Fallback: Use plot center coordinates to calculate screen position
+      final plotLatLng = LatLng(_selectedPlot!.latitude!, _selectedPlot!.longitude!);
+      final plotScreenPos = _mapController.pointToScreen(plotLatLng);
+      
+      left = plotScreenPos.x - (popupWidth / 2);
+      top = plotScreenPos.y - popupHeight - 20;
+      
+      // Apply same bottom sheet avoidance logic
+      final bottomSheetArea = screenSize.height * 0.4;
+      if (top + popupHeight > screenSize.height - bottomSheetArea) {
+        left = plotScreenPos.x + 20;
+        top = plotScreenPos.y - (popupHeight / 2);
+        
+        if (left + popupWidth > screenSize.width - 10) {
+          left = plotScreenPos.x - popupWidth - 20;
+        }
+      }
+      
+      print('📍 Plot info card positioned using center coordinates: left=$left, top=$top');
+      print('📍 Plot center screen position: $plotScreenPos');
     } else {
-      // Fallback to center positioning
+      // Final fallback: Center on screen
       left = (screenSize.width - popupWidth) / 2;
       top = screenSize.height * 0.2;
+      print('📍 Plot info card positioned at screen center: left=$left, top=$top');
     }
     
     // Ensure popup stays within screen bounds
@@ -3174,7 +3364,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           children: [
             // Header with close button
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: const BoxDecoration(
                 color: Color(0xFF1E3C90),
                 borderRadius: BorderRadius.only(
@@ -3187,7 +3377,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                   Text(
                     'Plot ${_selectedPlot!.plotNo}',
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
@@ -3204,7 +3394,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                     child: const Icon(
                       Icons.close,
                       color: Colors.white,
-                      size: 16,
+                      size: 20,
                     ),
                   ),
                 ],
@@ -3213,29 +3403,33 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
             
             // Content
             Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Status badges
+                  // Status badges - matching the design
                   Row(
                     children: [
-                      _buildStatusBadge('Residential', Colors.red),
-                      const SizedBox(width: 6),
-                      _buildStatusBadge('Selected', Colors.blue),
+                      _buildStatusBadge(_selectedPlot!.category, const Color(0xFF81C784)),
+                      const SizedBox(width: 8),
+                      _buildStatusBadge('Selected', const Color(0xFF90CAF9)),
+                      const SizedBox(width: 8),
+                      _buildStatusBadge('Exclusive of DHA Charges', const Color(0xFFFFB74D)),
                     ],
                   ),
                   
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   
-                  // Plot details - compact version
-                  _buildCompactPopupDetailRow('Phase', _selectedPlotDetails!.phase),
-                  _buildCompactPopupDetailRow('Street', _selectedPlotDetails!.street),
-                  _buildCompactPopupDetailRow('Size', _selectedPlotDetails!.size),
-                  _buildCompactPopupDetailRow('Price', 'PKR ${_formatPrice(_selectedPlotDetails!.lumpSumPrice)}'),
+                  // Plot details - matching the design layout
+                  _buildPopupDetailRow('Phase', _selectedPlotDetails!.phase),
+                  _buildPopupDetailRow('Sector', _selectedPlotDetails!.sector),
+                  _buildPopupDetailRow('Street', _selectedPlotDetails!.street),
+                  _buildPopupDetailRow('Size', _selectedPlotDetails!.size),
+                  _buildPopupDetailRow('Dimension', _selectedPlotDetails!.dimension),
+                  _buildPopupDetailRow('Price', 'PKR ${_formatPrice(_selectedPlotDetails!.lumpSumPrice)}'),
                   
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   
                   // View Details Button
                   SizedBox(
@@ -3250,15 +3444,15 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1E3C90),
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                       child: const Text(
                         'View Details',
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -3275,17 +3469,16 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   Widget _buildStatusBadge(String label, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        color: color,
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
         label,
-        style: TextStyle(
-          color: color,
-          fontSize: 10,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -3294,18 +3487,18 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   Widget _buildPopupDetailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 2),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 60,
+            width: 80,
             child: Text(
               '$label:',
               style: const TextStyle(
-                fontSize: 11,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                color: Color(0xFF666666),
               ),
             ),
           ),
@@ -3313,10 +3506,10 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
             child: Text(
               value,
               style: const TextStyle(
-                fontSize: 11,
-                color: Colors.black54,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF333333),
               ),
-              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -3368,12 +3561,6 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   /// Build selected plot content
   Widget _buildSelectedPlotContent() {
-    // Calculate safe area heights to prevent overflow
-    final screenHeight = MediaQuery.of(context).size.height;
-    final safeAreaBottom = MediaQuery.of(context).padding.bottom;
-    final navigationBarHeight = 80.0; // Approximate navigation bar height
-    final availableHeight = screenHeight - safeAreaBottom - navigationBarHeight;
-    
     if (_isLoadingPlotDetails) {
       return const Center(
         child: Column(
@@ -3407,20 +3594,15 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       );
     }
 
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxHeight: availableHeight * 0.6, // Limit height to prevent overflow
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(
+        left: 20,
+        right: 20,
+        bottom: 20, // Add bottom padding to prevent content from being cut off
       ),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.only(
-          left: 20,
-          right: 20,
-          bottom: 20, // Add bottom padding to prevent content from being cut off
-        ),
-        child: SelectedPlotDetailsWidget(
-          plotDetails: _selectedPlotDetails!,
-          onClearSelection: _clearPlotSelection,
-        ),
+      child: SelectedPlotDetailsWidget(
+        plotDetails: _selectedPlotDetails!,
+        onClearSelection: _clearPlotSelection,
       ),
     );
   }
