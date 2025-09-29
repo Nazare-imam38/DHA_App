@@ -110,12 +110,15 @@ class EnhancedGeoJsonParser {
           final y = firstPoint[1].toDouble();
           print('EnhancedGeoJsonParser: First coordinate: X=$x, Y=$y');
           
-          // If coordinates are in reasonable lat/lng range, use them directly
-          if (x >= -180 && x <= 180 && y >= -90 && y <= 90) {
+          // Check if coordinates are in UTM range (typical for Pakistan/Islamabad area)
+          // UTM Zone 43N for Islamabad: Easting ~300000-700000, Northing ~3600000-3800000
+          if (x >= 200000 && x <= 800000 && y >= 3500000 && y <= 3900000) {
+            print('EnhancedGeoJsonParser: Coordinates appear to be UTM Zone 43N, converting...');
+          } else if (x >= -180 && x <= 180 && y >= -90 && y <= 90) {
             print('EnhancedGeoJsonParser: Coordinates appear to be in WGS84 format, using directly');
             return _parseWgs84Coordinates(geoJson);
           } else {
-            print('EnhancedGeoJsonParser: Coordinates appear to be UTM, converting...');
+            print('EnhancedGeoJsonParser: Unknown coordinate format, attempting UTM conversion...');
           }
         }
       }
@@ -223,6 +226,12 @@ class EnhancedGeoJsonParser {
     const double e = 0.081819191; // WGS84 eccentricity
     const double k0 = 0.9996;
 
+    // Validate input coordinates for Islamabad area
+    if (easting < 200000 || easting > 800000 || northing < 3500000 || northing > 3900000) {
+      print('EnhancedGeoJsonParser: Warning - Coordinates outside expected UTM Zone 43N range for Islamabad');
+      print('EnhancedGeoJsonParser: Easting: $easting, Northing: $northing');
+    }
+
     double x = easting - 500000.0; // remove 500,000 meter offset
     double y = northing;
 
@@ -270,6 +279,12 @@ class EnhancedGeoJsonParser {
 
     lat = lat * (180 / pi);
     lng = lonOrigin + lng * (180 / pi);
+
+    // Validate output coordinates for Islamabad area
+    if (lat < 33.0 || lat > 34.5 || lng < 72.0 || lng > 74.5) {
+      print('EnhancedGeoJsonParser: Warning - Converted coordinates outside expected Islamabad area');
+      print('EnhancedGeoJsonParser: Converted: Lat=$lat, Lng=$lng');
+    }
 
     return LatLng(lat, lng);
   }

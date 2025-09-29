@@ -79,7 +79,7 @@ class PlotModel {
       final coordinates = _extractCoordinates(geoJson);
       
       return PlotModel(
-        id: json['id'] as int,
+        id: (json['id'] as int?) ?? 0,
         eventHistoryId: json['event_history_id']?.toString(),
         plotNo: json['plot_no']?.toString() ?? '',
         size: json['size']?.toString() ?? '',
@@ -101,7 +101,7 @@ class PlotModel {
         twoFiveYrsPlan: json['two_five_yrs_ep']?.toString() ?? '0',
         threeYrsPlan: json['three_yrs_ep']?.toString() ?? '0',
         stAsgeojson: json['st_asgeojson'] as String,
-        eventHistory: EventHistory.fromJson(json['event_history'] as Map<String, dynamic>),
+        eventHistory: EventHistory.fromJson(json['event_history'] as Map<String, dynamic>? ?? {}),
         latitude: coordinates['latitude'],
         longitude: coordinates['longitude'],
         expoBasePrice: json['expo_base_price']?.toString(),
@@ -528,10 +528,10 @@ class EventHistory {
 
   factory EventHistory.fromJson(Map<String, dynamic> json) {
     return EventHistory(
-      id: json['id'] as int,
-      eventId: json['event_id'] as int,
-      isBidding: json['is_bidding'] as bool,
-      event: Event.fromJson(json['event'] as Map<String, dynamic>),
+      id: (json['id'] as int?) ?? 0,
+      eventId: (json['event_id'] as int?) ?? 0,
+      isBidding: (json['is_bidding'] as bool?) ?? false,
+      event: Event.fromJson(json['event'] as Map<String, dynamic>? ?? {}),
     );
   }
 
@@ -562,11 +562,11 @@ class Event {
 
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
-      id: json['id'] as int,
-      title: json['title'] as String,
-      status: json['status'] as String,
-      startDate: json['start_date'] as String,
-      endDate: json['end_date'] as String,
+      id: (json['id'] as int?) ?? 0,
+      title: (json['title'] as String?) ?? '',
+      status: (json['status'] as String?) ?? '',
+      startDate: (json['start_date'] as String?) ?? '',
+      endDate: (json['end_date'] as String?) ?? '',
     );
   }
 

@@ -947,10 +947,35 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 polygons: _getBoundaryPolygons(),
               ),
               // Plot polygons - showing filtered plots
-              if (_showPlotPolygons)
-              PolygonLayer(
-                polygons: _getFilteredPlotPolygons(),
-              ),
+              if (_showPlotPolygons) ...[
+                PolygonLayer(
+                  polygons: _getFilteredPlotPolygons(),
+                ),
+                // Debug: Add a test polygon to verify rendering
+                if (_plots.isNotEmpty)
+                  PolygonLayer(
+                    polygons: [
+                      Polygon(
+                        points: [
+                          LatLng(33.6844, 73.0479), // Islamabad center
+                          LatLng(33.6854, 73.0479),
+                          LatLng(33.6854, 73.0489),
+                          LatLng(33.6844, 73.0489),
+                          LatLng(33.6844, 73.0479),
+                        ],
+                        color: Colors.red.withOpacity(0.5),
+                        borderColor: Colors.red,
+                        borderStrokeWidth: 2.0,
+                        label: 'Test Polygon',
+                        labelStyle: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
               // Plot markers - showing home icons for each plot
               MarkerLayer(
                 markers: _getPlotMarkers(),
@@ -1569,16 +1594,57 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   List<Polygon> _getFilteredPlotPolygons() {
     try {
       print('🔍 _getFilteredPlotPolygons called - _plots count: ${_plots.length}');
+      print('🔍 _showPlotPolygons: $_showPlotPolygons');
       
       if (_plots.isEmpty) {
         print('❌ No filtered plots to render (plots count: ${_plots.length})');
         return [];
       }
 
+      // Debug: Check plots with valid polygon coordinates
+      final plotsWithPolygons = _plots.where((plot) {
+        try {
+          final polygons = plot.polygonCoordinates;
+          final hasValidPolygons = polygons.isNotEmpty && polygons.first.isNotEmpty;
+          if (hasValidPolygons) {
+            print('✅ Plot ${plot.plotNo} has ${polygons.length} polygons with ${polygons.first.length} points');
+            // Log first few coordinates for debugging
+            if (polygons.first.isNotEmpty) {
+              print('   First point: ${polygons.first.first}');
+              print('   Last point: ${polygons.first.last}');
+            }
+          } else {
+            print('❌ Plot ${plot.plotNo} has no valid polygon coordinates');
+          }
+          return hasValidPolygons;
+        } catch (e) {
+          print('❌ Error checking polygon coordinates for plot ${plot.plotNo}: $e');
+          return false;
+        }
+      }).toList();
+      
+      print('📊 Plots with valid polygon coordinates: ${plotsWithPolygons.length}/${_plots.length}');
+      
+      if (plotsWithPolygons.isEmpty) {
+        print('❌ No plots have valid polygon coordinates');
+        return [];
+      }
+
       // Use EnhancedPolygonService with selected plot highlighting
-      final polygons = EnhancedPolygonService.createPlotPolygons(_plots, selectedPlot: _selectedPlot);
+      final polygons = EnhancedPolygonService.createPlotPolygons(plotsWithPolygons, selectedPlot: _selectedPlot);
       
       print('✅ Created ${polygons.length} plot polygons using EnhancedPolygonService');
+      
+      // Debug: Log first few polygon coordinates
+      if (polygons.isNotEmpty) {
+        final firstPolygon = polygons.first;
+        print('📍 First polygon has ${firstPolygon.points.length} points');
+        if (firstPolygon.points.isNotEmpty) {
+          print('📍 First point: ${firstPolygon.points.first}');
+          print('📍 Last point: ${firstPolygon.points.last}');
+        }
+      }
+      
       return polygons;
     } catch (e) {
       print('❌ Error creating filtered plot polygons: $e');
@@ -2113,6 +2179,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   Future<void> _selectPlot(PlotModel plot) async {
     try {
       print('🎯 Selecting plot: ${plot.plotNo}');
+      print('🎯 Plot category: ${plot.category}, status: ${plot.status}');
       
       setState(() {
         _isLoadingPlotDetails = true;
@@ -2128,6 +2195,15 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       if (plot.polygonCoordinates.isNotEmpty) {
         // Use polygon coordinates for accurate centering
         print('🎬 Using polygon coordinates for navigation to plot ${plot.plotNo}');
+        
+        // Debug: Log polygon coordinates
+        final firstPolygon = plot.polygonCoordinates.first;
+        print('🎯 First polygon has ${firstPolygon.length} points');
+        if (firstPolygon.isNotEmpty) {
+          print('🎯 First point: ${firstPolygon.first}');
+          print('🎯 Last point: ${firstPolygon.last}');
+        }
+        
         _centerOnPlotPolygon(plot);
       } else if (plot.latitude != null && plot.longitude != null) {
         // Fallback to center coordinates if no polygon available
@@ -2153,6 +2229,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         print('🗺️ New map center: ${_mapController.camera.center}');
       } else {
         print('❌ Plot ${plot.plotNo} has no coordinates: lat=${plot.latitude}, lng=${plot.longitude}');
+        print('❌ Plot GeoJSON: ${plot.stAsgeojson.substring(0, 100)}...');
       }
 
       // Try to fetch detailed plot information from API first
@@ -2316,15 +2393,13 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       
       final centerLat = sumLat / count;
       final centerLng = sumLng / count;
-      final centerLatLng = LatLng(centerLat, centerLng);
       
-      // Convert to screen coordinates
-      final screenPosition = _mapController.pointToScreen(centerLatLng);
+      print('📍 Plot polygon center: Lat=$centerLat, Lng=$centerLng');
       
-      print('📍 Plot polygon center: $centerLatLng');
-      print('📍 Plot screen position: $screenPosition');
-      
-      return screenPosition;
+      // For now, return a simple offset based on screen center
+      // This will be improved when we have proper coordinate conversion
+      final screenSize = MediaQuery.of(context).size;
+      return Offset(screenSize.width * 0.5, screenSize.height * 0.3);
     } catch (e) {
       print('❌ Error calculating plot screen position: $e');
       return null;
@@ -3311,26 +3386,14 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       print('📍 Plot info card positioned above plot at: left=$left, top=$top');
       print('📍 Plot screen position: $plotScreenPosition');
     } else if (_selectedPlot!.latitude != null && _selectedPlot!.longitude != null) {
-      // Fallback: Use plot center coordinates to calculate screen position
-      final plotLatLng = LatLng(_selectedPlot!.latitude!, _selectedPlot!.longitude!);
-      final plotScreenPos = _mapController.pointToScreen(plotLatLng);
+      // Fallback: Use plot center coordinates for positioning
+      print('📍 Using plot center coordinates: ${_selectedPlot!.latitude}, ${_selectedPlot!.longitude}');
       
-      left = plotScreenPos.x - (popupWidth / 2);
-      top = plotScreenPos.y - popupHeight - 20;
-      
-      // Apply same bottom sheet avoidance logic
-      final bottomSheetArea = screenSize.height * 0.4;
-      if (top + popupHeight > screenSize.height - bottomSheetArea) {
-        left = plotScreenPos.x + 20;
-        top = plotScreenPos.y - (popupHeight / 2);
-        
-        if (left + popupWidth > screenSize.width - 10) {
-          left = plotScreenPos.x - popupWidth - 20;
-        }
-      }
+      // Position in upper center of screen
+      left = (screenSize.width - popupWidth) / 2;
+      top = screenSize.height * 0.25;
       
       print('📍 Plot info card positioned using center coordinates: left=$left, top=$top');
-      print('📍 Plot center screen position: $plotScreenPos');
     } else {
       // Final fallback: Center on screen
       left = (screenSize.width - popupWidth) / 2;

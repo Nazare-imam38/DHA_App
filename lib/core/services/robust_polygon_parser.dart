@@ -139,12 +139,13 @@ class RobustPolygonParser {
               final x = point[0].toDouble();
               final y = point[1].toDouble();
               
-              // Convert coordinates using simple local coordinate system approach
-              // The coordinates appear to be in a local system, not UTM
-              final lat = 33.7 + (y - 3700000) / 1000000; // Base Islamabad lat + offset
-              final lng = 73.0 + (x - 300000) / 1000000; // Base Islamabad lng + offset
-              final latLng = LatLng(lat, lng);
+              // Convert UTM coordinates to LatLng using proper UTM Zone 43N conversion
+              final latLng = _utmToLatLng(x, y, 43, northernHemisphere: true);
               ring.add(latLng);
+              
+              if (pointIndex < 3) {
+                print('RobustPolygonParser: Point $pointIndex: UTM($x, $y) -> LatLng(${latLng.latitude}, ${latLng.longitude})');
+              }
             } else {
               print('RobustPolygonParser: Invalid point format at index $pointIndex: $point');
             }
@@ -303,51 +304,65 @@ class RobustPolygonParser {
   /// Convert UTM coordinates to LatLng using proper EPSG:32643 (UTM Zone 43N) conversion
   /// This is the correct implementation for DHA plots in Islamabad/Rawalpindi area
   static LatLng _utmToLatLng(double easting, double northing, int zoneNumber, {bool northernHemisphere = true}) {
-    // EPSG:32643 (UTM Zone 43N, WGS84)
     const double a = 6378137.0; // WGS84 major axis
-    const double f = 1 / 298.257223563; // WGS84 flattening
+    const double e = 0.081819191; // WGS84 eccentricity
     const double k0 = 0.9996; // UTM scale factor
-    const double lon0 = 75.0; // Zone 43N central meridian
 
-    double e = sqrt(f * (2 - f));
-    double M = northing / k0;
-    double mu = M / (a * (1 - pow(e, 2) / 4 - 3 * pow(e, 4) / 64 - 5 * pow(e, 6) / 256));
+    double x = easting - 500000.0; // remove 500,000 meter offset
+    double y = northing;
+
+    if (!northernHemisphere) {
+      y -= 10000000.0; // adjust for southern hemisphere
+    }
+
+    double m = y / k0;
+    double mu = m / (a * (1 - pow(e, 2) / 4 - 3 * pow(e, 4) / 64 - 5 * pow(e, 6) / 256));
 
     double e1 = (1 - sqrt(1 - pow(e, 2))) / (1 + sqrt(1 - pow(e, 2)));
 
-    double phi1Rad = mu +
-        (3 * e1 / 2 - 27 * pow(e1, 3) / 32) * sin(2 * mu) +
-        (21 * pow(e1, 2) / 16 - 55 * pow(e1, 4) / 32) * sin(4 * mu) +
-        (151 * pow(e1, 3) / 96) * sin(6 * mu);
+    double j1 = (3 * e1 / 2 - 27 * pow(e1, 3) / 32);
+    double j2 = (21 * pow(e1, 2) / 16 - 55 * pow(e1, 4) / 32);
+    double j3 = (151 * pow(e1, 3) / 96);
+    double j4 = (1097 * pow(e1, 4) / 512);
 
-    double N1 = a / sqrt(1 - pow(e * sin(phi1Rad), 2));
-    double T1 = pow(tan(phi1Rad), 2).toDouble();
-    double C1 = pow(e, 2) / (1 - pow(e, 2)) * pow(cos(phi1Rad), 2).toDouble();
-    double R1 = a * (1 - pow(e, 2)) / pow(1 - pow(e * sin(phi1Rad), 2), 1.5).toDouble();
-    double D = (easting - 500000.0) / (N1 * k0);
+    double fp = mu +
+        j1 * sin(2 * mu) +
+        j2 * sin(4 * mu) +
+        j3 * sin(6 * mu) +
+        j4 * sin(8 * mu);
 
-    double lat = phi1Rad -
-        (N1 * tan(phi1Rad) / R1) *
-            (pow(D, 2).toDouble() / 2 -
-                (5 + 3 * T1 + 10 * C1 - 4 * pow(C1, 2).toDouble() - 9 * pow(e, 2).toDouble()) *
-                    pow(D, 4).toDouble() /
-                    24 +
-                (61 + 90 * T1 + 298 * C1 + 45 * pow(T1, 2).toDouble() - 252 * pow(e, 2).toDouble() - 3 * pow(C1, 2).toDouble()) *
-                    pow(D, 6).toDouble() /
-                    720);
+    double e2 = pow((e * a / (a * (1 - pow(e, 2)))), 2).toDouble();
+    double c1 = e2 * pow(cos(fp), 2).toDouble();
+    double t1 = pow(tan(fp), 2).toDouble();
+    double r1 = a * (1 - pow(e, 2)) /
+        pow(1 - pow(e, 2) * pow(sin(fp), 2), 1.5).toDouble();
+    double n1 = a / sqrt(1 - pow(e, 2) * pow(sin(fp), 2));
 
-    double lon = lon0 +
-        (D -
-                (1 + 2 * T1 + C1) * pow(D, 3).toDouble() / 6 +
-                (5 - 2 * C1 + 28 * T1 - 3 * pow(C1, 2).toDouble() + 8 * pow(e, 2).toDouble() + 24 * pow(T1, 2).toDouble()) *
-                    pow(D, 5).toDouble() /
-                    120) /
-            cos(phi1Rad);
+    double d = x / (n1 * k0);
 
-    double finalLat = lat * 180 / pi;
-    double finalLon = lon;
+    double q1 = n1 * tan(fp) / r1;
+    double q2 = (pow(d, 2) / 2);
+    double q3 = (5 + 3 * t1 + 10 * c1 - 4 * pow(c1, 2) - 9 * e2) * pow(d, 4) / 24;
+    double q4 = (61 + 90 * t1 + 298 * c1 + 45 * pow(t1, 2) - 3 * pow(c1, 2) - 252 * e2) * pow(d, 6) / 720;
+    double lat = fp - q1 * (q2 - q3 + q4);
 
-    print('RobustPolygonParser: UTM($easting, $northing) -> LatLng(${finalLat}, ${finalLon})');
-    return LatLng(finalLat, finalLon);
+    double q5 = d;
+    double q6 = (1 + 2 * t1 + c1) * pow(d, 3) / 6;
+    double q7 = (5 - 2 * c1 + 28 * t1 - 3 * pow(c1, 2) + 8 * e2 + 24 * pow(t1, 2)) * pow(d, 5) / 120;
+    double lng = (d - q6 + q7) / cos(fp);
+
+    double lonOrigin = (zoneNumber - 1) * 6 - 180 + 3;
+    
+    // For UTM Zone 43N (EPSG:32643), the central meridian should be 75°E
+    // But we need to adjust for the actual zone
+    if (zoneNumber == 43) {
+      lonOrigin = 75.0; // Central meridian for UTM Zone 43N
+    }
+
+    lat = lat * (180 / pi);
+    lng = lonOrigin + lng * (180 / pi);
+
+    print('RobustPolygonParser: UTM($easting, $northing) -> LatLng(${lat}, ${lng})');
+    return LatLng(lat, lng);
   }
 }
