@@ -19,7 +19,7 @@ class EnhancedPlotInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 280,
+      width: 200,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -52,7 +52,7 @@ class EnhancedPlotInfoCard extends StatelessWidget {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: const BoxDecoration(
         color: Color(0xFF1E3C90),
         borderRadius: BorderRadius.only(
@@ -65,7 +65,7 @@ class EnhancedPlotInfoCard extends StatelessWidget {
           Text(
             'Plot ${plot.plotNo}',
             style: const TextStyle(
-              fontSize: 20,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -93,7 +93,7 @@ class EnhancedPlotInfoCard extends StatelessWidget {
 
   Widget _buildPlotDetails() {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       child: Column(
         children: [
           // Status tags row
@@ -105,7 +105,7 @@ class EnhancedPlotInfoCard extends StatelessWidget {
             ],
           ),
           
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           
           // Plot information
           _buildInfoRow('Phase', plot.phase),
@@ -139,7 +139,7 @@ class EnhancedPlotInfoCard extends StatelessWidget {
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
           SizedBox(
@@ -147,7 +147,7 @@ class EnhancedPlotInfoCard extends StatelessWidget {
             child: Text(
               '$label:',
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
               ),
@@ -158,7 +158,7 @@ class EnhancedPlotInfoCard extends StatelessWidget {
             child: Text(
               value,
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 color: Colors.black54,
               ),
             ),
@@ -170,8 +170,8 @@ class EnhancedPlotInfoCard extends StatelessWidget {
 
   Widget _buildPriceSection() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
@@ -185,7 +185,7 @@ class EnhancedPlotInfoCard extends StatelessWidget {
               const Text(
                 'Price:',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
@@ -193,7 +193,7 @@ class EnhancedPlotInfoCard extends StatelessWidget {
               Text(
                 'PKR ${_formatPrice(double.tryParse(plot.basePrice) ?? 0)}',
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 12,
                   fontWeight: FontWeight.bold,
                   color: Colors.green,
                 ),
@@ -207,7 +207,7 @@ class EnhancedPlotInfoCard extends StatelessWidget {
 
   Widget _buildActionButtons() {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       child: Row(
         children: [
           Expanded(

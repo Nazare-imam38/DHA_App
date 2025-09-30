@@ -112,7 +112,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   
   // Map related variables
   LatLng _mapCenter = const LatLng(33.6844, 73.0479); // Islamabad/Rawalpindi coordinates
-  double _zoom = 12.0;
+  double _zoom = 13.0;
   MapController _mapController = MapController();
   
   // Selected plot for details
@@ -311,7 +311,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         final plotLocation = LatLng(plot.latitude!, plot.longitude!);
         
         // Animate to plot location using flutter_map API
-        _mapController.move(plotLocation, 16.0);
+        _mapController.move(plotLocation, 13.0);
         
         print('✅ Navigated to plot ${plot.plotNo} at ${plot.latitude}, ${plot.longitude}');
       } else {
@@ -943,9 +943,13 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                   print('Tile error: $error');
                 },
               ),
-              // Boundary polygons
+              // Boundary polygons with hollow fill and dotted borders
               PolygonLayer(
                 polygons: _getBoundaryPolygons(),
+              ),
+              // Dotted boundary lines
+              PolylineLayer(
+                polylines: _getDottedBoundaryLines(),
               ),
               // Plot polygons - showing filtered plots
               if (_showPlotPolygons) ...[
@@ -1454,9 +1458,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           polygons.add(
             Polygon(
               points: polygonCoords,
-              color: boundary.color.withOpacity(0.2),
-              borderColor: boundary.color,
-              borderStrokeWidth: 2.0,
+              color: Colors.transparent, // Hollow - no fill color
+              borderColor: Colors.transparent, // No border on polygon (we'll use polylines)
+              borderStrokeWidth: 0.0,
               label: boundary.phaseName,
               labelStyle: TextStyle(
                 color: Colors.white,
@@ -1477,6 +1481,55 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     }
     
     return polygons;
+  }
+
+  List<Polyline> _getDottedBoundaryLines() {
+    if (!_showBoundaries) return [];
+    
+    final polylines = <Polyline>[];
+    
+    for (final boundary in _boundaryPolygons) {
+      for (final polygonCoords in boundary.polygons) {
+        if (polygonCoords.length >= 3) {
+          // Create dotted line by creating multiple small segments
+          for (int i = 0; i < polygonCoords.length; i++) {
+            final start = polygonCoords[i];
+            final end = polygonCoords[(i + 1) % polygonCoords.length];
+            
+            // Create dotted effect with multiple small segments
+            final segments = _createDottedLine(start, end, 10); // 10 segments per line
+            
+            for (int j = 0; j < segments.length - 1; j += 2) {
+              if (j + 1 < segments.length) {
+                polylines.add(
+                  Polyline(
+                    points: [segments[j], segments[j + 1]],
+                    color: Colors.white,
+                    strokeWidth: 2.0,
+                    pattern: StrokePattern.dashed(segments: [5, 5]), // Dotted pattern: 5px line, 5px gap
+                  ),
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    return polylines;
+  }
+
+  List<LatLng> _createDottedLine(LatLng start, LatLng end, int segments) {
+    final points = <LatLng>[];
+    
+    for (int i = 0; i <= segments; i++) {
+      final ratio = i / segments;
+      final lat = start.latitude + (end.latitude - start.latitude) * ratio;
+      final lng = start.longitude + (end.longitude - start.longitude) * ratio;
+      points.add(LatLng(lat, lng));
+    }
+    
+    return points;
   }
 
   /// Get plot markers (home icons) for rendering
@@ -2193,7 +2246,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         print('🎬 Target location: $plotLocation');
         
         // Use moveAndRotate for better control
-        _mapController.moveAndRotate(plotLocation, 18.0, 0.0);
+        _mapController.moveAndRotate(plotLocation, 13.0, 0.0);
         
         print('🗺️ Map navigation completed for plot ${plot.plotNo}');
         print('🗺️ New map center: ${_mapController.camera.center}');
@@ -2316,7 +2369,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         print('🎯 Current map center: ${_mapController.camera.center}');
         
         // Navigate to plot location with higher zoom
-        _mapController.moveAndRotate(plotLocation, 18.0, 0.0);
+        _mapController.moveAndRotate(plotLocation, 13.0, 0.0);
         
         print('🎯 Map navigation completed');
         print('🎯 New map center: ${_mapController.camera.center}');
@@ -2344,32 +2397,27 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       // Get polygon coordinates
       final polygonCoordinates = _selectedPlot!.polygonCoordinates;
       if (polygonCoordinates.isEmpty) return null;
-      
+
       final coordinates = polygonCoordinates.first;
       if (coordinates.length < 3) return null;
-      
-      // Calculate the center of the polygon
+
+      // Calculate simple centroid (average of vertices)
       double sumLat = 0;
       double sumLng = 0;
       int count = 0;
-      
       for (final coord in coordinates) {
         sumLat += coord.latitude;
         sumLng += coord.longitude;
         count++;
       }
-      
       if (count == 0) return null;
-      
-      final centerLat = sumLat / count;
-      final centerLng = sumLng / count;
-      
-      print('📍 Plot polygon center: Lat=$centerLat, Lng=$centerLng');
-      
-      // For now, return a simple offset based on screen center
-      // This will be improved when we have proper coordinate conversion
-      final screenSize = MediaQuery.of(context).size;
-      return Offset(screenSize.width * 0.5, screenSize.height * 0.3);
+
+      final centroid = LatLng(sumLat / count, sumLng / count);
+      print('📍 Plot polygon centroid: ${centroid.latitude}, ${centroid.longitude}');
+
+      // Fallback approach for web: position relative to screen center
+      final size = MediaQuery.of(context).size;
+      return Offset(size.width * 0.5, size.height * 0.5);
     } catch (e) {
       print('❌ Error calculating plot screen position: $e');
       return null;
@@ -2455,7 +2503,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           // Fallback to plot coordinates if polygon is invalid
           if (plot.latitude != null && plot.longitude != null) {
             final plotLocation = LatLng(plot.latitude!, plot.longitude!);
-            _mapController.moveAndRotate(plotLocation, 18.0, 0.0);
+            _mapController.moveAndRotate(plotLocation, 13.0, 0.0);
             print('🎯 Fallback navigation to plot coordinates: $plotLocation');
           }
         }
@@ -2466,7 +2514,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         // Fallback to plot coordinates if no polygon
         if (plot.latitude != null && plot.longitude != null) {
           final plotLocation = LatLng(plot.latitude!, plot.longitude!);
-          _mapController.moveAndRotate(plotLocation, 18.0, 0.0);
+          _mapController.moveAndRotate(plotLocation, 13.0, 0.0);
           print('🎯 Fallback navigation to plot coordinates: $plotLocation');
         }
       }
@@ -2477,7 +2525,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       // Final fallback to plot coordinates
       if (plot.latitude != null && plot.longitude != null) {
         final plotLocation = LatLng(plot.latitude!, plot.longitude!);
-        _mapController.moveAndRotate(plotLocation, 18.0, 0.0);
+        _mapController.moveAndRotate(plotLocation, 13.0, 0.0);
         print('🎯 Emergency fallback navigation to plot coordinates: $plotLocation');
       }
     }
@@ -3325,8 +3373,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
     // Get screen dimensions
     final screenSize = MediaQuery.of(context).size;
-    final popupWidth = 280.0; // Larger width to match design
-    final popupHeight = 200.0; // Larger height to match design
+    final popupWidth = 220.0; // Compact square layout
+    final popupHeight = 160.0; // Compact square layout
     
     // Calculate position to be attached to the plot polygon
     double left, top;
@@ -3334,10 +3382,10 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     // Try to get the plot's screen position from polygon coordinates
     final plotScreenPosition = _calculatePlotScreenPosition();
     
-    if (plotScreenPosition != null) {
-      // Position the card above the plot polygon
-      left = plotScreenPosition.dx - (popupWidth / 2); // Center horizontally on plot
-      top = plotScreenPosition.dy - popupHeight - 20; // Position above the plot with some margin
+      if (plotScreenPosition != null) {
+        // Position the card attached to the plot polygon center
+        left = plotScreenPosition.dx - (popupWidth / 2); // Center horizontally on plot
+        top = plotScreenPosition.dy - popupHeight - 15; // Position above plot with proper margin
       
       // If the card would be too close to the bottom (where bottom sheet might be), 
       // position it to the side instead
@@ -3359,21 +3407,21 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       // Fallback: Use plot center coordinates for positioning
       print('📍 Using plot center coordinates: ${_selectedPlot!.latitude}, ${_selectedPlot!.longitude}');
       
-      // Position in upper center of screen
-      left = (screenSize.width - popupWidth) / 2;
-      top = screenSize.height * 0.25;
+        // Position attached to plot center coordinates
+        left = (screenSize.width - popupWidth) / 2;
+        top = screenSize.height * 0.4; // Position attached to plot area
       
       print('📍 Plot info card positioned using center coordinates: left=$left, top=$top');
     } else {
-      // Final fallback: Center on screen
-      left = (screenSize.width - popupWidth) / 2;
-      top = screenSize.height * 0.2;
+       // Final fallback: Position attached to plot area
+       left = (screenSize.width - popupWidth) / 2;
+       top = screenSize.height * 0.4; // Position attached to plot area
       print('📍 Plot info card positioned at screen center: left=$left, top=$top');
     }
     
-    // Ensure popup stays within screen bounds
-    left = left.clamp(10.0, screenSize.width - popupWidth - 10);
-    top = top.clamp(60.0, screenSize.height - popupHeight - 60);
+     // Ensure popup stays within screen bounds and avoid app bar area
+     left = left.clamp(10.0, screenSize.width - popupWidth - 10);
+     top = top.clamp(60.0, screenSize.height - popupHeight - 60); // Allow positioning in upper-middle area
     
     return Positioned(
       left: left,
