@@ -753,7 +753,7 @@ class _HomeScreenState extends State<HomeScreen>
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: 3,
+                        itemCount: 7,
                         itemBuilder: (context, index) {
                           return _buildProjectCard(index);
                         },
@@ -1042,25 +1042,67 @@ class _HomeScreenState extends State<HomeScreen>
   Widget _buildProjectCard(int index) {
     final projects = [
       {
-        'title': 'DHA Phase 8',
-        'location': 'Lahore',
-        'price': 'PKR 2.8-6.1 Cr',
-        'badge': 'HOT',
-        'badgeColor': Colors.red,
+        'title': 'DHA Phase 4 Entrance',
+        'description': 'Iconic entrance gate with modern architecture',
+        'badge': 'Featured',
+        'badgeColor': Colors.orange,
+        'category': 'Infrastructure',
+        'categoryColor': Color(0xFF1E3C90),
+        'image': 'gallery/dha-gate-night.jpg',
       },
       {
-        'title': 'DHA NEO',
-        'location': 'Lahore',
-        'price': 'PKR 3.2-7.9 Cr',
-        'badge': 'New',
-        'badgeColor': Color(0xFF1E3C90),
-      },
-      {
-        'title': 'DHA Commercial',
-        'location': 'Karachi',
-        'price': 'PKR 32.3L-2.24Cr',
-        'badge': 'Verified',
+        'title': 'DHA Medical Center',
+        'description': 'State-of-the-art healthcare facility',
+        'badge': 'Healthcare',
         'badgeColor': Colors.green,
+        'category': '',
+        'categoryColor': Colors.transparent,
+        'image': 'gallery/dha-medical-center.jpg',
+      },
+      {
+        'title': 'Commercial Hub',
+        'description': 'Aerial view of the circular commercial center',
+        'badge': 'Featured',
+        'badgeColor': Colors.orange,
+        'category': 'Commercial',
+        'categoryColor': Colors.purple,
+        'image': 'gallery/dha-commercial-center.jpg',
+      },
+      {
+        'title': 'Sports Complex',
+        'description': 'Modern football grounds with night lighting',
+        'badge': 'Recreation',
+        'badgeColor': Colors.orange,
+        'category': '',
+        'categoryColor': Colors.transparent,
+        'image': 'gallery/dha-sports-facility.jpg',
+      },
+      {
+        'title': 'Grand Mosque',
+        'description': 'Beautifully illuminated mosque with golden dome',
+        'badge': 'Featured',
+        'badgeColor': Colors.orange,
+        'category': 'Religious',
+        'categoryColor': Color(0xFF20B2AA),
+        'image': 'gallery/dha-mosque-night.jpg',
+      },
+      {
+        'title': 'Imperial Hall',
+        'description': 'Modern community center and event venue',
+        'badge': 'Community',
+        'badgeColor': Colors.pink,
+        'category': '',
+        'categoryColor': Colors.transparent,
+        'image': 'gallery/imperial-hall.jpg',
+      },
+      {
+        'title': 'Community Park',
+        'description': 'Illuminated recreational area with walking paths',
+        'badge': 'Recreation',
+        'badgeColor': Colors.orange,
+        'category': '',
+        'categoryColor': Colors.transparent,
+        'image': 'gallery/dha-park-night.jpg',
       },
     ];
     
@@ -1090,135 +1132,149 @@ class _HomeScreenState extends State<HomeScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image placeholder
+          // Project Image
           Container(
             height: 80,
             decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    const Color(0xFF20B2AA).withOpacity(0.15),
-                    const Color(0xFF1E3C90).withOpacity(0.15),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             ),
             child: Stack(
               children: [
-                const Center(
-                  child: Icon(
-                    Icons.home_work,
-                    color: Color(0xFF1E3C90),
-                    size: 40,
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                  child: Image.asset(
+                    project['image'] as String,
+                    width: double.infinity,
+                    height: 80,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color(0xFF20B2AA).withOpacity(0.15),
+                              const Color(0xFF1E3C90).withOpacity(0.15),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.home_work,
+                            color: Color(0xFF1E3C90),
+                            size: 40,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
                 if (project['badge'] != null)
                   Positioned(
-                    top: 8,
-                    left: 8,
+                    top: 6,
+                    left: 6,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                       decoration: BoxDecoration(
                           color: project['badgeColor'] as Color,
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(3),
                       ),
                       child: Text(
                           project['badge'] as String,
                         style: TextStyle(
                               fontFamily: 'Inter',
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w500,
                           color: Colors.white,
                           ),
                         ),
                       ),
                     ),
+                if (project['category'] != null && project['category'].toString().isNotEmpty)
                   Positioned(
-                    top: 8,
-                    right: 8,
-                    child: GestureDetector(
-                      onTap: () {
-                        // Add to favorites
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('${project['title']} added to favorites'),
-                            backgroundColor: const Color(0xFF20B2AA),
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                    top: 6,
+                    right: 6,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(
+                          color: project['categoryColor'] as Color,
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      child: Text(
+                          project['category'] as String,
+                        style: TextStyle(
+                              fontFamily: 'Inter',
+                          fontSize: 8,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
                           ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.favorite_border,
-                          color: Color(0xFF1E3C90),
-                          size: 16,
                         ),
                       ),
                     ),
-                  ),
+                  if (project['category'] == null || project['category'].toString().isEmpty)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: GestureDetector(
+                        onTap: () {
+                          // Add to favorites
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('${project['title']} added to favorites'),
+                              backgroundColor: const Color(0xFF20B2AA),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.favorite_border,
+                            color: Color(0xFF1E3C90),
+                            size: 16,
+                          ),
+                        ),
+                      ),
+                    ),
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(6),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                    project['price'] as String,
-                  style: TextStyle(
-                              fontFamily: 'Inter',
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF1E3C90),
-                  ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
                     project['title'] as String,
                   style: TextStyle(
                               fontFamily: 'Poppins',
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: Colors.black,
                   ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.location_on,
-                      size: 12,
-                      color: Colors.grey[600],
-                    ),
-                    const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          project['location'] as String,
-                      style: TextStyle(
+                const SizedBox(height: 2),
+                Text(
+                    project['description'] as String,
+                  style: TextStyle(
                               fontFamily: 'Inter',
-                        fontSize: 10,
-                        color: Colors.grey[600],
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
+                    fontSize: 9,
+                    color: Colors.grey[600],
+                    height: 1.2,
+                  ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
