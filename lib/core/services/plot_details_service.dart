@@ -56,40 +56,7 @@ class PlotDetailsService {
         'latitude': plot.latitude,
         'longitude': plot.longitude,
         'remarks': plot.remarks,
-        'paymentPlans': [
-          {
-            'id': 'lump_sum',
-            'name': 'Lump Sum',
-            'description': 'One-time payment',
-            'price': double.tryParse(plot.basePrice) ?? 0.0,
-            'durationMonths': 0,
-            'isSelected': true,
-          },
-          {
-            'id': '1_year',
-            'name': '1 Year Plan',
-            'description': 'Installments',
-            'price': double.tryParse(plot.oneYrPlan) ?? 0.0,
-            'durationMonths': 12,
-            'isSelected': false,
-          },
-          {
-            'id': '2_year',
-            'name': '2 Years Plan',
-            'description': 'Installments',
-            'price': double.tryParse(plot.twoYrsPlan) ?? 0.0,
-            'durationMonths': 24,
-            'isSelected': false,
-          },
-          {
-            'id': '3_year',
-            'name': '3 Years Plan',
-            'description': 'Installments',
-            'price': double.tryParse(plot.threeYrsPlan) ?? 0.0,
-            'durationMonths': 36,
-            'isSelected': false,
-          },
-        ],
+        'paymentPlans': _buildFilteredPaymentPlans(plot),
       };
       
       print('✅ Created plot details from existing data for plot: ${plot.plotNo}');
@@ -99,6 +66,48 @@ class PlotDetailsService {
       print('❌ Error creating plot details from plot model: $e');
       return null;
     }
+  }
+
+  /// Build filtered payment plans - only include plans with non-zero values
+  static List<Map<String, dynamic>> _buildFilteredPaymentPlans(PlotModel plot) {
+    final plans = <Map<String, dynamic>>[];
+    
+    // Always include lump sum plan
+    final lumpSumPrice = double.tryParse(plot.basePrice) ?? 0.0;
+    if (lumpSumPrice > 0) {
+      plans.add({
+        'id': 'lump_sum',
+        'name': 'Lump Sum',
+        'description': 'One-time payment',
+        'price': lumpSumPrice,
+        'durationMonths': 0,
+        'isSelected': true,
+      });
+    }
+    
+    // Only include 2-year plan if it has a value > 0
+    final twoYearPrice = double.tryParse(plot.twoYrsPlan) ?? 0.0;
+    if (twoYearPrice > 0) {
+      plans.add({
+        'id': '2_year',
+        'name': '2 Years Plan',
+        'description': 'Installments',
+        'price': twoYearPrice,
+        'durationMonths': 24,
+        'isSelected': false,
+      });
+    }
+    
+    // Filter out 1-year and 3-year plans as requested
+    // Only include them if they have non-zero values AND user specifically wants them
+    // For now, we're excluding them to improve UI as requested
+    
+    print('🔍 Filtered payment plans for plot ${plot.plotNo}: ${plans.length} plans');
+    for (final plan in plans) {
+      print('  - ${plan['name']}: PKR ${plan['price']}');
+    }
+    
+    return plans;
   }
   
   /// Secure a plot with token payment

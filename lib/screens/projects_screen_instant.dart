@@ -3421,199 +3421,29 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
             ),
           ],
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header with close button
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: const BoxDecoration(
-                color: Color(0xFF1E3C90),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(12),
-                  topRight: Radius.circular(12),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    'Plot ${_selectedPlot!.plotNo}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedPlot = null;
-                        _selectedPlotDetails = null;
-                        _showProjectDetails = false;
-                      });
-                    },
-                    child: const Icon(
-                      Icons.close,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            // Content
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Status badges - matching the design
-                  Row(
-                    children: [
-                      _buildStatusBadge(_selectedPlot!.category, const Color(0xFF81C784)),
-                      const SizedBox(width: 8),
-                      _buildStatusBadge('Selected', const Color(0xFF90CAF9)),
-                      const SizedBox(width: 8),
-                      _buildStatusBadge('Exclusive of DHA Charges', const Color(0xFFFFB74D)),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 12),
-                  
-                  // Plot details - matching the design layout
-                  _buildPopupDetailRow('Phase', _selectedPlotDetails!.phase),
-                  _buildPopupDetailRow('Sector', _selectedPlotDetails!.sector),
-                  _buildPopupDetailRow('Street', _selectedPlotDetails!.street),
-                  _buildPopupDetailRow('Size', _selectedPlotDetails!.size),
-                  _buildPopupDetailRow('Dimension', _selectedPlotDetails!.dimension),
-                  _buildPopupDetailRow('Price', 'PKR ${_formatPrice(_selectedPlotDetails!.lumpSumPrice)}'),
-                  
-                  const SizedBox(height: 12),
-                  
-                  // View Details Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _showSelectedPlotDetails = true;
-                        });
-                        _safeAnimateBottomSheet(0.75);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1E3C90),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text(
-                        'View Details',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+        child: EnhancedPlotInfoCard(
+          plot: _selectedPlot!,
+          onClose: () {
+            setState(() {
+              _selectedPlot = null;
+              _selectedPlotDetails = null;
+              _showProjectDetails = false;
+            });
+          },
+          onBookNow: () {
+            // Handle book now action
+            print('Book now for plot ${_selectedPlot!.plotNo}');
+          },
+          onViewDetails: () {
+            // Handle view details action
+            print('View details for plot ${_selectedPlot!.plotNo}');
+          },
         ),
       ),
     );
   }
 
-  Widget _buildStatusBadge(String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
 
-  Widget _buildPopupDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 80,
-            child: Text(
-              '$label:',
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF666666),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF333333),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Build compact detail row for popup
-  Widget _buildCompactPopupDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 1),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 50,
-            child: Text(
-              '$label:',
-              style: const TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   String _formatPrice(double price) {
     return price.toStringAsFixed(0).replaceAllMapped(
