@@ -54,13 +54,13 @@ class _PlotDetailScreenState extends State<PlotDetailScreen>
                     icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF1E3C90)),
                   ),
                   Expanded(
-                    child: Text(
-                      'Plot Details',
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF1E3C90),
-                      ),
+                      child: Text(
+                        'Plot Details',
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF1E3C90),
+                        ),
                     ),
                   ),
                   IconButton(

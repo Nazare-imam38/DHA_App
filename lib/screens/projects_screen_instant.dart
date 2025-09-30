@@ -1055,7 +1055,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                             textAlign: TextAlign.center,
                             style: TextStyle(
                                     fontFamily: 'Poppins',
-                              fontSize: 20,
+                              fontSize: 18,
                               fontWeight: FontWeight.w600,
                                     color: Colors.white,
                             ),

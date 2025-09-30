@@ -73,14 +73,16 @@ class _FAQContactScreenState extends State<FAQContactScreen>
       appBar: AppBar(
         title: Text(
           'FAQ & Contact',
-          style: GoogleFonts.poppins(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
             color: Colors.white,
           ),
         ),
         backgroundColor: const Color(0xFF1E3C90),
         elevation: 0,
+        centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
         bottom: TabBar(
           controller: _tabController,

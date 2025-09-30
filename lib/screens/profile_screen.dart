@@ -839,7 +839,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontFamily: 'Poppins',
-                          fontSize: 20,
+                          fontSize: 18,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),
