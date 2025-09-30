@@ -8,6 +8,7 @@ import '../data/network/plots_api_service.dart';
 import '../core/services/smart_filter_manager.dart';
 import '../core/services/progressive_map_renderer.dart';
 import '../core/services/coordinate_cache_manager.dart';
+import '../ui/widgets/dha_loading_widget.dart';
 import 'polygon_state_provider.dart';
 import '../core/utils/plots_debug_analyzer.dart';
 import '../core/utils/simple_api_test.dart';
@@ -52,6 +53,13 @@ class PlotsProvider with ChangeNotifier {
   List<PlotModel> get filteredPlots => _filteredPlots;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  
+  // Loading widget getter
+  Widget get loadingWidget => DHALoadingWidget(
+    size: 120,
+    message: 'Loading plots...',
+    showMessage: true,
+  );
   
   String? get selectedPhase => _selectedPhase;
   String? get selectedCategory => _selectedCategory;

@@ -25,6 +25,7 @@ import '../ui/widgets/modern_filters_panel.dart';
 import '../ui/widgets/rectangular_toggle_button.dart';
 import '../ui/widgets/selected_plot_details_widget.dart';
 import '../ui/widgets/plot_details_popup.dart';
+import '../ui/widgets/dha_loading_widget.dart';
 import '../data/models/plot_details_model.dart';
 import '../core/services/plot_details_service.dart';
 
@@ -989,45 +990,14 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
             ],
           ),
           
-          // Small loading indicator in top-right corner (non-blocking)
+          // DHA Loading indicator centered on screen (no background)
           if (_isDataLoading)
-            Positioned(
-              top: 100,
-              right: 20,
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF20B2AA)),
-                        strokeWidth: 2,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Loading data...',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
+            Positioned.fill(
+              child: Center(
+                child: DHALoadingWidget(
+                  size: 120,
+                  message: 'Loading data...',
+                  showMessage: true,
                 ),
               ),
             ),

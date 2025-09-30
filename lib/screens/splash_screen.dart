@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../ui/screens/auth/login_screen.dart';
+import '../ui/widgets/dha_loading_widget.dart';
 import 'main_wrapper.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -148,37 +149,20 @@ class _SplashScreenState extends State<SplashScreen>
 
             const SizedBox(height: 60),
 
-            // Loading Indicator
-            AnimatedBuilder(
-              animation: _progressFade,
-              builder: (context, child) {
-                return FadeTransition(
-                  opacity: _progressFade,
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        width: 40,
-                        height: 40,
-                        child: CircularProgressIndicator(
-                          valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF20B2AA)),
-                          strokeWidth: 3,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        'Loading...',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+             // DHA Loading Indicator
+             AnimatedBuilder(
+               animation: _progressFade,
+               builder: (context, child) {
+                 return FadeTransition(
+                   opacity: _progressFade,
+                   child: DHALoadingWidget(
+                     size: 120,
+                     message: 'Loading...',
+                     showMessage: true,
+                   ),
+                 );
+               },
+             ),
           ],
         ),
       ),
