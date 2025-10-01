@@ -7,6 +7,8 @@ class EnhancedPlotInfoCard extends StatelessWidget {
   final VoidCallback? onClose;
   final VoidCallback? onBookNow;
   final VoidCallback? onViewDetails;
+  final String? townPlanValidationStatus;
+  final Color? townPlanValidationColor;
 
   const EnhancedPlotInfoCard({
     super.key,
@@ -14,6 +16,8 @@ class EnhancedPlotInfoCard extends StatelessWidget {
     this.onClose,
     this.onBookNow,
     this.onViewDetails,
+    this.townPlanValidationStatus,
+    this.townPlanValidationColor,
   });
 
   @override
@@ -102,6 +106,13 @@ class EnhancedPlotInfoCard extends StatelessWidget {
               _buildStatusChip('Residential', Colors.red),
               const SizedBox(width: 8),
               _buildStatusChip('Selected', Colors.blue),
+              if (townPlanValidationStatus != null) ...[
+                const SizedBox(width: 8),
+                _buildStatusChip(
+                  townPlanValidationStatus!,
+                  townPlanValidationColor ?? Colors.grey,
+                ),
+              ],
             ],
           ),
           

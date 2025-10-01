@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+Rimport 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../ui/screens/auth/login_screen.dart';
@@ -174,182 +174,179 @@ class _GlobeSplashScreenState extends State<GlobeSplashScreen>
           color: Colors.white,
         ),
         child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // DHA Logo (not rotated)
-                  AnimatedBuilder(
-                    animation: _logoScale,
-                    builder: (context, child) {
-                      return Transform.scale(
-                        scale: _logoScale.value,
-                        child: Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF20B2AA).withOpacity(0.3),
-                                blurRadius: 20,
-                                spreadRadius: 5,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // DHA Logo (not rotated)
+              AnimatedBuilder(
+                animation: _logoScale,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: _logoScale.value,
+                    child: Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF20B2AA).withOpacity(0.3),
+                            blurRadius: 20,
+                            spreadRadius: 5,
+                          ),
+                        ],
+                      ),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/images/dhalogo.png',
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF20B2AA),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.home,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              
+              const SizedBox(height: 30),
+              
+              // App Title
+              AnimatedBuilder(
+                animation: _textFade,
+                builder: (context, child) {
+                  return FadeTransition(
+                    opacity: _textFade,
+                    child: Column(
+                      children: [
+                        Text(
+                          'DHA Marketplace',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF1A1A2E),
+                            shadows: [
+                              Shadow(
+                                color: Colors.grey.withOpacity(0.3),
+                                blurRadius: 10,
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
-                          child: ClipOval(
-                            child: Image.asset(
-                              'assets/images/dhalogo.png',
-                              fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFF20B2AA),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.home,
-                                    color: Colors.white,
-                                    size: 40,
-                                  ),
-                                );
-                              },
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Premium Property Solutions',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: const Color(0xFF1A1A2E).withOpacity(0.7),
+                            shadows: [
+                              Shadow(
+                                color: Colors.grey.withOpacity(0.3),
+                                blurRadius: 5,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              
+              const SizedBox(height: 60),
+              
+              // Loading Progress
+              AnimatedBuilder(
+                animation: _progressFade,
+                builder: (context, child) {
+                  return FadeTransition(
+                    opacity: _progressFade,
+                    child: Column(
+                      children: [
+                        // Progress Bar
+                        Container(
+                          width: 280,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(3),
+                            color: const Color(0xFF1A1A2E).withOpacity(0.2),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(3),
+                            child: LinearProgressIndicator(
+                              value: _currentProgress,
+                              backgroundColor: Colors.transparent,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                const Color(0xFF20B2AA),
+                              ),
                             ),
                           ),
                         ),
-                      );
-                    },
-                  ),
-                  
-                  const SizedBox(height: 30),
-                  
-                  // App Title
-                  AnimatedBuilder(
-                    animation: _textFade,
-                    builder: (context, child) {
-                      return FadeTransition(
-                        opacity: _textFade,
-                        child: Column(
-                          children: [
-                            Text(
-                              'DHA Marketplace',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF1A1A2E),
-                                shadows: [
-                                  Shadow(
-                                    color: Colors.grey.withOpacity(0.3),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
+                        
+                        const SizedBox(height: 16),
+                        
+                        // Progress Text
+                        Text(
+                          _currentMessage,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFF1A1A2E).withOpacity(0.8),
+                            shadows: [
+                              Shadow(
+                                color: Colors.grey.withOpacity(0.3),
+                                blurRadius: 5,
+                                offset: const Offset(0, 1),
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Premium Property Solutions',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                color: const Color(0xFF1A1A2E).withOpacity(0.7),
-                                shadows: [
-                                  Shadow(
-                                    color: Colors.grey.withOpacity(0.3),
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 1),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      );
-                    },
-                  ),
-                  
-                  const SizedBox(height: 60),
-                  
-                  // Loading Progress
-                  AnimatedBuilder(
-                    animation: _progressFade,
-                    builder: (context, child) {
-                      return FadeTransition(
-                        opacity: _progressFade,
-                        child: Column(
-                          children: [
-                            // Progress Bar
-                            Container(
-                              width: 280,
-                              height: 6,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(3),
-                                color: const Color(0xFF1A1A2E).withOpacity(0.2),
+                        
+                        const SizedBox(height: 8),
+                        
+                        // Percentage
+                        Text(
+                          '${(_currentProgress * 100).toInt()}%',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF20B2AA),
+                            shadows: [
+                              Shadow(
+                                color: Colors.grey.withOpacity(0.3),
+                                blurRadius: 5,
+                                offset: const Offset(0, 1),
                               ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(3),
-                                child: LinearProgressIndicator(
-                                  value: _currentProgress,
-                                  backgroundColor: Colors.transparent,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    const Color(0xFF20B2AA),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            
-                            const SizedBox(height: 16),
-                            
-                            // Progress Text
-                            Text(
-                              _currentMessage,
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: const Color(0xFF1A1A2E).withOpacity(0.8),
-                                shadows: [
-                                  Shadow(
-                                    color: Colors.grey.withOpacity(0.3),
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 1),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            
-                            const SizedBox(height: 8),
-                            
-                            // Percentage
-                            Text(
-                              '${(_currentProgress * 100).toInt()}%',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF20B2AA),
-                                shadows: [
-                                  Shadow(
-                                    color: Colors.grey.withOpacity(0.3),
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 1),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      );
-                    },
-                  ),
-                ],
+                      ],
+                    ),
+                  );
+                },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
-

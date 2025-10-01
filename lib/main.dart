@@ -64,9 +64,6 @@ class GradientTheme extends ThemeExtension<GradientTheme> {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize Mapbox
-  await MapboxMapsFlutter.initialize(MapboxConfig.accessToken);
-  
   runApp(const DHAMarketplaceApp());
 }
 

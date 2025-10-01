@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 import '../l10n/app_localizations.dart';
 import '../services/language_service.dart';
 import '../providers/plots_provider.dart';
@@ -146,6 +147,11 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   // Legend visibility states
   bool _showAmenitiesLegend = true;
   bool _showPhaseBoundariesLegend = true;
+  bool _showTownPlanLegend = true;
+  
+  // Town plan overlay
+  bool _showTownPlan = false;
+  String _selectedTownPlanLayer = 'phase1'; // Default to Phase 1
   
   // Performance optimization
   Timer? _debounceTimer;
@@ -943,6 +949,17 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                   print('Tile error: $error');
                 },
               ),
+              // Town plan overlay layer
+              if (_showTownPlan)
+                TileLayer(
+                  urlTemplate: 'https://tiles.dhamarketplace.com/data/${_selectedTownPlanLayer}/tiles/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.dha.marketplace',
+                  maxZoom: 18,
+                  tileProvider: NetworkTileProvider(),
+                  errorTileCallback: (tile, error, stackTrace) {
+                    print('Town plan tile error: $error');
+                  },
+                ),
               // Boundary polygons with hollow fill and dotted borders
               PolygonLayer(
                 polygons: _getBoundaryPolygons(),
@@ -1394,6 +1411,20 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                               tooltip: 'Change Map View',
                             ),
                           ),
+                          // Town Plan Toggle Button
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            child: FloatingActionButton(
+                              onPressed: _toggleTownPlan,
+                              backgroundColor: _showTownPlan ? const Color(0xFF4CAF50) : const Color(0xFF20B2AA),
+                              mini: true,
+                              child: Icon(
+                                _showTownPlan ? Icons.map : Icons.map_outlined,
+                                color: Colors.white,
+                              ),
+                              tooltip: _showTownPlan ? 'Hide Town Plan' : 'Show Town Plan',
+                            ),
+                          ),
                         ],
                       ) : const SizedBox.shrink(),
                     ),
@@ -1422,6 +1453,14 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           ),
 
           // Clean UI with only rectangular toggle buttons
+
+          // Town Plan Legend (Top Left)
+          if (_showTownPlan)
+            Positioned(
+              top: 140,
+              left: 20,
+              child: _buildTownPlanLegend(),
+            ),
 
           // Bottom Sheet for Filtered Plots (matches web app design)
           _buildBottomSheet(),
@@ -2190,6 +2229,169 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     });
   }
 
+  /// Toggle town plan overlay
+  void _toggleTownPlan() {
+    setState(() {
+      _showTownPlan = !_showTownPlan;
+    });
+    
+    if (_showTownPlan) {
+      _testTownPlanTileUrl();
+      _showTownPlanLayerSelector();
+    }
+  }
+
+  /// Test town plan tile URL format
+  void _testTownPlanTileUrl() {
+    final testUrl = 'https://tiles.dhamarketplace.com/data/${_selectedTownPlanLayer}/14/12345/67890.png';
+    print('🔍 Testing town plan tile URL: $testUrl');
+    print('🔍 Selected layer: $_selectedTownPlanLayer');
+    
+    // Test different URL formats for TileServer GL
+    final alternativeUrls = [
+      'https://tiles.dhamarketplace.com/data/${_selectedTownPlanLayer}/{z}/{x}/{y}.png', // Correct format
+      'https://tiles.dhamarketplace.com/data/${_selectedTownPlanLayer}/tiles/{z}/{x}/{y}.png', // Incorrect
+      'https://tiles.dhamarketplace.com/${_selectedTownPlanLayer}/{z}/{x}/{y}.png', // Alternative
+    ];
+    
+    for (int i = 0; i < alternativeUrls.length; i++) {
+      print('🔍 Alternative URL ${i + 1}: ${alternativeUrls[i]}');
+    }
+    
+    // Test actual tile server response
+    _testTileServerResponse();
+  }
+
+  /// Test tile server response
+  Future<void> _testTileServerResponse() async {
+    try {
+      final testUrl = 'https://tiles.dhamarketplace.com/data/${_selectedTownPlanLayer}/14/12345/67890.png';
+      print('🔍 Testing actual tile server response...');
+      print('🔍 Test URL: $testUrl');
+      
+      final response = await http.get(Uri.parse(testUrl));
+      print('🔍 Response status: ${response.statusCode}');
+      print('🔍 Response headers: ${response.headers}');
+      print('🔍 Content type: ${response.headers['content-type']}');
+      
+      if (response.statusCode == 200) {
+        print('✅ Tile server is responding correctly');
+        if (response.headers['content-type']?.contains('image') == true) {
+          print('✅ Content is an image (tile)');
+        } else {
+          print('⚠️ Content is not an image: ${response.headers['content-type']}');
+        }
+      } else {
+        print('❌ Tile server error: ${response.statusCode}');
+        print('❌ Response body: ${response.body.substring(0, 200)}...');
+      }
+    } catch (e) {
+      print('❌ Error testing tile server: $e');
+    }
+  }
+
+  /// Show town plan layer selector
+  void _showTownPlanLayerSelector() {
+    final townPlanLayers = [
+      {'id': 'phase1', 'name': 'Phase 1', 'description': 'DHA Phase 1 Development', 'coordinates': '33.5348, 73.0951'},
+      {'id': 'phase2', 'name': 'Phase 2', 'description': 'DHA Phase 2 Development', 'coordinates': '33.52844, 73.15383'},
+      {'id': 'phase3', 'name': 'Phase 3', 'description': 'DHA Phase 3 Development', 'coordinates': '33.49562, 73.15650'},
+      {'id': 'phase4', 'name': 'Phase 4', 'description': 'DHA Phase 4 Development', 'coordinates': '33.52165, 73.07213'},
+      {'id': 'phase4_gv', 'name': 'Phase 4 GV', 'description': 'DHA Phase 4 Garden View', 'coordinates': '33.50073, 73.04962'},
+      {'id': 'phase4_rvs-updated', 'name': 'Phase 4 RVS', 'description': 'DHA Phase 4 RVS Development', 'coordinates': '33.48358, 72.99944'},
+      {'id': 'phase5', 'name': 'Phase 5', 'description': 'DHA Phase 5 Development', 'coordinates': '33.52335, 73.20746'},
+      {'id': 'phase6', 'name': 'Phase 6', 'description': 'DHA Phase 6 Development', 'coordinates': '33.55784, 73.28214'},
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'Select Town Plan Layer',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF1A1A2E),
+                ),
+              ),
+            ),
+            Container(
+              height: 400,
+              child: ListView.builder(
+                itemCount: townPlanLayers.length,
+                itemBuilder: (context, index) {
+                  final layer = townPlanLayers[index];
+                  final isSelected = _selectedTownPlanLayer == layer['id'];
+                  
+                  return ListTile(
+                    leading: Icon(
+                      isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+                      color: isSelected ? const Color(0xFF20B2AA) : Colors.grey,
+                    ),
+                    title: Text(
+                      layer['name']!,
+                      style: TextStyle(
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        color: isSelected ? const Color(0xFF20B2AA) : const Color(0xFF1A1A2E),
+                      ),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          layer['description']!,
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Coordinates: ${layer['coordinates']}',
+                          style: TextStyle(
+                            color: Colors.grey[500],
+                            fontSize: 10,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                      onTap: () {
+                        setState(() {
+                          _selectedTownPlanLayer = layer['id']!;
+                        });
+                        Navigator.pop(context);
+                        _centerMapOnTownPlanLayer(layer['id']!);
+                      },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   /// Show all phases with optimal zoom
   void _showAllPhases() {
     setState(() {
@@ -2590,6 +2792,236 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     }
     
     // Plots API removed - no longer handling zoom level changes for plots
+  }
+
+  /// Build town plan legend
+  Widget _buildTownPlanLegend() {
+    return SizedBox(
+      width: 200,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header with toggle
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _showTownPlanLegend = !_showTownPlanLegend;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF20B2AA).withOpacity(0.1),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      topRight: Radius.circular(12),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.map,
+                        color: const Color(0xFF20B2AA),
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Town Plan',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF1A1A2E),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Icon(
+                        _showTownPlanLegend ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                        color: Colors.grey[600],
+                        size: 18,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              // Legend content (collapsible)
+              if (_showTownPlanLegend) ...[
+                Container(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Current layer info
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF20B2AA).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0xFF20B2AA).withOpacity(0.3)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.layers, color: const Color(0xFF20B2AA), size: 14),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _getTownPlanLayerName(_selectedTownPlanLayer),
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 12,
+                                  color: const Color(0xFF20B2AA),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Legend items
+                      _buildTownPlanLegendItem('Planned Area', const Color(0xFF20B2AA), Icons.location_city),
+                      const SizedBox(height: 4),
+                      _buildTownPlanLegendItem('Development Zone', const Color(0xFF4CAF50), Icons.home_work),
+                      const SizedBox(height: 4),
+                      _buildTownPlanLegendItem('Infrastructure', const Color(0xFF2196F3), Icons.construction),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Build town plan legend item
+  Widget _buildTownPlanLegendItem(String label, Color color, IconData icon) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Icon(icon, color: color, size: 14),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 11,
+              color: const Color(0xFF1A1A2E),
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Get town plan layer display name
+  String _getTownPlanLayerName(String layerId) {
+    final layerNames = {
+      'phase1': 'Phase 1',
+      'phase2': 'Phase 2',
+      'phase3': 'Phase 3',
+      'phase4': 'Phase 4',
+      'phase4_gv': 'Phase 4 GV',
+      'phase4_rvs-updated': 'Phase 4 RVS',
+      'phase5': 'Phase 5',
+      'phase6': 'Phase 6',
+    };
+    return layerNames[layerId] ?? layerId;
+  }
+
+  /// Validate plot against town plan
+  bool _validatePlotAgainstTownPlan(PlotModel plot) {
+    if (!_showTownPlan) return true; // No validation if town plan is not shown
+    
+    // Get the plot's phase and compare with selected town plan layer
+    final plotPhase = plot.phase?.toLowerCase().replaceAll(' ', '');
+    final selectedLayer = _selectedTownPlanLayer.toLowerCase();
+    
+    // Check if plot phase matches the selected town plan layer
+    if (plotPhase != null && selectedLayer.isNotEmpty) {
+      // Direct match
+      if (plotPhase == selectedLayer) return true;
+      
+      // Handle special cases for the 8 available layers
+      if (selectedLayer == 'phase4_rvs-updated' && plotPhase == 'rvs') return true;
+      if (selectedLayer == 'phase4_gv' && plotPhase == 'phase4gv') return true;
+      if (selectedLayer == 'phase4_rvs-updated' && plotPhase == 'phase4rvs') return true;
+    }
+    
+    return false; // Plot doesn't align with town plan
+  }
+
+  /// Get plot validation status
+  String _getPlotValidationStatus(PlotModel plot) {
+    if (!_showTownPlan) return 'No validation';
+    
+    final isValid = _validatePlotAgainstTownPlan(plot);
+    return isValid ? 'Aligned with town plan' : 'Not aligned with town plan';
+  }
+
+  /// Get plot validation color
+  Color _getPlotValidationColor(PlotModel plot) {
+    if (!_showTownPlan) return Colors.grey;
+    
+    final isValid = _validatePlotAgainstTownPlan(plot);
+    return isValid ? Colors.green : Colors.red;
+  }
+
+  /// Center map on selected town plan layer coordinates
+  void _centerMapOnTownPlanLayer(String layerId) {
+    final layerCoordinates = {
+      'phase1': LatLng(33.5348, 73.0951),
+      'phase2': LatLng(33.52844, 73.15383),
+      'phase3': LatLng(33.49562, 73.15650),
+      'phase4': LatLng(33.52165, 73.07213),
+      'phase4_gv': LatLng(33.50073, 73.04962),
+      'phase4_rvs-updated': LatLng(33.48358, 72.99944),
+      'phase5': LatLng(33.52335, 73.20746),
+      'phase6': LatLng(33.55784, 73.28214),
+    };
+
+    final coordinates = layerCoordinates[layerId];
+    if (coordinates != null) {
+      _mapController.move(coordinates, 16.0); // Zoom level 16 for detailed view
+      setState(() {
+        _mapCenter = coordinates;
+        _zoom = 16.0;
+      });
+    }
   }
 
   /// Build dynamic amenities legend with toggle functionality
@@ -3456,6 +3888,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
             // Handle view details action
             print('View details for plot ${_selectedPlot!.plotNo}');
           },
+          townPlanValidationStatus: _getPlotValidationStatus(_selectedPlot!),
+          townPlanValidationColor: _getPlotValidationColor(_selectedPlot!),
         ),
       ),
     );

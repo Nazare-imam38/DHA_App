@@ -1,0 +1,58 @@
+/* Ensure posters are fully visible */
+.banner-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #f5f5f5;
+}
+
+/* Consistent height for login and register pages */
+.login-form-container,
+.register-form-container {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 64px);
+}
+
+/* Login form spacer to match register form height */
+.login-spacer {
+  flex-grow: 1;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .login-mobile-banner,
+  .register-mobile-banner {
+    margin-top: 0;
+    padding: 1rem;
+    background-color: #f5f5f5;
+  }
+
+  /* Ensure container starts below header */
+  .container {
+    padding-top: 0;
+    margin-top: 0;
+  }
+
+  /* Fix for mobile layout to ensure content starts below header */
+  .login-form-container,
+  .register-form-container {
+    padding-top: 0;
+  }
+}
+
+/* Desktop optimizations */
+@media (min-width: 1024px) {
+  .banner-container img {
+    object-fit: contain;
+    max-height: 100%;
+    max-width: 100%;
+  }
+
+  /* Set consistent container heights */
+  .login-form-container,
+  .register-form-container {
+    height: calc(100vh - 64px);
+  }
+}

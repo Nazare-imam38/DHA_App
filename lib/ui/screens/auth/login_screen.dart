@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:math';
 import '../../../l10n/app_localizations.dart';
 import '../../../services/language_service.dart';
 import '../../../providers/auth_provider.dart';
@@ -19,8 +20,11 @@ class _LoginScreenState extends State<LoginScreen>
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _captchaController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
+  String _captchaText = '';
+  final Random _random = Random();
   
   late AnimationController _fadeController;
   late AnimationController _slideController;
@@ -47,6 +51,7 @@ class _LoginScreenState extends State<LoginScreen>
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
     
+    _generateCaptcha();
     _fadeController.forward();
     _slideController.forward();
   }
@@ -57,11 +62,50 @@ class _LoginScreenState extends State<LoginScreen>
     _slideController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _captchaController.dispose();
     super.dispose();
+  }
+
+  void _generateCaptcha() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    _captchaText = '';
+    for (int i = 0; i < 5; i++) {
+      _captchaText += chars[_random.nextInt(chars.length)];
+    }
+    print('Generated captcha: $_captchaText'); // Debug line
+  }
+
+  void _refreshCaptcha() {
+    setState(() {
+      _generateCaptcha();
+      _captchaController.clear();
+    });
   }
 
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
+      // Validate captcha
+      if (_captchaText.isEmpty) {
+        _generateCaptcha();
+        setState(() {});
+      }
+      
+      if (_captchaController.text.trim().toUpperCase() != _captchaText.toUpperCase()) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Please enter the correct captcha'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+        _refreshCaptcha();
+        return;
+      }
+
       setState(() {
         _isLoading = true;
       });
@@ -124,6 +168,9 @@ class _LoginScreenState extends State<LoginScreen>
               ),
             ),
           );
+          
+          // Refresh captcha on authentication failure
+          _refreshCaptcha();
         }
       } finally {
         if (mounted) {
@@ -316,9 +363,9 @@ class _LoginScreenState extends State<LoginScreen>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                const Color(0xFF1E3C90).withValues(alpha: 0.85),
-                const Color(0xFF1E3C90).withValues(alpha: 0.75),
-                const Color(0xFF20B2AA).withValues(alpha: 0.65),
+                Colors.black.withValues(alpha: 0.1),
+                Colors.black.withValues(alpha: 0.2),
+                Colors.black.withValues(alpha: 0.3),
                 Colors.black.withValues(alpha: 0.4),
               ],
             ),
@@ -329,13 +376,13 @@ class _LoginScreenState extends State<LoginScreen>
             SafeArea(
               child: SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.all(24.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: Form(
                     key: _formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 20),
                   
                         // Logo and Title
                         FadeTransition(
@@ -344,34 +391,34 @@ class _LoginScreenState extends State<LoginScreen>
                             children: [
                               Image.asset(
                                 'assets/images/dhalogo.png',
-                                width: 160,
-                                height: 160,
+                                width: 140,
+                                height: 140,
                                 fit: BoxFit.contain,
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 4),
                               Text(
                                 l10n.welcomeBack,
                                 style: TextStyle(
                                   fontFamily: 'Inter',
                                   fontSize: 20,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.white.withOpacity(0.95),
+                                  color: Colors.white,
                                   shadows: [
                                     Shadow(
-                                      color: Colors.black.withOpacity(0.3),
-                                      offset: const Offset(0, 1),
-                                      blurRadius: 4,
+                                      color: Colors.black.withOpacity(0.5),
+                                      offset: const Offset(0, 2),
+                                      blurRadius: 6,
                                     ),
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 2),
                               Text(
                                 l10n.signInToAccount,
                                 style: TextStyle(
                                   fontFamily: 'Inter',
                                   fontSize: 16,
-                                  color: Colors.white.withOpacity(0.85),
+                                  color: Colors.white,
                                   fontWeight: FontWeight.w400,
                                 ),
                                 textAlign: TextAlign.center,
@@ -379,7 +426,7 @@ class _LoginScreenState extends State<LoginScreen>
                             ],
                           ),
                         ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 20),
 
                   // Email Field
                   SlideTransition(
@@ -400,7 +447,7 @@ class _LoginScreenState extends State<LoginScreen>
                       },
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 4),
 
                   // Password Field
                   SlideTransition(
@@ -432,7 +479,14 @@ class _LoginScreenState extends State<LoginScreen>
                       },
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 4),
+
+                  // Captcha Field
+                  SlideTransition(
+                    position: _slideAnimation,
+                    child: _buildCaptchaField(),
+                  ),
+                  const SizedBox(height: 2),
 
                   // Forgot Password
                   SlideTransition(
@@ -447,7 +501,7 @@ class _LoginScreenState extends State<LoginScreen>
                           l10n.forgotPassword,
                           style: TextStyle(
                               fontFamily: 'Inter',
-                            color: const Color(0xFF20B2AA),
+                            color: Colors.white,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
@@ -529,7 +583,7 @@ class _LoginScreenState extends State<LoginScreen>
                             'or',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              color: Colors.grey[600],
+                              color: Colors.white,
                               fontSize: 14,
                             ),
                           ),
@@ -598,7 +652,7 @@ class _LoginScreenState extends State<LoginScreen>
                           'Follow us on',
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            color: Colors.grey[600],
+                            color: Colors.white,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
@@ -671,23 +725,39 @@ class _LoginScreenState extends State<LoginScreen>
     String? Function(String?)? validator,
   }) {
     return Container(
+      margin: const EdgeInsets.symmetric(vertical: 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 1),
+          Container(
+            height: 60,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.98),
-        borderRadius: BorderRadius.circular(20),
+              color: Colors.white.withOpacity(0.95),
+              borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.white.withOpacity(0.4),
-          width: 2,
+                color: Colors.white.withOpacity(0.3),
+                width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 25,
-            offset: const Offset(0, 10),
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withOpacity(0.4),
             blurRadius: 15,
-            offset: const Offset(0, 5),
+                  offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -698,57 +768,232 @@ class _LoginScreenState extends State<LoginScreen>
         style: TextStyle(
           fontFamily: 'Inter',
           color: const Color(0xFF1F2937),
-          fontSize: 17,
+                fontSize: 16,
           fontWeight: FontWeight.w500,
         ),
         decoration: InputDecoration(
-          labelText: label,
-          labelStyle: TextStyle(
-            fontFamily: 'Inter',
-            color: const Color(0xFF6B7280),
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
-          ),
-          prefixIcon: Container(
-            margin: const EdgeInsets.all(15),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF20B2AA).withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
+                prefixIcon: Container(
+                  margin: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E3C90).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: const Color(0xFF1E3C90),
+                    size: 20,
+                  ),
                 ),
-              ],
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 22,
-            ),
-          ),
-          suffixIcon: suffixIcon,
-          filled: true,
-          fillColor: Colors.transparent,
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 25),
-          errorStyle: TextStyle(
+                suffixIcon: suffixIcon,
+                filled: true,
+                fillColor: Colors.transparent,
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                errorStyle: TextStyle(
             fontFamily: 'Inter',
-            color: Colors.red[600],
-            fontSize: 13,
+                  color: Colors.red[600],
+                  fontSize: 12,
             fontWeight: FontWeight.w500,
           ),
-        ),
-        validator: validator,
+              ),
+              validator: validator,
+            ),
+          ),
+        ],
       ),
     );
   }
+
+  Widget _buildCaptchaField() {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.verified_user,
+                color: Colors.white.withOpacity(0.9),
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Security Verification',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.95),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.3),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+                BoxShadow(
+                  color: Colors.white.withOpacity(0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                // Captcha Display Row
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.grey[300]!,
+                            width: 1,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            _captchaText.isEmpty ? 'Loading...' : _captchaText,
+                            style: TextStyle(
+                              fontFamily: 'Courier',
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: _captchaText.isEmpty ? Colors.grey[400] : const Color(0xFF4A5568),
+                              letterSpacing: 2,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Refresh Button
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Colors.grey[300]!,
+                          width: 1,
+                        ),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(8),
+                          onTap: _refreshCaptcha,
+            child: Icon(
+                            Icons.refresh,
+                            color: Colors.grey[700],
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                // Captcha Input Field
+                Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+              color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Colors.grey[300]!,
+                      width: 1,
+                    ),
+                  ),
+                  child: TextFormField(
+                    controller: _captchaController,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      color: const Color(0xFF1F2937),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Enter The Captcha Text',
+                      hintStyle: TextStyle(
+                        fontFamily: 'Inter',
+                        color: Colors.grey[400],
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                      ),
+          filled: true,
+          fillColor: Colors.transparent,
+          border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          errorStyle: TextStyle(
+            fontFamily: 'Inter',
+            color: Colors.red[600],
+                        fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter the security code';
+                      }
+                      if (value.trim().toUpperCase() != _captchaText.toUpperCase()) {
+                        return 'Security code does not match';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(height: 1),
+                // Help Text
+                Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Enter the 5-character code shown above (case-insensitive)',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   Widget _buildSocialIcon(IconData icon, Color color, String tooltip) {
     return Tooltip(
