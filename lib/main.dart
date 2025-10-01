@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'screens/enhanced_splash_screen.dart';
+import 'screens/globe_splash_screen.dart';
 import 'screens/main_wrapper.dart';
 import 'services/language_service.dart';
 import 'providers/auth_provider.dart';
@@ -14,6 +15,7 @@ import 'core/services/instant_boundary_service.dart';
 import 'core/services/enterprise_api_manager.dart';
 import 'core/services/smart_filter_manager.dart';
 import 'core/services/progressive_map_renderer.dart';
+import 'core/config/mapbox_config.dart';
 
 // Custom gradient theme extension
 @immutable
@@ -59,7 +61,12 @@ class GradientTheme extends ThemeExtension<GradientTheme> {
   }
 }
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Mapbox
+  await MapboxMapsFlutter.initialize(MapboxConfig.accessToken);
+  
   runApp(const DHAMarketplaceApp());
 }
 
@@ -103,10 +110,20 @@ class _DHAMarketplaceAppState extends State<DHAMarketplaceApp> {
       }
     });
     
-    // Stage 2: API data will be loaded when needed
+    // Stage 2: Initialize location service
+    Future.microtask(() async {
+      try {
+        // Location service will be initialized in the provider
+        print('Main: Location service will be initialized');
+      } catch (e) {
+        print('Main: Error initializing location service: $e');
+      }
+    });
+    
+    // Stage 3: API data will be loaded when needed
     print('Main: API data will be loaded on demand');
     
-    // Stage 3: Initialize performance monitoring
+    // Stage 4: Initialize performance monitoring
     Future.microtask(() async {
       try {
         _initializePerformanceMonitoring();
@@ -159,7 +176,12 @@ class _DHAMarketplaceAppState extends State<DHAMarketplaceApp> {
           create: (context) => PlotStatsProvider(),
         ),
         ChangeNotifierProvider<LocationService>(
-          create: (context) => LocationService(),
+          create: (context) {
+            final locationService = LocationService();
+            // Initialize location service
+            locationService.initializeLocation();
+            return locationService;
+          },
         ),
       ],
       child: Consumer<LanguageService>(
@@ -224,7 +246,7 @@ class _DHAMarketplaceAppState extends State<DHAMarketplaceApp> {
           ),
         ],
       ),
-      home: const EnhancedSplashScreen(),
+      home: const GlobeSplashScreen(),
       debugShowCheckedModeBanner: false,
           );
         },

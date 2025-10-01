@@ -190,18 +190,26 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       
-      // Simple navigation to login screen for now
+      // Initialize authentication state
+      await authProvider.initializeAuth();
+      
+      // Navigate based on authentication status
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => const LoginScreen(),
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => 
+              authProvider.isLoggedIn ? const MainWrapper() : const LoginScreen(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            transitionDuration: const Duration(milliseconds: 500),
           ),
         );
       }
     } catch (e) {
       print('Navigation error: $e');
-      // Fallback navigation
+      // Fallback navigation to login screen
       if (mounted) {
         Navigator.pushReplacement(
           context,

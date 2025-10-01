@@ -3511,9 +3511,12 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         right: 20,
         bottom: 20, // Add bottom padding to prevent content from being cut off
       ),
-      child: SelectedPlotDetailsWidget(
+      child: PlotDetailsPopup(
         plotDetails: _selectedPlotDetails!,
-        onClearSelection: _clearPlotSelection,
+        onClose: _clearPlotSelection,
+        onViewDetails: () {
+          // Handle view details action
+        },
       ),
     );
   }
