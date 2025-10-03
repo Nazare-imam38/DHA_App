@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -950,14 +951,27 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 },
               ),
               // Town plan overlay layer
-              if (_showTownPlan)
+              if (_showTownPlan && _selectedTownPlanLayer != null)
                 TileLayer(
-                  urlTemplate: 'https://tiles.dhamarketplace.com/data/${_selectedTownPlanLayer}/tiles/{z}/{x}/{y}.png',
+                  urlTemplate: 'https://tiles.dhamarketplace.com/data/${_selectedTownPlanLayer}/{z}/{x}/{y}.png',
                   userAgentPackageName: 'com.dha.marketplace',
                   maxZoom: 18,
+                  minZoom: 14, // Only show at high zoom levels
                   tileProvider: NetworkTileProvider(),
                   errorTileCallback: (tile, error, stackTrace) {
-                    print('Town plan tile error: $error');
+                    print('🚫 Town plan tile error: $error');
+                    print('🚫 Failed tile coordinates: ${tile.coordinates}');
+                  },
+                  tileBuilder: (context, tileWidget, tile) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.blue.withOpacity(0.3),
+                          width: 0.5,
+                        ),
+                      ),
+                      child: tileWidget,
+                    );
                   },
                 ),
               // Boundary polygons with hollow fill and dotted borders
@@ -1022,6 +1036,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 ),
               ),
             ),
+          
           
           // Top Header - Always visible
           Positioned(
@@ -2236,16 +2251,30 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     });
     
     if (_showTownPlan) {
+      // Set default layer if none selected
+      if (_selectedTownPlanLayer == null) {
+        _selectedTownPlanLayer = 'phase2'; // Default to Phase 2
+        print('🗺️ Default town plan layer set to: $_selectedTownPlanLayer');
+      }
       _testTownPlanTileUrl();
       _showTownPlanLayerSelector();
+    } else {
+      print('🗺️ Town plan overlay disabled');
     }
   }
 
   /// Test town plan tile URL format
   void _testTownPlanTileUrl() {
+    if (_selectedTownPlanLayer == null) {
+      print('❌ No town plan layer selected');
+      return;
+    }
+    
     final testUrl = 'https://tiles.dhamarketplace.com/data/${_selectedTownPlanLayer}/14/12345/67890.png';
     print('🔍 Testing town plan tile URL: $testUrl');
     print('🔍 Selected layer: $_selectedTownPlanLayer');
+    print('🔍 Current zoom: $_zoom');
+    print('🔍 Current center: $_mapCenter');
     
     // Test different URL formats for TileServer GL
     final alternativeUrls = [
@@ -2264,30 +2293,109 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   /// Test tile server response
   Future<void> _testTileServerResponse() async {
+    // Import the test service
     try {
-      final testUrl = 'https://tiles.dhamarketplace.com/data/${_selectedTownPlanLayer}/14/12345/67890.png';
-      print('🔍 Testing actual tile server response...');
-      print('🔍 Test URL: $testUrl');
+      // Test server connectivity
+      final isServerUp = await _testServerConnectivity();
+      if (!isServerUp) {
+        print('❌ Tile server is not accessible');
+        _showTileServerError('Server not accessible. Check network connection.');
+        return;
+      }
       
-      final response = await http.get(Uri.parse(testUrl));
-      print('🔍 Response status: ${response.statusCode}');
-      print('🔍 Response headers: ${response.headers}');
-      print('🔍 Content type: ${response.headers['content-type']}');
-      
-      if (response.statusCode == 200) {
-        print('✅ Tile server is responding correctly');
-        if (response.headers['content-type']?.contains('image') == true) {
-          print('✅ Content is an image (tile)');
-        } else {
-          print('⚠️ Content is not an image: ${response.headers['content-type']}');
-        }
+      // Test specific tile
+      final isTileAvailable = await _testSpecificTile();
+      if (!isTileAvailable) {
+        print('❌ Specific tile not available');
+        _showTileServerError('Tile not available for current location/zoom.');
       } else {
-        print('❌ Tile server error: ${response.statusCode}');
-        print('❌ Response body: ${response.body.substring(0, 200)}...');
+        print('✅ Tile server test passed');
+        _showTileServerSuccess('Town plan tiles are loading correctly!');
       }
     } catch (e) {
-      print('❌ Error testing tile server: $e');
+      print('❌ Tile server test failed: $e');
+      _showTileServerError('Test failed: $e');
     }
+  }
+  
+  /// Test server connectivity
+  Future<bool> _testServerConnectivity() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://tiles.dhamarketplace.com/data/'),
+        headers: {
+          'User-Agent': 'DHA Marketplace Mobile App',
+        },
+      ).timeout(const Duration(seconds: 10));
+      
+      print('🌐 Server response: ${response.statusCode}');
+      return response.statusCode == 200;
+    } catch (e) {
+      print('❌ Server connectivity failed: $e');
+      return false;
+    }
+  }
+  
+  /// Test specific tile
+  Future<bool> _testSpecificTile() async {
+    if (_selectedTownPlanLayer == null) return false;
+    
+    try {
+      // Convert current map center to tile coordinates
+      final tileX = _lngToTileX(_mapCenter.longitude, _zoom.round());
+      final tileY = _latToTileY(_mapCenter.latitude, _zoom.round());
+      
+      final url = 'https://tiles.dhamarketplace.com/data/${_selectedTownPlanLayer}/$_zoom/$tileX/$tileY.png';
+      print('🔍 Testing tile: $url');
+      
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'User-Agent': 'DHA Marketplace Mobile App',
+          'Accept': 'image/png',
+        },
+      ).timeout(const Duration(seconds: 10));
+      
+      print('🔍 Tile response: ${response.statusCode}');
+      return response.statusCode == 200;
+    } catch (e) {
+      print('❌ Tile test failed: $e');
+      return false;
+    }
+  }
+  
+  /// Convert longitude to tile X coordinate
+  int _lngToTileX(double lng, int zoom) {
+    return ((lng + 180) / 360 * (1 << zoom)).floor();
+  }
+  
+  /// Convert latitude to tile Y coordinate
+  int _latToTileY(double lat, int zoom) {
+    final latRad = lat * pi / 180;
+    final n = 1 << zoom;
+    return ((1 - (log(tan(pi / 4 + latRad / 2)) / pi)) / 2 * n).floor();
+  }
+  
+  /// Show tile server error
+  void _showTileServerError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('❌ $message'),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 5),
+      ),
+    );
+  }
+  
+  /// Show tile server success
+  void _showTileServerSuccess(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('✅ $message'),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   /// Show town plan layer selector
