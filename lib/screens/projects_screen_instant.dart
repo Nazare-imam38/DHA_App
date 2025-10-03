@@ -15,6 +15,9 @@ import '../data/monuments_data.dart';
 import '../core/services/polygon_renderer_service.dart';
 import '../core/services/enhanced_polygon_service.dart';
 import '../ui/widgets/enhanced_plot_info_card.dart';
+import '../ui/widgets/small_plot_info_card.dart';
+import '../ui/widgets/selected_plot_details_widget.dart';
+import '../ui/widgets/plot_details_modal.dart';
 import '../core/services/instant_boundary_service.dart';
 import '../core/services/plots_api_service.dart';
 import '../core/services/enhanced_plots_api_service.dart';
@@ -114,7 +117,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   
   // Map related variables
   LatLng _mapCenter = const LatLng(33.6844, 73.0479); // Islamabad/Rawalpindi coordinates
-  double _zoom = 13.0;
+  double _zoom = 14.0; // Increased zoom for better satellite view
   MapController _mapController = MapController();
   
   // Selected plot for details
@@ -3720,28 +3723,37 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                             ],
                           ),
                         ),
-                        // View button
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[50],
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: const Color(0xFF1E3C90).withOpacity(0.3)),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF1E3C90).withOpacity(0.1),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
+                        // View Details button
+                        GestureDetector(
+                          onTap: () {
+                            _selectPlot(plot);
+                            setState(() {
+                              _showSelectedPlotDetails = true;
+                            });
+                            _safeAnimateBottomSheet(0.6);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[50],
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: const Color(0xFF1E3C90).withOpacity(0.3)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF1E3C90).withOpacity(0.1),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Text(
+                              'View Details',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF1E3C90),
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.3,
                               ),
-                            ],
-                          ),
-                          child: const Text(
-                            'View',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF1E3C90),
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.3,
                             ),
                           ),
                         ),
@@ -3905,7 +3917,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     );
   }
 
-  /// Build plot details popup positioned on the plot location
+  /// Build small plot info card positioned on the plot location
   Widget _buildPlotDetailsPopup() {
     if (_selectedPlot == null || _selectedPlotDetails == null) {
       return const SizedBox.shrink();
@@ -3913,8 +3925,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
     // Get screen dimensions
     final screenSize = MediaQuery.of(context).size;
-    final popupWidth = 220.0; // Compact square layout
-    final popupHeight = 160.0; // Compact square layout
+    final popupWidth = 200.0; // Smaller width for map overlay
+    final popupHeight = 160.0; // Smaller height for map overlay
     
     // Calculate position to be attached to the plot polygon
     double left, top;
@@ -3922,14 +3934,14 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     // Try to get the plot's screen position from polygon coordinates
     final plotScreenPosition = _calculatePlotScreenPosition();
     
-      if (plotScreenPosition != null) {
-        // Position the card attached to the plot polygon center
-        left = plotScreenPosition.dx - (popupWidth / 2); // Center horizontally on plot
-        top = plotScreenPosition.dy - popupHeight - 15; // Position above plot with proper margin
+    if (plotScreenPosition != null) {
+      // Position the card attached to the plot polygon center
+      left = plotScreenPosition.dx - (popupWidth / 2); // Center horizontally on plot
+      top = plotScreenPosition.dy - popupHeight - 15; // Position above plot with proper margin
       
       // If the card would be too close to the bottom (where bottom sheet might be), 
       // position it to the side instead
-      final bottomSheetArea = screenSize.height * 0.4; // Assume bottom sheet takes up 40% of screen
+      final bottomSheetArea = screenSize.height * 0.3; // Reduced bottom sheet area assumption
       if (top + popupHeight > screenSize.height - bottomSheetArea) {
         // Position to the right of the plot instead
         left = plotScreenPosition.dx + 20; // 20px to the right of plot
@@ -3941,69 +3953,107 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         }
       }
       
-      print('📍 Plot info card positioned above plot at: left=$left, top=$top');
+      print('📍 Small plot info card positioned above plot at: left=$left, top=$top');
       print('📍 Plot screen position: $plotScreenPosition');
     } else if (_selectedPlot!.latitude != null && _selectedPlot!.longitude != null) {
       // Fallback: Use plot center coordinates for positioning
       print('📍 Using plot center coordinates: ${_selectedPlot!.latitude}, ${_selectedPlot!.longitude}');
       
-        // Position attached to plot center coordinates
-        left = (screenSize.width - popupWidth) / 2;
-        top = screenSize.height * 0.4; // Position attached to plot area
+      // Position attached to plot center coordinates - center of screen
+      left = (screenSize.width - popupWidth) / 2;
+      top = screenSize.height * 0.3; // Position in upper area, not bottom sheet area
       
-      print('📍 Plot info card positioned using center coordinates: left=$left, top=$top');
+      print('📍 Small plot info card positioned using center coordinates: left=$left, top=$top');
     } else {
-       // Final fallback: Position attached to plot area
-       left = (screenSize.width - popupWidth) / 2;
-       top = screenSize.height * 0.4; // Position attached to plot area
-      print('📍 Plot info card positioned at screen center: left=$left, top=$top');
+      // Final fallback: Position in upper area of screen
+      left = (screenSize.width - popupWidth) / 2;
+      top = screenSize.height * 0.3; // Position in upper area, not bottom sheet area
+      print('📍 Small plot info card positioned at screen center: left=$left, top=$top');
     }
     
-     // Ensure popup stays within screen bounds and avoid app bar area
-     left = left.clamp(10.0, screenSize.width - popupWidth - 10);
-     top = top.clamp(60.0, screenSize.height - popupHeight - 60); // Allow positioning in upper-middle area
+    // Ensure popup stays within screen bounds and avoid app bar area
+    left = left.clamp(10.0, screenSize.width - popupWidth - 10);
+    top = top.clamp(80.0, screenSize.height - popupHeight - 100); // Keep away from bottom sheet area
     
     return Positioned(
       left: left,
       top: top,
-      child: Container(
-        width: popupWidth,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: EnhancedPlotInfoCard(
-          plot: _selectedPlot!,
-          onClose: () {
-            setState(() {
-              _selectedPlot = null;
-              _selectedPlotDetails = null;
-              _showProjectDetails = false;
-            });
-          },
-          onBookNow: () {
-            // Handle book now action
-            print('Book now for plot ${_selectedPlot!.plotNo}');
-          },
-          onViewDetails: () {
-            // Handle view details action
-            print('View details for plot ${_selectedPlot!.plotNo}');
-          },
-          townPlanValidationStatus: _getPlotValidationStatus(_selectedPlot!),
-          townPlanValidationColor: _getPlotValidationColor(_selectedPlot!),
-        ),
+      child: SmallPlotInfoCard(
+        plot: _selectedPlot!,
+        onClose: () {
+          setState(() {
+            _selectedPlot = null;
+            _selectedPlotDetails = null;
+            _showProjectDetails = false;
+            _showSelectedPlotDetails = false;
+          });
+        },
+        onViewDetails: () {
+          // Show detailed information in the Selected tab
+          setState(() {
+            _showSelectedPlotDetails = true;
+          });
+          _safeAnimateBottomSheet(0.6);
+        },
       ),
     );
   }
 
 
+
+  /// Show plot details modal
+  void _showPlotDetailsModal() {
+    if (_selectedPlot == null) return;
+    
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: PlotDetailsModal(
+          plot: _selectedPlot!,
+          onClose: () {
+            Navigator.of(context).pop();
+          },
+          onBookNow: () {
+            Navigator.of(context).pop();
+            // Handle booking logic here
+            print('Booking plot ${_selectedPlot!.plotNo}');
+          },
+          onViewDetails: () {
+            // Already showing details
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+    );
+  }
+
+  /// Show plot details modal for a specific plot
+  void _showPlotDetailsModalForPlot(PlotModel plot) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: PlotDetailsModal(
+          plot: plot,
+          onClose: () {
+            Navigator.of(context).pop();
+          },
+          onBookNow: () {
+            Navigator.of(context).pop();
+            // Handle booking logic here
+            print('Booking plot ${plot.plotNo}');
+          },
+          onViewDetails: () {
+            // Already showing details
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+    );
+  }
 
   String _formatPrice(double price) {
     return price.toStringAsFixed(0).replaceAllMapped(
@@ -4035,10 +4085,10 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       );
     }
 
-    if (_selectedPlotDetails == null) {
+    if (_selectedPlot == null) {
       return const Center(
         child: Text(
-          'No plot details available',
+          'No plot selected',
           style: TextStyle(
             fontSize: 16,
             color: Colors.black54,
@@ -4047,19 +4097,13 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       );
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.only(
-        left: 20,
-        right: 20,
-        bottom: 20, // Add bottom padding to prevent content from being cut off
-      ),
-      child: PlotDetailsPopup(
-        plotDetails: _selectedPlotDetails!,
-        onClose: _clearPlotSelection,
-        onViewDetails: () {
-          // Handle view details action
-        },
-      ),
+    return SelectedPlotDetailsWidget(
+      plot: _selectedPlot!,
+      onBookNow: () {
+        // Handle booking logic here
+        print('Booking plot ${_selectedPlot!.plotNo}');
+      },
+      onClearSelection: _clearPlotSelection,
     );
   }
 

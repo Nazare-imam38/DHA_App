@@ -23,7 +23,10 @@ class EnhancedPlotInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 200,
+      constraints: const BoxConstraints(
+        maxWidth: 280,
+        minWidth: 240,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -100,25 +103,24 @@ class EnhancedPlotInfoCard extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       child: Column(
         children: [
-          // Status tags row
-          Row(
+          // Status tags row - with proper wrapping
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
             children: [
               _buildStatusChip('Residential', Colors.red),
-              const SizedBox(width: 8),
               _buildStatusChip('Selected', Colors.blue),
-              if (townPlanValidationStatus != null) ...[
-                const SizedBox(width: 8),
+              if (townPlanValidationStatus != null)
                 _buildStatusChip(
                   townPlanValidationStatus!,
                   townPlanValidationColor ?? Colors.grey,
                 ),
-              ],
             ],
           ),
           
           const SizedBox(height: 12),
           
-          // Plot information
+          // Plot information with proper text wrapping
           _buildInfoRow('Phase', plot.phase),
           _buildInfoRow('Sector', plot.sector),
           _buildInfoRow('Street', plot.streetNo),
@@ -152,6 +154,7 @@ class EnhancedPlotInfoCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: 60,
@@ -172,6 +175,8 @@ class EnhancedPlotInfoCard extends StatelessWidget {
                 fontSize: 12,
                 color: Colors.black54,
               ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
             ),
           ),
         ],

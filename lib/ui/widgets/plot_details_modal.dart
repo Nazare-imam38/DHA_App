@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
 import '../../data/models/plot_model.dart';
 
-/// Detailed plot information widget for the Selected tab in bottom sheet
-class SelectedPlotDetailsWidget extends StatefulWidget {
+/// Plot details modal that matches the design from the images
+class PlotDetailsModal extends StatefulWidget {
   final PlotModel plot;
+  final VoidCallback? onClose;
   final VoidCallback? onBookNow;
-  final VoidCallback? onClearSelection;
+  final VoidCallback? onViewDetails;
 
-  const SelectedPlotDetailsWidget({
+  const PlotDetailsModal({
     super.key,
     required this.plot,
+    this.onClose,
     this.onBookNow,
-    this.onClearSelection,
+    this.onViewDetails,
   });
 
   @override
-  State<SelectedPlotDetailsWidget> createState() => _SelectedPlotDetailsWidgetState();
+  State<PlotDetailsModal> createState() => _PlotDetailsModalState();
 }
 
-class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
+class _PlotDetailsModalState extends State<PlotDetailsModal> {
   String _selectedPaymentPlan = 'Lump Sum';
   
   final Map<String, Map<String, dynamic>> _paymentPlans = {
@@ -52,6 +54,7 @@ class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
 
   void _calculatePaymentPlans() {
     final basePrice = double.tryParse(widget.plot.basePrice) ?? 0;
+    final tokenAmount = basePrice * 0.05; // 5% token amount
     
     setState(() {
       _paymentPlans['Lump Sum']!['price'] = basePrice;
@@ -63,40 +66,42 @@ class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.8,
+        maxWidth: MediaQuery.of(context).size.width * 0.9,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Plot header
-          _buildPlotHeader(),
-          
-          const SizedBox(height: 20),
+          // Header
+          _buildHeader(),
           
           // Plot information
           _buildPlotInfo(),
           
-          const SizedBox(height: 20),
-          
           // Price section
           _buildPriceSection(),
-          
-          const SizedBox(height: 20),
           
           // Payment plans
           _buildPaymentPlans(),
           
-          const SizedBox(height: 20),
-          
           // Disclaimer
           _buildDisclaimer(),
           
-          const SizedBox(height: 20),
-          
           // Login section
           _buildLoginSection(),
-          
-          const SizedBox(height: 20),
           
           // Clear selection button
           _buildClearSelectionButton(),
@@ -105,22 +110,98 @@ class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
     );
   }
 
-  Widget _buildPlotHeader() {
-    return Row(
-      children: [
-        Text(
-          'Plot ${widget.plot.plotNo}',
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: const BoxDecoration(
+        color: Color(0xFF1E3C90),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
         ),
-        const Spacer(),
-        _buildStatusChip('Residential', Colors.green),
-        const SizedBox(width: 8),
-        _buildStatusChip('Unsold', Colors.green),
-      ],
+      ),
+      child: Row(
+        children: [
+          const Text(
+            'Selected Plot',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const Spacer(),
+          GestureDetector(
+            onTap: widget.onClose,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.close,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlotInfo() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Plot number and status
+          Row(
+            children: [
+              Text(
+                'Plot ${widget.plot.plotNo}',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const Spacer(),
+              _buildStatusChip('Residential', Colors.green),
+              const SizedBox(width: 8),
+              _buildStatusChip('Unsold', Colors.green),
+            ],
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Plot details in two columns
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildInfoRow('Size', widget.plot.catArea),
+                    _buildInfoRow('Phase/Sector', '${widget.plot.phase}/${widget.plot.sector}'),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildInfoRow('Dimension', widget.plot.dimension ?? 'N/A'),
+                    _buildInfoRow('Street', widget.plot.streetNo),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -139,31 +220,6 @@ class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
           color: Colors.white,
         ),
       ),
-    );
-  }
-
-  Widget _buildPlotInfo() {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildInfoRow('Size', widget.plot.catArea),
-              _buildInfoRow('Phase/Sector', '${widget.plot.phase}/${widget.plot.sector}'),
-            ],
-          ),
-        ),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildInfoRow('Dimension', widget.plot.dimension ?? 'N/A'),
-              _buildInfoRow('Street', widget.plot.streetNo),
-            ],
-          ),
-        ),
-      ],
     );
   }
 
@@ -199,6 +255,7 @@ class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
     final tokenAmount = basePrice * 0.05; // 5% token amount
     
     return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.grey[50],
@@ -256,98 +313,102 @@ class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
   }
 
   Widget _buildPaymentPlans() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Payment Plans',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
+    return Container(
+      margin: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Payment Plans',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        
-        // Payment plan options
-        ..._paymentPlans.entries.map((entry) {
-          final isSelected = _selectedPaymentPlan == entry.key;
-          final planData = entry.value;
-          final price = planData['price'] as double;
+          const SizedBox(height: 12),
           
-          return Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedPaymentPlan = entry.key;
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: isSelected ? Colors.blue[50] : Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isSelected ? Colors.blue : Colors.grey[300]!,
-                    width: isSelected ? 2 : 1,
+          // Payment plan options
+          ..._paymentPlans.entries.map((entry) {
+            final isSelected = _selectedPaymentPlan == entry.key;
+            final planData = entry.value;
+            final price = planData['price'] as double;
+            
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedPaymentPlan = entry.key;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: isSelected ? Colors.blue[50] : Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isSelected ? Colors.blue : Colors.grey[300]!,
+                      width: isSelected ? 2 : 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Radio<String>(
+                        value: entry.key,
+                        groupValue: _selectedPaymentPlan,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedPaymentPlan = value!;
+                          });
+                        },
+                        activeColor: Colors.blue,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              entry.key,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: isSelected ? Colors.blue : Colors.black87,
+                              ),
+                            ),
+                            Text(
+                              planData['description'],
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: isSelected ? Colors.blue[700] : Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        'PKR ${_formatPrice(price)}',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: isSelected ? Colors.blue : Colors.black87,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: Row(
-                  children: [
-                    Radio<String>(
-                      value: entry.key,
-                      groupValue: _selectedPaymentPlan,
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedPaymentPlan = value!;
-                        });
-                      },
-                      activeColor: Colors.blue,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            entry.key,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: isSelected ? Colors.blue : Colors.black87,
-                            ),
-                          ),
-                          Text(
-                            planData['description'],
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: isSelected ? Colors.blue[700] : Colors.black54,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      'PKR ${_formatPrice(price)}',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: isSelected ? Colors.blue : Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
               ),
-            ),
-          );
-        }).toList(),
-      ],
+            );
+          }).toList(),
+        ],
+      ),
     );
   }
 
   Widget _buildDisclaimer() {
     return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.red[50],
@@ -367,6 +428,7 @@ class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
 
   Widget _buildLoginSection() {
     return Container(
+      margin: const EdgeInsets.all(20),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.blue[50],
@@ -429,13 +491,13 @@ class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
   }
 
   Widget _buildClearSelectionButton() {
-    return SizedBox(
-      width: double.infinity,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
       child: TextButton(
-        onPressed: widget.onClearSelection,
+        onPressed: widget.onClose,
         style: TextButton.styleFrom(
           foregroundColor: Colors.grey[600],
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         ),
         child: const Text(
           'Clear Selection',
