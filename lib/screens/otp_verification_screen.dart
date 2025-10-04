@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../services/language_service.dart';
 import '../providers/auth_provider.dart';
 import '../models/auth_models.dart';
+import '../ui/widgets/cached_asset_image.dart';
 import 'main_wrapper.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
@@ -353,8 +354,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                                 ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(20),
-                                  child: Image.asset(
-                                    'assets/images/dhalogo.png',
+                                  child: CachedAssetImage(
+                                    assetPath: 'assets/images/dhalogo.png',
                                     width: 70,
                                     height: 70,
                                     fit: BoxFit.contain,

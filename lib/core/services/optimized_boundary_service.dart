@@ -1,168 +1,207 @@
+import 'dart:async';
 import 'dart:convert';
-import 'dart:isolate';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'unified_memory_cache.dart';
 
-/// Optimized boundary service that loads GeoJSON files instantly
-/// Uses pre-compiled boundary data and parallel loading
+/// Optimized Boundary Service with Level 1 Memory Cache
+/// Provides instant access to boundary data while preserving all functionality
 class OptimizedBoundaryService {
-  static List<BoundaryPolygon>? _cachedBoundaries;
-  static bool _isLoading = false;
+  static const String _cacheVersion = '2.0.0';
+  static bool _isInitialized = false;
+  static bool _isPreloading = false;
   
-  // Pre-compiled boundary metadata for instant loading
+  // Pre-compiled boundary metadata for instant access
   static const Map<String, Map<String, dynamic>> _boundaryMetadata = {
     'Phase1': {
       'file': 'assets/Boundaries/geojsons/Phase1.geojson',
       'color': 0xFF4CAF50,
-      'icon': 'home_work',
+      'icon': Icons.home_work,
       'priority': 1,
     },
     'Phase2': {
       'file': 'assets/Boundaries/geojsons/Phase2.geojson',
       'color': 0xFF2196F3,
-      'icon': 'home_work',
+      'icon': Icons.home_work,
       'priority': 2,
     },
     'Phase3': {
       'file': 'assets/Boundaries/geojsons/Phase3.geojson',
       'color': 0xFFFF9800,
-      'icon': 'home_work',
+      'icon': Icons.home_work,
       'priority': 3,
     },
     'Phase4': {
       'file': 'assets/Boundaries/geojsons/Phase4.geojson',
       'color': 0xFF9C27B0,
-      'icon': 'home_work',
+      'icon': Icons.home_work,
       'priority': 4,
     },
     'Phase4_GV': {
       'file': 'assets/Boundaries/geojsons/Phase4_GV.geojson',
       'color': 0xFF9C27B0,
-      'icon': 'home_work',
+      'icon': Icons.home_work,
       'priority': 4,
     },
     'Phase4_RVN': {
       'file': 'assets/Boundaries/geojsons/Phase4_RVN.geojson',
       'color': 0xFF9C27B0,
-      'icon': 'home_work',
+      'icon': Icons.home_work,
       'priority': 4,
     },
     'Phase4_RVS': {
       'file': 'assets/Boundaries/geojsons/Phase4_RVS.geojson',
       'color': 0xFF9C27B0,
-      'icon': 'home_work',
+      'icon': Icons.home_work,
       'priority': 4,
     },
     'Phase5': {
       'file': 'assets/Boundaries/geojsons/Phase5.geojson',
       'color': 0xFFF44336,
-      'icon': 'home_work',
+      'icon': Icons.home_work,
       'priority': 5,
     },
     'Phase6': {
       'file': 'assets/Boundaries/geojsons/Phase6.geojson',
       'color': 0xFF00BCD4,
-      'icon': 'home_work',
+      'icon': Icons.home_work,
       'priority': 6,
     },
     'Phase7': {
       'file': 'assets/Boundaries/geojsons/Phase7.geojson',
       'color': 0xFF795548,
-      'icon': 'home_work',
+      'icon': Icons.home_work,
       'priority': 7,
     },
   };
 
-  /// Load all boundaries with instant caching and parallel processing
+  /// Initialize the optimized boundary service
+  static Future<void> initialize() async {
+    if (_isInitialized) return;
+    
+    _isInitialized = true;
+    print('🗺️ OptimizedBoundaryService: Initializing with memory cache...');
+    
+    // Initialize memory cache
+    await UnifiedMemoryCache.instance.initialize();
+    
+    // Check if boundaries are already cached
+    final cachedBoundaries = UnifiedMemoryCache.instance.getBoundaries();
+    if (cachedBoundaries != null && cachedBoundaries.isNotEmpty) {
+      print('🗺️ OptimizedBoundaryService: Found ${cachedBoundaries.length} cached boundaries');
+      return;
+    }
+    
+    // Start background preloading
+    _preloadBoundariesInBackground();
+  }
+  
+  /// Get boundaries with instant access from memory cache
+  static List<BoundaryPolygon> getBoundariesInstantly() {
+    final cachedBoundaries = UnifiedMemoryCache.instance.getBoundaries();
+    if (cachedBoundaries != null && cachedBoundaries.isNotEmpty) {
+      print('🗺️ OptimizedBoundaryService: Returning ${cachedBoundaries.length} cached boundaries instantly');
+      return cachedBoundaries;
+    }
+    
+    print('🗺️ OptimizedBoundaryService: No cached boundaries found, returning empty list');
+    return [];
+  }
+  
+  /// Load all boundaries with parallel processing and memory caching
   static Future<List<BoundaryPolygon>> loadAllBoundaries() async {
-    // Return cached data if available
-    if (_cachedBoundaries != null) {
-      print('Returning cached boundaries: ${_cachedBoundaries!.length}');
-      return _cachedBoundaries!;
+    // Check memory cache first
+    final cachedBoundaries = UnifiedMemoryCache.instance.getBoundaries();
+    if (cachedBoundaries != null && cachedBoundaries.isNotEmpty) {
+      print('🗺️ OptimizedBoundaryService: Returning ${cachedBoundaries.length} cached boundaries');
+      return cachedBoundaries;
     }
-
-    if (_isLoading) {
-      // Wait for ongoing loading to complete
-      while (_isLoading) {
-        await Future.delayed(const Duration(milliseconds: 100));
+    
+    if (_isPreloading) {
+      // Wait for background preloading to complete
+      while (_isPreloading) {
+        await Future.delayed(const Duration(milliseconds: 50));
       }
-      return _cachedBoundaries ?? [];
+      
+      final finalCachedBoundaries = UnifiedMemoryCache.instance.getBoundaries();
+      return finalCachedBoundaries ?? [];
     }
-
-    _isLoading = true;
-    print('Loading boundaries with parallel processing...');
-
+    
+    print('🗺️ OptimizedBoundaryService: Loading boundaries with parallel processing...');
+    
     try {
-      // Load boundaries in parallel with priority ordering
+      // Load all boundaries in parallel for maximum speed
       final futures = <Future<BoundaryPolygon?>>[];
       
-      // Sort by priority for optimal loading order
-      final sortedPhases = _boundaryMetadata.entries.toList()
-        ..sort((a, b) => a.value['priority'].compareTo(b.value['priority']));
-
-      for (final entry in sortedPhases) {
+      for (final entry in _boundaryMetadata.entries) {
         futures.add(_loadBoundaryOptimized(entry.key, entry.value));
       }
 
       // Wait for all boundaries to load in parallel
       final results = await Future.wait(futures);
       
-      // Filter out null results and cache
-      _cachedBoundaries = results.where((boundary) => boundary != null).cast<BoundaryPolygon>().toList();
+      // Filter out null results
+      final boundaries = results.where((boundary) => boundary != null).cast<BoundaryPolygon>().toList();
       
-      print('Successfully loaded ${_cachedBoundaries!.length} boundaries');
-      return _cachedBoundaries!;
+      // Store in memory cache for instant access
+      await UnifiedMemoryCache.instance.storeBoundaries(boundaries);
+      
+      print('🗺️ OptimizedBoundaryService: Successfully loaded and cached ${boundaries.length} boundaries');
+      return boundaries;
     } catch (e) {
-      print('Error loading boundaries: $e');
+      print('🗺️ OptimizedBoundaryService: Error loading boundaries: $e');
       return [];
-    } finally {
-      _isLoading = false;
     }
   }
-
-  /// Load a single boundary with optimized parsing
-  static Future<BoundaryPolygon?> _loadBoundaryOptimized(String phaseName, Map<String, dynamic> metadata) async {
-    try {
-      final stopwatch = Stopwatch()..start();
-      
-      // Load file content
-      final jsonString = await rootBundle.loadString(metadata['file']);
-      final jsonData = jsonDecode(jsonString);
-      
-      // Parse in isolate for better performance
-      final boundary = await _parseGeoJsonInIsolate(jsonData, phaseName, metadata);
-      
-      stopwatch.stop();
-      print('Loaded $phaseName in ${stopwatch.elapsedMilliseconds}ms');
-      
-      return boundary;
-    } catch (e) {
-      print('Error loading boundary $phaseName: $e');
-      return null;
-    }
-  }
-
-  /// Parse GeoJSON in isolate for better performance
-  static Future<BoundaryPolygon?> _parseGeoJsonInIsolate(
-    Map<String, dynamic> geoJson, 
+  
+  /// Load a single boundary with optimized parsing and caching
+  static Future<BoundaryPolygon?> _loadBoundaryOptimized(
     String phaseName, 
     Map<String, dynamic> metadata
   ) async {
     try {
-      // For small files, parse directly for better performance
-      return _parseGeoJsonDirect(geoJson, phaseName, metadata);
+      final filePath = metadata['file'] as String;
+      final colorValue = metadata['color'] as int;
+      final icon = metadata['icon'] as IconData;
+      
+      // Check if already cached
+      final cachedBoundary = UnifiedMemoryCache.instance.getBoundary(phaseName);
+      if (cachedBoundary != null) {
+        print('🗺️ OptimizedBoundaryService: Using cached boundary for $phaseName');
+        return cachedBoundary;
+      }
+      
+      print('🗺️ OptimizedBoundaryService: Loading $phaseName from $filePath');
+      
+      final jsonString = await rootBundle.loadString(filePath);
+      final jsonData = jsonDecode(jsonString);
+      
+      final boundary = _parseGeoJsonOptimized(jsonData, phaseName, Color(colorValue), icon);
+      
+      // Cache the boundary for future access
+      if (boundary != null) {
+        await UnifiedMemoryCache.instance.store(
+          'boundary_$phaseName',
+          boundary,
+          priority: CachePriority.critical,
+        );
+      }
+      
+      return boundary;
     } catch (e) {
-      print('Error parsing GeoJSON for $phaseName: $e');
+      print('🗺️ OptimizedBoundaryService: Error loading boundary $phaseName: $e');
       return null;
     }
   }
 
-  /// Direct GeoJSON parsing with optimizations
-  static BoundaryPolygon? _parseGeoJsonDirect(
+  /// Parse GeoJSON data with optimized performance
+  static BoundaryPolygon? _parseGeoJsonOptimized(
     Map<String, dynamic> geoJson, 
     String phaseName, 
-    Map<String, dynamic> metadata
+    Color color, 
+    IconData icon
   ) {
     try {
       if (geoJson['type'] != 'FeatureCollection') {
@@ -178,7 +217,6 @@ class OptimizedBoundaryService {
 
       final polygons = <List<LatLng>>[];
       
-      // Process features with optimized parsing
       for (final feature in features) {
         final geometry = feature['geometry'] as Map<String, dynamic>;
         final coordinates = geometry['coordinates'] as List<dynamic>;
@@ -206,8 +244,8 @@ class OptimizedBoundaryService {
       return BoundaryPolygon(
         phaseName: phaseName,
         polygons: polygons,
-        color: Color(metadata['color']),
-        icon: _getIconFromString(metadata['icon']),
+        color: color,
+        icon: icon,
       );
     } catch (e) {
       print('Error parsing GeoJSON for $phaseName: $e');
@@ -215,187 +253,118 @@ class OptimizedBoundaryService {
     }
   }
 
-  /// Optimized polygon coordinate parsing
+  /// Optimized polygon coordinate parsing with pre-allocation
   static List<LatLng> _parsePolygonCoordinatesOptimized(List<dynamic> coordinates) {
-    final points = <LatLng>[];
+    if (coordinates.isEmpty) return [];
     
-    // Handle MultiPolygon structure - take the first ring (exterior ring)
-    if (coordinates.isNotEmpty) {
-      final firstRing = coordinates[0] as List<dynamic>;
+    final firstRing = coordinates[0] as List<dynamic>;
+    final points = <LatLng>[];
       
       // Pre-allocate list size for better performance
-      points.reserve(firstRing.length);
+    points.length = firstRing.length;
       
-      for (final point in firstRing) {
+    for (int i = 0; i < firstRing.length; i++) {
+      final point = firstRing[i];
         if (point is List && point.length >= 2) {
           final lng = point[0] as double;
           final lat = point[1] as double;
-          points.add(LatLng(lat, lng));
-        }
+        points[i] = LatLng(lat, lng);
       }
     }
     
     return points;
   }
 
-  /// Convert icon string to IconData
-  static IconData _getIconFromString(String iconString) {
-    switch (iconString) {
-      case 'home_work':
-        return Icons.home_work;
-      case 'location_on':
-        return Icons.location_on;
-      default:
-        return Icons.home_work;
-    }
+  /// Preload boundaries in background for instant access
+  static void _preloadBoundariesInBackground() {
+    if (_isPreloading) return;
+    
+    _isPreloading = true;
+    print('🗺️ OptimizedBoundaryService: Starting background preloading...');
+    
+    Future.microtask(() async {
+      try {
+      await loadAllBoundaries();
+        print('🗺️ OptimizedBoundaryService: Background preloading completed');
+      } catch (e) {
+        print('🗺️ OptimizedBoundaryService: Error in background preloading: $e');
+      } finally {
+        _isPreloading = false;
+      }
+    });
   }
-
-  /// Get cached boundaries instantly
-  static List<BoundaryPolygon>? getCachedBoundaries() {
-    return _cachedBoundaries;
+  
+  /// Get specific boundary by phase name
+  static BoundaryPolygon? getBoundaryByPhase(String phaseName) {
+    return UnifiedMemoryCache.instance.getBoundary(phaseName);
   }
-
-  /// Clear cache (useful for memory management)
+  
+  /// Get boundaries by priority
+  static List<BoundaryPolygon> getBoundariesByPriority(int priority) {
+    final allBoundaries = UnifiedMemoryCache.instance.getBoundaries();
+    if (allBoundaries == null) return [];
+    
+    return allBoundaries.where((boundary) {
+      final metadata = _boundaryMetadata[boundary.phaseName];
+      return metadata != null && metadata['priority'] == priority;
+    }).toList();
+  }
+  
+  /// Get boundaries within viewport bounds
+  static List<BoundaryPolygon> getBoundariesInViewport(LatLngBounds viewportBounds) {
+    final allBoundaries = UnifiedMemoryCache.instance.getBoundaries();
+    if (allBoundaries == null) return [];
+    
+    return allBoundaries.where((boundary) {
+      final bounds = boundary.bounds;
+      // Simple bounds checking - check if boundary center is within viewport
+      final center = boundary.center;
+      return viewportBounds.contains(center);
+    }).toList();
+  }
+  
+  /// Check if boundaries are preloaded
+  static bool get isPreloaded {
+    final cachedBoundaries = UnifiedMemoryCache.instance.getBoundaries();
+    return cachedBoundaries != null && cachedBoundaries.isNotEmpty;
+  }
+  
+  /// Check if boundaries are currently loading
+  static bool get isLoading => _isPreloading;
+  
+  /// Get loading status
+  static Map<String, dynamic> getLoadingStatus() {
+    final cachedBoundaries = UnifiedMemoryCache.instance.getBoundaries();
+    return {
+      'is_preloaded': isPreloaded,
+      'is_loading': _isPreloading,
+      'cached_count': cachedBoundaries?.length ?? 0,
+      'cache_version': _cacheVersion,
+    };
+  }
+  
+  /// Get cache statistics
+  static Map<String, dynamic> getCacheStatistics() {
+    return UnifiedMemoryCache.instance.getStatistics();
+  }
+  
+  /// Clear boundary cache (useful for memory management)
   static void clearCache() {
-    _cachedBoundaries = null;
-    print('Boundary cache cleared');
+    UnifiedMemoryCache.instance.clear('boundaries_all');
+    
+    // Clear individual boundaries
+    for (final phaseName in _boundaryMetadata.keys) {
+      UnifiedMemoryCache.instance.clear('boundary_$phaseName');
+    }
+    
+    print('🗺️ OptimizedBoundaryService: Boundary cache cleared');
   }
-
-  /// Preload boundaries in background
+  
+  /// Preload boundaries for instant access
   static Future<void> preloadBoundaries() async {
-    if (_cachedBoundaries == null && !_isLoading) {
-      print('Preloading boundaries in background...');
+    if (!isPreloaded && !_isPreloading) {
+      print('🗺️ OptimizedBoundaryService: Preloading boundaries...');
       await loadAllBoundaries();
     }
   }
-
-  /// Get loading status
-  static bool get isLoading => _isLoading;
-  
-  /// Get cache status
-  static bool get isCached => _cachedBoundaries != null;
 }
-
-/// Optimized BoundaryPolygon class with performance improvements
-class BoundaryPolygon {
-  final String phaseName;
-  final List<List<LatLng>> polygons;
-  final Color color;
-  final IconData icon;
-  
-  // Cached center and bounds for performance
-  LatLng? _cachedCenter;
-  Map<String, LatLng>? _cachedBounds;
-
-  BoundaryPolygon({
-    required this.phaseName,
-    required this.polygons,
-    required this.color,
-    required this.icon,
-  });
-
-  /// Get the center point of the boundary (cached)
-  LatLng get center {
-    if (_cachedCenter != null) return _cachedCenter!;
-    
-    if (polygons.isEmpty) {
-      _cachedCenter = const LatLng(0, 0);
-      return _cachedCenter!;
-    }
-    
-    double totalLat = 0;
-    double totalLng = 0;
-    int pointCount = 0;
-    
-    for (final polygon in polygons) {
-      for (final point in polygon) {
-        totalLat += point.latitude;
-        totalLng += point.longitude;
-        pointCount++;
-      }
-    }
-    
-    if (pointCount == 0) {
-      _cachedCenter = const LatLng(0, 0);
-    } else {
-      _cachedCenter = LatLng(totalLat / pointCount, totalLng / pointCount);
-    }
-    
-    return _cachedCenter!;
-  }
-
-  /// Get bounds of the boundary (cached)
-  Map<String, LatLng> get bounds {
-    if (_cachedBounds != null) return _cachedBounds!;
-    
-    if (polygons.isEmpty) {
-      _cachedBounds = {
-        'north': const LatLng(0, 0),
-        'south': const LatLng(0, 0),
-        'east': const LatLng(0, 0),
-        'west': const LatLng(0, 0),
-      };
-      return _cachedBounds!;
-    }
-    
-    double minLat = double.infinity;
-    double maxLat = -double.infinity;
-    double minLng = double.infinity;
-    double maxLng = -double.infinity;
-    
-    for (final polygon in polygons) {
-      for (final point in polygon) {
-        minLat = minLat < point.latitude ? minLat : point.latitude;
-        maxLat = maxLat > point.latitude ? maxLat : point.latitude;
-        minLng = minLng < point.longitude ? minLng : point.longitude;
-        maxLng = maxLng > point.longitude ? maxLng : point.longitude;
-      }
-    }
-    
-    _cachedBounds = {
-      'north': LatLng(maxLat, 0),
-      'south': LatLng(minLat, 0),
-      'east': LatLng(0, maxLng),
-      'west': LatLng(0, minLng),
-    };
-    
-    return _cachedBounds!;
-  }
-
-  /// Get simplified polygon for performance (reduces points based on zoom level)
-  List<List<LatLng>> getSimplifiedPolygons(double zoomLevel) {
-    if (zoomLevel >= 14.0) {
-      return polygons; // Full detail at high zoom
-    } else if (zoomLevel >= 12.0) {
-      return _simplifyPolygons(polygons, 0.5); // Medium detail
-    } else {
-      return _simplifyPolygons(polygons, 0.3); // Low detail
-    }
-  }
-
-  /// Simplify polygons using Douglas-Peucker algorithm
-  List<List<LatLng>> _simplifyPolygons(List<List<LatLng>> polygons, double tolerance) {
-    return polygons.map((polygon) => _simplifyPolygon(polygon, tolerance)).toList();
-  }
-
-  /// Simplify a single polygon
-  List<LatLng> _simplifyPolygon(List<LatLng> polygon, double tolerance) {
-    if (polygon.length <= 3) return polygon;
-    
-    // Simple simplification - keep every nth point
-    final step = (polygon.length * tolerance).round().clamp(1, polygon.length);
-    final simplified = <LatLng>[];
-    
-    for (int i = 0; i < polygon.length; i += step) {
-      simplified.add(polygon[i]);
-    }
-    
-    // Ensure polygon is closed
-    if (simplified.first != simplified.last) {
-      simplified.add(simplified.first);
-    }
-    
-    return simplified;
-  }
-}
-

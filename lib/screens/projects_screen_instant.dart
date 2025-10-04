@@ -19,6 +19,11 @@ import '../ui/widgets/small_plot_info_card.dart';
 import '../ui/widgets/selected_plot_details_widget.dart';
 import '../ui/widgets/plot_details_modal.dart';
 import '../core/services/instant_boundary_service.dart';
+import '../core/services/optimized_boundary_service.dart';
+import '../core/services/optimized_plots_cache.dart';
+import '../core/services/optimized_tile_cache.dart';
+// import '../core/services/enhanced_startup_preloader.dart';
+import '../core/services/unified_cache_manager.dart';
 import '../core/services/plots_api_service.dart';
 import '../core/services/enhanced_plots_api_service.dart';
 import '../core/services/modern_filter_manager.dart';
@@ -410,13 +415,20 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   /// Load essential data for instant map display
   Future<void> _loadEssentialData() async {
     try {
-      // Load boundaries instantly (from assets)
+      // Always use the existing boundary loading method for now
+      print('🔄 Loading boundaries using existing method...');
+      
+      // Initialize optimized services
+      await OptimizedPlotsCache.initialize();
+      await OptimizedTileCache.instance.initialize();
+      
+      // Load boundaries using existing method
       await _loadBoundaryPolygons();
       
-      // Load basic plot data (fast API call)
+      // Load plots using existing method
       await _loadBasicPlots();
       
-      print('Essential data loaded - map ready for interaction');
+      print('✅ Essential data loaded using existing methods');
     } catch (e) {
       print('Error loading essential data: $e');
     }
@@ -569,6 +581,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   Future<void> _loadBoundaryPolygons() async {
     try {
+      print('🔄 Loading boundary polygons...');
+      
       // Try to get boundaries instantly from cache first
       final instantBoundaries = InstantBoundaryService.getBoundariesInstantly();
       if (instantBoundaries.isNotEmpty) {
@@ -576,9 +590,11 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           _boundaryPolygons = instantBoundaries;
           _isLoadingBoundaries = false;
         });
-        print('Instant loading: Loaded ${instantBoundaries.length} boundaries from cache');
+        print('✅ Instant loading: Loaded ${instantBoundaries.length} boundaries from cache');
         return;
       }
+      
+      print('⚠️ No cached boundaries found, loading from files...');
       
       // If not cached, load with optimization
       final boundaries = await InstantBoundaryService.loadAllBoundaries();
@@ -586,9 +602,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         _boundaryPolygons = boundaries;
         _isLoadingBoundaries = false;
       });
-      print('Instant loading: Loaded ${boundaries.length} boundaries with optimization');
+      print('✅ Optimized loading: Loaded ${boundaries.length} boundaries with memory cache optimization');
     } catch (e) {
-      print('Error loading boundary polygons: $e');
+      print('❌ Error loading boundary polygons: $e');
       setState(() {
         _isLoadingBoundaries = false;
       });
@@ -2558,8 +2574,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         print('🎬 Current map center: ${_mapController.camera.center}');
         print('🎬 Target location: $plotLocation');
         
-        // Use moveAndRotate for better control
-        _mapController.moveAndRotate(plotLocation, 13.0, 0.0);
+        // Use moveAndRotate for better control with optimal zoom for satellite imagery
+        _mapController.moveAndRotate(plotLocation, 14.0, 0.0);
         
         print('🗺️ Map navigation completed for plot ${plot.plotNo}');
         print('🗺️ New map center: ${_mapController.camera.center}');
@@ -2786,16 +2802,16 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           final lngRange = maxLng - minLng;
           final maxRange = latRange > lngRange ? latRange : lngRange;
           
-          // Determine zoom level based on polygon size
-          double zoomLevel = 18.0; // Default zoom
+          // Determine zoom level based on polygon size - optimized for satellite imagery visualization
+          double zoomLevel = 14.0; // Default zoom - optimal for satellite imagery
           if (maxRange > 0.01) {
-            zoomLevel = 16.0; // Large polygon
+            zoomLevel = 13.0; // Large polygon - show more context
           } else if (maxRange > 0.005) {
-            zoomLevel = 17.0; // Medium polygon
+            zoomLevel = 14.0; // Medium polygon - optimal for satellite imagery
           } else if (maxRange > 0.001) {
-            zoomLevel = 18.0; // Small polygon
+            zoomLevel = 15.0; // Small polygon - still readable
           } else {
-            zoomLevel = 19.0; // Very small polygon
+            zoomLevel = 16.0; // Very small polygon - detailed view
           }
           
           print('🎯 Calculated zoom level: $zoomLevel (polygon range: $maxRange)');
@@ -2816,7 +2832,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           // Fallback to plot coordinates if polygon is invalid
           if (plot.latitude != null && plot.longitude != null) {
             final plotLocation = LatLng(plot.latitude!, plot.longitude!);
-            _mapController.moveAndRotate(plotLocation, 13.0, 0.0);
+            _mapController.moveAndRotate(plotLocation, 14.0, 0.0);
             print('🎯 Fallback navigation to plot coordinates: $plotLocation');
           }
         }
@@ -2827,7 +2843,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         // Fallback to plot coordinates if no polygon
         if (plot.latitude != null && plot.longitude != null) {
           final plotLocation = LatLng(plot.latitude!, plot.longitude!);
-          _mapController.moveAndRotate(plotLocation, 13.0, 0.0);
+          _mapController.moveAndRotate(plotLocation, 14.0, 0.0);
           print('🎯 Fallback navigation to plot coordinates: $plotLocation');
         }
       }

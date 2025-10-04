@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../ui/screens/auth/login_screen.dart';
+import '../ui/widgets/cached_asset_image.dart';
 import 'main_wrapper.dart';
 
 class GlobeSplashScreen extends StatefulWidget {
@@ -197,8 +198,8 @@ class _GlobeSplashScreenState extends State<GlobeSplashScreen>
                         ],
                       ),
                       child: ClipOval(
-                        child: Image.asset(
-                          'assets/images/dhalogo.png',
+                        child: CachedAssetImage(
+                          assetPath: 'assets/images/dhalogo.png',
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) {
                             return Container(

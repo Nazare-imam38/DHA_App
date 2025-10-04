@@ -3,7 +3,11 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../ui/screens/auth/login_screen.dart';
 import '../ui/widgets/dha_loading_widget.dart';
+import '../ui/widgets/cached_asset_image.dart';
 import 'main_wrapper.dart';
+import '../core/services/unified_memory_cache.dart';
+import '../core/services/satellite_imagery_preloader.dart';
+import '../core/services/enhanced_startup_preloader.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -64,28 +68,67 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _initializeApp() async {
-    // Wait for animations to complete
-    await Future.delayed(const Duration(seconds: 3));
-    
-    if (mounted) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    try {
+      print('🚀 Starting enhanced app initialization...');
       
-      // Initialize authentication state
-      await authProvider.initializeAuth();
+      // Start satellite imagery preloading in parallel
+      final satellitePreloadFuture = SatelliteImageryPreloader.startPreloading();
       
-      // Navigate based on authentication status
+      // Start enhanced startup preloading in parallel
+      final startupPreloadFuture = EnhancedStartupPreloader.startEnhancedPreloading();
+      
+      // Wait for animations to complete (minimum 3 seconds)
+      await Future.delayed(const Duration(seconds: 3));
+      
+      // Wait for both preloading operations to complete
+      await Future.wait([
+        satellitePreloadFuture,
+        startupPreloadFuture,
+      ]);
+      
+      print('✅ All preloading operations completed');
+      
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => 
-              authProvider.isLoggedIn ? MainWrapper() : LoginScreen(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-            transitionDuration: const Duration(milliseconds: 500),
-          ),
-        );
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        
+        // Initialize authentication state
+        await authProvider.initializeAuth();
+        
+        // Navigate based on authentication status
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => 
+                authProvider.isLoggedIn ? MainWrapper() : LoginScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+              transitionDuration: const Duration(milliseconds: 500),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('❌ Error during app initialization: $e');
+      // Continue with navigation even if preloading fails
+      if (mounted) {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        await authProvider.initializeAuth();
+        
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => 
+                authProvider.isLoggedIn ? MainWrapper() : LoginScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+              transitionDuration: const Duration(milliseconds: 500),
+            ),
+          );
+        }
       }
     }
   }
@@ -112,8 +155,8 @@ class _SplashScreenState extends State<SplashScreen>
               builder: (context, child) {
                   return Transform.scale(
                     scale: _logoScale.value,
-                    child: Image.asset(
-                      'assets/images/dhalogo.png',
+                    child: CachedAssetImage(
+                      assetPath: 'assets/images/dhalogo.png',
                       width: 160,
                       height: 160,
                       fit: BoxFit.contain,

@@ -6,6 +6,7 @@ import '../../../services/language_service.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../models/auth_models.dart';
 import '../../../screens/main_wrapper.dart';
+import '../../../ui/widgets/cached_asset_image.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -389,8 +390,8 @@ class _LoginScreenState extends State<LoginScreen>
                           opacity: _fadeAnimation,
                           child: Column(
                             children: [
-                              Image.asset(
-                                'assets/images/dhalogo.png',
+                              CachedAssetImage(
+                                assetPath: 'assets/images/dhalogo.png',
                                 width: 140,
                                 height: 140,
                                 fit: BoxFit.contain,

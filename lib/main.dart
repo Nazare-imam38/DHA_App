@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+// import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'screens/globe_splash_screen.dart';
+import 'screens/enhanced_splash_screen.dart';
 import 'screens/main_wrapper.dart';
 import 'services/language_service.dart';
 import 'providers/auth_provider.dart';
@@ -12,10 +12,15 @@ import 'providers/plots_provider.dart';
 import 'providers/plot_stats_provider.dart';
 import 'core/services/location_service.dart';
 import 'core/services/instant_boundary_service.dart';
+import 'core/services/optimized_boundary_service.dart';
+import 'core/services/optimized_plots_cache.dart';
+import 'core/services/optimized_tile_cache.dart';
+import 'core/services/unified_memory_cache.dart';
+import 'core/services/enhanced_startup_preloader.dart';
+import 'core/services/unified_cache_manager.dart';
 import 'core/services/enterprise_api_manager.dart';
 import 'core/services/smart_filter_manager.dart';
 import 'core/services/progressive_map_renderer.dart';
-import 'core/config/mapbox_config.dart';
 
 // Custom gradient theme extension
 @immutable
@@ -94,33 +99,30 @@ class _DHAMarketplaceAppState extends State<DHAMarketplaceApp> {
 
   /// Preload essential data in background for instant access
   Future<void> _preloadData() async {
-    // Enterprise-grade preloading for production app
-    print('Main: Starting enterprise preloading...');
+    // Enhanced startup preloading with progress tracking
+    print('Main: Starting enhanced startup preloading...');
     
-    // Stage 1: Preload boundaries (instant access)
+    // Initialize unified cache manager
+    Future.microtask(() async {
+      try {
+        await UnifiedCacheManager.instance.initialize();
+        print('Main: Unified cache manager initialized');
+      } catch (e) {
+        print('Main: Error initializing unified cache manager: $e');
+      }
+    });
+    
+    // Preload boundaries at startup
     Future.microtask(() async {
       try {
         await InstantBoundaryService.preloadBoundaries();
-        print('Main: Boundaries preloaded successfully');
+        print('Main: Boundaries preloaded at startup');
       } catch (e) {
         print('Main: Error preloading boundaries: $e');
       }
     });
     
-    // Stage 2: Initialize location service
-    Future.microtask(() async {
-      try {
-        // Location service will be initialized in the provider
-        print('Main: Location service will be initialized');
-      } catch (e) {
-        print('Main: Error initializing location service: $e');
-      }
-    });
-    
-    // Stage 3: API data will be loaded when needed
-    print('Main: API data will be loaded on demand');
-    
-    // Stage 4: Initialize performance monitoring
+    // Initialize performance monitoring
     Future.microtask(() async {
       try {
         _initializePerformanceMonitoring();
@@ -145,11 +147,21 @@ class _DHAMarketplaceAppState extends State<DHAMarketplaceApp> {
       final apiStats = EnterpriseAPIManager.getPerformanceStats();
       final filterStats = SmartFilterManager.getPerformanceStats();
       final renderStats = ProgressiveMapRenderer.getPerformanceStats();
+      final memoryCacheStats = UnifiedMemoryCache.instance.getStatistics();
+      final plotsStats = OptimizedPlotsCache.getCacheStatistics();
+      final tileStats = OptimizedTileCache.instance.getCacheStatistics();
+      final preloadStatus = EnhancedStartupPreloader.getPreloadStatus();
+      final cacheStats = UnifiedCacheManager.instance.getStatistics();
       
       print('=== PERFORMANCE METRICS ===');
       print('API Stats: $apiStats');
       print('Filter Stats: $filterStats');
       print('Render Stats: $renderStats');
+      print('Memory Cache: $memoryCacheStats');
+      print('Plots Cache: $plotsStats');
+      print('Tile Cache: $tileStats');
+      print('Preload Status: $preloadStatus');
+      print('Unified Cache: $cacheStats');
       print('===========================');
     } catch (e) {
       print('Error logging performance metrics: $e');
@@ -243,7 +255,7 @@ class _DHAMarketplaceAppState extends State<DHAMarketplaceApp> {
           ),
         ],
       ),
-      home: const GlobeSplashScreen(),
+      home: const EnhancedSplashScreen(),
       debugShowCheckedModeBanner: false,
           );
         },

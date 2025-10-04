@@ -6,6 +6,7 @@ import '../../../screens/property_listings_screen.dart';
 import '../../../screens/projects_screen_instant.dart';
 import '../../../screens/ownership_selection_screen.dart';
 import '../../../ui/screens/auth/login_screen.dart';
+import '../../../ui/widgets/cached_asset_image.dart';
 import '../../../providers/plot_stats_provider.dart';
 import '../../../providers/auth_provider.dart';
 
@@ -1387,8 +1388,8 @@ class _HomeScreenState extends State<HomeScreen>
               children: [
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                  child: Image.asset(
-                    project['image'] as String,
+                  child: CachedAssetImage(
+                    assetPath: project['image'] as String,
                     width: double.infinity,
                     height: 80,
                     fit: BoxFit.cover,

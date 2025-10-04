@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'cached_asset_image.dart';
 
 class DHALoadingWidget extends StatefulWidget {
   final double size;
@@ -151,8 +152,8 @@ class _DHALoadingWidgetState extends State<DHALoadingWidget>
                          color: Colors.transparent,
                        ),
                       child: ClipOval(
-                        child: Image.asset(
-                          'assets/images/dhalogo.png',
+                        child: CachedAssetImage(
+                          assetPath: 'assets/images/dhalogo.png',
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) {
                             return Container(

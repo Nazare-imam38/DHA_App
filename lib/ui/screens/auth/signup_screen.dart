@@ -5,6 +5,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../services/language_service.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../models/auth_models.dart';
+import '../../../ui/widgets/cached_asset_image.dart';
 import 'login_screen.dart';
 import '../../../screens/otp_verification_screen.dart';
 
@@ -258,8 +259,8 @@ class _SignupScreenState extends State<SignupScreen>
                           opacity: _fadeAnimation,
                           child: Column(
                             children: [
-                              Image.asset(
-                                'assets/images/dhalogo.png',
+                              CachedAssetImage(
+                                assetPath: 'assets/images/dhalogo.png',
                                 width: 140,
                                 height: 140,
                                 fit: BoxFit.contain,

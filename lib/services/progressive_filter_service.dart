@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:http/http.dart' as http;
 
 /// Progressive filter service for dynamic API-based filtering
@@ -6,49 +7,90 @@ class ProgressiveFilterService {
   static const String baseUrl = 'https://backend-apis.dhamarketplace.com/api';
   static const Duration _timeout = Duration(seconds: 30);
   static const int _maxRetries = 3;
+  
+  // Performance optimization: Request deduplication
+  static final Map<String, Completer<FilteredPlotsResponse>> _pendingRequests = {};
+  static final Map<String, DateTime> _requestTimestamps = {};
+  static const Duration _requestDeduplicationWindow = Duration(milliseconds: 500);
+  
+  // Performance optimization: Response caching
+  static final Map<String, CachedResponse> _responseCache = {};
+  static const Duration _cacheValidity = Duration(minutes: 5);
+  
+  // Performance optimization: Smart preloading
+  static final Set<String> _preloadedFilters = {};
+  static bool _isPreloading = false;
 
   /// Step 1: Filter by price range only
   static Future<FilteredPlotsResponse> filterByPriceRange({
     required double priceFrom,
     required double priceTo,
   }) async {
-    print('ProgressiveFilterService: Filtering by price range $priceFrom - $priceTo');
+    final cacheKey = 'price_range_${priceFrom.toInt()}_${priceTo.toInt()}';
     
-    final url = '$baseUrl/filtered-plots?price_from=${priceFrom.toInt()}&price_to=${priceTo.toInt()}';
-    
-    for (int attempt = 1; attempt <= _maxRetries; attempt++) {
-      try {
-        print('ProgressiveFilterService: Attempt $attempt/$_maxRetries - $url');
-        
-        final response = await http.get(
-          Uri.parse(url),
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-        ).timeout(_timeout);
-        
-        if (response.statusCode == 200) {
-          final Map<String, dynamic> jsonData = json.decode(response.body);
-          final result = FilteredPlotsResponse.fromJson(jsonData);
-          
-          print('ProgressiveFilterService: ✅ Price filter returned ${result.plots.length} plots');
-          return result;
-        } else {
-          throw Exception('Failed to fetch price filtered plots: ${response.statusCode}');
-        }
-      } catch (e) {
-        print('ProgressiveFilterService: Attempt $attempt failed: $e');
-        
-        if (attempt == _maxRetries) {
-          throw Exception('Failed to fetch price filtered plots after $_maxRetries attempts: $e');
-        }
-        
-        await Future.delayed(Duration(seconds: attempt * 2));
-      }
+    // Performance optimization: Check cache first
+    final cachedResponse = _getCachedResponse(cacheKey);
+    if (cachedResponse != null) {
+      print('ProgressiveFilterService: ✅ Cache hit for price range $priceFrom - $priceTo');
+      return cachedResponse;
     }
     
-    throw Exception('Failed to fetch price filtered plots');
+    // Performance optimization: Check for pending request
+    if (_pendingRequests.containsKey(cacheKey)) {
+      print('ProgressiveFilterService: ⏳ Waiting for pending price range request');
+      return await _pendingRequests[cacheKey]!.future;
+    }
+    
+    print('ProgressiveFilterService: Filtering by price range $priceFrom - $priceTo');
+    
+    final completer = Completer<FilteredPlotsResponse>();
+    _pendingRequests[cacheKey] = completer;
+    _requestTimestamps[cacheKey] = DateTime.now();
+    
+    try {
+      final url = '$baseUrl/filtered-plots?price_from=${priceFrom.toInt()}&price_to=${priceTo.toInt()}';
+      
+      for (int attempt = 1; attempt <= _maxRetries; attempt++) {
+        try {
+          print('ProgressiveFilterService: Attempt $attempt/$_maxRetries - $url');
+          
+          final response = await http.get(
+            Uri.parse(url),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+          ).timeout(_timeout);
+          
+          if (response.statusCode == 200) {
+            final Map<String, dynamic> jsonData = json.decode(response.body);
+            final result = FilteredPlotsResponse.fromJson(jsonData);
+            
+            // Performance optimization: Cache the response
+            _cacheResponse(cacheKey, result);
+            
+            print('ProgressiveFilterService: ✅ Price filter returned ${result.plots.length} plots');
+            completer.complete(result);
+            return result;
+          } else {
+            throw Exception('Failed to fetch price filtered plots: ${response.statusCode}');
+          }
+        } catch (e) {
+          print('ProgressiveFilterService: Attempt $attempt failed: $e');
+          
+          if (attempt == _maxRetries) {
+            throw Exception('Failed to fetch price filtered plots after $_maxRetries attempts: $e');
+          }
+          
+          await Future.delayed(Duration(seconds: attempt * 2));
+        }
+      }
+      
+      throw Exception('Failed to fetch price filtered plots');
+    } finally {
+      _pendingRequests.remove(cacheKey);
+      _requestTimestamps.remove(cacheKey);
+    }
   }
 
   /// Step 2: Filter by category within price range
@@ -57,43 +99,71 @@ class ProgressiveFilterService {
     required double priceFrom,
     required double priceTo,
   }) async {
-    print('ProgressiveFilterService: Filtering by category $category with price $priceFrom - $priceTo');
+    final cacheKey = 'category_${category}_${priceFrom.toInt()}_${priceTo.toInt()}';
     
-    final url = '$baseUrl/filter-plots-range?category=$category&price_from=${priceFrom.toInt()}&price_to=${priceTo.toInt()}';
-    
-    for (int attempt = 1; attempt <= _maxRetries; attempt++) {
-      try {
-        print('ProgressiveFilterService: Attempt $attempt/$_maxRetries - $url');
-        
-        final response = await http.get(
-          Uri.parse(url),
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-        ).timeout(_timeout);
-        
-        if (response.statusCode == 200) {
-          final Map<String, dynamic> jsonData = json.decode(response.body);
-          final result = FilteredPlotsResponse.fromJson(jsonData);
-          
-          print('ProgressiveFilterService: ✅ Category filter returned ${result.plots.length} plots');
-          return result;
-        } else {
-          throw Exception('Failed to fetch category filtered plots: ${response.statusCode}');
-        }
-      } catch (e) {
-        print('ProgressiveFilterService: Attempt $attempt failed: $e');
-        
-        if (attempt == _maxRetries) {
-          throw Exception('Failed to fetch category filtered plots after $_maxRetries attempts: $e');
-        }
-        
-        await Future.delayed(Duration(seconds: attempt * 2));
-      }
+    // Performance optimization: Check cache first
+    final cachedResponse = _getCachedResponse(cacheKey);
+    if (cachedResponse != null) {
+      print('ProgressiveFilterService: ✅ Cache hit for category $category with price $priceFrom - $priceTo');
+      return cachedResponse;
     }
     
-    throw Exception('Failed to fetch category filtered plots');
+    // Performance optimization: Check for pending request
+    if (_pendingRequests.containsKey(cacheKey)) {
+      print('ProgressiveFilterService: ⏳ Waiting for pending category request');
+      return await _pendingRequests[cacheKey]!.future;
+    }
+    
+    print('ProgressiveFilterService: Filtering by category $category with price $priceFrom - $priceTo');
+    
+    final completer = Completer<FilteredPlotsResponse>();
+    _pendingRequests[cacheKey] = completer;
+    _requestTimestamps[cacheKey] = DateTime.now();
+    
+    try {
+      final url = '$baseUrl/filter-plots-range?category=$category&price_from=${priceFrom.toInt()}&price_to=${priceTo.toInt()}';
+      
+      for (int attempt = 1; attempt <= _maxRetries; attempt++) {
+        try {
+          print('ProgressiveFilterService: Attempt $attempt/$_maxRetries - $url');
+          
+          final response = await http.get(
+            Uri.parse(url),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+          ).timeout(_timeout);
+          
+          if (response.statusCode == 200) {
+            final Map<String, dynamic> jsonData = json.decode(response.body);
+            final result = FilteredPlotsResponse.fromJson(jsonData);
+            
+            // Performance optimization: Cache the response
+            _cacheResponse(cacheKey, result);
+            
+            print('ProgressiveFilterService: ✅ Category filter returned ${result.plots.length} plots');
+            completer.complete(result);
+            return result;
+          } else {
+            throw Exception('Failed to fetch category filtered plots: ${response.statusCode}');
+          }
+        } catch (e) {
+          print('ProgressiveFilterService: Attempt $attempt failed: $e');
+          
+          if (attempt == _maxRetries) {
+            throw Exception('Failed to fetch category filtered plots after $_maxRetries attempts: $e');
+          }
+          
+          await Future.delayed(Duration(seconds: attempt * 2));
+        }
+      }
+      
+      throw Exception('Failed to fetch category filtered plots');
+    } finally {
+      _pendingRequests.remove(cacheKey);
+      _requestTimestamps.remove(cacheKey);
+    }
   }
 
   /// Step 3: Filter by phase within category and price range
@@ -256,6 +326,99 @@ class ProgressiveFilterService {
       print('ProgressiveFilterService: Error getting available sizes: $e');
       return [];
     }
+  }
+  
+  // Performance optimization: Cache helper methods
+  static FilteredPlotsResponse? _getCachedResponse(String cacheKey) {
+    final cached = _responseCache[cacheKey];
+    if (cached != null && !cached.isExpired) {
+      return cached.data;
+    }
+    return null;
+  }
+  
+  static void _cacheResponse(String cacheKey, FilteredPlotsResponse response) {
+    _responseCache[cacheKey] = CachedResponse(
+      data: response,
+      timestamp: DateTime.now(),
+    );
+    
+    // Clean up old cache entries to prevent memory leaks
+    _cleanupExpiredCache();
+  }
+  
+  static void _cleanupExpiredCache() {
+    final now = DateTime.now();
+    _responseCache.removeWhere((key, cached) => 
+      now.difference(cached.timestamp) > _cacheValidity);
+  }
+  
+  // Performance optimization: Smart preloading
+  static Future<void> preloadCommonFilters() async {
+    if (_isPreloading) return;
+    _isPreloading = true;
+    
+    try {
+      print('ProgressiveFilterService: 🚀 Starting smart preloading...');
+      
+      // Preload common price ranges
+      final commonPriceRanges = [
+        {'from': 1000000, 'to': 3000000},
+        {'from': 3000000, 'to': 5000000},
+        {'from': 5000000, 'to': 10000000},
+      ];
+      
+      for (final range in commonPriceRanges) {
+        final cacheKey = 'price_range_${range['from']}_${range['to']}';
+        if (!_preloadedFilters.contains(cacheKey)) {
+          try {
+            await filterByPriceRange(
+              priceFrom: range['from']!.toDouble(),
+              priceTo: range['to']!.toDouble(),
+            );
+            _preloadedFilters.add(cacheKey);
+            print('ProgressiveFilterService: ✅ Preloaded price range ${range['from']}-${range['to']}');
+          } catch (e) {
+            print('ProgressiveFilterService: ⚠️ Failed to preload price range ${range['from']}-${range['to']}: $e');
+          }
+        }
+      }
+      
+      print('ProgressiveFilterService: ✅ Smart preloading completed');
+    } finally {
+      _isPreloading = false;
+    }
+  }
+  
+  // Performance optimization: Clear cache when needed
+  static void clearCache() {
+    _responseCache.clear();
+    _preloadedFilters.clear();
+    print('ProgressiveFilterService: 🧹 Cache cleared');
+  }
+  
+  // Performance optimization: Get cache statistics
+  static Map<String, dynamic> getCacheStats() {
+    return {
+      'cache_size': _responseCache.length,
+      'preloaded_filters': _preloadedFilters.length,
+      'pending_requests': _pendingRequests.length,
+    };
+  }
+}
+
+// Performance optimization: Cached response model
+class CachedResponse {
+  final FilteredPlotsResponse data;
+  final DateTime timestamp;
+  
+  CachedResponse({
+    required this.data,
+    required this.timestamp,
+  });
+  
+  bool get isExpired {
+    return DateTime.now().difference(timestamp) > ProgressiveFilterService._cacheValidity;
   }
 }
 

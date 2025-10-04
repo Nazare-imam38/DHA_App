@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/models/plot_model.dart';
 
@@ -8,9 +9,18 @@ class SmartFilterManager {
   static const String _filterCacheKey = 'smart_filter_cache';
   static const Duration _cacheValidity = Duration(hours: 2);
   
-  // In-memory cache for instant access
+  // Performance optimization: Enhanced in-memory cache
   static final Map<String, List<PlotModel>> _filterCache = {};
   static final Map<String, DateTime> _cacheTimestamps = {};
+  
+  // Performance optimization: Request deduplication
+  static final Map<String, Completer<List<PlotModel>>> _pendingRequests = {};
+  static final Map<String, DateTime> _requestTimestamps = {};
+  static const Duration _requestDeduplicationWindow = Duration(milliseconds: 300);
+  
+  // Performance optimization: Background processing
+  static final Map<String, bool> _backgroundTasks = {};
+  static bool _isProcessingInBackground = false;
   
   // Performance metrics
   static final Map<String, int> _performanceMetrics = {};
@@ -51,10 +61,36 @@ class SmartFilterManager {
       searchQuery: searchQuery,
     );
     
+    // Performance optimization: Check for pending request
+    if (_pendingRequests.containsKey(filterKey)) {
+      print('SmartFilterManager: ⏳ Waiting for pending request');
+      return await _pendingRequests[filterKey]!.future;
+    }
+    
     // Check cache first (instant access)
     if (_isFilterCacheValid(filterKey)) {
       _recordPerformance('filter_cache_hit', 1);
+      print('SmartFilterManager: ✅ Cache hit for filter key: $filterKey');
       return _getFromFilterCache(filterKey);
+    }
+    
+    // Performance optimization: Process in background for large datasets
+    if (allPlots.length > 1000) {
+      return await _processFiltersInBackground(filterKey, allPlots, {
+        'phase': phase,
+        'category': category,
+        'status': status,
+        'sector': sector,
+        'size': size,
+        'minPrice': minPrice,
+        'maxPrice': maxPrice,
+        'minTokenAmount': minTokenAmount,
+        'maxTokenAmount': maxTokenAmount,
+        'hasInstallmentPlans': hasInstallmentPlans,
+        'isAvailableOnly': isAvailableOnly,
+        'hasRemarks': hasRemarks,
+        'searchQuery': searchQuery,
+      });
     }
     
     // Apply filters in optimized stages
@@ -338,11 +374,98 @@ class SmartFilterManager {
     return normalized;
   }
 
+  /// Performance optimization: Background processing for large datasets
+  static Future<List<PlotModel>> _processFiltersInBackground(
+    String filterKey,
+    List<PlotModel> allPlots,
+    Map<String, dynamic> filterParams,
+  ) async {
+    if (_isProcessingInBackground) {
+      print('SmartFilterManager: ⏳ Waiting for background processing to complete...');
+      return [];
+    }
+    
+    _isProcessingInBackground = true;
+    _backgroundTasks[filterKey] = true;
+    
+    final completer = Completer<List<PlotModel>>();
+    _pendingRequests[filterKey] = completer;
+    
+    try {
+      print('SmartFilterManager: 🚀 Processing large dataset (${allPlots.length} plots) in background...');
+      
+      // Process filters in background
+      final filteredPlots = await _applyFiltersInBackground(allPlots, filterParams);
+      
+      // Cache the result
+      _storeInFilterCache(filterKey, filteredPlots);
+      
+      print('SmartFilterManager: ✅ Background processing completed for ${filteredPlots.length} plots');
+      completer.complete(filteredPlots);
+      return filteredPlots;
+      
+    } catch (e) {
+      print('SmartFilterManager: ❌ Background processing failed: $e');
+      completer.completeError(e);
+      return [];
+    } finally {
+      _isProcessingInBackground = false;
+      _backgroundTasks.remove(filterKey);
+      _pendingRequests.remove(filterKey);
+    }
+  }
+  
+  /// Apply filters in background thread
+  static Future<List<PlotModel>> _applyFiltersInBackground(
+    List<PlotModel> allPlots,
+    Map<String, dynamic> filterParams,
+  ) async {
+    List<PlotModel> filteredPlots = allPlots;
+    
+    // Stage 1: Quick filters
+    filteredPlots = _applyQuickFilters(
+      filteredPlots,
+      phase: filterParams['phase'],
+      category: filterParams['category'],
+      status: filterParams['status'],
+      sector: filterParams['sector'],
+      size: filterParams['size'],
+    );
+    
+    // Stage 2: Price filters
+    filteredPlots = _applyPriceFilters(
+      filteredPlots,
+      minPrice: filterParams['minPrice'],
+      maxPrice: filterParams['maxPrice'],
+      minTokenAmount: filterParams['minTokenAmount'],
+      maxTokenAmount: filterParams['maxTokenAmount'],
+    );
+    
+    // Stage 3: Complex filters
+    filteredPlots = _applyComplexFilters(
+      filteredPlots,
+      hasInstallmentPlans: filterParams['hasInstallmentPlans'],
+      isAvailableOnly: filterParams['isAvailableOnly'],
+      hasRemarks: filterParams['hasRemarks'],
+    );
+    
+    // Stage 4: Search filter
+    if (filterParams['searchQuery'] != null && filterParams['searchQuery'].isNotEmpty) {
+      filteredPlots = _applySearchFilter(filteredPlots, filterParams['searchQuery']);
+    }
+    
+    return filteredPlots;
+  }
+  
   /// Clear filter cache
   static void clearFilterCache() {
     _filterCache.clear();
     _cacheTimestamps.clear();
     _performanceMetrics.clear();
+    _pendingRequests.clear();
+    _requestTimestamps.clear();
+    _backgroundTasks.clear();
+    _isProcessingInBackground = false;
   }
   
   /// Preload common filter combinations

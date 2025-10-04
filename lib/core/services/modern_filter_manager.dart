@@ -33,9 +33,13 @@ class ModernFilterManager {
   bool _phasesLoaded = false;
   bool _sizesLoaded = false;
 
-  // Debounce timer for API calls
+  // Performance optimization: Faster debouncing
   Timer? _debounceTimer;
-  static const Duration _debounceDelay = Duration(milliseconds: 500);
+  static const Duration _debounceDelay = Duration(milliseconds: 200); // Reduced from 500ms to 200ms
+  
+  // Performance optimization: Background processing
+  static final Map<String, Completer<void>> _backgroundTasks = {};
+  static bool _isProcessingInBackground = false;
 
   // Callbacks
   Function(List<PlotModel>)? onPlotsUpdated;
@@ -158,16 +162,16 @@ class ModernFilterManager {
     _applyFilters();
   }
 
-  /// Apply filters with debouncing
+  /// Apply filters with optimized debouncing
   void _applyFilters() {
     _debounceTimer?.cancel();
     _debounceTimer = Timer(_debounceDelay, () {
-      print('ModernFilterManager: Using progressive API filtering');
-      _applyProgressiveFilters();
+      print('ModernFilterManager: Using optimized progressive API filtering');
+      _applyProgressiveFiltersOptimized();
     });
   }
 
-  /// Apply progressive filtering workflow
+  /// Apply progressive filtering workflow (original method kept for compatibility)
   Future<void> _applyProgressiveFilters() async {
     try {
       _setLoading(true);
@@ -231,6 +235,112 @@ class ModernFilterManager {
       onPlotsUpdated?.call([]);
     } finally {
       _setLoading(false);
+    }
+  }
+  
+  /// Performance optimization: Optimized progressive filtering with background processing
+  Future<void> _applyProgressiveFiltersOptimized() async {
+    final taskId = 'filter_${DateTime.now().millisecondsSinceEpoch}';
+    
+    try {
+      _setLoading(true);
+      _setError(null);
+      
+      print('ModernFilterManager: 🚀 Starting optimized progressive filtering...');
+      
+      // Performance optimization: Process in background to keep UI responsive
+      await _processFiltersInBackground(taskId);
+      
+    } catch (e) {
+      print('ModernFilterManager: ❌ Error in optimized progressive filtering: $e');
+      _setError(e.toString());
+      _filteredPlots = [];
+      onPlotsUpdated?.call([]);
+    } finally {
+      _setLoading(false);
+      _backgroundTasks.remove(taskId);
+    }
+  }
+  
+  /// Performance optimization: Background processing for filters
+  Future<void> _processFiltersInBackground(String taskId) async {
+    if (_isProcessingInBackground) {
+      print('ModernFilterManager: ⏳ Waiting for background processing to complete...');
+      return;
+    }
+    
+    _isProcessingInBackground = true;
+    final completer = Completer<void>();
+    _backgroundTasks[taskId] = completer;
+    
+    try {
+      // Step 1: Filter by price range first
+      if (_minPrice != null && _maxPrice != null) {
+        print('ModernFilterManager: 🎯 Step 1 - Optimized price range filtering $_minPrice - $_maxPrice');
+        
+        // Performance optimization: Load categories in parallel with price filtering
+        final categoriesFuture = _loadAvailableCategories();
+        final plotsFuture = _fetchPlotsByPriceRange();
+        
+        await Future.wait([categoriesFuture, plotsFuture]);
+        
+        // If no category selected, we're done
+        if (_category == null) {
+          completer.complete();
+          return;
+        }
+        
+        // Step 2: Filter by category
+        if (_category != null) {
+          print('ModernFilterManager: 🎯 Step 2 - Optimized category filtering $_category');
+          
+          // Performance optimization: Load phases in parallel with category filtering
+          final phasesFuture = _loadAvailablePhases();
+          final categoryPlotsFuture = _fetchPlotsByCategory();
+          
+          await Future.wait([phasesFuture, categoryPlotsFuture]);
+          
+          // If no phase selected, we're done
+          if (_phase == null) {
+            completer.complete();
+            return;
+          }
+          
+          // Step 3: Filter by phase
+          if (_phase != null) {
+            print('ModernFilterManager: 🎯 Step 3 - Optimized phase filtering $_phase');
+            
+            // Performance optimization: Load sizes in parallel with phase filtering
+            final sizesFuture = _loadAvailableSizes();
+            final phasePlotsFuture = _fetchPlotsByPhase();
+            
+            await Future.wait([sizesFuture, phasePlotsFuture]);
+            
+            // If no size selected, we're done
+            if (_size == null) {
+              completer.complete();
+              return;
+            }
+            
+            // Step 4: Filter by size (final filter)
+            if (_size != null) {
+              print('ModernFilterManager: 🎯 Step 4 - Optimized size filtering $_size');
+              await _fetchPlotsBySize();
+              completer.complete();
+              return;
+            }
+          }
+        }
+      } else {
+        // No price range set, load all plots
+        await loadInitialPlots();
+        completer.complete();
+      }
+    } finally {
+      _isProcessingInBackground = false;
+      if (!completer.isCompleted) {
+        completer.complete();
+      }
     }
   }
 
@@ -357,6 +467,9 @@ class ModernFilterManager {
       // Apply current filters to initial plots
       _applyClientSideFilters();
       
+      // Performance optimization: Start smart preloading in background
+      _startSmartPreloading();
+      
     } catch (e) {
       print('ModernFilterManager: ❌ Error loading initial plots: $e');
       _setError(e.toString());
@@ -366,6 +479,39 @@ class ModernFilterManager {
     } finally {
       _setLoading(false);
     }
+  }
+  
+  /// Performance optimization: Smart preloading for common filter combinations
+  void _startSmartPreloading() {
+    // Start preloading in background without blocking UI
+    Future.delayed(Duration(seconds: 2), () async {
+      try {
+        print('ModernFilterManager: 🚀 Starting smart preloading...');
+        
+        // Preload common price ranges
+        final commonRanges = [
+          {'min': 1000000.0, 'max': 3000000.0},
+          {'min': 3000000.0, 'max': 5000000.0},
+          {'min': 5000000.0, 'max': 10000000.0},
+        ];
+        
+        for (final range in commonRanges) {
+          try {
+            await ProgressiveFilter.ProgressiveFilterService.filterByPriceRange(
+              priceFrom: range['min']!,
+              priceTo: range['max']!,
+            );
+            print('ModernFilterManager: ✅ Preloaded price range ${range['min']}-${range['max']}');
+          } catch (e) {
+            print('ModernFilterManager: ⚠️ Failed to preload price range: $e');
+          }
+        }
+        
+        print('ModernFilterManager: ✅ Smart preloading completed');
+      } catch (e) {
+        print('ModernFilterManager: ❌ Smart preloading failed: $e');
+      }
+    });
   }
   
   /// Apply client-side filtering to all plots
@@ -426,11 +572,6 @@ class ModernFilterManager {
     onPlotsUpdated?.call(_filteredPlots);
   }
 
-  /// Force refresh (bypass cache)
-  Future<void> forceRefresh() async {
-    _lastFetchTime = null;
-    await _fetchFilteredPlots();
-  }
 
   /// Convert phase names to API format for client-side filtering
   String _convertPhaseToApiFormat(String phase) {
@@ -702,8 +843,45 @@ class ModernFilterManager {
     }
   }
 
+  /// Performance optimization: Get performance statistics
+  Map<String, dynamic> getPerformanceStats() {
+    return {
+      'debounce_delay_ms': _debounceDelay.inMilliseconds,
+      'background_tasks': _backgroundTasks.length,
+      'is_processing_background': _isProcessingInBackground,
+      'filtered_plots_count': _filteredPlots.length,
+      'all_plots_count': _allPlots.length,
+      'active_filters_count': activeFiltersCount,
+    };
+  }
+  
+  /// Performance optimization: Clear cache and reset state
+  void clearCache() {
+    _filteredPlots.clear();
+    _allPlots.clear();
+    _availableCategories.clear();
+    _availablePhases.clear();
+    _availableSizes.clear();
+    _categoriesLoaded = false;
+    _phasesLoaded = false;
+    _sizesLoaded = false;
+    
+    // Clear progressive filter service cache
+    ProgressiveFilter.ProgressiveFilterService.clearCache();
+    
+    print('ModernFilterManager: 🧹 Cache cleared and state reset');
+  }
+  
+  /// Performance optimization: Force refresh with cache bypass
+  Future<void> forceRefresh() async {
+    clearCache();
+    await loadInitialPlots();
+    print('ModernFilterManager: 🔄 Force refresh completed');
+  }
+  
   /// Dispose resources
   void dispose() {
     _debounceTimer?.cancel();
+    _backgroundTasks.clear();
   }
 }

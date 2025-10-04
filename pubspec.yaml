@@ -34,9 +34,11 @@ dependencies:
   connectivity_plus: ^5.0.2
   dio: ^5.4.0
   dio_cache_interceptor: ^3.4.0
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
   
-  # Mapbox Maps SDK for 3D globe
-  mapbox_maps_flutter: ^1.0.0
+  # Mapbox Maps SDK for 3D globe - REMOVED (not used)
+  # mapbox_maps_flutter: ^1.0.0
 
 dev_dependencies:
   flutter_test:
