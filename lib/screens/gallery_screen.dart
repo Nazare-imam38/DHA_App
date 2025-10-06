@@ -14,44 +14,39 @@ class GalleryScreen extends StatefulWidget {
 class _GalleryScreenState extends State<GalleryScreen> {
   final List<Map<String, dynamic>> _galleryImages = [
     {
-      'image': 'assets/images/gallery1.jpg',
-      'title': 'DHA Phase 1 - Commercial Area',
-      'category': 'Commercial',
-    },
-    {
-      'image': 'assets/images/gallery2.jpg',
-      'title': 'DHA Phase 2 - Residential Plots',
-      'category': 'Residential',
-    },
-    {
-      'image': 'assets/images/gallery3.jpg',
-      'title': 'DHA Phase 3 - Luxury Villas',
-      'category': 'Luxury',
-    },
-    {
-      'image': 'assets/images/gallery4.jpg',
-      'title': 'DHA Phase 4 - Modern Infrastructure',
+      'image': 'assets/gallery/dha-gate-night.jpg',
+      'title': 'DHA Phase 4 Entrance',
       'category': 'Infrastructure',
     },
     {
-      'image': 'assets/images/gallery5.jpg',
-      'title': 'DHA Phase 5 - Shopping Centers',
+      'image': 'assets/gallery/dha-medical-center.jpg',
+      'title': 'DHA Medical Center',
+      'category': 'Healthcare',
+    },
+    {
+      'image': 'assets/gallery/dha-commercial-center.jpg',
+      'title': 'DHA Commercial Center',
       'category': 'Commercial',
     },
     {
-      'image': 'assets/images/gallery6.jpg',
-      'title': 'DHA Phase 6 - Parks & Recreation',
+      'image': 'assets/gallery/dha-sports-facility.jpg',
+      'title': 'DHA Sports Complex',
       'category': 'Recreation',
     },
     {
-      'image': 'assets/images/gallery7.jpg',
-      'title': 'DHA Phase 7 - Latest Development',
-      'category': 'Development',
+      'image': 'assets/gallery/dha-mosque-night.jpg',
+      'title': 'DHA Grand Mosque',
+      'category': 'Religious',
     },
     {
-      'image': 'assets/images/gallery8.jpg',
-      'title': 'DHA Main Boulevard',
-      'category': 'Infrastructure',
+      'image': 'assets/gallery/imperial-hall.jpg',
+      'title': 'DHA Imperial Hall',
+      'category': 'Community',
+    },
+    {
+      'image': 'assets/gallery/dha-park-night.jpg',
+      'title': 'DHA Community Park',
+      'category': 'Recreation',
     },
   ];
 
@@ -60,11 +55,11 @@ class _GalleryScreenState extends State<GalleryScreen> {
   final List<String> _categories = [
     'All',
     'Commercial',
-    'Residential',
-    'Luxury',
+    'Healthcare',
     'Infrastructure',
     'Recreation',
-    'Development',
+    'Religious',
+    'Community',
   ];
 
   List<Map<String, dynamic>> get _filteredImages {

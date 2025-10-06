@@ -1290,7 +1290,7 @@ class _HomeScreenState extends State<HomeScreen>
         'badgeColor': Colors.orange,
         'category': 'Infrastructure',
         'categoryColor': Color(0xFF1E3C90),
-        'image': 'gallery/dha-gate-night.jpg',
+        'image': 'assets/gallery/dha-gate-night.jpg',
       },
       {
         'title': 'DHA Medical Center',
@@ -1299,7 +1299,7 @@ class _HomeScreenState extends State<HomeScreen>
         'badgeColor': Colors.green,
         'category': '',
         'categoryColor': Colors.transparent,
-        'image': 'gallery/dha-medical-center.jpg',
+        'image': 'assets/gallery/dha-medical-center.jpg',
       },
       {
         'title': 'Commercial Hub',
@@ -1308,7 +1308,7 @@ class _HomeScreenState extends State<HomeScreen>
         'badgeColor': Colors.orange,
         'category': 'Commercial',
         'categoryColor': Colors.purple,
-        'image': 'gallery/dha-commercial-center.jpg',
+        'image': 'assets/gallery/dha-commercial-center.jpg',
       },
       {
         'title': 'Sports Complex',
@@ -1317,7 +1317,7 @@ class _HomeScreenState extends State<HomeScreen>
         'badgeColor': Colors.orange,
         'category': '',
         'categoryColor': Colors.transparent,
-        'image': 'gallery/dha-sports-facility.jpg',
+        'image': 'assets/gallery/dha-sports-facility.jpg',
       },
       {
         'title': 'Grand Mosque',
@@ -1326,7 +1326,7 @@ class _HomeScreenState extends State<HomeScreen>
         'badgeColor': Colors.orange,
         'category': 'Religious',
         'categoryColor': Color(0xFF20B2AA),
-        'image': 'gallery/dha-mosque-night.jpg',
+        'image': 'assets/gallery/dha-mosque-night.jpg',
       },
       {
         'title': 'Imperial Hall',
@@ -1335,7 +1335,7 @@ class _HomeScreenState extends State<HomeScreen>
         'badgeColor': Colors.pink,
         'category': '',
         'categoryColor': Colors.transparent,
-        'image': 'gallery/imperial-hall.jpg',
+        'image': 'assets/gallery/imperial-hall.jpg',
       },
       {
         'title': 'Community Park',
@@ -1344,7 +1344,7 @@ class _HomeScreenState extends State<HomeScreen>
         'badgeColor': Colors.orange,
         'category': '',
         'categoryColor': Colors.transparent,
-        'image': 'gallery/dha-park-night.jpg',
+        'image': 'assets/gallery/dha-park-night.jpg',
       },
     ];
     

@@ -16,10 +16,10 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen>
   int _currentImageIndex = 0;
 
   final List<String> _propertyImages = [
-    'assets/images/property1.jpg',
-    'assets/images/property2.jpg',
-    'assets/images/property3.jpg',
-    'assets/images/property4.jpg',
+    'assets/gallery/dha-gate-night.jpg',
+    'assets/gallery/dha-medical-center.jpg',
+    'assets/gallery/dha-commercial-center.jpg',
+    'assets/gallery/dha-sports-facility.jpg',
   ];
 
   @override
