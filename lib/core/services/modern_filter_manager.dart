@@ -166,75 +166,9 @@ class ModernFilterManager {
   void _applyFilters() {
     _debounceTimer?.cancel();
     _debounceTimer = Timer(_debounceDelay, () {
-      print('ModernFilterManager: Applying filters...');
-      // Try simple API filtering first, then fallback to client-side
-      _applySimpleFilters();
+      print('ModernFilterManager: Using optimized progressive API filtering');
+      _applyProgressiveFiltersOptimized();
     });
-  }
-
-  /// Public method to manually trigger filter application
-  void applyFilters() {
-    print('ModernFilterManager: Manual filter application triggered');
-    _applyFilters();
-  }
-
-  /// Simple filter application with API fallback
-  Future<void> _applySimpleFilters() async {
-    try {
-      _setLoading(true);
-      _setError(null);
-
-      print('ModernFilterManager: Applying simple filters...');
-      print('ModernFilterManager: Filters - Price: $_minPrice-$_maxPrice, Category: $_category, Phase: $_phase, Size: $_size');
-
-      // Try API first
-      try {
-        final plots = await EnhancedPlotsApiService.fetchFilteredPlots(
-          minPrice: _minPrice,
-          maxPrice: _maxPrice,
-          category: _category,
-          phase: _phase,
-          size: _size,
-          status: _status,
-          sector: _sector,
-        );
-        
-        _filteredPlots = plots;
-        _lastFetchTime = DateTime.now();
-        
-        print('ModernFilterManager: ✅ API returned ${plots.length} plots');
-        onPlotsUpdated?.call(plots);
-        
-      } catch (apiError) {
-        print('ModernFilterManager: ⚠️ API failed, using client-side filtering: $apiError');
-        
-        // Fallback to client-side filtering
-        if (_allPlots.isNotEmpty) {
-          print('ModernFilterManager: Using client-side filtering with ${_allPlots.length} cached plots');
-          _applyClientSideFilters();
-        } else {
-          // Load all plots first
-          print('ModernFilterManager: Loading all plots for client-side filtering...');
-          try {
-            final allPlots = await EnhancedPlotsApiService.fetchAllPlots();
-            _allPlots = allPlots;
-            _applyClientSideFilters();
-          } catch (e) {
-            print('ModernFilterManager: ❌ Failed to load all plots: $e');
-            _filteredPlots = [];
-            onPlotsUpdated?.call([]);
-          }
-        }
-      }
-      
-    } catch (e) {
-      print('ModernFilterManager: ❌ Error in simple filtering: $e');
-      _setError(e.toString());
-      _filteredPlots = [];
-      onPlotsUpdated?.call([]);
-    } finally {
-      _setLoading(false);
-    }
   }
 
   /// Apply progressive filtering workflow (original method kept for compatibility)
@@ -331,14 +265,8 @@ class ModernFilterManager {
   /// Performance optimization: Background processing for filters
   Future<void> _processFiltersInBackground(String taskId) async {
     if (_isProcessingInBackground) {
-      print('ModernFilterManager: ⏳ Cancelling previous filter request and starting new one...');
-      // Cancel previous background tasks
-      for (final completer in _backgroundTasks.values) {
-        if (!completer.isCompleted) {
-          completer.complete();
-        }
-      }
-      _backgroundTasks.clear();
+      print('ModernFilterManager: ⏳ Waiting for background processing to complete...');
+      return;
     }
     
     _isProcessingInBackground = true;
@@ -443,23 +371,9 @@ class ModernFilterManager {
         print('ModernFilterManager: ⚠️ API failed, using client-side filtering: $apiError');
         
         // Fallback to client-side filtering with all available plots
-        if (_allPlots.isNotEmpty) {
-          print('ModernFilterManager: Using client-side filtering with ${_allPlots.length} cached plots');
-          _applyClientSideFilters();
-          return;
-        } else {
-          // Load all plots first if we don't have them
-          print('ModernFilterManager: Loading all plots for client-side filtering...');
-          try {
-            plots = await EnhancedPlotsApiService.fetchAllPlots();
-            _allPlots = plots;
-            _applyClientSideFilters();
-            return;
-          } catch (e) {
-            print('ModernFilterManager: ❌ Failed to load all plots: $e');
-            plots = [];
-          }
-        }
+        // For now, we'll use an empty list and let the screen handle it
+        // In a real implementation, you would load all plots first and then filter them
+        plots = [];
       }
 
       _filteredPlots = plots;

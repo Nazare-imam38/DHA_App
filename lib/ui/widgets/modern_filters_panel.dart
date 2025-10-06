@@ -897,6 +897,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                     setState(() {
                       _priceRange = newRange;
                       _updateActiveFilters();
+                      _notifyFiltersChanged(); // Apply filters immediately
                     });
                   },
                 ),
@@ -1003,6 +1004,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
         }
       }
       _updateActiveFilters();
+      _notifyFiltersChanged(); // Apply filters immediately
     });
   }
 

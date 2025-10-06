@@ -165,7 +165,6 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   String _selectedTownPlanLayer = 'phase1'; // Default to Phase 1
   
   // Performance optimization
-  Timer? _debounceTimer;
   bool _isInitialized = false;
 
   @override
@@ -186,9 +185,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     _filterManager.onPlotsUpdated = (plots) {
       setState(() {
         _plots = plots;
-        _showPlotPolygons = true; // Ensure polygons are visible when plots are updated
         print('✅ Filter Manager: Updated plots count to ${plots.length}');
-        print('✅ Filter Manager: Set _showPlotPolygons to true');
         
         // Debug: Check if plots have polygon coordinates
         if (plots.isNotEmpty) {
@@ -272,36 +269,23 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   /// Apply filters to modern filter manager
   void _applyFiltersToManager(Map<String, dynamic> filters) {
-    print('🚀 _applyFiltersToManager called with filters: $filters');
-    print('🚀 Filter Manager state - isLoading: ${_filterManager.isLoading}, error: ${_filterManager.error}');
-    
     // Apply price range
     final priceRange = filters['priceRange'] as RangeValues?;
     if (priceRange != null) {
-      print('💰 Setting price range: ${priceRange.start} - ${priceRange.end}');
       _filterManager.setPriceRange(priceRange.start, priceRange.end);
     }
 
     // Apply plot type
     final plotType = filters['plotType'] as String?;
-    if (plotType != null) {
-      print('🏠 Setting category: $plotType');
-      _filterManager.setCategory(plotType);
-    }
+    _filterManager.setCategory(plotType);
 
     // Apply DHA phase
     final dhaPhase = filters['dhaPhase'] as String?;
-    if (dhaPhase != null) {
-      print('🏘️ Setting phase: $dhaPhase');
-      _filterManager.setPhase(dhaPhase);
-    }
+    _filterManager.setPhase(dhaPhase);
 
     // Apply plot size
     final plotSize = filters['plotSize'] as String?;
-    if (plotSize != null) {
-      print('📏 Setting size: $plotSize');
-      _filterManager.setSize(plotSize);
-    }
+    _filterManager.setSize(plotSize);
 
     print('Modern Filter Manager: Applied filters - Price: ${priceRange?.start}-${priceRange?.end}, Type: $plotType, Phase: $dhaPhase, Size: $plotSize');
     
@@ -311,10 +295,6 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     // The filter manager will automatically update _plots through the callback
     // No need to navigate immediately - let the polygons update first
     print('✅ Filters applied - Plot polygons will update automatically');
-    
-    // Force a manual trigger to ensure filters are applied
-    print('🔄 Manually triggering filter application...');
-    _filterManager.applyFilters();
   }
 
   /// Update bottom sheet visibility based on active filters
@@ -914,7 +894,6 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   @override
   void dispose() {
     _animationController.dispose();
-    _debounceTimer?.cancel();
     super.dispose();
   }
 
@@ -1333,26 +1312,20 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 });
               },
               onFiltersChanged: (filters) {
-                print('🎯 onFiltersChanged called with: $filters');
-                // Apply filters using modern filter manager
-                _debounceTimer?.cancel();
-                _debounceTimer = Timer(const Duration(milliseconds: 300), () {
-                  print('⏰ Debounce timer triggered - applying filters');
-                  setState(() {
-                    _selectedPlotType = filters['plotType'];
-                    _selectedDhaPhase = filters['dhaPhase'];
-                    _selectedPlotSize = filters['plotSize'];
-                    _priceRange = filters['priceRange'] ?? const RangeValues(5475000, 565000000);
-                    _activeFilters = List<String>.from(filters['activeFilters'] ?? []);
-                  });
-                  
-                  print('🔄 State updated - calling _applyFiltersToManager');
-                  // Apply filters to modern filter manager
-                  _applyFiltersToManager(filters);
-                  
-                  // Update bottom sheet visibility
-                  _updateBottomSheetVisibility();
+                // Apply filters immediately without debouncer
+                setState(() {
+                  _selectedPlotType = filters['plotType'];
+                  _selectedDhaPhase = filters['dhaPhase'];
+                  _selectedPlotSize = filters['plotSize'];
+                  _priceRange = filters['priceRange'] ?? const RangeValues(5475000, 565000000);
+                  _activeFilters = List<String>.from(filters['activeFilters'] ?? []);
                 });
+                
+                // Apply filters to modern filter manager immediately
+                _applyFiltersToManager(filters);
+                
+                // Update bottom sheet visibility
+                _updateBottomSheetVisibility();
               },
               initialFilters: {
                 'plotType': _selectedPlotType,
@@ -1647,8 +1620,6 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     try {
       print('🔍 _getFilteredPlotPolygons called - _plots count: ${_plots.length}');
       print('🔍 _showPlotPolygons: $_showPlotPolygons');
-      print('🔍 Filter Manager isLoading: ${_filterManager.isLoading}');
-      print('🔍 Filter Manager error: ${_filterManager.error}');
       
       if (_plots.isEmpty) {
         print('❌ No filtered plots to render (plots count: ${_plots.length})');
@@ -1699,7 +1670,6 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         }
       }
       
-      print('🎯 _getFilteredPlotPolygons returning ${polygons.length} polygons to map');
       return polygons;
     } catch (e) {
       print('❌ Error creating filtered plot polygons: $e');
