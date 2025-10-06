@@ -186,7 +186,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     _filterManager.onPlotsUpdated = (plots) {
       setState(() {
         _plots = plots;
+        _showPlotPolygons = true; // Ensure polygons are visible when plots are updated
         print('✅ Filter Manager: Updated plots count to ${plots.length}');
+        print('✅ Filter Manager: Set _showPlotPolygons to true');
         
         // Debug: Check if plots have polygon coordinates
         if (plots.isNotEmpty) {
@@ -270,23 +272,35 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   /// Apply filters to modern filter manager
   void _applyFiltersToManager(Map<String, dynamic> filters) {
+    print('🚀 _applyFiltersToManager called with filters: $filters');
+    
     // Apply price range
     final priceRange = filters['priceRange'] as RangeValues?;
     if (priceRange != null) {
+      print('💰 Setting price range: ${priceRange.start} - ${priceRange.end}');
       _filterManager.setPriceRange(priceRange.start, priceRange.end);
     }
 
     // Apply plot type
     final plotType = filters['plotType'] as String?;
-    _filterManager.setCategory(plotType);
+    if (plotType != null) {
+      print('🏠 Setting category: $plotType');
+      _filterManager.setCategory(plotType);
+    }
 
     // Apply DHA phase
     final dhaPhase = filters['dhaPhase'] as String?;
-    _filterManager.setPhase(dhaPhase);
+    if (dhaPhase != null) {
+      print('🏘️ Setting phase: $dhaPhase');
+      _filterManager.setPhase(dhaPhase);
+    }
 
     // Apply plot size
     final plotSize = filters['plotSize'] as String?;
-    _filterManager.setSize(plotSize);
+    if (plotSize != null) {
+      print('📏 Setting size: $plotSize');
+      _filterManager.setSize(plotSize);
+    }
 
     print('Modern Filter Manager: Applied filters - Price: ${priceRange?.start}-${priceRange?.end}, Type: $plotType, Phase: $dhaPhase, Size: $plotSize');
     
@@ -1625,6 +1639,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     try {
       print('🔍 _getFilteredPlotPolygons called - _plots count: ${_plots.length}');
       print('🔍 _showPlotPolygons: $_showPlotPolygons');
+      print('🔍 Filter Manager isLoading: ${_filterManager.isLoading}');
+      print('🔍 Filter Manager error: ${_filterManager.error}');
       
       if (_plots.isEmpty) {
         print('❌ No filtered plots to render (plots count: ${_plots.length})');
@@ -1675,6 +1691,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         }
       }
       
+      print('🎯 _getFilteredPlotPolygons returning ${polygons.length} polygons to map');
       return polygons;
     } catch (e) {
       print('❌ Error creating filtered plot polygons: $e');
