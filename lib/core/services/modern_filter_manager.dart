@@ -172,6 +172,12 @@ class ModernFilterManager {
     });
   }
 
+  /// Public method to manually trigger filter application
+  void applyFilters() {
+    print('ModernFilterManager: Manual filter application triggered');
+    _applyFilters();
+  }
+
   /// Simple filter application with API fallback
   Future<void> _applySimpleFilters() async {
     try {

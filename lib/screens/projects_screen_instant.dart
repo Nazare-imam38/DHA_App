@@ -273,6 +273,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   /// Apply filters to modern filter manager
   void _applyFiltersToManager(Map<String, dynamic> filters) {
     print('🚀 _applyFiltersToManager called with filters: $filters');
+    print('🚀 Filter Manager state - isLoading: ${_filterManager.isLoading}, error: ${_filterManager.error}');
     
     // Apply price range
     final priceRange = filters['priceRange'] as RangeValues?;
@@ -310,6 +311,10 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     // The filter manager will automatically update _plots through the callback
     // No need to navigate immediately - let the polygons update first
     print('✅ Filters applied - Plot polygons will update automatically');
+    
+    // Force a manual trigger to ensure filters are applied
+    print('🔄 Manually triggering filter application...');
+    _filterManager.applyFilters();
   }
 
   /// Update bottom sheet visibility based on active filters
@@ -1328,9 +1333,11 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 });
               },
               onFiltersChanged: (filters) {
+                print('🎯 onFiltersChanged called with: $filters');
                 // Apply filters using modern filter manager
                 _debounceTimer?.cancel();
                 _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+                  print('⏰ Debounce timer triggered - applying filters');
                   setState(() {
                     _selectedPlotType = filters['plotType'];
                     _selectedDhaPhase = filters['dhaPhase'];
@@ -1339,6 +1346,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                     _activeFilters = List<String>.from(filters['activeFilters'] ?? []);
                   });
                   
+                  print('🔄 State updated - calling _applyFiltersToManager');
                   // Apply filters to modern filter manager
                   _applyFiltersToManager(filters);
                   
