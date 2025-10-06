@@ -116,9 +116,11 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
   void didUpdateWidget(ModernFiltersPanel oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.isVisible && !oldWidget.isVisible) {
+      print('🔍 Filter panel: Opening animation');
       _slideController.forward();
       _fadeController.forward();
     } else if (!widget.isVisible && oldWidget.isVisible) {
+      print('🔍 Filter panel: Closing animation');
       _slideController.reverse();
       _fadeController.reverse();
     }
@@ -211,6 +213,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
   }
 
   void _notifyFiltersChanged() {
+    print('🔍 Filter panel: Notifying filter changes - Panel should stay open');
     widget.onFiltersChanged({
       'plotType': _selectedPlotType,
       'dhaPhase': _selectedDhaPhase,
@@ -877,7 +880,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                 onPressed: () => _adjustPriceRange('min', -1000000), // Decrease by 1M
               ),
               
-              const SizedBox(width: 8),
+              const SizedBox(width: 6), // Reduced spacing
               
               // Range slider
               Expanded(
@@ -903,7 +906,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                 ),
               ),
               
-              const SizedBox(width: 8),
+              const SizedBox(width: 6), // Reduced spacing
               
               // Plus button for maximum value
               _buildPriceAdjustButton(
@@ -933,23 +936,23 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF20B2AA), // Same as other filter elements
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 10), // Smaller padding
+                padding: const EdgeInsets.symmetric(vertical: 8), // Even smaller padding
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(6),
                 ),
-                elevation: 1, // Reduced elevation
+                elevation: 0, // No elevation for smaller look
               ),
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.check, size: 14), // Smaller icon
-                  SizedBox(width: 6),
+                  Icon(Icons.check, size: 12), // Even smaller icon
+                  SizedBox(width: 4),
                   Text(
                     'Apply Price Range',
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: 12, // Smaller text to match other elements
-                      fontWeight: FontWeight.w500, // Reduced weight
+                      fontSize: 11, // Even smaller text
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -968,23 +971,23 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        width: 28,
-        height: 28,
+        width: 24,
+        height: 24,
         decoration: BoxDecoration(
           color: const Color(0xFF20B2AA), // Same as other filter elements
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(4),
           boxShadow: [
             BoxShadow(
               color: const Color(0xFF20B2AA).withOpacity(0.3),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+              blurRadius: 2,
+              offset: const Offset(0, 1),
             ),
           ],
         ),
         child: Icon(
           icon,
           color: Colors.white,
-          size: 14, // Smaller icon to match other elements
+          size: 12, // Even smaller icon
         ),
       ),
     );

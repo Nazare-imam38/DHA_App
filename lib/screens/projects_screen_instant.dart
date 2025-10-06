@@ -1319,6 +1319,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                   _selectedPlotSize = filters['plotSize'];
                   _priceRange = filters['priceRange'] ?? const RangeValues(5475000, 565000000);
                   _activeFilters = List<String>.from(filters['activeFilters'] ?? []);
+                  // Ensure filter panel stays open after applying filters
+                  _showFilters = true;
                 });
                 
                 // Apply filters to modern filter manager immediately
@@ -1326,6 +1328,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 
                 // Update bottom sheet visibility
                 _updateBottomSheetVisibility();
+                
+                print('🔍 Filter panel state after filter change: _showFilters = $_showFilters');
               },
               initialFilters: {
                 'plotType': _selectedPlotType,
@@ -1698,6 +1702,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
             _selectedPlot = tappedPlot;
             _showProjectDetails = true;
             _selectedAmenity = null;
+            _isBottomSheetVisible = true; // Show bottom sheet when plot is selected
           });
           print('✅ Plot info card should now be visible for plot ${tappedPlot.plotNo}');
           return;
@@ -1731,6 +1736,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         _showProjectDetails = false;
         _selectedPlot = null;
         _selectedAmenity = null;
+        _isBottomSheetVisible = false; // Hide bottom sheet when no plot is selected
       });
     } catch (e) {
       print('Error in map tap handler: $e');
@@ -2486,6 +2492,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         _selectedPlot = plot; // Set selected plot immediately
         _showPlotPolygons = true; // Ensure polygons are visible
         _showProjectDetails = true; // Show plot details popup
+        _isBottomSheetVisible = true; // Show bottom sheet when plot is selected
       });
 
       // Navigate to plot using polygon coordinates for accurate positioning
@@ -3257,16 +3264,16 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   /// Build bottom sheet for filtered plots (matches web app design)
   Widget _buildBottomSheet() {
-    // Only show bottom sheet if filters are applied
-    if (!_isBottomSheetVisible) {
+    // Show bottom sheet if filters are applied OR if a plot is selected
+    if (!_isBottomSheetVisible && _selectedPlot == null) {
       return const SizedBox.shrink();
     }
 
     return DraggableScrollableSheet(
       controller: _bottomSheetController,
-      initialChildSize: _showSelectedPlotDetails ? 0.35 : 0.15, // Show more space when plot is selected
+      initialChildSize: _showSelectedPlotDetails ? 0.4 : 0.2, // Show more space when plot is selected
       minChildSize: 0.15, // Minimum 15% of screen height
-      maxChildSize: _showSelectedPlotDetails ? 0.6 : 0.75, // Reduced to account for bottom navigation bar
+      maxChildSize: _showSelectedPlotDetails ? 0.7 : 0.75, // Reduced to account for bottom navigation bar
       builder: (context, scrollController) {
         // Initialize the bottom sheet controller
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -3880,7 +3887,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     );
   }
 
-  /// Build small plot info card positioned on the plot location
+  /// Build small plot info card positioned on the plot location (attached to plot boundary)
   Widget _buildPlotDetailsPopup() {
     if (_selectedPlot == null || _selectedPlotDetails == null) {
       return const SizedBox.shrink();
@@ -3888,8 +3895,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
     // Get screen dimensions
     final screenSize = MediaQuery.of(context).size;
-    final popupWidth = 200.0; // Smaller width for map overlay
-    final popupHeight = 160.0; // Smaller height for map overlay
+    final popupWidth = 240.0; // Slightly larger for better visibility
+    final popupHeight = 180.0; // Slightly larger for better visibility
     
     // Calculate position to be attached to the plot polygon
     double left, top;
@@ -3898,25 +3905,24 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     final plotScreenPosition = _calculatePlotScreenPosition();
     
     if (plotScreenPosition != null) {
-      // Position the card attached to the plot polygon center
+      // Position the card attached to the plot polygon center - like second image
       left = plotScreenPosition.dx - (popupWidth / 2); // Center horizontally on plot
-      top = plotScreenPosition.dy - popupHeight - 15; // Position above plot with proper margin
+      top = plotScreenPosition.dy - popupHeight - 20; // Position above plot with margin
       
-      // If the card would be too close to the bottom (where bottom sheet might be), 
-      // position it to the side instead
-      final bottomSheetArea = screenSize.height * 0.3; // Reduced bottom sheet area assumption
+      // If the card would be too close to the bottom sheet area, position it to the side
+      final bottomSheetArea = screenSize.height * 0.25; // Bottom sheet takes 25% of screen
       if (top + popupHeight > screenSize.height - bottomSheetArea) {
         // Position to the right of the plot instead
-        left = plotScreenPosition.dx + 20; // 20px to the right of plot
+        left = plotScreenPosition.dx + 15; // 15px to the right of plot
         top = plotScreenPosition.dy - (popupHeight / 2); // Center vertically on plot
         
         // If it would go off screen to the right, position to the left instead
         if (left + popupWidth > screenSize.width - 10) {
-          left = plotScreenPosition.dx - popupWidth - 20; // 20px to the left of plot
+          left = plotScreenPosition.dx - popupWidth - 15; // 15px to the left of plot
         }
       }
       
-      print('📍 Small plot info card positioned above plot at: left=$left, top=$top');
+      print('📍 Small plot info card positioned attached to plot at: left=$left, top=$top');
       print('📍 Plot screen position: $plotScreenPosition');
     } else if (_selectedPlot!.latitude != null && _selectedPlot!.longitude != null) {
       // Fallback: Use plot center coordinates for positioning
@@ -3924,19 +3930,19 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       
       // Position attached to plot center coordinates - center of screen
       left = (screenSize.width - popupWidth) / 2;
-      top = screenSize.height * 0.3; // Position in upper area, not bottom sheet area
+      top = screenSize.height * 0.25; // Position in upper area, above bottom sheet
       
       print('📍 Small plot info card positioned using center coordinates: left=$left, top=$top');
     } else {
       // Final fallback: Position in upper area of screen
       left = (screenSize.width - popupWidth) / 2;
-      top = screenSize.height * 0.3; // Position in upper area, not bottom sheet area
+      top = screenSize.height * 0.25; // Position in upper area, above bottom sheet
       print('📍 Small plot info card positioned at screen center: left=$left, top=$top');
     }
     
     // Ensure popup stays within screen bounds and avoid app bar area
     left = left.clamp(10.0, screenSize.width - popupWidth - 10);
-    top = top.clamp(80.0, screenSize.height - popupHeight - 100); // Keep away from bottom sheet area
+    top = top.clamp(80.0, screenSize.height - popupHeight - 150); // Keep away from bottom sheet area
     
     return Positioned(
       left: left,
@@ -3949,10 +3955,12 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
             _selectedPlotDetails = null;
             _showProjectDetails = false;
             _showSelectedPlotDetails = false;
+            // Collapse bottom sheet when plot is deselected
+            _safeAnimateBottomSheet(0.15);
           });
         },
         onViewDetails: () {
-          // Show detailed information in the Selected tab
+          // Show detailed information in the Selected tab and expand bottom sheet
           setState(() {
             _showSelectedPlotDetails = true;
           });

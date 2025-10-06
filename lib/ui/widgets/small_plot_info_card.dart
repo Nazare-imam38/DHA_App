@@ -18,17 +18,17 @@ class SmallPlotInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       constraints: const BoxConstraints(
-        maxWidth: 200,
-        minWidth: 160,
+        maxWidth: 240,
+        minWidth: 200,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -50,12 +50,12 @@ class SmallPlotInfoCard extends StatelessWidget {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
         color: Color(0xFF1E3C90),
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(12),
-          topRight: Radius.circular(12),
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
         ),
       ),
       child: Row(
@@ -63,7 +63,7 @@ class SmallPlotInfoCard extends StatelessWidget {
           Text(
             'Plot ${plot.plotNo}',
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -72,15 +72,15 @@ class SmallPlotInfoCard extends StatelessWidget {
           GestureDetector(
             onTap: onClose,
             child: Container(
-              padding: const EdgeInsets.all(4),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(6),
               ),
               child: const Icon(
                 Icons.close,
                 color: Colors.white,
-                size: 14,
+                size: 16,
               ),
             ),
           ),
@@ -91,19 +91,19 @@ class SmallPlotInfoCard extends StatelessWidget {
 
   Widget _buildPlotDetails() {
     return Padding(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       child: Column(
         children: [
           // Status tags
           Row(
             children: [
               _buildStatusChip('Residential', Colors.red),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               _buildStatusChip('Selected', Colors.blue),
             ],
           ),
           
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           
           // Plot information
           _buildInfoRow('Phase', plot.phase),
@@ -119,15 +119,15 @@ class SmallPlotInfoCard extends StatelessWidget {
 
   Widget _buildStatusChip(String label, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         label,
         style: const TextStyle(
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: FontWeight.w600,
           color: Colors.white,
         ),
@@ -137,26 +137,26 @@ class SmallPlotInfoCard extends StatelessWidget {
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1),
+      padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
           SizedBox(
-            width: 50,
+            width: 60,
             child: Text(
               '$label:',
               style: const TextStyle(
-                fontSize: 10,
+                fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
               ),
             ),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               value,
               style: const TextStyle(
-                fontSize: 10,
+                fontSize: 11,
                 color: Colors.black54,
               ),
               overflow: TextOverflow.ellipsis,
@@ -169,7 +169,7 @@ class SmallPlotInfoCard extends StatelessWidget {
 
   Widget _buildActionButton() {
     return Padding(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton(
@@ -177,15 +177,15 @@ class SmallPlotInfoCard extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF1E3C90),
             foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 10),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
           child: const Text(
             'View Details',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: FontWeight.bold,
             ),
           ),
