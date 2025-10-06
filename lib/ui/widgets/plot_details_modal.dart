@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../../data/models/plot_model.dart';
+import '../../providers/auth_provider.dart';
+import '../../core/services/kuick_pay_service.dart';
+import '../../core/services/booking_service.dart';
+import '../../data/models/booking_model.dart';
 
 /// Plot details modal that matches the design from the images
 class PlotDetailsModal extends StatefulWidget {
@@ -22,6 +28,9 @@ class PlotDetailsModal extends StatefulWidget {
 
 class _PlotDetailsModalState extends State<PlotDetailsModal> {
   String _selectedPaymentPlan = 'Lump Sum';
+  PaymentSummary? _paymentSummary;
+  bool _isLoadingPaymentSummary = false;
+  final KuickPayService _kuickPayService = KuickPayService();
   
   final Map<String, Map<String, dynamic>> _paymentPlans = {
     'Lump Sum': {
@@ -50,6 +59,7 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
   void initState() {
     super.initState();
     _calculatePaymentPlans();
+    _loadPaymentSummary();
   }
 
   void _calculatePaymentPlans() {
@@ -62,6 +72,38 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
       _paymentPlans['2 Years Plan']!['price'] = basePrice * 1.2;
       _paymentPlans['3 Years Plan']!['price'] = basePrice * 1.3;
     });
+  }
+
+  Future<void> _loadPaymentSummary() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    
+    if (authProvider.isLoggedIn) {
+      setState(() {
+        _isLoadingPaymentSummary = true;
+      });
+
+      try {
+        final basePrice = double.tryParse(widget.plot.basePrice) ?? 0;
+        final summary = await _kuickPayService.getPaymentSummary(basePrice, _selectedPaymentPlan);
+        
+        setState(() {
+          _paymentSummary = summary;
+          _isLoadingPaymentSummary = false;
+        });
+      } catch (e) {
+        print('Error loading payment summary: $e');
+        setState(() {
+          _isLoadingPaymentSummary = false;
+        });
+      }
+    }
+  }
+
+  void _onPaymentPlanChanged(String plan) {
+    setState(() {
+      _selectedPaymentPlan = plan;
+    });
+    _loadPaymentSummary();
   }
 
   @override
@@ -252,7 +294,7 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
 
   Widget _buildPriceSection() {
     final basePrice = double.tryParse(widget.plot.basePrice) ?? 0;
-    final tokenAmount = basePrice * 0.05; // 5% token amount
+    const tokenAmount = 250000.0; // Fixed token amount as per requirement
     
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -354,16 +396,14 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
                   ),
                   child: Row(
                     children: [
-                      Radio<String>(
-                        value: entry.key,
-                        groupValue: _selectedPaymentPlan,
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedPaymentPlan = value!;
-                          });
-                        },
-                        activeColor: Colors.blue,
-                      ),
+                    Radio<String>(
+                      value: entry.key,
+                      groupValue: _selectedPaymentPlan,
+                      onChanged: (value) {
+                        _onPaymentPlanChanged(value!);
+                      },
+                      activeColor: Colors.blue,
+                    ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -427,6 +467,18 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
   }
 
   Widget _buildLoginSection() {
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        if (authProvider.isLoggedIn) {
+          return _buildSecurePlotSection();
+        } else {
+          return _buildLoginPromptSection();
+        }
+      },
+    );
+  }
+
+  Widget _buildLoginPromptSection() {
     return Container(
       margin: const EdgeInsets.all(20),
       padding: const EdgeInsets.all(16),
@@ -490,6 +542,763 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
     );
   }
 
+  Widget _buildSecurePlotSection() {
+    return Container(
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.green[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.green[200]!),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.check_circle,
+                color: Colors.green[600],
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Secure Your Plot',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green[700],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Pay token amount to secure this plot. This is a non-refundable token payment (Adjustable in Down Payment).',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.green[600],
+            ),
+          ),
+          const SizedBox(height: 16),
+          
+          // Payment method selection
+          _buildPaymentMethodSection(),
+          
+          const SizedBox(height: 16),
+          
+          // Amount details
+          if (_paymentSummary != null) _buildAmountDetails(),
+          
+          const SizedBox(height: 16),
+          
+          // Terms and conditions
+          _buildTermsAndConditions(),
+          
+          const SizedBox(height: 16),
+          
+          // Pay button
+          _buildPayButton(),
+          
+          const SizedBox(height: 8),
+          
+          // Post-payment info
+          _buildPostPaymentInfo(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentMethodSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Payment Method',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.blue[600],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'KuickPay',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: const Text(
+                  'Credit-Debit',
+                  style: TextStyle(
+                    color: Colors.black87,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAmountDetails() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Token Amount:'),
+              Text(
+                _paymentSummary!.formattedTokenAmount,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('KuickPay Fee:'),
+              Text(
+                _paymentSummary!.formattedKuickPayFee,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const Divider(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Total Amount:',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              Text(
+                _paymentSummary!.formattedTotalAmount,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.green,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTermsAndConditions() {
+    return GestureDetector(
+      onTap: () {
+        // Handle terms and conditions
+        print('Terms and Conditions tapped');
+      },
+      child: const Text(
+        'Terms and Conditions',
+        style: TextStyle(
+          color: Colors.blue,
+          decoration: TextDecoration.underline,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPayButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: _isLoadingPaymentSummary ? null : _handlePayTokenAmount,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue[600],
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        child: _isLoadingPaymentSummary
+            ? const CircularProgressIndicator(color: Colors.white)
+            : const Text(
+                'Pay Token Amount',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildPostPaymentInfo() {
+    return Text(
+      'After payment, you can manage your plot and view details in your profile.',
+      style: TextStyle(
+        fontSize: 12,
+        color: Colors.grey[600],
+      ),
+      textAlign: TextAlign.center,
+    );
+  }
+
+  void _handlePayTokenAmount() async {
+    // Check authentication first
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (!authProvider.isLoggedIn) {
+      _showLoginRequiredDialog();
+      return;
+    }
+
+    try {
+      print('Reserving plot ${widget.plot.plotNo}');
+      
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      // Call reserve plot API
+      final response = await _kuickPayService.reservePlot(
+        widget.plot.id.toString(), // Using database ID, not plot number
+        250135.0, // Total amount (250,000 + 135)
+        'KuickPay',
+        '0', // plan_type
+      );
+
+      // Close loading dialog
+      Navigator.of(context).pop();
+
+      // Show booking success modal on the same page
+      if (mounted) {
+        _showBookingSuccessModal(context, response.data, widget.plot.plotNo);
+      }
+    } catch (e) {
+      // Close loading dialog
+      Navigator.of(context).pop();
+      
+      // Check if it's an authentication error
+      if (e.toString().contains('Unauthenticated') || e.toString().contains('not authenticated')) {
+        _showLoginRequiredDialog();
+      } else {
+        // Show error message
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to reserve plot: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  void _showLoginRequiredDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 400),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Login required header
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.orange[50],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.orange[200]!),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.login,
+                      color: Colors.orange[600],
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Please Login to Reserve Plot',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange[700],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // Login message
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.blue[50],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.blue[200]!),
+                ),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: Colors.blue[600],
+                      size: 32,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'You need to be logged in to secure this plot.',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.blue[700],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Please login to continue with the reservation process.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.blue[600],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // Action buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.grey[600],
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        // Navigate to login
+                        widget.onClose?.call();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue[600],
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('Go to Login'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showBookingSuccessModal(BuildContext context, ReservePlotData reservationData, String plotNumber) async {
+    // Save booking first
+    try {
+      final booking = BookingModel.fromReservePlotData(reservationData, plotNumber);
+      await BookingService.addBooking(booking);
+      print('Booking saved successfully for plot $plotNumber');
+    } catch (e) {
+      print('Error saving booking: $e');
+    }
+
+    // Show success modal
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 400),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Success header
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.green[50],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.green[200]!),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.check_circle,
+                      color: Colors.green[600],
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Plot reserved successfully!',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green[700],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // Payment method tabs
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[600],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        'KuickPay',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: const Text(
+                        'Credit-Debit',
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // Amount details
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[200]!),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Token Amount:'),
+                        Text(
+                          'PKR 250,000',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('KuickPay Fee:'),
+                        Text(
+                          'PKR 135',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    const Divider(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Total Amount:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          'PKR 250,135',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Terms and conditions
+              const Text(
+                'Terms and Conditions',
+                style: TextStyle(
+                  color: Colors.blue,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // Payment information
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.green[50],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.green[200]!),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Payment Information',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green[700],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    
+                    // PSID/Challan
+                    Row(
+                      children: [
+                        const Text('PSID/Challan:'),
+                        const Spacer(),
+                        Text(
+                          reservationData.psid,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () {
+                            Clipboard.setData(ClipboardData(text: reservationData.psid));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('PSID copied: ${reservationData.psid}'),
+                                backgroundColor: Colors.green[600],
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                          child: Icon(
+                            Icons.copy,
+                            size: 18,
+                            color: Colors.blue[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 8),
+                    Text(
+                      '(Go to your banking app/kuick pay and enter PSID)',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.green[600],
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 12),
+                    
+                    // Amount
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Amount:'),
+                        Text(
+                          reservationData.formattedTotalAmount,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 8),
+                    
+                    // Method
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Method:'),
+                        const Text('KuickPay'),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 16),
+                    
+                    // Expiry warning
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.red[50],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.red[200]!),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.warning,
+                            color: Colors.red[600],
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Your reservation will expire in 15 min if payment is not received.',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.red[700],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 12),
+                    Text(
+                      'Once paid, go to my bookings',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // Action buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.grey[600],
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      child: const Text('Close'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        // TODO: Navigate to My Bookings page
+                        print('Navigate to My Bookings');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue[600],
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('Go to My Bookings'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildClearSelectionButton() {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
@@ -511,12 +1320,25 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
   }
 
   String _formatPrice(double price) {
-    if (price >= 1000000) {
-      return '${(price / 1000000).toStringAsFixed(1)}M';
-    } else if (price >= 1000) {
-      return '${(price / 1000).toStringAsFixed(0)}K';
-    } else {
-      return price.toStringAsFixed(0);
+    // Format with commas for thousands
+    return _formatNumberWithCommas(price);
+  }
+
+  String _formatNumberWithCommas(double number) {
+    // Convert to int to remove decimal places
+    int intNumber = number.round();
+    
+    // Add commas for thousands
+    String numberStr = intNumber.toString();
+    String result = '';
+    
+    for (int i = 0; i < numberStr.length; i++) {
+      if (i > 0 && (numberStr.length - i) % 3 == 0) {
+        result += ',';
+      }
+      result += numberStr[i];
     }
+    
+    return result;
   }
 }

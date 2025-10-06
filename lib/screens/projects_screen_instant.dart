@@ -18,7 +18,8 @@ import '../ui/widgets/enhanced_plot_info_card.dart';
 import '../ui/widgets/small_plot_info_card.dart';
 import '../ui/widgets/selected_plot_details_widget.dart';
 import '../ui/widgets/plot_details_modal.dart';
-import '../core/services/instant_boundary_service.dart';
+import '../ui/screens/auth/login_screen.dart';
+import '../core/services/instant_boundary_service.dart' as boundary;
 import '../core/services/optimized_boundary_service.dart';
 import '../core/services/optimized_plots_cache.dart';
 import '../core/services/optimized_tile_cache.dart';
@@ -38,6 +39,7 @@ import '../ui/widgets/plot_details_popup.dart';
 import '../ui/widgets/dha_loading_widget.dart';
 import '../data/models/plot_details_model.dart';
 import '../core/services/plot_details_service.dart';
+import '../core/services/optimized_map_renderer.dart' as renderer;
 
 /// Model class for amenity markers
 class AmenityMarker {
@@ -140,7 +142,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   final ModernFilterManager _filterManager = ModernFilterManager();
   
   // Boundary polygons
-  List<BoundaryPolygon> _boundaryPolygons = [];
+  List<boundary.BoundaryPolygon> _boundaryPolygons = [];
   bool _isLoadingBoundaries = true;
   bool _showBoundaries = true;
   
@@ -175,6 +177,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     _initializeFilterManager();
     // Start data loading in background without blocking UI
     _initializeDataLoadingAsync();
+    // Center map on phase boundaries after initialization
+    _centerMapOnPhaseBoundaries();
   }
 
   /// Initialize modern filter manager
@@ -584,7 +588,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       print('🔄 Loading boundary polygons...');
       
       // Try to get boundaries instantly from cache first
-      final instantBoundaries = InstantBoundaryService.getBoundariesInstantly();
+      final instantBoundaries = boundary.InstantBoundaryService.getBoundariesInstantly();
       if (instantBoundaries.isNotEmpty) {
         setState(() {
           _boundaryPolygons = instantBoundaries;
@@ -597,7 +601,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       print('⚠️ No cached boundaries found, loading from files...');
       
       // If not cached, load with optimization
-      final boundaries = await InstantBoundaryService.loadAllBoundaries();
+      final boundaries = await boundary.InstantBoundaryService.loadAllBoundaries();
       setState(() {
         _boundaryPolygons = boundaries;
         _isLoadingBoundaries = false;
@@ -713,54 +717,70 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   /// Get filtered amenities markers based on zoom level with lazy loading and dynamic sizing
   List<Marker> _getFilteredAmenitiesMarkers(List<AmenityMarker> amenityMarkers, double zoomLevel) {
-    print('=== AMENITIES FILTERING DEBUG ===');
+    print('=== AMENITIES FILTERING DEBUG (OPTIMIZED) ===');
     print('_showAmenities: $_showAmenities');
     print('zoomLevel: $zoomLevel');
     print('amenityMarkers.length: ${amenityMarkers.length}');
     
-    // Null safety check
-    if (amenityMarkers.isEmpty) {
-      print('No amenity markers available');
-      return [];
+    // Convert to optimized format and use optimized renderer
+    final List<renderer.AmenityMarker> optimizedAmenities = amenityMarkers.map((amenity) => 
+        renderer.AmenityMarker(
+          point: amenity.point,
+          phase: amenity.phase,
+          color: _getAmenityColor(amenity.amenityType),
+          icon: _getAmenityIcon(amenity.amenityType),
+        )
+    ).toList();
+    
+    return renderer.OptimizedMapRenderer.getFilteredAmenitiesMarkers(
+      optimizedAmenities,
+      zoomLevel,
+      _showAmenities,
+    );
+  }
+  
+  /// Get amenity color based on type
+  Color _getAmenityColor(String amenityType) {
+    switch (amenityType.toLowerCase()) {
+      case 'masjid':
+        return Colors.green;
+      case 'park':
+        return Colors.lightGreen;
+      case 'school':
+        return Colors.blue;
+      case 'play ground':
+        return Colors.orange;
+      case 'graveyard':
+        return Colors.grey;
+      case 'health facility':
+        return Colors.red;
+      case 'petrol pump':
+        return Colors.amber;
+      default:
+        return Colors.purple;
     }
-    
-    // Lazy loading: Only show amenities at zoom level 12 and above
-    if (zoomLevel < 12.0) {
-      print('Zoom level too low: $zoomLevel < 12.0 - No amenities shown');
-      return [];
+  }
+  
+  /// Get amenity icon based on type
+  IconData _getAmenityIcon(String amenityType) {
+    switch (amenityType.toLowerCase()) {
+      case 'masjid':
+        return Icons.mosque;
+      case 'park':
+        return Icons.park;
+      case 'school':
+        return Icons.school;
+      case 'play ground':
+        return Icons.sports_soccer;
+      case 'graveyard':
+        return Icons.place;
+      case 'health facility':
+        return Icons.local_hospital;
+      case 'petrol pump':
+        return Icons.local_gas_station;
+      default:
+        return Icons.place;
     }
-    
-    // Progressive loading: Show fewer amenities at lower zoom levels
-    List<AmenityMarker> filteredMarkers = amenityMarkers;
-    if (zoomLevel < 14.0) {
-      // Show only 30% of amenities at zoom levels 12-13
-      final maxAmenities = (amenityMarkers.length * 0.3).round();
-      // Use sampling instead of .take() to ensure all phases are represented
-      filteredMarkers = _sampleAmenitiesEvenly(amenityMarkers, maxAmenities);
-      print('Limited to $maxAmenities amenities for zoom level $zoomLevel (evenly sampled)');
-    } else if (zoomLevel < 16.0) {
-      // Show 60% of amenities at zoom levels 14-15
-      final maxAmenities = (amenityMarkers.length * 0.6).round();
-      // Use sampling instead of .take() to ensure all phases are represented
-      filteredMarkers = _sampleAmenitiesEvenly(amenityMarkers, maxAmenities);
-      print('Limited to $maxAmenities amenities for zoom level $zoomLevel (evenly sampled)');
-    }
-    
-    print('Rendering ${filteredMarkers.length} amenity MARKERS with dynamic sizing');
-    
-    // Create markers with null safety
-    final markers = <Marker>[];
-    for (final amenityMarker in filteredMarkers) {
-      try {
-        final marker = _createDynamicAmenityMarker(amenityMarker, zoomLevel);
-        markers.add(marker);
-      } catch (e) {
-        print('Error creating dynamic amenity marker: $e');
-        continue;
-      }
-    }
-    
-    return markers;
   }
 
   /// Sample amenities evenly across all phases to ensure fair representation
@@ -871,63 +891,6 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     );
   }
 
-  /// Get amenity color based on type
-  Color _getAmenityColor(String amenityType) {
-    try {
-      if (amenityType.isEmpty) {
-        return Colors.grey;
-      }
-      
-      switch (amenityType.toLowerCase()) {
-        case 'park':
-          return Colors.green;
-        case 'masjid':
-          return Colors.blue;
-        case 'school':
-          return Colors.orange;
-        case 'play ground':
-          return Colors.lightGreen;
-        case 'graveyard':
-          return Colors.brown;
-        case 'health facility':
-          return Colors.red;
-        default:
-          return Colors.purple;
-      }
-    } catch (e) {
-      print('Error getting amenity color for $amenityType: $e');
-      return Colors.grey;
-    }
-  }
-
-  /// Get amenity icon based on type
-  IconData _getAmenityIcon(String amenityType) {
-    try {
-      if (amenityType.isEmpty) {
-        return Icons.place;
-      }
-      
-      switch (amenityType.toLowerCase()) {
-        case 'park':
-          return Icons.park;
-        case 'masjid':
-          return Icons.mosque;
-        case 'school':
-          return Icons.school;
-        case 'play ground':
-          return Icons.sports_soccer;
-        case 'graveyard':
-          return Icons.place;
-        case 'health facility':
-          return Icons.local_hospital;
-        default:
-          return Icons.place;
-      }
-    } catch (e) {
-      print('Error getting amenity icon for $amenityType: $e');
-      return Icons.place;
-    }
-  }
 
   @override
   void dispose() {
@@ -975,7 +938,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                   urlTemplate: 'https://tiles.dhamarketplace.com/data/${_selectedTownPlanLayer}/{z}/{x}/{y}.png',
                   userAgentPackageName: 'com.dha.marketplace',
                   maxZoom: 18,
-                  minZoom: 14, // Only show at high zoom levels
+                  minZoom: renderer.OptimizedMapRenderer.TOWN_PLAN_MIN_ZOOM, // Sync with amenities zoom level
                   tileProvider: NetworkTileProvider(),
                   errorTileCallback: (tile, error, stackTrace) {
                     print('🚫 Town plan tile error: $error');
@@ -1521,75 +1484,41 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   }
 
   List<Polygon> _getBoundaryPolygons() {
-    if (!_showBoundaries) return [];
+    // Use optimized renderer for better performance
+    // Convert boundary.BoundaryPolygon to renderer.BoundaryPolygon
+    final rendererBoundaries = _boundaryPolygons.map((boundary) => 
+      renderer.BoundaryPolygon(
+        phaseName: boundary.phaseName,
+        polygons: boundary.polygons,
+        color: boundary.color,
+        icon: boundary.icon,
+      )
+    ).toList();
     
-    final polygons = <Polygon>[];
-    
-    for (final boundary in _boundaryPolygons) {
-      for (final polygonCoords in boundary.polygons) {
-        if (polygonCoords.length >= 3) {
-          polygons.add(
-            Polygon(
-              points: polygonCoords,
-              color: Colors.transparent, // Hollow - no fill color
-              borderColor: Colors.transparent, // No border on polygon (we'll use polylines)
-              borderStrokeWidth: 0.0,
-              label: boundary.phaseName,
-              labelStyle: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                shadows: const [
-                  Shadow(
-                    color: Colors.black,
-                    blurRadius: 2,
-                  ),
-                ],
-              ),
-              labelPlacement: PolygonLabelPlacement.polylabel,
-            ),
-          );
-        }
-      }
-    }
-    
-    return polygons;
+    return renderer.OptimizedMapRenderer.getOptimizedBoundaryPolygons(
+      rendererBoundaries,
+      _zoom,
+      _showBoundaries,
+    );
   }
 
   List<Polyline> _getDottedBoundaryLines() {
-    if (!_showBoundaries) return [];
+    // Use optimized renderer for better performance
+    // Convert boundary.BoundaryPolygon to renderer.BoundaryPolygon
+    final rendererBoundaries = _boundaryPolygons.map((boundary) => 
+      renderer.BoundaryPolygon(
+        phaseName: boundary.phaseName,
+        polygons: boundary.polygons,
+        color: boundary.color,
+        icon: boundary.icon,
+      )
+    ).toList();
     
-    final polylines = <Polyline>[];
-    
-    for (final boundary in _boundaryPolygons) {
-      for (final polygonCoords in boundary.polygons) {
-        if (polygonCoords.length >= 3) {
-          // Create dotted line by creating multiple small segments
-          for (int i = 0; i < polygonCoords.length; i++) {
-            final start = polygonCoords[i];
-            final end = polygonCoords[(i + 1) % polygonCoords.length];
-            
-            // Create dotted effect with multiple small segments
-            final segments = _createDottedLine(start, end, 10); // 10 segments per line
-            
-            for (int j = 0; j < segments.length - 1; j += 2) {
-              if (j + 1 < segments.length) {
-                polylines.add(
-                  Polyline(
-                    points: [segments[j], segments[j + 1]],
-                    color: Colors.white,
-                    strokeWidth: 2.0,
-                    pattern: StrokePattern.dashed(segments: [5, 5]), // Dotted pattern: 5px line, 5px gap
-                  ),
-                );
-              }
-            }
-          }
-        }
-      }
-    }
-    
-    return polylines;
+    return renderer.OptimizedMapRenderer.getOptimizedBoundaryLines(
+      rendererBoundaries,
+      _zoom,
+      _showBoundaries,
+    );
   }
 
   List<LatLng> _createDottedLine(LatLng start, LatLng end, int segments) {
@@ -1605,6 +1534,11 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     return points;
   }
 
+  /// Check if boundaries should be optimized for performance
+  bool _shouldOptimizeBoundaries() {
+    return _zoom < renderer.OptimizedMapRenderer.BOUNDARY_OPTIMIZATION_ZOOM;
+  }
+  
   /// Get plot markers (home icons) for rendering
   List<Marker> _getPlotMarkers() {
     try {
@@ -2241,6 +2175,24 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     else zoom = 14.0;
     
     _mapController.move(center, zoom);
+  }
+
+  /// Center map on phase boundaries when app loads
+  void _centerMapOnPhaseBoundaries() {
+    // Delay to ensure boundaries are loaded
+    Future.delayed(const Duration(milliseconds: 2000), () {
+      if (_boundaryPolygons.isNotEmpty) {
+        print('🎯 Centering map on phase boundaries');
+        _centerMapOnBoundaries();
+        setState(() {
+          _showBoundaries = true; // Ensure boundaries are visible
+        });
+      } else {
+        print('⚠️ No boundary polygons available for centering');
+        // Fallback to default center with appropriate zoom for phase boundaries
+        _mapController.move(const LatLng(33.6844, 73.0479), 12.0);
+      }
+    });
   }
 
   /// Zoom in on the map
@@ -4033,8 +3985,13 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           },
           onBookNow: () {
             Navigator.of(context).pop();
-            // Handle booking logic here
-            print('Booking plot ${_selectedPlot!.plotNo}');
+            // Navigate to login screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LoginScreen(),
+              ),
+            );
           },
           onViewDetails: () {
             // Already showing details
@@ -4059,8 +4016,13 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           },
           onBookNow: () {
             Navigator.of(context).pop();
-            // Handle booking logic here
-            print('Booking plot ${plot.plotNo}');
+            // Navigate to login screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LoginScreen(),
+              ),
+            );
           },
           onViewDetails: () {
             // Already showing details
@@ -4116,8 +4078,13 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     return SelectedPlotDetailsWidget(
       plot: _selectedPlot!,
       onBookNow: () {
-        // Handle booking logic here
-        print('Booking plot ${_selectedPlot!.plotNo}');
+        // Navigate to login screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LoginScreen(),
+          ),
+        );
       },
       onClearSelection: _clearPlotSelection,
     );

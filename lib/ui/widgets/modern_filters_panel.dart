@@ -834,14 +834,15 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
     );
     
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.grey[200]!),
       ),
       child: Column(
         children: [
+          // Price range display
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -849,46 +850,160 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                 'Min: PKR ${(safePriceRange.start / 1000000).toStringAsFixed(2)}M',
                 style: const TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: 10,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF666666),
+                  fontSize: 10, // Smaller text to match other elements
+                  fontWeight: FontWeight.w500, // Reduced weight
+                  color: Color(0xFF666666), // Same as other filter text
                 ),
               ),
               Text(
                 'Max: PKR ${(safePriceRange.end / 1000000).toStringAsFixed(0)}M',
                 style: const TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: 10,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF666666),
+                  fontSize: 10, // Smaller text to match other elements
+                  fontWeight: FontWeight.w500, // Reduced weight
+                  color: Color(0xFF666666), // Same as other filter text
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          RangeSlider(
-            values: safePriceRange,
-            min: _minPrice,
-            max: _maxPrice,
-            divisions: 50,
-            activeColor: const Color(0xFF4CAF50),
-            inactiveColor: Colors.grey[300],
-            onChanged: (RangeValues values) {
-              // Validate the new values
-              final newStart = values.start.clamp(_minPrice, _maxPrice);
-              final newEnd = values.end.clamp(_minPrice, _maxPrice);
-              final newRange = RangeValues(newStart, newEnd);
+          const SizedBox(height: 12),
+          
+          // Slider with plus/minus buttons
+          Row(
+            children: [
+              // Minus button for minimum value
+              _buildPriceAdjustButton(
+                icon: Icons.remove,
+                onPressed: () => _adjustPriceRange('min', -1000000), // Decrease by 1M
+              ),
               
-              setState(() {
-                _priceRange = newRange;
+              const SizedBox(width: 8),
+              
+              // Range slider
+              Expanded(
+                child: RangeSlider(
+                  values: safePriceRange,
+                  min: _minPrice,
+                  max: _maxPrice,
+                  divisions: 50,
+                  activeColor: const Color(0xFF4CAF50),
+                  inactiveColor: Colors.grey[300],
+                  onChanged: (RangeValues values) {
+                    // Validate the new values
+                    final newStart = values.start.clamp(_minPrice, _maxPrice);
+                    final newEnd = values.end.clamp(_minPrice, _maxPrice);
+                    final newRange = RangeValues(newStart, newEnd);
+                    
+                    setState(() {
+                      _priceRange = newRange;
+                      _updateActiveFilters();
+                    });
+                  },
+                ),
+              ),
+              
+              const SizedBox(width: 8),
+              
+              // Plus button for maximum value
+              _buildPriceAdjustButton(
+                icon: Icons.add,
+                onPressed: () => _adjustPriceRange('max', 1000000), // Increase by 1M
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 12),
+          
+          // Apply filter button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
                 _updateActiveFilters();
                 _notifyFiltersChanged();
-              });
-            },
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Price range applied: PKR ${(safePriceRange.start / 1000000).toStringAsFixed(2)}M - ${(safePriceRange.end / 1000000).toStringAsFixed(0)}M'),
+                    backgroundColor: const Color(0xFF20B2AA),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF20B2AA), // Same as other filter elements
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 10), // Smaller padding
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                elevation: 1, // Reduced elevation
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.check, size: 14), // Smaller icon
+                  SizedBox(width: 6),
+                  Text(
+                    'Apply Price Range',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 12, // Smaller text to match other elements
+                      fontWeight: FontWeight.w500, // Reduced weight
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildPriceAdjustButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: 28,
+        height: 28,
+        decoration: BoxDecoration(
+          color: const Color(0xFF20B2AA), // Same as other filter elements
+          borderRadius: BorderRadius.circular(6),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF20B2AA).withOpacity(0.3),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: 14, // Smaller icon to match other elements
+        ),
+      ),
+    );
+  }
+
+  void _adjustPriceRange(String type, double amount) {
+    setState(() {
+      if (type == 'min') {
+        final newMin = (_priceRange.start + amount).clamp(_minPrice, _maxPrice);
+        if (newMin < _priceRange.end) {
+          _priceRange = RangeValues(newMin, _priceRange.end);
+        }
+      } else if (type == 'max') {
+        final newMax = (_priceRange.end + amount).clamp(_minPrice, _maxPrice);
+        if (newMax > _priceRange.start) {
+          _priceRange = RangeValues(_priceRange.start, newMax);
+        }
+      }
+      _updateActiveFilters();
+    });
   }
 
   Widget _buildActiveFiltersSection() {
