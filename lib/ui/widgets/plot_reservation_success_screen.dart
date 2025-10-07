@@ -22,6 +22,8 @@ class PlotReservationSuccessScreen extends StatefulWidget {
 }
 
 class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScreen> {
+  String _selectedPaymentMethod = 'KuickPay';
+
   @override
   void initState() {
     super.initState();
@@ -47,67 +49,292 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        title: const Text('Plot Reserved'),
-        backgroundColor: Colors.green[600],
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
+      backgroundColor: const Color(0xFFF4F4F6),
+      body: Stack(
+        children: [
+          // Background with map blur effect
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xFF1E3C90),
+                  Color(0xFF20B2AA),
+                ],
+              ),
+            ),
+          ),
+          
+          // Main content overlay
+          SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             const SizedBox(height: 20),
             
-            // Success message
+                    // Header with app branding
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.95),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.menu,
+                            color: const Color(0xFF1E3C90),
+                            size: 24,
+                          ),
+                          Expanded(
+                            child: Text(
+                              'DHA PROJECTS MAP',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF1E3C90),
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            Icons.keyboard_arrow_down,
+                            color: const Color(0xFF1E3C90),
+                            size: 24,
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 20),
+                    
+                    // Main payment overlay
             Container(
-              padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.green[50],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.green[200]!),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.15),
+                            blurRadius: 30,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
               ),
               child: Column(
                 children: [
-                  Row(
+                          // Success message with green banner
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE8F5E8),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
                     children: [
                       Icon(
                         Icons.check_circle,
-                        color: Colors.green[600],
+                                  color: const Color(0xFF00A651),
                         size: 24,
                       ),
                       const SizedBox(width: 12),
                       Text(
                         'Plot reserved successfully!',
                         style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green[700],
+                                    fontFamily: 'Poppins',
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color(0xFF00A651),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          const SizedBox(height: 24),
+                          
+                          // Payment method selection
+                          _buildPaymentMethodSelection(),
+                          
+                          const SizedBox(height: 20),
+                          
+                          // Amount summary
+                          _buildAmountSummary(),
+                          
+                          const SizedBox(height: 16),
+                          
+                          // Terms and conditions
+                          _buildTermsAndConditions(),
+                          
+                          const SizedBox(height: 20),
+                          
+                          // Payment information section
+                          _buildPaymentInformationSection(),
+                          
+                          const SizedBox(height: 24),
+                          
+                          // Action buttons
+                          _buildActionButtons(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentMethodSelection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Payment Method',
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey[800],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildPaymentMethodButton(
+                'KuickPay',
+                _selectedPaymentMethod == 'KuickPay',
+                () => setState(() => _selectedPaymentMethod = 'KuickPay'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildPaymentMethodButton(
+                'Credit-Debit',
+                _selectedPaymentMethod == 'Credit-Debit',
+                () => setState(() => _selectedPaymentMethod = 'Credit-Debit'),
                         ),
                       ),
                     ],
                   ),
                 ],
-              ),
-            ),
-            
-            const SizedBox(height: 20),
-            
-            // Payment information
-            Container(
+    );
+  }
+
+  Widget _buildPaymentMethodButton(String title, bool isSelected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF1E3C90) : Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF1E3C90) : Colors.grey[300]!,
+            width: 1.5,
+          ),
+        ),
+        child: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: isSelected ? Colors.white : Colors.grey[700],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAmountSummary() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        children: [
+          _buildAmountRow('Token Amount:', 'PKR 250,000', false),
+          const SizedBox(height: 8),
+          _buildAmountRow('KuickPay Fee:', 'PKR 135', false),
+          const Divider(height: 20),
+          _buildAmountRow('Total Amount:', 'PKR 250,135', true),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAmountRow(String label, String amount, bool isTotal) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 14,
+            fontWeight: isTotal ? FontWeight.w600 : FontWeight.w400,
+            color: Colors.grey[700],
+          ),
+        ),
+        Text(
+          amount,
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 14,
+            fontWeight: isTotal ? FontWeight.w700 : FontWeight.w500,
+            color: isTotal ? const Color(0xFF00A651) : Colors.grey[800],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTermsAndConditions() {
+    return GestureDetector(
+      onTap: () {
+        // Handle terms and conditions
+      },
+      child: Text(
+        'Terms and Conditions',
+        style: TextStyle(
+          fontFamily: 'Inter',
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: const Color(0xFF1E3C90),
+          decoration: TextDecoration.underline,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentInformationSection() {
+    return Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+        color: const Color(0xFFE8F5E8),
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    spreadRadius: 1,
-                    blurRadius: 5,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+        border: Border.all(color: const Color(0xFF00A651).withOpacity(0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,48 +342,61 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
                   Text(
                     'Payment Information',
                     style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF00A651),
+            ),
+          ),
+          const SizedBox(height: 16),
+          
+          // PSID/Challan with copy button
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'PSID/Challan: ${widget.reservationData.psid}',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
                       color: Colors.grey[800],
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  
-                  // PSID/Challan
-                  _buildInfoRow(
-                    'PSID/Challan:',
-                    widget.reservationData.psid,
-                    showCopyButton: true,
-                    onCopy: () => _copyToClipboard(context, widget.reservationData.psid),
-                  ),
-                  
-                  const SizedBox(height: 8),
-                  
+                    const SizedBox(height: 4),
                   Text(
                     '(Go to your banking app/kuick pay and enter PSID)',
                     style: TextStyle(
+                        fontFamily: 'Inter',
                       fontSize: 12,
-                      color: Colors.green[600],
+                        color: const Color(0xFF00A651),
+                      ),
                     ),
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  // Amount
-                  _buildInfoRow(
-                    'Amount:',
-                    widget.reservationData.formattedTotalAmount,
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () => _copyToClipboard(context, widget.reservationData.psid),
+                child: Icon(
+                  Icons.copy,
+                  size: 18,
+                  color: const Color(0xFF1E3C90),
+                ),
+              ),
+            ],
                   ),
                   
                   const SizedBox(height: 12),
                   
-                  // Method
-                  _buildInfoRow(
-                    'Method:',
-                    'KuickPay',
-                  ),
-                  
-                  const SizedBox(height: 20),
+          _buildInfoRow('Amount:', widget.reservationData.formattedTotalAmount),
+          const SizedBox(height: 8),
+          _buildInfoRow('Method:', _selectedPaymentMethod),
+          
+          const SizedBox(height: 16),
                   
                   // Expiry warning
                   Container(
@@ -178,6 +418,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
                           child: Text(
                             'Your reservation will expire in 15 min if payment is not received.',
                             style: TextStyle(
+                      fontFamily: 'Inter',
                               fontSize: 14,
                               color: Colors.red[700],
                               fontWeight: FontWeight.w500,
@@ -188,46 +429,95 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
                     ),
                   ),
                   
-                  const SizedBox(height: 16),
+          const SizedBox(height: 12),
                   
                   Text(
                     'Once paid, go to my bookings',
                     style: TextStyle(
+              fontFamily: 'Inter',
                       fontSize: 14,
                       color: Colors.grey[600],
                     ),
                   ),
-                  
-                  const SizedBox(height: 20),
-                  
-                  // Go to My Bookings button
-                  SizedBox(
-                    width: double.infinity,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Row(
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey[700],
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          value,
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey[800],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton(
+            onPressed: () => Navigator.pop(context),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              side: BorderSide(color: Colors.grey[400]!),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              'Close',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[700],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
                     child: ElevatedButton(
                       onPressed: widget.onGoToBookings,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue[600],
+              backgroundColor: const Color(0xFF1E3C90),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
                         ),
+              elevation: 0,
                       ),
-                      child: const Text(
+            child: Text(
                         'Go to My Bookings',
                         style: TextStyle(
+                fontFamily: 'Poppins',
                           fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                   ),
                 ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
