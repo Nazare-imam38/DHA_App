@@ -905,6 +905,15 @@ class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
       print('Error saving booking: $e');
     }
 
+    // Refresh user info to get updated reservations from server
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.getUserInfo();
+      print('User info refreshed after plot reservation');
+    } catch (e) {
+      print('Error refreshing user info: $e');
+    }
+
     // Show success modal
     showDialog(
       context: context,

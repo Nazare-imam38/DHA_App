@@ -47,7 +47,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       
       // First try to get user from stored data
-      if (authProvider.user != null) {
+      if (authProvider.userInfo != null) {
+        setState(() {
+          _userInfo = authProvider.userInfo;
+        });
+        _isLoadingUserInfo = false;
+      } else if (authProvider.user != null) {
         // Create UserInfo from stored user data
         setState(() {
           _userInfo = UserInfo(

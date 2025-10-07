@@ -6,12 +6,14 @@ class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
   
   User? _user;
+  UserInfo? _userInfo;
   bool _isLoading = false;
   String? _error;
   bool _isLoggedIn = false;
 
   // Getters
   User? get user => _user;
+  UserInfo? get userInfo => _userInfo;
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get isLoggedIn => _isLoggedIn;
@@ -109,6 +111,7 @@ class AuthProvider with ChangeNotifier {
     try {
       final response = await _authService.getUserInfo();
       _user = response.data.user;
+      _userInfo = response.data;
       notifyListeners();
       return response;
     } catch (e) {
