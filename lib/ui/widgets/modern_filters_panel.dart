@@ -269,12 +269,13 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                         child: Column(
                           children: [
                             _buildFilterCard(
-                              icon: Icons.currency_rupee,
+                              icon: Icons.currency_rupee, // Keep for fallback, but won't be used
                               iconColor: const Color(0xFF20B2AA),
                               title: 'Price Range',
                               isExpanded: _isPriceRangeExpanded,
                               hasSelection: _priceRange.start > 5475000 || _priceRange.end < 565000000,
                               selectionTag: '${(_priceRange.start / 1000000).toStringAsFixed(2)}M - ${(_priceRange.end / 1000000).toStringAsFixed(0)}M',
+                              iconText: 'PKR', // Use PKR text instead of currency icon
                               onTap: () {
                                 setState(() {
                                   _isPriceRangeExpanded = !_isPriceRangeExpanded;
@@ -524,6 +525,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
     bool hasSelection = false,
     String? selectionTag,
     int? selectionCount,
+    String? iconText, // New parameter for text instead of icon
   }) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
@@ -555,17 +557,30 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
               child: Row(
                 children: [
                   Container(
-                    width: 30,
-                    height: 30,
+                    width: 32,
+                    height: 32,
                     decoration: BoxDecoration(
                       color: iconColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(
-                      icon,
-                      color: iconColor,
-                      size: 16,
-                    ),
+                    child: iconText != null
+                        ? Center(
+                            child: Text(
+                              iconText,
+                              style: TextStyle(
+                                color: iconColor,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Inter',
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          )
+                        : Icon(
+                            icon,
+                            color: iconColor,
+                            size: 16,
+                          ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -845,29 +860,17 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
       ),
       child: Column(
         children: [
-          // Price range display
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Min: PKR ${(safePriceRange.start / 1000000).toStringAsFixed(2)}M',
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 10, // Smaller text to match other elements
-                  fontWeight: FontWeight.w500, // Reduced weight
-                  color: Color(0xFF666666), // Same as other filter text
-                ),
+          // Price range display - simplified to avoid duplication
+          Center(
+            child: Text(
+              'PKR ${(safePriceRange.start / 1000000).toStringAsFixed(1)}M - ${(safePriceRange.end / 1000000).toStringAsFixed(0)}M',
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF20B2AA),
               ),
-              Text(
-                'Max: PKR ${(safePriceRange.end / 1000000).toStringAsFixed(0)}M',
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 10, // Smaller text to match other elements
-                  fontWeight: FontWeight.w500, // Reduced weight
-                  color: Color(0xFF666666), // Same as other filter text
-                ),
-              ),
-            ],
+            ),
           ),
           const SizedBox(height: 12),
           
@@ -880,7 +883,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                 onPressed: () => _adjustPriceRange('min', -1000000), // Decrease by 1M
               ),
               
-              const SizedBox(width: 6), // Reduced spacing
+              const SizedBox(width: 4), // Further reduced spacing
               
               // Range slider
               Expanded(
@@ -906,7 +909,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                 ),
               ),
               
-              const SizedBox(width: 6), // Reduced spacing
+              const SizedBox(width: 4), // Further reduced spacing
               
               // Plus button for maximum value
               _buildPriceAdjustButton(
@@ -936,7 +939,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF20B2AA), // Same as other filter elements
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 8), // Even smaller padding
+                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12), // Smaller padding
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(6),
                 ),
@@ -945,13 +948,13 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.check, size: 12), // Even smaller icon
-                  SizedBox(width: 4),
+                  Icon(Icons.check, size: 10), // Smaller icon
+                  SizedBox(width: 3),
                   Text(
-                    'Apply Price Range',
+                    'Apply Range',
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: 11, // Even smaller text
+                      fontSize: 10, // Smaller text
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -971,8 +974,8 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        width: 24,
-        height: 24,
+        width: 20,
+        height: 20,
         decoration: BoxDecoration(
           color: const Color(0xFF20B2AA), // Same as other filter elements
           borderRadius: BorderRadius.circular(4),
@@ -987,7 +990,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
         child: Icon(
           icon,
           color: Colors.white,
-          size: 12, // Even smaller icon
+          size: 10, // Smaller icon for better proportion
         ),
       ),
     );

@@ -1207,6 +1207,10 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               onTap: () {
                 setState(() {
                   _showFilters = !_showFilters;
+                  // Automatically close map controls when filter panel is opened
+                  if (_showFilters) {
+                    _showMapControls = false;
+                  }
                 });
               },
               child: Stack(
@@ -1344,24 +1348,25 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
             ),
           ),
 
-          // Collapsible Map Controls (Bottom Right) - Always visible above bottom sheet
-          Positioned(
-            bottom: _isBottomSheetVisible && _isBottomSheetExpanded ? 250 : 20, // Higher when bottom sheet is expanded
-            right: 20,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Expanded Controls (shown when _showMapControls is true)
-                  AnimatedOpacity(
-                    opacity: _showMapControls ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 200),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      height: _showMapControls ? null : 0,
-                      child: _showMapControls ? Column(
+          // Collapsible Map Controls (Bottom Right) - Hide when filter panel is open
+          if (!_showFilters) // Only show when filter panel is closed
+            Positioned(
+              bottom: _isBottomSheetVisible && _isBottomSheetExpanded ? 250 : (_selectedPlot != null ? 80 : 20), // Higher when plot is selected
+              right: 20,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Expanded Controls (shown when _showMapControls is true)
+                    AnimatedOpacity(
+                      opacity: _showMapControls ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 200),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        height: _showMapControls ? null : 0,
+                        child: _showMapControls ? Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           // All Phases Button
@@ -1430,6 +1435,10 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                     onPressed: () {
                       setState(() {
                         _showMapControls = !_showMapControls;
+                        // Automatically close filter panel when map controls are opened
+                        if (_showMapControls) {
+                          _showFilters = false;
+                        }
                       });
                     },
                     backgroundColor: const Color(0xFF20B2AA),
@@ -1449,14 +1458,6 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           ),
 
           // Clean UI with only rectangular toggle buttons
-
-          // Town Plan Legend (Top Left)
-          if (_showTownPlan)
-            Positioned(
-              top: 140,
-              left: 20,
-              child: _buildTownPlanLegend(),
-            ),
 
           // Bottom Sheet for Filtered Plots (matches web app design)
           _buildBottomSheet(),
@@ -1695,15 +1696,19 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         
         // Validate plot data before proceeding
         if (tappedPlot.plotNo.isNotEmpty) {
-          // Use the enhanced plot selection handler
-          PlotSelectionHandler.selectPlot(tappedPlot);
-          
-          setState(() {
-            _selectedPlot = tappedPlot;
-            _showProjectDetails = true;
-            _selectedAmenity = null;
-            _isBottomSheetVisible = true; // Show bottom sheet when plot is selected
-          });
+        // Use the enhanced plot selection handler
+        PlotSelectionHandler.selectPlot(tappedPlot);
+        
+        setState(() {
+          _selectedPlot = tappedPlot;
+          _showProjectDetails = true;
+          _selectedAmenity = null;
+          _isBottomSheetVisible = true; // Show bottom sheet when plot is selected
+          _showSelectedPlotDetails = false; // Start with collapsed state for floating card
+        });
+        
+        // Automatically collapse bottom sheet to make room for floating plot info
+        _safeAnimateBottomSheet(0.1);
           print('✅ Plot info card should now be visible for plot ${tappedPlot.plotNo}');
           return;
         } else {
@@ -3269,11 +3274,16 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       return const SizedBox.shrink();
     }
 
+    // When a plot is selected, collapse the bottom sheet to make room for the floating plot info
+    final shouldCollapseForPlot = _selectedPlot != null && !_showSelectedPlotDetails;
+    final initialSize = shouldCollapseForPlot ? 0.1 : (_showSelectedPlotDetails ? 0.4 : 0.2);
+    final maxSize = shouldCollapseForPlot ? 0.2 : (_showSelectedPlotDetails ? 0.7 : 0.75);
+
     return DraggableScrollableSheet(
       controller: _bottomSheetController,
-      initialChildSize: _showSelectedPlotDetails ? 0.4 : 0.2, // Show more space when plot is selected
+      initialChildSize: initialSize,
       minChildSize: 0.15, // Minimum 15% of screen height
-      maxChildSize: _showSelectedPlotDetails ? 0.7 : 0.75, // Reduced to account for bottom navigation bar
+      maxChildSize: maxSize, // Reduced to account for bottom navigation bar
       builder: (context, scrollController) {
         // Initialize the bottom sheet controller
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -3895,8 +3905,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
     // Get screen dimensions
     final screenSize = MediaQuery.of(context).size;
-    final popupWidth = 240.0; // Slightly larger for better visibility
-    final popupHeight = 180.0; // Slightly larger for better visibility
+    final popupWidth = 320.0; // Larger for better visibility and text accommodation
+    final popupHeight = 220.0; // Slightly larger for better visibility
     
     // Calculate position to be attached to the plot polygon
     double left, top;
@@ -3909,8 +3919,12 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       left = plotScreenPosition.dx - (popupWidth / 2); // Center horizontally on plot
       top = plotScreenPosition.dy - popupHeight - 20; // Position above plot with margin
       
+      // Calculate bottom sheet area dynamically based on current state
+      final bottomSheetArea = _selectedPlot != null && !_showSelectedPlotDetails 
+          ? screenSize.height * 0.25  // Collapsed bottom sheet - more space for floating card
+          : screenSize.height * 0.35; // Normal bottom sheet
+      
       // If the card would be too close to the bottom sheet area, position it to the side
-      final bottomSheetArea = screenSize.height * 0.25; // Bottom sheet takes 25% of screen
       if (top + popupHeight > screenSize.height - bottomSheetArea) {
         // Position to the right of the plot instead
         left = plotScreenPosition.dx + 15; // 15px to the right of plot
@@ -3930,42 +3944,48 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       
       // Position attached to plot center coordinates - center of screen
       left = (screenSize.width - popupWidth) / 2;
-      top = screenSize.height * 0.25; // Position in upper area, above bottom sheet
+      top = screenSize.height * 0.2; // Position higher in upper area, above bottom sheet
       
       print('📍 Small plot info card positioned using center coordinates: left=$left, top=$top');
     } else {
       // Final fallback: Position in upper area of screen
       left = (screenSize.width - popupWidth) / 2;
-      top = screenSize.height * 0.25; // Position in upper area, above bottom sheet
+      top = screenSize.height * 0.2; // Position higher in upper area, above bottom sheet
       print('📍 Small plot info card positioned at screen center: left=$left, top=$top');
     }
     
     // Ensure popup stays within screen bounds and avoid app bar area
     left = left.clamp(10.0, screenSize.width - popupWidth - 10);
-    top = top.clamp(80.0, screenSize.height - popupHeight - 150); // Keep away from bottom sheet area
+    top = top.clamp(80.0, screenSize.height - popupHeight - 200); // Keep away from bottom sheet area
     
-    return Positioned(
+    return AnimatedPositioned(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
       left: left,
       top: top,
-      child: SmallPlotInfoCard(
-        plot: _selectedPlot!,
-        onClose: () {
-          setState(() {
-            _selectedPlot = null;
-            _selectedPlotDetails = null;
-            _showProjectDetails = false;
-            _showSelectedPlotDetails = false;
-            // Collapse bottom sheet when plot is deselected
-            _safeAnimateBottomSheet(0.15);
-          });
-        },
-        onViewDetails: () {
-          // Show detailed information in the Selected tab and expand bottom sheet
-          setState(() {
-            _showSelectedPlotDetails = true;
-          });
-          _safeAnimateBottomSheet(0.6);
-        },
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 200),
+        opacity: 1.0,
+        child: SmallPlotInfoCard(
+          plot: _selectedPlot!,
+          onClose: () {
+            setState(() {
+              _selectedPlot = null;
+              _selectedPlotDetails = null;
+              _showProjectDetails = false;
+              _showSelectedPlotDetails = false;
+              // Collapse bottom sheet when plot is deselected
+              _safeAnimateBottomSheet(0.15);
+            });
+          },
+          onViewDetails: () {
+            // Show detailed information in the Selected tab and expand bottom sheet
+            setState(() {
+              _showSelectedPlotDetails = true;
+            });
+            _safeAnimateBottomSheet(0.6);
+          },
+        ),
       ),
     );
   }

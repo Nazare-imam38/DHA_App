@@ -18,8 +18,8 @@ class SmallPlotInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       constraints: const BoxConstraints(
-        maxWidth: 240,
-        minWidth: 200,
+        maxWidth: 320,
+        minWidth: 280,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -93,28 +93,48 @@ class SmallPlotInfoCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Status tags
-          Row(
+          // Status tags - matching web app design
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
             children: [
-              _buildStatusChip('Residential', Colors.red),
-              const SizedBox(width: 8),
-              _buildStatusChip('Selected', Colors.blue),
+              _buildStatusChip(plot.category, _getCategoryColor(plot.category)),
+              _buildStatusChip('Selected', Colors.blue.shade600),
             ],
           ),
           
           const SizedBox(height: 12),
           
-          // Plot information
+          // Plot information - matching web app layout
           _buildInfoRow('Phase', plot.phase),
           _buildInfoRow('Sector', plot.sector),
           _buildInfoRow('Street', plot.streetNo),
           _buildInfoRow('Size', plot.catArea),
-          if (plot.dimension != null)
+          if (plot.dimension != null && plot.dimension!.isNotEmpty)
             _buildInfoRow('Dimension', plot.dimension!),
+          
+          const SizedBox(height: 12),
+          
+          // Price information with better formatting
+          _buildPriceRow(),
         ],
       ),
     );
+  }
+
+  Color _getCategoryColor(String category) {
+    switch (category.toLowerCase()) {
+      case 'residential':
+        return Colors.red.shade600;
+      case 'commercial':
+        return Colors.orange.shade600;
+      case 'agricultural':
+        return Colors.green.shade600;
+      default:
+        return Colors.grey.shade600;
+    }
   }
 
   Widget _buildStatusChip(String label, Color color) {
@@ -127,12 +147,62 @@ class SmallPlotInfoCard extends StatelessWidget {
       child: Text(
         label,
         style: const TextStyle(
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: FontWeight.w600,
           color: Colors.white,
         ),
       ),
     );
+  }
+
+  Widget _buildPriceRow() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        children: [
+          const Text(
+            'Price:',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'PKR ${_formatPrice(plot.basePrice)}',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1E3C90),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatPrice(String? price) {
+    if (price == null || price.isEmpty) return 'N/A';
+    try {
+      final priceValue = double.parse(price);
+      if (priceValue >= 1000000) {
+        return '${(priceValue / 1000000).toStringAsFixed(0)}M';
+      } else if (priceValue >= 1000) {
+        return '${(priceValue / 1000).toStringAsFixed(0)}K';
+      } else {
+        return priceValue.toStringAsFixed(0);
+      }
+    } catch (e) {
+      return price;
+    }
   }
 
   Widget _buildInfoRow(String label, String value) {
