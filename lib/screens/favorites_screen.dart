@@ -22,6 +22,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
   late Animation<Offset> _slideAnimation;
   
   String _selectedFilter = 'All';
+  bool _isRefreshing = false;
   
   final List<String> _filters = ['All', 'Pending', 'Paid', 'Cancelled', 'Completed'];
   
@@ -50,6 +51,48 @@ class _FavoritesScreenState extends State<FavoritesScreen>
   void dispose() {
     _animationController.dispose();
     super.dispose();
+  }
+
+  // Refresh method to update booking data
+  Future<void> _refreshBookings() async {
+    if (_isRefreshing) return;
+    
+    setState(() {
+      _isRefreshing = true;
+    });
+
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.getUserInfo();
+      
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Bookings refreshed successfully'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to refresh bookings: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isRefreshing = false;
+        });
+      }
+    }
   }
 
   @override
@@ -113,7 +156,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                       ),
                     ),
                     
-                    // Right side - Filter/Refresh icon
+                    // Right side - Refresh icon
                     Container(
                       width: 40,
                       height: 40,
@@ -122,15 +165,21 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: IconButton(
-                        onPressed: () {
-                          // Handle refresh
-                          setState(() {});
-                        },
-                        icon: const Icon(
-                          Icons.filter_list,
-                        color: Colors.white,
-                          size: 20,
-                        ),
+                        onPressed: _isRefreshing ? null : _refreshBookings,
+                        icon: _isRefreshing 
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Icon(
+                              Icons.refresh,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                       ),
                     ),
                   ],
@@ -343,10 +392,25 @@ class _FavoritesScreenState extends State<FavoritesScreen>
           );
         }
 
+        // Filter out expired bookings (15 minutes passed)
+        List<ReserveBooking> validReservations = reservations.where((booking) {
+          if (booking.status == 'Pending' && booking.challanExpiryTime.isNotEmpty) {
+            try {
+              final expiryTime = DateTime.parse(booking.challanExpiryTime);
+              final now = DateTime.now();
+              return expiryTime.isAfter(now);
+            } catch (e) {
+              // If parsing fails, keep the booking
+              return true;
+            }
+          }
+          return true;
+        }).toList();
+
         // Filter reservations based on selected filter
-        List<ReserveBooking> filteredReservations = reservations;
+        List<ReserveBooking> filteredReservations = validReservations;
         if (_selectedFilter != 'All') {
-          filteredReservations = reservations.where((booking) {
+          filteredReservations = validReservations.where((booking) {
             switch (_selectedFilter) {
               case 'Pending':
                 return booking.status == 'Pending';
@@ -363,6 +427,9 @@ class _FavoritesScreenState extends State<FavoritesScreen>
         }
 
         if (filteredReservations.isEmpty) {
+          // Check if there were expired bookings
+          bool hasExpiredBookings = validReservations.length < reservations.length;
+          
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -418,6 +485,44 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                   ),
                 ),
                 const SizedBox(height: 8),
+                if (hasExpiredBookings) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    margin: const EdgeInsets.symmetric(horizontal: 32),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Colors.orange.withOpacity(0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: 16,
+                          color: Colors.orange[700],
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Some bookings have expired and were removed',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 12,
+                              color: Colors.orange[700],
+                              fontWeight: FontWeight.w500,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
                 Text(
                   'Try selecting a different filter',
                   style: TextStyle(
@@ -431,16 +536,21 @@ class _FavoritesScreenState extends State<FavoritesScreen>
           );
         }
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: filteredReservations.length,
-          itemBuilder: (context, index) {
-            final booking = filteredReservations[index];
-            return BookingCardWidget(
-              booking: booking,
-              index: index,
-            );
-          },
+        return RefreshIndicator(
+          onRefresh: _refreshBookings,
+          color: const Color(0xFF1E3C90),
+          backgroundColor: Colors.white,
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: filteredReservations.length,
+            itemBuilder: (context, index) {
+              final booking = filteredReservations[index];
+              return BookingCardWidget(
+                booking: booking,
+                index: index,
+              );
+            },
+          ),
         );
       },
     );
@@ -523,6 +633,24 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
 
   @override
   Widget build(BuildContext context) {
+    // Check if booking is expired
+    bool isExpired = false;
+    if (widget.booking.status == 'Pending' && widget.booking.challanExpiryTime.isNotEmpty) {
+      try {
+        final expiryTime = DateTime.parse(widget.booking.challanExpiryTime);
+        final now = DateTime.now();
+        isExpired = expiryTime.isBefore(now);
+      } catch (e) {
+        // If parsing fails, assume not expired
+        isExpired = false;
+      }
+    }
+
+    // If booking is expired, don't render the card
+    if (isExpired) {
+      return const SizedBox.shrink();
+    }
+
     Color statusColor = _getStatusColor(widget.booking.status);
     
     return Container(
