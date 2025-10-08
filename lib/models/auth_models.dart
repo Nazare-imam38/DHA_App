@@ -48,19 +48,85 @@ class User {
 
 class ReserveBooking {
   final int id;
+  final String date;
+  final String tokenAmount;
+  final String bidAmount;
   final String status;
+  final int rankNo;
+  final String challanNo;
+  final String challanType;
+  final String challanDate;
+  final String challanExpiryTime;
+  final String kuickpayFee;
+  final String? redirectUrl;
+  final String? paymentDate;
+  final String? receivedDate;
+  final String receivedAmount;
+  final String? bankType;
+  final String? bankName;
+  final String? chequeNo;
+  final String? chequeDate;
+  final String? paymentMode;
+  final String trendTime;
+  final int planType;
+  final int interestedOneYear;
+  final bool isBidding;
   final Plot plot;
 
   ReserveBooking({
     required this.id,
+    required this.date,
+    required this.tokenAmount,
+    required this.bidAmount,
     required this.status,
+    required this.rankNo,
+    required this.challanNo,
+    required this.challanType,
+    required this.challanDate,
+    required this.challanExpiryTime,
+    required this.kuickpayFee,
+    this.redirectUrl,
+    this.paymentDate,
+    this.receivedDate,
+    required this.receivedAmount,
+    this.bankType,
+    this.bankName,
+    this.chequeNo,
+    this.chequeDate,
+    this.paymentMode,
+    required this.trendTime,
+    required this.planType,
+    required this.interestedOneYear,
+    required this.isBidding,
     required this.plot,
   });
 
   factory ReserveBooking.fromJson(Map<String, dynamic> json) {
     return ReserveBooking(
       id: json['id'] ?? 0,
+      date: json['date'] ?? '',
+      tokenAmount: json['token_amount']?.toString() ?? '0',
+      bidAmount: json['bid_amount']?.toString() ?? '0',
       status: json['status'] ?? '',
+      rankNo: json['rank_no'] ?? 0,
+      challanNo: json['challan_no'] ?? '',
+      challanType: json['challan_type'] ?? '',
+      challanDate: json['challan_date'] ?? '',
+      challanExpiryTime: json['challan_expiry_time'] ?? '',
+      kuickpayFee: json['kuickpay_fee']?.toString() ?? '0',
+      redirectUrl: json['redirect_url'],
+      paymentDate: json['payment_date'],
+      receivedDate: json['received_date'],
+      receivedAmount: json['received_amount']?.toString() ?? '0',
+      bankType: json['bank_type'],
+      bankName: json['bank_name'],
+      chequeNo: json['cheque_no'],
+      chequeDate: json['cheque_date'],
+      paymentMode: json['payment_mode'],
+      trendTime: json['trend_time'] ?? '',
+      planType: json['plan_type'] ?? 0,
+      interestedOneYear: json['interested_one_year'] ?? 0,
+      isBidding: json['is_bidding'] ?? false,
       plot: Plot.fromJson(json['plot'] ?? {}),
     );
   }
@@ -72,6 +138,13 @@ class Plot {
   final String category;
   final String phase;
   final String sector;
+  final String streetNo;
+  final String block;
+  final String status;
+  final String basePrice;
+  final String tokenAmount;
+  final String size;
+  final String dimension;
 
   Plot({
     required this.id,
@@ -79,6 +152,13 @@ class Plot {
     required this.category,
     required this.phase,
     required this.sector,
+    required this.streetNo,
+    required this.block,
+    required this.status,
+    required this.basePrice,
+    required this.tokenAmount,
+    required this.size,
+    required this.dimension,
   });
 
   factory Plot.fromJson(Map<String, dynamic> json) {
@@ -88,6 +168,13 @@ class Plot {
       category: json['category'] ?? '',
       phase: json['phase'] ?? '',
       sector: json['sector'] ?? '',
+      streetNo: json['street_no'] ?? '',
+      block: json['block'] ?? '',
+      status: json['status'] ?? '',
+      basePrice: json['base_price']?.toString() ?? '0',
+      tokenAmount: json['token_amount']?.toString() ?? '0',
+      size: json['size'] ?? '',
+      dimension: json['dimension'] ?? '',
     );
   }
 }

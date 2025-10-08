@@ -16,6 +16,7 @@ import '../core/services/polygon_renderer_service.dart';
 import '../core/services/enhanced_polygon_service.dart';
 import '../ui/widgets/enhanced_plot_info_card.dart';
 import '../ui/widgets/small_plot_info_card.dart';
+import '../ui/widgets/map_popup_widget.dart';
 import '../ui/widgets/selected_plot_details_widget.dart';
 import '../ui/widgets/plot_details_modal.dart';
 import '../ui/screens/auth/login_screen.dart';
@@ -1708,7 +1709,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         });
         
         // Automatically collapse bottom sheet to make room for floating plot info
-        _safeAnimateBottomSheet(0.1);
+        _safeAnimateBottomSheet(0.03); // Ultra aggressive collapse
           print('✅ Plot info card should now be visible for plot ${tappedPlot.plotNo}');
           return;
         } else {
@@ -2703,9 +2704,46 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       final centroid = LatLng(sumLat / count, sumLng / count);
       print('📍 Plot polygon centroid: ${centroid.latitude}, ${centroid.longitude}');
 
-      // Fallback approach for web: position relative to screen center
+      // Convert LatLng to screen coordinates
+      // For web, we need to use the map's projection to convert lat/lng to screen pixels
       final size = MediaQuery.of(context).size;
-      return Offset(size.width * 0.5, size.height * 0.5);
+      
+      // Since we're on web, we can use a more accurate approach
+      // Calculate position based on the plot's position relative to screen
+      // This will position the popup at the plot's location on the map
+      
+      // Convert LatLng to screen coordinates using proper map projection
+      final screenWidth = size.width;
+      final screenHeight = size.height;
+      
+      // Calculate the plot's position on the map based on its coordinates
+      // This should position the popup directly on the plot polygon on the map
+      
+      // For web maps, we need to convert lat/lng to screen pixels
+      // The map typically covers most of the screen, so we calculate relative position
+      final mapWidth = screenWidth;
+      final mapHeight = screenHeight - 200; // Account for app bar and bottom sheet
+      
+      // Convert lat/lng to screen coordinates
+      // This is a simplified conversion - in a real implementation, you'd use the map's projection
+      final lat = centroid.latitude;
+      final lng = centroid.longitude;
+      
+      // Calculate relative position on the map
+      // Assuming the map shows a specific geographic area
+      // You may need to adjust these bounds based on your actual map coverage
+      final minLat = 33.5; // Adjust based on your map bounds
+      final maxLat = 34.0;
+      final minLng = 72.5;
+      final maxLng = 73.5;
+      
+      // Convert to screen coordinates
+      final plotX = ((lng - minLng) / (maxLng - minLng)) * mapWidth;
+      final plotY = ((maxLat - lat) / (maxLat - minLat)) * mapHeight + 100; // Add offset for app bar
+      
+      print('📍 Plot screen position calculated from coordinates: x=$plotX, y=$plotY');
+      print('📍 Plot coordinates: lat=$lat, lng=$lng');
+      return Offset(plotX, plotY);
     } catch (e) {
       print('❌ Error calculating plot screen position: $e');
       return null;
@@ -3276,13 +3314,13 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
     // When a plot is selected, collapse the bottom sheet to make room for the floating plot info
     final shouldCollapseForPlot = _selectedPlot != null && !_showSelectedPlotDetails;
-    final initialSize = shouldCollapseForPlot ? 0.1 : (_showSelectedPlotDetails ? 0.4 : 0.2);
-    final maxSize = shouldCollapseForPlot ? 0.2 : (_showSelectedPlotDetails ? 0.7 : 0.75);
+    final initialSize = shouldCollapseForPlot ? 0.03 : (_showSelectedPlotDetails ? 0.4 : 0.2); // Ultra aggressive collapse
+    final maxSize = shouldCollapseForPlot ? 0.08 : (_showSelectedPlotDetails ? 0.7 : 0.75); // Minimal max size when collapsed
 
     return DraggableScrollableSheet(
       controller: _bottomSheetController,
       initialChildSize: initialSize,
-      minChildSize: 0.15, // Minimum 15% of screen height
+      minChildSize: shouldCollapseForPlot ? 0.03 : 0.15, // Ultra aggressive minimum when plot selected
       maxChildSize: maxSize, // Reduced to account for bottom navigation bar
       builder: (context, scrollController) {
         // Initialize the bottom sheet controller
@@ -3522,28 +3560,30 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               
               const SizedBox(height: 16),
               
-              // Search bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search By Plot Number, Sector...',
-                      hintStyle: TextStyle(color: Colors.grey[500]),
-                      prefixIcon: Icon(Icons.search, color: Colors.grey[500]),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              // Search bar - Only show in List tab, not in Selected tab
+              if (!_showSelectedPlotDetails || _selectedPlotDetails == null) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Container(
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Search By Plot Number, Sector...',
+                        hintStyle: TextStyle(color: Colors.grey[500]),
+                        prefixIcon: Icon(Icons.search, color: Colors.grey[500]),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              
-              const SizedBox(height: 16),
+                
+                const SizedBox(height: 16),
+              ],
               
               // Plot list or selected plot details
               Expanded(
@@ -3905,8 +3945,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
     // Get screen dimensions
     final screenSize = MediaQuery.of(context).size;
-    final popupWidth = 320.0; // Larger for better visibility and text accommodation
-    final popupHeight = 220.0; // Slightly larger for better visibility
+    final popupWidth = 280.0; // Width for map popup with pointer
+    final popupHeight = 200.0; // Height for map popup with pointer
     
     // Calculate position to be attached to the plot polygon
     double left, top;
@@ -3915,78 +3955,104 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     final plotScreenPosition = _calculatePlotScreenPosition();
     
     if (plotScreenPosition != null) {
-      // Position the card attached to the plot polygon center - like second image
-      left = plotScreenPosition.dx - (popupWidth / 2); // Center horizontally on plot
-      top = plotScreenPosition.dy - popupHeight - 20; // Position above plot with margin
-      
-      // Calculate bottom sheet area dynamically based on current state
-      final bottomSheetArea = _selectedPlot != null && !_showSelectedPlotDetails 
-          ? screenSize.height * 0.25  // Collapsed bottom sheet - more space for floating card
+      // Calculate available space considering bottom sheet
+      final bottomSheetHeight = _selectedPlot != null && !_showSelectedPlotDetails 
+          ? screenSize.height * 0.08  // Ultra collapsed bottom sheet - minimal space
           : screenSize.height * 0.35; // Normal bottom sheet
       
-      // If the card would be too close to the bottom sheet area, position it to the side
-      if (top + popupHeight > screenSize.height - bottomSheetArea) {
-        // Position to the right of the plot instead
-        left = plotScreenPosition.dx + 15; // 15px to the right of plot
-        top = plotScreenPosition.dy - (popupHeight / 2); // Center vertically on plot
+      final availableTopSpace = screenSize.height - bottomSheetHeight - popupHeight - 60; // 60px buffer
+      final availableBottomSpace = screenSize.height - bottomSheetHeight - 20; // 20px buffer
+      
+      // Try to position above the plot first (preferred position) - like a map popup
+      left = plotScreenPosition.dx - (popupWidth / 2); // Center horizontally on plot
+      top = plotScreenPosition.dy - popupHeight - 50; // Position above plot with margin for pointer
+      
+      // Check if there's enough space above the plot
+      if (top < 80) { // Too close to top of screen
+        // Try positioning below the plot
+        top = plotScreenPosition.dy + 30; // Position below plot with more margin
         
-        // If it would go off screen to the right, position to the left instead
-        if (left + popupWidth > screenSize.width - 10) {
-          left = plotScreenPosition.dx - popupWidth - 15; // 15px to the left of plot
+        // If still not enough space, position to the side
+        if (top + popupHeight > availableBottomSpace) {
+          // Position to the right of the plot - like a map popup
+          left = plotScreenPosition.dx + 30; // 30px to the right of plot
+          top = plotScreenPosition.dy - (popupHeight / 2); // Center vertically on plot
+          
+          // If it would go off screen to the right, position to the left instead
+          if (left + popupWidth > screenSize.width - 30) {
+            left = plotScreenPosition.dx - popupWidth - 30; // 30px to the left of plot
+          }
         }
       }
       
       print('📍 Small plot info card positioned attached to plot at: left=$left, top=$top');
       print('📍 Plot screen position: $plotScreenPosition');
+      print('📍 Available space - Top: $availableTopSpace, Bottom: $availableBottomSpace');
     } else if (_selectedPlot!.latitude != null && _selectedPlot!.longitude != null) {
       // Fallback: Use plot center coordinates for positioning
       print('📍 Using plot center coordinates: ${_selectedPlot!.latitude}, ${_selectedPlot!.longitude}');
       
-      // Position attached to plot center coordinates - center of screen
-      left = (screenSize.width - popupWidth) / 2;
-      top = screenSize.height * 0.2; // Position higher in upper area, above bottom sheet
+      // Convert plot coordinates to screen position
+      final lat = _selectedPlot!.latitude ?? 0.0;
+      final lng = _selectedPlot!.longitude ?? 0.0;
+      
+      // Calculate position on map based on coordinates
+      final mapWidth = screenSize.width;
+      final mapHeight = screenSize.height - 200; // Account for app bar and bottom sheet
+      
+      // Convert to screen coordinates (same logic as above)
+      final minLat = 33.5;
+      final maxLat = 34.0;
+      final minLng = 72.5;
+      final maxLng = 73.5;
+      
+      final plotX = ((lng - minLng) / (maxLng - minLng)) * mapWidth;
+      final plotY = ((maxLat - lat) / (maxLat - minLat)) * mapHeight + 100;
+      
+      left = plotX - (popupWidth / 2);
+      top = plotY - popupHeight - 50; // Position above plot with margin for pointer
       
       print('📍 Small plot info card positioned using center coordinates: left=$left, top=$top');
     } else {
-      // Final fallback: Position in upper area of screen
+      // Final fallback: Position in center of map area
       left = (screenSize.width - popupWidth) / 2;
-      top = screenSize.height * 0.2; // Position higher in upper area, above bottom sheet
-      print('📍 Small plot info card positioned at screen center: left=$left, top=$top');
+      top = (screenSize.height - 200) / 2; // Position in center of map area
+      print('📍 Small plot info card positioned at map center: left=$left, top=$top');
     }
     
-    // Ensure popup stays within screen bounds and avoid app bar area
-    left = left.clamp(10.0, screenSize.width - popupWidth - 10);
-    top = top.clamp(80.0, screenSize.height - popupHeight - 200); // Keep away from bottom sheet area
+    // Ensure popup stays within map bounds and avoid app bar area
+    left = left.clamp(20.0, screenSize.width - popupWidth - 20);
+    top = top.clamp(80.0, screenSize.height - 300); // Keep within map area, well above bottom sheet
     
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
       left: left,
       top: top,
-      child: AnimatedOpacity(
-        duration: const Duration(milliseconds: 200),
-        opacity: 1.0,
-        child: SmallPlotInfoCard(
-          plot: _selectedPlot!,
-          onClose: () {
-            setState(() {
-              _selectedPlot = null;
-              _selectedPlotDetails = null;
-              _showProjectDetails = false;
-              _showSelectedPlotDetails = false;
-              // Collapse bottom sheet when plot is deselected
-              _safeAnimateBottomSheet(0.15);
-            });
-          },
-          onViewDetails: () {
-            // Show detailed information in the Selected tab and expand bottom sheet
-            setState(() {
-              _showSelectedPlotDetails = true;
-            });
-            _safeAnimateBottomSheet(0.6);
-          },
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 200),
+          opacity: 1.0,
+          child: MapPopupWidget(
+            plot: _selectedPlot!,
+            onClose: () {
+              setState(() {
+                _selectedPlot = null;
+                _selectedPlotDetails = null;
+                _showProjectDetails = false;
+                _showSelectedPlotDetails = false;
+                // Collapse bottom sheet when plot is deselected
+                _safeAnimateBottomSheet(0.15);
+              });
+            },
+            onViewDetails: () {
+              // Show detailed information in the Selected tab and expand bottom sheet
+              setState(() {
+                _showSelectedPlotDetails = true;
+              });
+              _safeAnimateBottomSheet(0.6);
+            },
+          ),
         ),
-      ),
     );
   }
 
