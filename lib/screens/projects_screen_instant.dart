@@ -2678,9 +2678,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     }
   }
 
-  /// Calculate the plot's screen position based on polygon coordinates
+  /// Calculate the plot's screen position based on polygon coordinates using FlutterMap projection
   Offset? _calculatePlotScreenPosition() {
-    if (_selectedPlot == null) return null;
+    if (_selectedPlot == null || _mapController == null) return null;
     
     try {
       // Get polygon coordinates
@@ -2690,7 +2690,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       final coordinates = polygonCoordinates.first;
       if (coordinates.length < 3) return null;
 
-      // Calculate simple centroid (average of vertices)
+      // Calculate centroid of the polygon
       double sumLat = 0;
       double sumLng = 0;
       int count = 0;
@@ -2704,48 +2704,49 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       final centroid = LatLng(sumLat / count, sumLng / count);
       print('📍 Plot polygon centroid: ${centroid.latitude}, ${centroid.longitude}');
 
-      // Convert LatLng to screen coordinates
-      // For web, we need to use the map's projection to convert lat/lng to screen pixels
-      final size = MediaQuery.of(context).size;
+      // Use FlutterMap's projection to convert LatLng to screen coordinates
+      // This is the proper way to get screen position from map coordinates
+      final mapCamera = _mapController!.camera;
+      final point = mapCamera.latLngToScreenPoint(centroid);
       
-      // Since we're on web, we can use a more accurate approach
-      // Calculate position based on the plot's position relative to screen
-      // This will position the popup at the plot's location on the map
-      
-      // Convert LatLng to screen coordinates using proper map projection
-      final screenWidth = size.width;
-      final screenHeight = size.height;
-      
-      // Calculate the plot's position on the map based on its coordinates
-      // This should position the popup directly on the plot polygon on the map
-      
-      // For web maps, we need to convert lat/lng to screen pixels
-      // The map typically covers most of the screen, so we calculate relative position
-      final mapWidth = screenWidth;
-      final mapHeight = screenHeight - 200; // Account for app bar and bottom sheet
-      
-      // Convert lat/lng to screen coordinates
-      // This is a simplified conversion - in a real implementation, you'd use the map's projection
-      final lat = centroid.latitude;
-      final lng = centroid.longitude;
-      
-      // Calculate relative position on the map
-      // Assuming the map shows a specific geographic area
-      // You may need to adjust these bounds based on your actual map coverage
-      final minLat = 33.5; // Adjust based on your map bounds
-      final maxLat = 34.0;
-      final minLng = 72.5;
-      final maxLng = 73.5;
-      
-      // Convert to screen coordinates
-      final plotX = ((lng - minLng) / (maxLng - minLng)) * mapWidth;
-      final plotY = ((maxLat - lat) / (maxLat - minLat)) * mapHeight + 100; // Add offset for app bar
-      
-      print('📍 Plot screen position calculated from coordinates: x=$plotX, y=$plotY');
-      print('📍 Plot coordinates: lat=$lat, lng=$lng');
-      return Offset(plotX, plotY);
+      print('📍 Plot screen position from map projection: x=${point.x}, y=${point.y}');
+      return point;
     } catch (e) {
       print('❌ Error calculating plot screen position: $e');
+      // Fallback to simple coordinate conversion if map projection fails
+      return _calculateFallbackPlotScreenPosition();
+    }
+  }
+
+  /// Fallback method for calculating plot screen position when map projection fails
+  Offset? _calculateFallbackPlotScreenPosition() {
+    if (_selectedPlot == null) return null;
+    
+    try {
+      // Use plot center coordinates as fallback
+      if (_selectedPlot!.latitude != null && _selectedPlot!.longitude != null) {
+        final lat = _selectedPlot!.latitude!;
+        final lng = _selectedPlot!.longitude!;
+        
+        final size = MediaQuery.of(context).size;
+        final mapWidth = size.width;
+        final mapHeight = size.height - 200; // Account for app bar and bottom sheet
+        
+        // Simple coordinate conversion (fallback)
+        final minLat = 33.5;
+        final maxLat = 34.0;
+        final minLng = 72.5;
+        final maxLng = 73.5;
+        
+        final plotX = ((lng - minLng) / (maxLng - minLng)) * mapWidth;
+        final plotY = ((maxLat - lat) / (maxLat - minLat)) * mapHeight + 100;
+        
+        print('📍 Fallback plot screen position: x=$plotX, y=$plotY');
+        return Offset(plotX, plotY);
+      }
+      return null;
+    } catch (e) {
+      print('❌ Error in fallback plot screen position calculation: $e');
       return null;
     }
   }
@@ -2757,6 +2758,14 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       setState(() {
         // This will cause the _buildPlotDetailsPopup to recalculate position
       });
+    }
+  }
+
+  /// Handle map position changes to update popup position
+  void _onMapPositionChanged() {
+    if (_selectedPlot != null && _showProjectDetails) {
+      // Update popup position when map moves or zooms
+      _updatePlotInfoCardPosition();
     }
   }
 
@@ -3960,64 +3969,68 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           ? screenSize.height * 0.08  // Ultra collapsed bottom sheet - minimal space
           : screenSize.height * 0.35; // Normal bottom sheet
       
-      final availableTopSpace = screenSize.height - bottomSheetHeight - popupHeight - 60; // 60px buffer
-      final availableBottomSpace = screenSize.height - bottomSheetHeight - 20; // 20px buffer
-      
-      // Try to position above the plot first (preferred position) - like a map popup
+      // Position the popup directly on the plot with proper anchoring
       left = plotScreenPosition.dx - (popupWidth / 2); // Center horizontally on plot
-      top = plotScreenPosition.dy - popupHeight - 50; // Position above plot with margin for pointer
+      
+      // Try to position above the plot first (preferred position for map popups)
+      top = plotScreenPosition.dy - popupHeight - 20; // Position above plot with margin for pointer
       
       // Check if there's enough space above the plot
-      if (top < 80) { // Too close to top of screen
-        // Try positioning below the plot
-        top = plotScreenPosition.dy + 30; // Position below plot with more margin
-        
-        // If still not enough space, position to the side
-        if (top + popupHeight > availableBottomSpace) {
-          // Position to the right of the plot - like a map popup
-          left = plotScreenPosition.dx + 30; // 30px to the right of plot
-          top = plotScreenPosition.dy - (popupHeight / 2); // Center vertically on plot
-          
-          // If it would go off screen to the right, position to the left instead
-          if (left + popupWidth > screenSize.width - 30) {
-            left = plotScreenPosition.dx - popupWidth - 30; // 30px to the left of plot
-          }
-        }
+      if (top < 100) { // Too close to top of screen (account for app bar)
+        // Position below the plot instead
+        top = plotScreenPosition.dy + 20; // Position below plot with margin
+        print('📍 Positioning popup below plot due to insufficient top space');
+      } else {
+        print('📍 Positioning popup above plot (preferred)');
       }
       
-      print('📍 Small plot info card positioned attached to plot at: left=$left, top=$top');
-      print('📍 Plot screen position: $plotScreenPosition');
-      print('📍 Available space - Top: $availableTopSpace, Bottom: $availableBottomSpace');
-    } else if (_selectedPlot!.latitude != null && _selectedPlot!.longitude != null) {
-      // Fallback: Use plot center coordinates for positioning
-      print('📍 Using plot center coordinates: ${_selectedPlot!.latitude}, ${_selectedPlot!.longitude}');
+      // Ensure popup doesn't go off screen horizontally
+      if (left < 20) {
+        left = 20; // Keep some margin from left edge
+      } else if (left + popupWidth > screenSize.width - 20) {
+        left = screenSize.width - popupWidth - 20; // Keep some margin from right edge
+      }
       
-      // Convert plot coordinates to screen position
-      final lat = _selectedPlot!.latitude ?? 0.0;
-      final lng = _selectedPlot!.longitude ?? 0.0;
+      // Ensure popup doesn't overlap with bottom sheet
+      final maxTop = screenSize.height - bottomSheetHeight - popupHeight - 20;
+      if (top > maxTop) {
+        top = maxTop;
+        print('📍 Adjusting popup position to avoid bottom sheet overlap');
+      }
       
-      // Calculate position on map based on coordinates
-      final mapWidth = screenSize.width;
-      final mapHeight = screenSize.height - 200; // Account for app bar and bottom sheet
-      
-      // Convert to screen coordinates (same logic as above)
-      final minLat = 33.5;
-      final maxLat = 34.0;
-      final minLng = 72.5;
-      final maxLng = 73.5;
-      
-      final plotX = ((lng - minLng) / (maxLng - minLng)) * mapWidth;
-      final plotY = ((maxLat - lat) / (maxLat - minLat)) * mapHeight + 100;
-      
-      left = plotX - (popupWidth / 2);
-      top = plotY - popupHeight - 50; // Position above plot with margin for pointer
-      
-      print('📍 Small plot info card positioned using center coordinates: left=$left, top=$top');
+      print('📍 Plot screen position: ${plotScreenPosition.dx}, ${plotScreenPosition.dy}');
+      print('📍 Popup position: left=$left, top=$top');
     } else {
-      // Final fallback: Position in center of map area
-      left = (screenSize.width - popupWidth) / 2;
-      top = (screenSize.height - 200) / 2; // Position in center of map area
-      print('📍 Small plot info card positioned at map center: left=$left, top=$top');
+      // Fallback: Use plot center coordinates for positioning
+      print('📍 Using fallback positioning with plot center coordinates');
+      
+      if (_selectedPlot!.latitude != null && _selectedPlot!.longitude != null) {
+        // Convert plot coordinates to screen position using fallback method
+        final lat = _selectedPlot!.latitude!;
+        final lng = _selectedPlot!.longitude!;
+        
+        final mapWidth = screenSize.width;
+        final mapHeight = screenSize.height - 200; // Account for app bar and bottom sheet
+        
+        // Simple coordinate conversion (fallback)
+        final minLat = 33.5;
+        final maxLat = 34.0;
+        final minLng = 72.5;
+        final maxLng = 73.5;
+        
+        final plotX = ((lng - minLng) / (maxLng - minLng)) * mapWidth;
+        final plotY = ((maxLat - lat) / (maxLat - minLat)) * mapHeight + 100;
+        
+        left = plotX - (popupWidth / 2);
+        top = plotY - popupHeight - 20; // Position above plot with margin for pointer
+        
+        print('📍 Fallback popup position: left=$left, top=$top');
+      } else {
+        // Final fallback: Position in center of map area
+        left = (screenSize.width - popupWidth) / 2;
+        top = (screenSize.height - 200) / 2; // Position in center of map area
+        print('📍 Popup positioned at map center: left=$left, top=$top');
+      }
     }
     
     // Ensure popup stays within map bounds and avoid app bar area
