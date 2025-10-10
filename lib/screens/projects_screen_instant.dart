@@ -3983,14 +3983,15 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
     final centroid = LatLng(sumLat / count, sumLng / count);
 
-    // Position popup slightly above the centroid to anchor it to plot boundary
-    final popupPosition = LatLng(centroid.latitude + 0.0002, centroid.longitude);
+    // Position popup to the side of the centroid to show plot polygon
+    // Offset significantly to the side to ensure plot boundaries are visible
+    final popupPosition = LatLng(centroid.latitude + 0.0006, centroid.longitude + 0.0005);
     
     return [
       Marker(
         point: popupPosition,
-        width: 180,
-        height: 140,
+        width: 160,
+        height: 120,
         alignment: Alignment.bottomCenter, // Anchor popup to bottom center
           child: MapPopupWidget(
             plot: _selectedPlot!,
@@ -4003,13 +4004,6 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 // Collapse bottom sheet when plot is deselected
               _safeAnimateBottomSheet(0.1);
               });
-            },
-            onViewDetails: () {
-              // Show detailed information in the Selected tab and expand bottom sheet
-              setState(() {
-                _showSelectedPlotDetails = true;
-              });
-            _safeAnimateBottomSheet(0.5);
             },
           ),
         ),

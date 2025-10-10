@@ -5,53 +5,59 @@ import '../../data/models/plot_model.dart';
 class MapPopupWidget extends StatelessWidget {
   final PlotModel plot;
   final VoidCallback? onClose;
-  final VoidCallback? onViewDetails;
 
   const MapPopupWidget({
     super.key,
     required this.plot,
     this.onClose,
-    this.onViewDetails,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 180,
+      width: 160,
       child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Colors.grey[300]!,
+            width: 0.5,
+          ),
+              boxShadow: [
+                BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            _buildHeader(),
-            
-            // Content
-            _buildContent(),
-          ],
-        ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header
+                _buildHeader(),
+                
+                // Content
+                _buildContent(),
+              ],
+            ),
       ),
     );
   }
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: const BoxDecoration(
-        color: Color(0xFF1E3C90),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(12),
-          topRight: Radius.circular(12),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(8),
+          topRight: Radius.circular(8),
+        ),
+        border: Border.all(
+          color: Colors.grey[300]!,
+          width: 0.5,
         ),
       ),
       child: Row(
@@ -59,9 +65,9 @@ class MapPopupWidget extends StatelessWidget {
           Text(
             'Plot ${plot.plotNo}',
             style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
             ),
           ),
           const Spacer(),
@@ -70,13 +76,13 @@ class MapPopupWidget extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(3),
               ),
               child: const Icon(
                 Icons.close,
-                color: Colors.white,
-                size: 12,
+                color: Colors.grey,
+                size: 8,
               ),
             ),
           ),
@@ -87,36 +93,31 @@ class MapPopupWidget extends StatelessWidget {
 
   Widget _buildContent() {
     return Padding(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Status tags
+          // Status tags - smaller
           Row(
             children: [
               _buildStatusChip(plot.category, _getCategoryColor(plot.category)),
-              const SizedBox(width: 4),
+              const SizedBox(width: 3),
               _buildStatusChip('Selected', Colors.blue.shade600),
             ],
           ),
           
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           
           // Plot details - essential info only
           _buildInfoRow('Sector', plot.sector),
           _buildInfoRow('Street', plot.streetNo),
           _buildInfoRow('Size', plot.catArea),
           
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           
           // Price
           _buildPrice(),
-          
-          const SizedBox(height: 6),
-          
-          // Action button
-          _buildActionButton(),
         ],
       ),
     );
@@ -124,17 +125,21 @@ class MapPopupWidget extends StatelessWidget {
 
   Widget _buildStatusChip(String label, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
       decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(6),
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+          width: 0.5,
+        ),
       ),
       child: Text(
         label,
-        style: const TextStyle(
-          fontSize: 8,
+        style: TextStyle(
+          fontSize: 7,
           fontWeight: FontWeight.w600,
-          color: Colors.white,
+          color: color,
         ),
       ),
     );
@@ -146,22 +151,22 @@ class MapPopupWidget extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(
-            width: 40,
+            width: 35,
             child: Text(
               '$label:',
               style: const TextStyle(
-                fontSize: 8,
+                fontSize: 7,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
               ),
             ),
           ),
-          const SizedBox(width: 3),
+          const SizedBox(width: 2),
           Expanded(
             child: Text(
               value,
               style: const TextStyle(
-                fontSize: 8,
+                fontSize: 7,
                 color: Colors.black54,
               ),
               overflow: TextOverflow.ellipsis,
@@ -173,54 +178,42 @@ class MapPopupWidget extends StatelessWidget {
   }
 
   Widget _buildPrice() {
-    return Row(
-      children: [
-        const Text(
-          'Price:',
-          style: TextStyle(
-            fontSize: 8,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.green[50],
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: Colors.green[200]!,
+          width: 0.5,
         ),
-        const SizedBox(width: 3),
-        Expanded(
-          child: Text(
-            'PKR ${_formatPrice(plot.basePrice)}',
-            style: const TextStyle(
-              fontSize: 8,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1E3C90),
+      ),
+      child: Row(
+        children: [
+          const Text(
+            'Price:',
+            style: TextStyle(
+              fontSize: 7,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
             ),
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: onViewDetails,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF1E3C90),
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
+          const SizedBox(width: 2),
+          Expanded(
+            child: Text(
+              'PKR ${_formatPrice(plot.basePrice)}',
+              style: const TextStyle(
+                fontSize: 7,
+                fontWeight: FontWeight.bold,
+                color: Colors.green,
+              ),
+            ),
           ),
-        ),
-        child: const Text(
-          'View Details',
-          style: TextStyle(
-            fontSize: 8,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        ],
       ),
     );
   }
+
 
 
 

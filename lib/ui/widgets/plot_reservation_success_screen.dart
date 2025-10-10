@@ -49,153 +49,349 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F6),
+      backgroundColor: const Color(0xFFF8FAFC),
       body: Stack(
         children: [
-          // Background with map blur effect
+          // Animated gradient background
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF1E3C90),
+                  Color(0xFF1B5993),
                   Color(0xFF20B2AA),
+                  Color(0xFF4CAF50),
                 ],
+                stops: [0.0, 0.5, 1.0],
               ),
             ),
           ),
           
+          // Floating particles effect
+          ...List.generate(8, (index) => _buildFloatingParticle(index)),
+          
           // Main content overlay
           SafeArea(
             child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
               child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            
-                    // Header with app branding
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    
+                    // Modern header with glassmorphism
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.95),
-                        borderRadius: BorderRadius.circular(16),
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Colors.white.withOpacity(0.2)),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.1),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
+                            blurRadius: 30,
+                            offset: const Offset(0, 10),
                           ),
                         ],
                       ),
                       child: Row(
                         children: [
-                          Icon(
-                            Icons.menu,
-                            color: const Color(0xFF1E3C90),
-                            size: 24,
-                          ),
-                          Expanded(
-                            child: Text(
-                              'DHA PROJECTS MAP',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: const Color(0xFF1E3C90),
-                              ),
-                            ),
-                          ),
-                          Icon(
-                            Icons.keyboard_arrow_down,
-                            color: const Color(0xFF1E3C90),
-                            size: 24,
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 20),
-                    
-                    // Main payment overlay
-            Container(
-                      padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
-                            blurRadius: 30,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-              ),
-              child: Column(
-                children: [
-                          // Success message with green banner
                           Container(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE8F5E8),
+                              color: Colors.white.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Row(
-                    children: [
-                      Icon(
-                        Icons.check_circle,
-                                  color: const Color(0xFF00A651),
-                        size: 24,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        'Plot reserved successfully!',
-                        style: TextStyle(
+                            child: Icon(
+                              Icons.home_work,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'DHA PROJECTS',
+                                  style: TextStyle(
                                     fontFamily: 'Poppins',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: const Color(0xFF00A651),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                Text(
+                                  'Plot Reservation',
+                                  style: TextStyle(
+                                    fontFamily: 'Inter',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.white.withOpacity(0.8),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          
-                          const SizedBox(height: 24),
-                          
-                          // Payment method selection
-                          _buildPaymentMethodSelection(),
-                          
-                          const SizedBox(height: 20),
-                          
-                          // Amount summary
-                          _buildAmountSummary(),
-                          
-                          const SizedBox(height: 16),
-                          
-                          // Terms and conditions
-                          _buildTermsAndConditions(),
-                          
-                          const SizedBox(height: 20),
-                          
-                          // Payment information section
-                          _buildPaymentInformationSection(),
-                          
-                          const SizedBox(height: 24),
-                          
-                          // Action buttons
-                          _buildActionButtons(),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.verified,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
                         ],
                       ),
                     ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Main payment card with enhanced design
+                    Container(
+                      padding: const EdgeInsets.all(28),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(28),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 40,
+                            offset: const Offset(0, 20),
+                          ),
+                          BoxShadow(
+                            color: const Color(0xFF1B5993).withOpacity(0.1),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          // Enhanced success message with animation
+                          _buildEnhancedSuccessMessage(),
+                          
+                          const SizedBox(height: 32),
+                          
+                          // Payment method selection with modern design
+                          _buildEnhancedPaymentMethodSelection(),
+                          
+                          const SizedBox(height: 28),
+                          
+                          // Amount summary with better styling
+                          _buildEnhancedAmountSummary(),
+                          
+                          const SizedBox(height: 20),
+                          
+                          // Terms and conditions with better styling
+                          _buildEnhancedTermsAndConditions(),
+                          
+                          const SizedBox(height: 28),
+                          
+                          // Payment information section with modern design
+                          _buildEnhancedPaymentInformationSection(),
+                          
+                          const SizedBox(height: 32),
+                          
+                          // Action buttons with enhanced design
+                          _buildEnhancedActionButtons(),
+                        ],
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // Floating particle effect
+  Widget _buildFloatingParticle(int index) {
+    return Positioned(
+      left: (index * 50.0) % MediaQuery.of(context).size.width,
+      top: (index * 80.0) % MediaQuery.of(context).size.height,
+      child: Container(
+        width: 4 + (index % 3) * 2,
+        height: 4 + (index % 3) * 2,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.3),
+          shape: BoxShape.circle,
+        ),
+      ),
+    );
+  }
+
+  // Enhanced success message with animation
+  Widget _buildEnhancedSuccessMessage() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF4CAF50),
+            Color(0xFF45A049),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF4CAF50).withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.check_circle,
+              color: Colors.white,
+              size: 28,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Plot Reserved Successfully!',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Your plot is now reserved. Complete payment to confirm.',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.white.withOpacity(0.9),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Enhanced payment method selection
+  Widget _buildEnhancedPaymentMethodSelection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Payment Method',
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF1B5993),
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildEnhancedPaymentMethodButton(
+                'KuickPay',
+                Icons.account_balance_wallet,
+                _selectedPaymentMethod == 'KuickPay',
+                () => setState(() => _selectedPaymentMethod = 'KuickPay'),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildEnhancedPaymentMethodButton(
+                'Credit-Debit',
+                Icons.credit_card,
+                _selectedPaymentMethod == 'Credit-Debit',
+                () => setState(() => _selectedPaymentMethod = 'Credit-Debit'),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEnhancedPaymentMethodButton(String title, IconData icon, bool isSelected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        decoration: BoxDecoration(
+          gradient: isSelected 
+              ? const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
+                )
+              : null,
+          color: isSelected ? null : Colors.grey[50],
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF1B5993) : Colors.grey[300]!,
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: const Color(0xFF1B5993).withOpacity(0.2),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ] : null,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? Colors.white : Colors.grey[600],
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.white : Colors.grey[700],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -264,6 +460,93 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
     );
   }
 
+  // Enhanced amount summary
+  Widget _buildEnhancedAmountSummary() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.grey[50]!,
+            Colors.grey[100]!,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey[200]!),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _buildEnhancedAmountRow('Token Amount:', 'PKR 250,000', false, Icons.home),
+          const SizedBox(height: 16),
+          _buildEnhancedAmountRow('KuickPay Fee:', 'PKR 135', false, Icons.payment),
+          const SizedBox(height: 20),
+          Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.transparent, Colors.grey[300]!, Colors.transparent],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildEnhancedAmountRow('Total Amount:', 'PKR 250,135', true, Icons.account_balance_wallet),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEnhancedAmountRow(String label, String amount, bool isTotal, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: isTotal ? const Color(0xFF4CAF50).withOpacity(0.1) : Colors.grey[200],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              color: isTotal ? const Color(0xFF4CAF50) : Colors.grey[600],
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 16,
+                fontWeight: isTotal ? FontWeight.w700 : FontWeight.w500,
+                color: isTotal ? const Color(0xFF1B5993) : Colors.grey[700],
+              ),
+            ),
+          ),
+          Text(
+            amount,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 16,
+              fontWeight: isTotal ? FontWeight.w800 : FontWeight.w600,
+              color: isTotal ? const Color(0xFF4CAF50) : const Color(0xFF1B5993),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildAmountSummary() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -310,6 +593,44 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
     );
   }
 
+  // Enhanced terms and conditions
+  Widget _buildEnhancedTermsAndConditions() {
+    return GestureDetector(
+      onTap: () {
+        // Handle terms and conditions
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1B5993).withOpacity(0.05),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFF1B5993).withOpacity(0.2)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.description,
+              color: const Color(0xFF1B5993),
+              size: 18,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Terms and Conditions',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF1B5993),
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildTermsAndConditions() {
     return GestureDetector(
       onTap: () {
@@ -324,6 +645,249 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
           color: const Color(0xFF1E3C90),
           decoration: TextDecoration.underline,
         ),
+      ),
+    );
+  }
+
+  // Enhanced payment information section
+  Widget _buildEnhancedPaymentInformationSection() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF4CAF50),
+            Color(0xFF45A049),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF4CAF50).withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.payment,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Payment Information',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          
+          // PSID/Challan with enhanced copy button
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white.withOpacity(0.3)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'PSID/Challan:',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white.withOpacity(0.9),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            widget.reservationData.psid,
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    GestureDetector(
+                      onTap: () => _copyToClipboard(context, widget.reservationData.psid),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.copy,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '(Go to your banking app/kuick pay and enter PSID)',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 12,
+                    color: Colors.white.withOpacity(0.8),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 16),
+          
+          _buildEnhancedInfoRow('Amount:', widget.reservationData.formattedTotalAmount, Icons.account_balance_wallet),
+          const SizedBox(height: 12),
+          _buildEnhancedInfoRow('Method:', _selectedPaymentMethod, Icons.payment),
+          
+          const SizedBox(height: 20),
+          
+          // Enhanced expiry warning
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.red.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.red.withOpacity(0.3)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.warning,
+                    color: Colors.red,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Your reservation will expire in 15 min if payment is not received.',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14,
+                      color: Colors.red[700],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 16),
+          
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  color: Colors.white.withOpacity(0.8),
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Once paid, go to my bookings',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 14,
+                    color: Colors.white.withOpacity(0.9),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEnhancedInfoRow(String label, String value, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: Colors.white.withOpacity(0.8),
+            size: 16,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.white.withOpacity(0.8),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            value,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -470,6 +1034,107 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
     );
   }
 
+  // Enhanced action buttons
+  Widget _buildEnhancedActionButtons() {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            height: 56,
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey[300]!),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => Navigator.pop(context),
+                borderRadius: BorderRadius.circular(16),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.close,
+                        color: Colors.grey[600],
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Close',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Container(
+            height: 56,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF1B5993),
+                  Color(0xFF20B2AA),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF1B5993).withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: widget.onGoToBookings,
+                borderRadius: BorderRadius.circular(16),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.book_online,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Go to My Bookings',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildActionButtons() {
     return Row(
       children: [
@@ -521,51 +1186,6 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
     );
   }
 
-  Widget _buildInfoRow(String label, String value, {bool showCopyButton = false, VoidCallback? onCopy}) {
-    return Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 3,
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-              ),
-              if (showCopyButton) ...[
-                const SizedBox(width: 8),
-                GestureDetector(
-                  onTap: onCopy,
-                  child: Icon(
-                    Icons.copy,
-                    size: 18,
-                    color: Colors.blue[600],
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 
   void _copyToClipboard(BuildContext context, String text) {
     Clipboard.setData(ClipboardData(text: text));
