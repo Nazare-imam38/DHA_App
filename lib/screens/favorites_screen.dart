@@ -158,30 +158,22 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                     ),
                     
                     // Right side - Refresh icon
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1B5993),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: IconButton(
-                        onPressed: _isRefreshing ? null : _refreshBookings,
-                        icon: _isRefreshing 
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                          : const Icon(
-                              Icons.refresh,
-                              color: Colors.white,
-                              size: 20,
+                    IconButton(
+                      onPressed: _isRefreshing ? null : _refreshBookings,
+                      icon: _isRefreshing 
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1B5993)),
                             ),
-                      ),
+                          )
+                        : const Icon(
+                            Icons.refresh,
+                            color: Color(0xFF1B5993),
+                            size: 20,
+                          ),
                     ),
                   ],
                 ),

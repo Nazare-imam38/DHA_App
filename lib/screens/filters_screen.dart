@@ -112,27 +112,27 @@ class _FiltersScreenState extends State<FiltersScreen> with TickerProviderStateM
                     ),
             
             // Main Filters Card - Web app style compact design
-            Container(
-              height: MediaQuery.of(context).size.height * 0.65,
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  // Filters Header - Web app premium styling
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                        child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    // Filters Header - Web app premium styling
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                          child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           children: [
@@ -209,9 +209,10 @@ class _FiltersScreenState extends State<FiltersScreen> with TickerProviderStateM
                   
                   // Filter Options - Web app compact spacing
                   Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
+                    child: ClipRect(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Column(
                         children: [
                           _buildFilterRow(
                             icon: Icons.event,
@@ -293,9 +294,11 @@ class _FiltersScreenState extends State<FiltersScreen> with TickerProviderStateM
                       ),
                     ),
                   ),
+                ),
                 ],
               ),
             ),
+          ),
           ],
         ),
       ),

@@ -834,17 +834,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onTap: () {
                         Scaffold.of(context).openDrawer();
                       },
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1B5993),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.menu,
-                          color: Colors.white,
-                          size: 24,
-                        ),
+                      child: const Icon(
+                        Icons.menu,
+                        color: Color(0xFF1B5993),
+                        size: 24,
                       ),
                     ),
                     Expanded(
