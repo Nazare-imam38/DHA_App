@@ -1068,7 +1068,8 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.all(6),
+                                    width: 30,
+                                    height: 30,
                                     decoration: BoxDecoration(
                                       color: const Color(0xFF1B5993).withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(8),
@@ -1088,6 +1089,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                                       fontWeight: FontWeight.w700,
                                       color: Color(0xFF1B5993),
                                       letterSpacing: 0.3,
+                                      height: 1.2,
                                     ),
                                   ),
                                 ],
@@ -1131,7 +1133,8 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Container(
-                                      padding: const EdgeInsets.all(6),
+                                      width: 30,
+                                      height: 30,
                                       decoration: BoxDecoration(
                                         color: const Color(0xFF1B5993).withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(8),
@@ -1151,6 +1154,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                                         fontWeight: FontWeight.w700,
                                         color: Color(0xFF1B5993),
                                         letterSpacing: 0.3,
+                                        height: 1.2,
                                       ),
                                     ),
                                   ],

@@ -342,7 +342,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         final plotLocation = LatLng(plot.latitude!, plot.longitude!);
         
         // Animate to plot location using flutter_map API
-        _mapController.move(plotLocation, 16.0);
+        _mapController.move(plotLocation, 16.0.clamp(8.0, 18.0));
         
         print('✅ Navigated to plot ${plot.plotNo} at ${plot.latitude}, ${plot.longitude}');
       } else {
@@ -945,7 +945,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               initialCenter: _mapCenter,
               initialZoom: _zoom,
               minZoom: 8.0,
-              maxZoom: 20.0,
+              maxZoom: 18.0,
               onTap: (tapPosition, point) {
                 // Don't handle map taps when filter panel is open to prevent interference
                 if (!_showFilters) {
@@ -1047,7 +1047,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                    markers: _getFilteredAmenitiesMarkers(_amenitiesMarkers, _zoom),
                  ),
                // Plot Details Popup - Show when a plot is selected on map
-               if (_selectedPlot != null && _selectedPlotDetails != null)
+               if (_selectedPlot != null)
                  MarkerLayer(
                    markers: _getPlotPopupMarker(),
                  ),
@@ -2247,7 +2247,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   /// Zoom in on the map
   void _zoomIn() {
     final currentZoom = _mapController.camera.zoom;
-    final newZoom = (currentZoom + 1).clamp(8.0, 20.0);
+    final newZoom = (currentZoom + 1).clamp(8.0, 18.0);
     _mapController.move(_mapController.camera.center, newZoom);
     setState(() {
       _zoom = newZoom;
@@ -2257,7 +2257,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   /// Zoom out on the map
   void _zoomOut() {
     final currentZoom = _mapController.camera.zoom;
-    final newZoom = (currentZoom - 1).clamp(8.0, 20.0);
+    final newZoom = (currentZoom - 1).clamp(8.0, 18.0);
     _mapController.move(_mapController.camera.center, newZoom);
     setState(() {
       _zoom = newZoom;
@@ -2577,7 +2577,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         print('🎬 Target location: $plotLocation');
         
         // Use moveAndRotate for better control with optimal zoom for satellite imagery
-        _mapController.moveAndRotate(plotLocation, 16.0, 0.0);
+        _mapController.moveAndRotate(plotLocation, 16.0.clamp(8.0, 18.0), 0.0);
         
         print('🗺️ Map navigation completed for plot ${plot.plotNo}');
         print('🗺️ New map center: ${_mapController.camera.center}');
@@ -2700,7 +2700,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         print('🎯 Current map center: ${_mapController.camera.center}');
         
         // Navigate to plot location with higher zoom
-        _mapController.moveAndRotate(plotLocation, 16.0, 0.0);
+        _mapController.moveAndRotate(plotLocation, 16.0.clamp(8.0, 18.0), 0.0);
         
         print('🎯 Map navigation completed');
         print('🎯 New map center: ${_mapController.camera.center}');
@@ -2813,8 +2813,11 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           } else if (maxRange > 0.001) {
             zoomLevel = 17.0; // Small polygon - detailed view for boundaries
           } else {
-            zoomLevel = 17.5; // Very small polygon - maximum detail for boundaries
+            zoomLevel = 18.0; // Very small polygon - maximum detail for boundaries (capped at 18)
           }
+          
+          // Ensure zoom level doesn't exceed maximum
+          zoomLevel = zoomLevel.clamp(8.0, 18.0);
           
           print('🎯 Calculated zoom level: $zoomLevel (polygon range: $maxRange)');
           
@@ -2834,7 +2837,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           // Fallback to plot coordinates if polygon is invalid
           if (plot.latitude != null && plot.longitude != null) {
             final plotLocation = LatLng(plot.latitude!, plot.longitude!);
-            _mapController.moveAndRotate(plotLocation, 16.0, 0.0);
+            _mapController.moveAndRotate(plotLocation, 16.0.clamp(8.0, 18.0), 0.0);
             print('🎯 Fallback navigation to plot coordinates: $plotLocation');
           }
         }
@@ -3959,7 +3962,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   /// Get plot popup marker for map overlay
   List<Marker> _getPlotPopupMarker() {
-    if (_selectedPlot == null || _selectedPlotDetails == null) {
+    if (_selectedPlot == null) {
       return [];
     }
 
