@@ -1102,17 +1102,17 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                         child: Container(
                           height: 44,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
+                            color: Colors.white,
+                            border: Border.all(
+                              color: const Color(0xFF1B5993),
+                              width: 2.0,
                             ),
                             borderRadius: BorderRadius.circular(14),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF1B5993).withOpacity(0.3),
-                                blurRadius: 10,
-                                offset: const Offset(0, 3),
+                                color: const Color(0xFF1B5993).withOpacity(0.1),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
@@ -1131,13 +1131,13 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                                     Container(
                                       padding: const EdgeInsets.all(6),
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.2),
+                                        color: const Color(0xFF1B5993).withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: const Icon(
                                         Icons.payment,
                                         size: 18,
-                                        color: Colors.white,
+                                        color: Color(0xFF1B5993),
                                       ),
                                     ),
                                     const SizedBox(width: 8),
@@ -1147,7 +1147,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                                         fontFamily: 'Inter',
                                         fontSize: 14,
                                         fontWeight: FontWeight.w700,
-                                        color: Colors.white,
+                                        color: Color(0xFF1B5993),
                                         letterSpacing: 0.3,
                                       ),
                                     ),
