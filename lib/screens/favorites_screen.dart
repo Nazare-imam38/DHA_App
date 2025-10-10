@@ -1065,6 +1065,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.all(6),
@@ -1127,6 +1128,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Container(
                                       padding: const EdgeInsets.all(6),
