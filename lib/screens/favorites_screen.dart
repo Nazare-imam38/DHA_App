@@ -753,34 +753,34 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Plot details - ultra compact design
+                // Plot details - improved design with better sizing
                 Row(
                   children: [
                     Container(
-                      width: 40,
-                      height: 40,
+                      width: 50,
+                      height: 50,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
                             color: const Color(0xFF1B5993).withOpacity(0.15),
-                            blurRadius: 4,
-                            offset: const Offset(0, 1),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
                       child: const Icon(
                         Icons.home_work,
                         color: Colors.white,
-                        size: 20,
+                        size: 24,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -789,26 +789,26 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                             '${widget.booking.plot.category} Plot',
                             style: TextStyle(
                               fontFamily: 'GT Walsheim',
-                              fontSize: 16,
+                              fontSize: 18,
                               fontWeight: FontWeight.w700,
                               color: Colors.black,
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          const SizedBox(height: 4),
                           Row(
                             children: [
                               Icon(
                                 Icons.location_on,
-                                size: 14,
+                                size: 16,
                                 color: Colors.grey[600],
                               ),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: 6),
                               Expanded(
                                 child: Text(
                                   'Phase ${widget.booking.plot.phase}, Sector ${widget.booking.plot.sector}',
                                   style: TextStyle(
                                     fontFamily: 'Inter',
-                                    fontSize: 12,
+                                    fontSize: 14,
                                     color: Colors.grey[600],
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -824,23 +824,23 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                 
                 const SizedBox(height: 8),
                 
-                // Ultra compact timer section for pending bookings
+                // Improved timer section for pending bookings
                 if (widget.booking.status == 'Pending') ...[
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          Colors.orange.withOpacity(0.06),
-                          Colors.red.withOpacity(0.03),
+                          Colors.orange.withOpacity(0.08),
+                          Colors.red.withOpacity(0.04),
                         ],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: Colors.orange.withOpacity(0.15),
-                        width: 1,
+                        color: Colors.orange.withOpacity(0.2),
+                        width: 1.5,
                       ),
                     ),
                     child: Row(
@@ -848,9 +848,9 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                         Icon(
                           Icons.timer,
                           color: Colors.orange[700],
-                          size: 14,
+                          size: 18,
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -859,33 +859,34 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                                 'Payment Due',
                                 style: TextStyle(
                                   fontFamily: 'Inter',
-                                  fontSize: 8,
+                                  fontSize: 12,
                                   color: Colors.orange[700],
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              const SizedBox(height: 1),
+                              const SizedBox(height: 2),
                               Text(
                                 'Complete payment within 15 minutes',
                                 style: TextStyle(
                                   fontFamily: 'Inter',
-                                  fontSize: 7,
+                                  fontSize: 11,
                                   color: Colors.orange[600],
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
                             color: _remainingTime.inSeconds <= 60 ? Colors.red[700] : Colors.orange[700],
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: (_remainingTime.inSeconds <= 60 ? Colors.red : Colors.orange).withOpacity(0.15),
-                                blurRadius: 2,
-                                offset: const Offset(0, 1),
+                                color: (_remainingTime.inSeconds <= 60 ? Colors.red : Colors.orange).withOpacity(0.2),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
@@ -893,7 +894,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                             _formatDuration(_remainingTime),
                             style: const TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 8,
+                              fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
                             ),
@@ -902,25 +903,25 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                 ],
                 
-                // Ultra compact plot price section
+                // Improved plot price section
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        const Color(0xFF1B5993).withOpacity(0.06),
-                        const Color(0xFF20B2AA).withOpacity(0.03),
+                        const Color(0xFF1B5993).withOpacity(0.08),
+                        const Color(0xFF20B2AA).withOpacity(0.04),
                       ],
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                     ),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: const Color(0xFF1B5993).withOpacity(0.12),
-                      width: 1,
+                      color: const Color(0xFF1B5993).withOpacity(0.15),
+                      width: 1.5,
                     ),
                   ),
                   child: Row(
@@ -928,9 +929,9 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                       Icon(
                         Icons.attach_money,
                         color: const Color(0xFF1B5993),
-                        size: 14,
+                        size: 18,
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -939,17 +940,17 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                               'Plot Price',
                               style: TextStyle(
                                 fontFamily: 'Inter',
-                                fontSize: 8,
+                                fontSize: 12,
                                 color: Colors.grey[600],
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                            const SizedBox(height: 1),
+                            const SizedBox(height: 2),
                             Text(
                               'PKR ${_formatPrice(widget.booking.plot.basePrice)}',
                               style: TextStyle(
                                 fontFamily: 'Inter',
-                                fontSize: 12,
+                                fontSize: 16,
                                 color: const Color(0xFF1B5993),
                                 fontWeight: FontWeight.w700,
                               ),
@@ -958,16 +959,20 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: const Color(0xFF1B5993).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: const Color(0xFF1B5993).withOpacity(0.2),
+                            width: 1,
+                          ),
                         ),
                         child: Text(
                           'Token: PKR ${_formatPrice(widget.booking.plot.tokenAmount)}',
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 7,
+                            fontSize: 10,
                             fontWeight: FontWeight.w600,
                             color: const Color(0xFF1B5993),
                           ),
@@ -979,21 +984,21 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                 
                 const SizedBox(height: 8),
                 
-                // Ultra compact plot information
+                // Improved plot information
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.grey[50],
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: Colors.grey[200]!,
-                      width: 1,
+                      width: 1.5,
                     ),
                   ),
                   child: Row(
                     children: [
                       Expanded(
-                        child: _buildUltraCompactInfoItem(
+                        child: _buildImprovedInfoItem(
                           'Category',
                           widget.booking.plot.category,
                           Icons.category,
@@ -1001,11 +1006,11 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                       ),
                       Container(
                         width: 1,
-                        height: 20,
+                        height: 30,
                         color: Colors.grey[300],
                       ),
                       Expanded(
-                        child: _buildUltraCompactInfoItem(
+                        child: _buildImprovedInfoItem(
                           'Phase',
                           widget.booking.plot.phase,
                           Icons.location_city,
@@ -1013,11 +1018,11 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                       ),
                       Container(
                         width: 1,
-                        height: 20,
+                        height: 30,
                         color: Colors.grey[300],
                       ),
                       Expanded(
-                        child: _buildUltraCompactInfoItem(
+                        child: _buildImprovedInfoItem(
                           'Sector',
                           widget.booking.plot.sector,
                           Icons.map,
@@ -1029,18 +1034,18 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                 
                 const SizedBox(height: 12),
                 
-                // Ultra compact action buttons
+                // Improved action buttons
                 Row(
                   children: [
                     Expanded(
                       child: Container(
-                        height: 28,
+                        height: 40,
                         decoration: BoxDecoration(
                           border: Border.all(
                             color: const Color(0xFF1B5993),
-                            width: 1.2,
+                            width: 1.5,
                           ),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         child: TextButton(
                           onPressed: () {
@@ -1050,19 +1055,19 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                             backgroundColor: Colors.white,
                             foregroundColor: const Color(0xFF1B5993),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.info_outline, size: 14),
-                              const SizedBox(width: 4),
+                              const Icon(Icons.info_outline, size: 16),
+                              const SizedBox(width: 6),
                               const Text(
                                 'Details',
                                 style: TextStyle(
                                   fontFamily: 'Inter',
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -1072,22 +1077,22 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                       ),
                     ),
                     if (widget.booking.status == 'Pending') ...[
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Container(
-                          height: 28,
+                          height: 40,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
                               colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF1B5993).withOpacity(0.15),
-                                blurRadius: 4,
-                                offset: const Offset(0, 1),
+                                color: const Color(0xFF1B5993).withOpacity(0.2),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
@@ -1099,19 +1104,19 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                               backgroundColor: Colors.transparent,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.payment, size: 14),
-                                const SizedBox(width: 4),
+                                const Icon(Icons.payment, size: 16),
+                                const SizedBox(width: 6),
                                 const Text(
                                   'Pay Now',
                                   style: TextStyle(
                                     fontFamily: 'Inter',
-                                    fontSize: 10,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -1195,31 +1200,31 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
     );
   }
 
-  Widget _buildUltraCompactInfoItem(String label, String value, IconData icon) {
+  Widget _buildImprovedInfoItem(String label, String value, IconData icon) {
     return Column(
       children: [
         Icon(
           icon,
-          size: 12,
+          size: 16,
           color: const Color(0xFF1B5993),
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: 4),
         Text(
           label,
           style: TextStyle(
             fontFamily: 'Inter',
-            fontSize: 6,
+            fontSize: 10,
             color: Colors.grey[600],
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(height: 1),
+        const SizedBox(height: 2),
         Text(
           value,
           style: TextStyle(
             fontFamily: 'Inter',
-            fontSize: 8,
-            color: Colors.black,
+            fontSize: 12,
+            color: const Color(0xFF1B5993),
             fontWeight: FontWeight.w600,
           ),
         ),
