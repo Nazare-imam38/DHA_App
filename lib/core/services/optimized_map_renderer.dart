@@ -6,10 +6,10 @@ import 'package:latlong2/latlong.dart';
 /// Optimized map renderer that handles boundaries and amenities with performance optimizations
 class OptimizedMapRenderer {
   static const double TOWN_PLAN_MIN_ZOOM = 14.0;
-  static const double AMENITIES_MIN_ZOOM = 14.0; // Sync with town plan
+  static const double AMENITIES_MIN_ZOOM = 16.0; // Lazy loading for performance
   static const double BOUNDARY_OPTIMIZATION_ZOOM = 12.0;
   
-  /// Get optimized boundary polygons based on zoom level
+  /// Get optimized boundary polygons - ALWAYS show all boundaries for performance
   static List<Polygon> getOptimizedBoundaryPolygons(
     List<BoundaryPolygon> boundaryPolygons,
     double zoomLevel,
@@ -17,42 +17,34 @@ class OptimizedMapRenderer {
   ) {
     if (!showBoundaries) return [];
     
-    // Don't render boundaries at very low zoom levels for performance
-    if (zoomLevel < 8.0) return [];
-    
+    // ALWAYS show all boundaries - no zoom filtering for performance
     final polygons = <Polygon>[];
     
     for (final boundary in boundaryPolygons) {
       for (final polygonCoords in boundary.polygons) {
         if (polygonCoords.length >= 3) {
-          // Simplify polygon at low zoom levels for performance
-          final simplifiedCoords = zoomLevel < BOUNDARY_OPTIMIZATION_ZOOM
-              ? _simplifyPolygon(polygonCoords, zoomLevel)
-              : polygonCoords;
-          
-          if (simplifiedCoords.length >= 3) {
-            polygons.add(
-              Polygon(
-                points: simplifiedCoords,
-                color: Colors.transparent,
-                borderColor: Colors.transparent,
-                borderStrokeWidth: 0.0,
-                label: zoomLevel >= 12.0 ? boundary.phaseName : null, // Only show labels at higher zoom
-                labelStyle: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  shadows: [
-                    Shadow(
-                      color: Colors.black,
-                      blurRadius: 2,
-                    ),
-                  ],
-                ),
-                labelPlacement: PolygonLabelPlacement.polylabel,
+          // NO SIMPLIFICATION - use original coordinates for best performance
+          polygons.add(
+            Polygon(
+              points: polygonCoords,
+              color: Colors.transparent,
+              borderColor: Colors.transparent,
+              borderStrokeWidth: 0.0,
+              label: boundary.phaseName, // Always show labels
+              labelStyle: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                shadows: [
+                  Shadow(
+                    color: Colors.black,
+                    blurRadius: 2,
+                  ),
+                ],
               ),
-            );
-          }
+              labelPlacement: PolygonLabelPlacement.polylabel,
+            ),
+          );
         }
       }
     }
@@ -60,7 +52,7 @@ class OptimizedMapRenderer {
     return polygons;
   }
   
-  /// Get optimized boundary lines with performance improvements
+  /// Get optimized boundary lines - ALWAYS show all boundaries for performance
   static List<Polyline> getOptimizedBoundaryLines(
     List<BoundaryPolygon> boundaryPolygons,
     double zoomLevel,
@@ -68,24 +60,15 @@ class OptimizedMapRenderer {
   ) {
     if (!showBoundaries) return [];
     
-    // Don't render boundary lines at very low zoom levels
-    if (zoomLevel < 8.0) return [];
-    
+    // ALWAYS show all boundary lines - no zoom filtering for performance
     final polylines = <Polyline>[];
     
     for (final boundary in boundaryPolygons) {
       for (final polygonCoords in boundary.polygons) {
         if (polygonCoords.length >= 3) {
-          // Simplify coordinates for performance
-          final simplifiedCoords = zoomLevel < BOUNDARY_OPTIMIZATION_ZOOM
-              ? _simplifyPolygon(polygonCoords, zoomLevel)
-              : polygonCoords;
-          
-          if (simplifiedCoords.length >= 3) {
-            // Create optimized dotted lines
-            final dottedLines = _createOptimizedDottedLines(simplifiedCoords, zoomLevel);
-            polylines.addAll(dottedLines);
-          }
+          // NO SIMPLIFICATION - use original coordinates for best performance
+          final dottedLines = _createOptimizedDottedLines(polygonCoords, zoomLevel);
+          polylines.addAll(dottedLines);
         }
       }
     }
@@ -125,32 +108,13 @@ class OptimizedMapRenderer {
     ).toList();
   }
   
-  /// Simplify polygon coordinates for performance
-  static List<LatLng> _simplifyPolygon(List<LatLng> coordinates, double zoomLevel) {
-    if (coordinates.length <= 3) return coordinates;
-    
-    // Calculate simplification factor based on zoom level
-    final factor = max(1, (coordinates.length / (20 - zoomLevel)).round());
-    
-    final simplified = <LatLng>[];
-    for (int i = 0; i < coordinates.length; i += factor) {
-      simplified.add(coordinates[i]);
-    }
-    
-    // Ensure polygon is closed
-    if (simplified.isNotEmpty && simplified.first != simplified.last) {
-      simplified.add(simplified.first);
-    }
-    
-    return simplified;
-  }
   
-  /// Create optimized dotted lines
+  /// Create optimized dotted lines - simplified for performance
   static List<Polyline> _createOptimizedDottedLines(List<LatLng> coordinates, double zoomLevel) {
     final polylines = <Polyline>[];
     
-    // Adjust segment count based on zoom level
-    final segmentCount = zoomLevel < 12.0 ? 5 : 10;
+    // Fixed segment count for consistent performance
+    final segmentCount = 8;
     
     for (int i = 0; i < coordinates.length; i++) {
       final start = coordinates[i];
@@ -164,7 +128,7 @@ class OptimizedMapRenderer {
             Polyline(
               points: [segments[j], segments[j + 1]],
               color: Colors.white,
-              strokeWidth: zoomLevel < 12.0 ? 1.5 : 2.0,
+              strokeWidth: 2.0, // Fixed stroke width for performance
               pattern: StrokePattern.dashed(segments: [4, 4]),
             ),
           );

@@ -11,7 +11,9 @@ import '../providers/plots_provider.dart';
 import '../data/models/plot_model.dart';
 import '../data/monuments_data.dart';
 import '../core/services/polygon_renderer_service.dart';
-import '../core/services/instant_boundary_service.dart';
+import '../core/services/enhanced_maptiler_boundary_service.dart' as maptiler;
+import '../core/services/optimized_local_boundary_service.dart' as local;
+import '../core/services/unified_memory_cache.dart';
 import '../core/services/plots_cache_service_enhanced.dart';
 import '../core/services/enhanced_plots_api_service.dart';
 import '../core/services/modern_filter_manager.dart';
@@ -21,6 +23,7 @@ import '../core/services/enhanced_polygon_service.dart';
 import 'sidebar_drawer.dart';
 import '../ui/widgets/modern_filters_panel.dart';
 import '../ui/widgets/enhanced_plot_info_card.dart';
+import '../ui/widgets/phase_label_widget.dart';
 import '../ui/widgets/rectangular_toggle_button.dart';
 
 /// Optimized version of ProjectsScreen that maintains the exact same UI
@@ -125,11 +128,12 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
     // Start performance tracking
     // PerformanceService.startTimer('projects_screen_load');
 
-    // Load data in parallel for better performance
+    // Load only essential data initially (boundaries and plots)
+    // Amenities will be loaded lazily when zoom level reaches 16+
     await Future.wait([
       _loadPlots(),
       _loadBoundaryPolygons(),
-      _loadAmenitiesMarkers(),
+      // _loadAmenitiesMarkers(), // Removed - lazy loading only
     ]);
 
     // Hide loading state
@@ -189,26 +193,39 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
 
   Future<void> _loadBoundaryPolygons() async {
     try {
-      // Try to get boundaries instantly from cache first
-      final instantBoundaries = InstantBoundaryService.getBoundariesInstantly();
-      if (instantBoundaries.isNotEmpty) {
+      print('🔄 Loading boundary polygons from optimized local files (NO NETWORK CALLS)...');
+      
+      // Check if boundaries are already loaded
+      if (local.OptimizedLocalBoundaryService.isLoaded) {
+        final instantBoundaries = local.OptimizedLocalBoundaryService.getBoundariesInstantly();
         setState(() {
           _boundaryPolygons = instantBoundaries;
           _isLoadingBoundaries = false;
         });
-        print('Optimized loading: Loaded ${instantBoundaries.length} boundaries from cache');
+        print('✅ Persistent loading: Loaded ${instantBoundaries.length} boundaries from local cache (NO FILE LOADING)');
         return;
       }
       
-      // If not cached, load with optimization
-      final boundaries = await InstantBoundaryService.loadAllBoundaries();
+      // Check if we've already attempted loading
+      if (local.OptimizedLocalBoundaryService.hasAttemptedLoad) {
+        print('⚠️ Boundaries already attempted to load, returning empty list');
+        setState(() {
+          _isLoadingBoundaries = false;
+        });
+        return;
+      }
+      
+      print('⚠️ No cached boundaries found, loading from local files (OPTIMIZED)...');
+      
+      // If not cached, load from local files and store permanently
+      final boundaries = await local.OptimizedLocalBoundaryService.loadAllBoundaries();
       setState(() {
         _boundaryPolygons = boundaries;
         _isLoadingBoundaries = false;
       });
-      print('Optimized loading: Loaded ${boundaries.length} boundaries with optimization');
+      print('✅ Optimized local loading: Loaded ${boundaries.length} boundaries from local files (NO NETWORK CALLS)');
     } catch (e) {
-      print('Error loading boundary polygons: $e');
+      print('❌ Error loading boundary polygons from local files: $e');
       setState(() {
         _isLoadingBoundaries = false;
       });
@@ -229,6 +246,35 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
       print('Successfully loaded ${amenityMarkers.length} amenity markers');
     } catch (e) {
       print('Error loading amenities markers: $e');
+      setState(() {
+        _isLoadingAmenities = false;
+      });
+    }
+  }
+
+  /// Lazy load amenities markers when zoom level reaches 16+
+  Future<void> _loadAmenitiesMarkersLazy() async {
+    if (_isLoadingAmenities || _amenitiesMarkers.isNotEmpty) {
+      return; // Already loading or loaded
+    }
+    
+    setState(() {
+      _isLoadingAmenities = true;
+    });
+    
+    try {
+      print('Lazy loading amenities markers at zoom level 16+...');
+      
+      final amenityMarkers = await AmenitiesMarkerService.loadAmenitiesMarkers();
+      
+      setState(() {
+        _amenitiesMarkers = amenityMarkers;
+        _isLoadingAmenities = false;
+      });
+      
+      print('Successfully lazy loaded ${amenityMarkers.length} amenity markers');
+    } catch (e) {
+      print('Error lazy loading amenities markers: $e');
       setState(() {
         _isLoadingAmenities = false;
       });
@@ -261,8 +307,11 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
               onTap: (tapPosition, point) {
                 _handleMapTap(point);
               },
-              // onPositionChanged callback removed due to API changes in flutter_map 8.2.2
-              // TODO: Implement proper position change handling
+              onPositionChanged: (position, hasGesture) {
+                if (hasGesture) {
+                  _handleZoomChange(position.zoom);
+                }
+              },
             ),
             children: [
               TileLayer(
@@ -277,8 +326,13 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
               PolygonLayer(
                 polygons: _getBoundaryPolygons(),
               ),
+              // Phase labels on boundaries
+              if (_showBoundaries && _boundaryPolygons.isNotEmpty)
+                MarkerLayer(
+                  markers: _getPhaseLabelMarkers(),
+                ),
               // Plot polygons removed - no longer displaying plots on map
-              // Amenities markers (only show when toggle is on and at zoom level 12+)
+              // Amenities markers (only show when toggle is on and at zoom level 16+)
               if (_showAmenities)
                 MarkerLayer(
                   markers: _getFilteredAmenitiesMarkers(_amenitiesMarkers, _zoom),
@@ -317,10 +371,10 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
                           Text(
                             'Loading DHA Projects...',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'GT Walsheim',
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF1E3C90),
+                              color: Color(0xFF1B5993),
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -349,14 +403,16 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
             right: 0,
             child: Container(
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
+                color: Colors.white,
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(20),
+                ),
+                border: const Border(
+                  bottom: BorderSide(
+                    color: Color(0xFF1B5993), // Navy blue border
+                    width: 2.0,
+                  ),
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -367,99 +423,50 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
                 ],
               ),
               child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Scaffold.of(context).openDrawer();
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(
-                              Icons.menu,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            l10n.dhaProjectsMap,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: _showViewTypeSelector,
-                          icon: const Icon(Icons.layers, color: Colors.white),
-                        ),
-                      ],
+                    // Left side - Hamburger menu
+                    IconButton(
+                      onPressed: () {
+                        Scaffold.of(context).openDrawer();
+                      },
+                      icon: const Icon(
+                        Icons.menu,
+                        color: Color(0xFF1B5993),
+                        size: 24,
+                      ),
                     ),
-                    const SizedBox(height: 12),
-                    // View controls and indicators
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            _getTranslatedViewType(_selectedView, l10n),
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                    
+                    // Center - Title
+                    Text(
+                      l10n.dhaProjectsMap,
+                      style: TextStyle(
+                        fontFamily: 'GT Walsheim',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF1B5993),
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    
+                    // Right side - View type selector
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1B5993),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: IconButton(
+                        onPressed: _showViewTypeSelector,
+                        icon: const Icon(
+                          Icons.layers,
+                          color: Colors.white,
+                          size: 20,
                         ),
-                        const SizedBox(width: 8),
-                        // Plot count removed - plots API no longer used
-                        const SizedBox(width: 8),
-                        // Performance indicator
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: _isInitialized ? Colors.green.withOpacity(0.8) : Colors.orange.withOpacity(0.8),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                _isInitialized ? Icons.check_circle : Icons.sync,
-                                color: Colors.white,
-                                size: 14,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                _isInitialized ? 'Optimized' : 'Loading',
-                                style: const TextStyle(
-                                  fontFamily: 'Inter',
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
@@ -469,7 +476,7 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
           
           // Map Controls (Top Left of Map)
           Positioned(
-            top: 140,
+            top: 100,
             left: 20,
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -577,8 +584,26 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
   // Plot polygon rendering removed - no longer displaying plots on map
 
   // Performance optimization: Handle zoom level changes
-  void _handleZoomChange(int newZoomLevel) {
-    // Plots API removed - no longer handling zoom level changes for plots
+  void _handleZoomChange(double newZoomLevel) {
+    print('🔍 Zoom change detected: $_zoom -> $newZoomLevel');
+    
+    // Update zoom level and trigger lazy loading if needed
+    if (_zoom != newZoomLevel) {
+      setState(() {
+        _zoom = newZoomLevel;
+      });
+      
+      // Trigger lazy loading of amenities when zoom reaches 16+
+      if (newZoomLevel >= 16.0 && _amenitiesMarkers.isEmpty && !_isLoadingAmenities) {
+        print('🚀 Loading amenities on zoom change to level: $newZoomLevel');
+        _loadAmenitiesMarkersLazy();
+      } else {
+        print('⏸️ Amenities not loaded - zoom: $newZoomLevel, markers: ${_amenitiesMarkers.length}, loading: $_isLoadingAmenities');
+      }
+      
+      // Force map rebuild to update marker visibility
+      print('🔄 Forcing map rebuild for zoom level: $newZoomLevel');
+    }
   }
 
   // All other methods remain exactly the same as the original projects_screen.dart
@@ -590,7 +615,7 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
       print('Map tapped at: $point');
       
       // Check for amenities only
-      if (_showAmenities && _zoom >= 12.0) {
+      if (_showAmenities && _zoom >= 16.0) {
         // Find amenity at tapped point
         final tappedAmenity = _findAmenityAtPoint(point);
         if (tappedAmenity != null) {
@@ -674,6 +699,43 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
     return polygons;
   }
 
+  /// Get phase label markers for boundaries
+  List<Marker> _getPhaseLabelMarkers() {
+    try {
+      if (_boundaryPolygons.isEmpty) {
+        return [];
+      }
+
+      final markers = <Marker>[];
+      
+      for (final boundary in _boundaryPolygons) {
+        // Only show labels at zoom level 12 and above to reduce clutter
+        if (_zoom < 12) continue;
+        
+        final center = boundary.center;
+        final marker = Marker(
+          point: center,
+          width: 80,
+          height: 20,
+          child: EnhancedPhaseLabel(
+            phaseName: boundary.phaseName,
+            color: boundary.color,
+            icon: boundary.icon,
+            position: center,
+            zoom: _zoom,
+          ),
+        );
+        
+        markers.add(marker);
+      }
+      
+      return markers;
+    } catch (e) {
+      print('❌ Error creating phase label markers: $e');
+      return [];
+    }
+  }
+
   String _getTranslatedViewType(String viewType, AppLocalizations l10n) {
     switch (viewType) {
       case 'Satellite':
@@ -736,30 +798,74 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
     print('zoomLevel: $zoomLevel');
     print('amenityMarkers.length: ${amenityMarkers.length}');
     
-    // Lazy loading: Only show amenities at zoom level 12 and above
-    if (zoomLevel < 12.0) {
-      print('Zoom level too low: $zoomLevel < 12.0 - No amenities shown');
+    // Lazy loading: Only show amenities at zoom level 16 and above
+    if (zoomLevel < 16.0) {
+      print('Zoom level too low: $zoomLevel < 16.0 - No amenities shown (lazy loading)');
       return [];
     }
     
-    // Progressive loading: Show fewer amenities at lower zoom levels
-    List<AmenityMarker> filteredMarkers = amenityMarkers;
-    if (zoomLevel < 14.0) {
-      // Show only 30% of amenities at zoom levels 12-13
-      final maxAmenities = (amenityMarkers.length * 0.3).round();
-      // Use sampling instead of .take() to ensure all phases are represented
-      filteredMarkers = _sampleAmenitiesEvenly(amenityMarkers, maxAmenities);
-      print('Limited to $maxAmenities amenities for zoom level $zoomLevel (evenly sampled)');
-    } else if (zoomLevel < 16.0) {
-      // Show 60% of amenities at zoom levels 14-15
-      final maxAmenities = (amenityMarkers.length * 0.6).round();
-      // Use sampling instead of .take() to ensure all phases are represented
-      filteredMarkers = _sampleAmenitiesEvenly(amenityMarkers, maxAmenities);
-      print('Limited to $maxAmenities amenities for zoom level $zoomLevel (evenly sampled)');
+    // Trigger lazy loading of amenities if not already loaded
+    if (amenityMarkers.isEmpty && !_isLoadingAmenities) {
+      _loadAmenitiesMarkersLazy();
     }
+    
+    // Filter amenities to only show those within visible phase boundaries
+    List<AmenityMarker> filteredMarkers = _filterAmenitiesWithinPhaseBoundaries(amenityMarkers);
+    
+    print('After phase boundary filtering: ${filteredMarkers.length} amenities remain');
     
     print('Rendering ${filteredMarkers.length} amenity MARKERS with dynamic sizing');
     return filteredMarkers.map((amenityMarker) => _createDynamicAmenityMarker(amenityMarker, zoomLevel)).toList();
+  }
+
+  /// Filter amenities to only show those within visible phase boundaries
+  List<AmenityMarker> _filterAmenitiesWithinPhaseBoundaries(List<AmenityMarker> amenityMarkers) {
+    if (_boundaryPolygons.isEmpty) {
+      print('No phase boundaries available, showing all amenities');
+      return amenityMarkers;
+    }
+    
+    final List<AmenityMarker> filteredAmenities = [];
+    
+    for (final amenity in amenityMarkers) {
+      // Check if amenity is within any phase boundary
+      bool isWithinBoundary = false;
+      
+      for (final boundary in _boundaryPolygons) {
+        for (final polygon in boundary.polygons) {
+          if (_isPointInPolygon(amenity.point, polygon)) {
+            isWithinBoundary = true;
+            break;
+          }
+        }
+        if (isWithinBoundary) break;
+      }
+      
+      if (isWithinBoundary) {
+        filteredAmenities.add(amenity);
+      }
+    }
+    
+    print('Filtered ${filteredAmenities.length} amenities within phase boundaries out of ${amenityMarkers.length} total');
+    return filteredAmenities;
+  }
+
+  /// Check if a point is inside a polygon using ray casting algorithm
+  bool _isPointInPolygon(LatLng point, List<LatLng> polygon) {
+    int intersections = 0;
+    int j = polygon.length - 1;
+    
+    for (int i = 0; i < polygon.length; i++) {
+      if (((polygon[i].latitude > point.latitude) != (polygon[j].latitude > point.latitude)) &&
+          (point.longitude < (polygon[j].longitude - polygon[i].longitude) * 
+           (point.latitude - polygon[i].latitude) / (polygon[j].latitude - polygon[i].latitude) + 
+           polygon[i].longitude)) {
+        intersections++;
+      }
+      j = i;
+    }
+    
+    return intersections % 2 == 1;
   }
 
   /// Sample amenities evenly across all phases to ensure fair representation
@@ -1013,7 +1119,7 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
               child: Text(
                 amenity.amenityType,
                 style: const TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'GT Walsheim',
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                 ),

@@ -50,10 +50,10 @@ class EnhancedPolygonService {
               Polygon(
                 points: closedCoordinates,
                 color: isSelected 
-                    ? const Color(0xFF2196F3).withOpacity(0.6) // Blue highlight for selected plot
+                    ? const Color(0xFF8D6E63).withOpacity(0.7) // Brown/beige highlight for selected plot
                     : _getPlotColor(plot).withOpacity(0.4),
                 borderColor: isSelected 
-                    ? const Color(0xFF1976D2) // Darker blue border for selected plot
+                    ? const Color(0xFF5D4037) // Darker brown border for selected plot
                     : _getBorderColor(plot),
                 borderStrokeWidth: isSelected ? 3.0 : 2.0, // Thicker border for selected plot
                 label: 'Plot ${plot.plotNo}',

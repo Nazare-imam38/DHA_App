@@ -17,48 +17,36 @@ class MapPopupWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(
-        maxWidth: 280,
-        minWidth: 240,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Main popup content
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+      width: 180,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Header
-                _buildHeader(),
-                
-                // Content
-                _buildContent(),
-              ],
-            ),
-          ),
-          
-          // Pointer/Arrow pointing to plot
-          _buildPointer(),
-        ],
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header
+            _buildHeader(),
+            
+            // Content
+            _buildContent(),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: const BoxDecoration(
         color: Color(0xFF1E3C90),
         borderRadius: BorderRadius.only(
@@ -71,7 +59,7 @@ class MapPopupWidget extends StatelessWidget {
           Text(
             'Plot ${plot.plotNo}',
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 12,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -80,15 +68,15 @@ class MapPopupWidget extends StatelessWidget {
           GestureDetector(
             onTap: onClose,
             child: Container(
-              padding: const EdgeInsets.all(4),
+              padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(3),
               ),
               child: const Icon(
                 Icons.close,
                 color: Colors.white,
-                size: 14,
+                size: 12,
               ),
             ),
           ),
@@ -99,35 +87,33 @@ class MapPopupWidget extends StatelessWidget {
 
   Widget _buildContent() {
     return Padding(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Status tags
           Row(
             children: [
               _buildStatusChip(plot.category, _getCategoryColor(plot.category)),
-              const SizedBox(width: 6),
+              const SizedBox(width: 4),
               _buildStatusChip('Selected', Colors.blue.shade600),
             ],
           ),
           
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           
-          // Plot details
-          _buildInfoRow('Phase', plot.phase),
+          // Plot details - essential info only
           _buildInfoRow('Sector', plot.sector),
           _buildInfoRow('Street', plot.streetNo),
           _buildInfoRow('Size', plot.catArea),
-          if (plot.dimension != null && plot.dimension!.isNotEmpty)
-            _buildInfoRow('Dimension', plot.dimension!),
           
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           
           // Price
           _buildPrice(),
           
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           
           // Action button
           _buildActionButton(),
@@ -138,15 +124,15 @@ class MapPopupWidget extends StatelessWidget {
 
   Widget _buildStatusChip(String label, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         label,
         style: const TextStyle(
-          fontSize: 9,
+          fontSize: 8,
           fontWeight: FontWeight.w600,
           color: Colors.white,
         ),
@@ -156,26 +142,26 @@ class MapPopupWidget extends StatelessWidget {
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1),
+      padding: const EdgeInsets.symmetric(vertical: 0.5),
       child: Row(
         children: [
           SizedBox(
-            width: 50,
+            width: 40,
             child: Text(
               '$label:',
               style: const TextStyle(
-                fontSize: 9,
+                fontSize: 8,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
               ),
             ),
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 3),
           Expanded(
             child: Text(
               value,
               style: const TextStyle(
-                fontSize: 9,
+                fontSize: 8,
                 color: Colors.black54,
               ),
               overflow: TextOverflow.ellipsis,
@@ -187,36 +173,28 @@ class MapPopupWidget extends StatelessWidget {
   }
 
   Widget _buildPrice() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Row(
-        children: [
-          const Text(
-            'Price:',
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
+    return Row(
+      children: [
+        const Text(
+          'Price:',
+          style: TextStyle(
+            fontSize: 8,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(width: 3),
+        Expanded(
+          child: Text(
+            'PKR ${_formatPrice(plot.basePrice)}',
+            style: const TextStyle(
+              fontSize: 8,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1E3C90),
             ),
           ),
-          const SizedBox(width: 4),
-          Expanded(
-            child: Text(
-              'PKR ${_formatPrice(plot.basePrice)}',
-              style: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1E3C90),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -228,15 +206,15 @@ class MapPopupWidget extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF1E3C90),
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 6),
+          padding: const EdgeInsets.symmetric(vertical: 4),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(4),
           ),
         ),
         child: const Text(
           'View Details',
           style: TextStyle(
-            fontSize: 10,
+            fontSize: 8,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -244,16 +222,7 @@ class MapPopupWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildPointer() {
-    return Container(
-      width: 20,
-      height: 15,
-      child: CustomPaint(
-        size: const Size(20, 15),
-        painter: PointerPainter(),
-      ),
-    );
-  }
+
 
   Color _getCategoryColor(String category) {
     switch (category.toLowerCase()) {
@@ -285,45 +254,4 @@ class MapPopupWidget extends StatelessWidget {
   }
 }
 
-/// Custom painter for the pointer/arrow
-class PointerPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Draw shadow first
-    final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.2)
-      ..style = PaintingStyle.fill;
 
-    final shadowPath = Path();
-    shadowPath.moveTo(size.width / 2, size.height);
-    shadowPath.lineTo(0, 0);
-    shadowPath.lineTo(size.width, 0);
-    shadowPath.close();
-
-    canvas.drawPath(shadowPath, shadowPaint);
-
-    // Draw main pointer
-    final paint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-
-    final path = Path();
-    path.moveTo(size.width / 2, size.height);
-    path.lineTo(0, 0);
-    path.lineTo(size.width, 0);
-    path.close();
-
-    canvas.drawPath(path, paint);
-
-    // Draw border for better visibility
-    final borderPaint = Paint()
-      ..color = Colors.grey.shade300
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-
-    canvas.drawPath(path, borderPaint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
-}

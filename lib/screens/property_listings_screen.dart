@@ -62,40 +62,42 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header with rounded rectangle
+            // Header with white background
             Container(
               decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
+                color: Colors.white,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(20),
                 ),
+                border: Border(
+                  bottom: BorderSide(
+                    color: Color(0xFF1B5993), // Navy blue border
+                    width: 2.0,
+                  ),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
+                  ),
+                ],
               ),
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                 child: Column(
                   children: [
                     Row(
                       children: [
-                        GestureDetector(
-                          onTap: () {
+                        IconButton(
+                          onPressed: () {
                             Scaffold.of(context).openDrawer();
                           },
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(
-                              Icons.menu,
-                              color: Colors.white,
-                              size: 24,
-                            ),
+                          icon: const Icon(
+                            Icons.menu,
+                            color: Color(0xFF1B5993),
+                            size: 24,
                           ),
                         ),
                         Expanded(
@@ -106,7 +108,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                               fontFamily: 'Poppins',
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              color: const Color(0xFF1B5993),
                             ),
                           ),
                         ),
@@ -114,11 +116,11 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                           onPressed: () {
                             _showFilterBottomSheet();
                           },
-                          icon: const Icon(Icons.tune, color: Colors.white),
+                          icon: const Icon(Icons.tune, color: Color(0xFF1B5993)),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     // Search bar
                     Container(
                       height: 45,
@@ -193,7 +195,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         gradient: isSelected ? const LinearGradient(
-          colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+          colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ) : null,
@@ -245,7 +247,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
               gradient: LinearGradient(
                 colors: [
                   const Color(0xFF20B2AA).withOpacity(0.1),
-                  const Color(0xFF1E3C90).withOpacity(0.1),
+                  const Color(0xFF1B5993).withOpacity(0.1),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -492,7 +494,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
   Color _getFilterIconColor(String title) {
     switch (title) {
       case 'Property Type':
-        return const Color(0xFF1E3C90);
+        return const Color(0xFF1B5993);
       case 'Price Range':
         return Colors.green;
       case 'Location':
@@ -531,7 +533,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+                  colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
@@ -643,7 +645,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                       icon: const Icon(Icons.check, size: 16),
                       label: const Text('Apply Filters'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1E3C90),
+                        backgroundColor: const Color(0xFF1B5993),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),

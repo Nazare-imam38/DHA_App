@@ -20,10 +20,10 @@ class ModernFiltersPanel extends StatefulWidget {
 
 
   @override
-  State<ModernFiltersPanel> createState() => _ModernFiltersPanelState();
+  State<ModernFiltersPanel> createState() => ModernFiltersPanelState();
 }
 
-class _ModernFiltersPanelState extends State<ModernFiltersPanel>
+class ModernFiltersPanelState extends State<ModernFiltersPanel>
     with TickerProviderStateMixin {
   late AnimationController _slideController;
   late AnimationController _fadeController;
@@ -62,6 +62,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
   @override
   void initState() {
     super.initState();
+    print('🔍 ModernFiltersPanel: initState called - creating new instance');
     _initializeAnimations();
     _initializeFilters();
   }
@@ -91,6 +92,12 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
       parent: _fadeController,
       curve: Curves.easeOut,
     ));
+    
+    // CRITICAL: Initialize animations to open state if panel should be visible
+    if (widget.isVisible) {
+      _slideController.value = 1.0;
+      _fadeController.value = 1.0;
+    }
   }
 
   void _initializeFilters() {
@@ -115,6 +122,8 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
   @override
   void didUpdateWidget(ModernFiltersPanel oldWidget) {
     super.didUpdateWidget(oldWidget);
+    print('🔍 ModernFiltersPanel: didUpdateWidget called - isVisible: ${widget.isVisible}, wasVisible: ${oldWidget.isVisible}');
+    // CRITICAL: Only trigger animations when visibility actually changes
     if (widget.isVisible && !oldWidget.isVisible) {
       print('🔍 Filter panel: Opening animation');
       _slideController.forward();
@@ -124,6 +133,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
       _slideController.reverse();
       _fadeController.reverse();
     }
+    // If visibility hasn't changed, don't trigger animations to preserve state
   }
 
   @override
@@ -214,6 +224,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
 
   void _notifyFiltersChanged() {
     print('🔍 Filter panel: Notifying filter changes - Panel should stay open');
+    print('🔍 Current filter values: Type=$_selectedPlotType, Phase=$_selectedDhaPhase, Size=$_selectedPlotSize, PriceRange=$_priceRange');
     widget.onFiltersChanged({
       'plotType': _selectedPlotType,
       'dhaPhase': _selectedDhaPhase,
@@ -222,19 +233,34 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
       'activeFilters': _activeFilters,
     });
   }
+  
+  /// Force the panel to stay open - prevents accidental closing during filter operations
+  void forceStayOpen() {
+    print('🔍 Filter panel: Forcing panel to stay open');
+    if (!_slideController.isCompleted) {
+      _slideController.forward();
+    }
+    if (!_fadeController.isCompleted) {
+      _fadeController.forward();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.isVisible) return const SizedBox.shrink();
+    print('🔍 ModernFiltersPanel: build called - isVisible: ${widget.isVisible}');
+    // CRITICAL: Always render the widget to maintain state, control visibility through animations
+    // if (!widget.isVisible) return const SizedBox.shrink();
 
-    return AnimatedBuilder(
-      animation: _slideAnimation,
-      builder: (context, child) {
-        return SlideTransition(
-          position: _slideAnimation,
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: Container(
+    return Offstage(
+      offstage: !widget.isVisible,
+      child: AnimatedBuilder(
+        animation: _slideAnimation,
+        builder: (context, child) {
+          return SlideTransition(
+            position: _slideAnimation,
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: Container(
               width: MediaQuery.of(context).size.width * 0.6,
               constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height * 0.7,
@@ -393,6 +419,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
           ),
         );
       },
+    ),
     );
   }
 
@@ -895,6 +922,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                   activeColor: const Color(0xFF4CAF50),
                   inactiveColor: Colors.grey[300],
                   onChanged: (RangeValues values) {
+                    print('🔍 Price range slider changed: ${values.start} - ${values.end}');
                     // Validate the new values
                     final newStart = values.start.clamp(_minPrice, _maxPrice);
                     final newEnd = values.end.clamp(_minPrice, _maxPrice);
@@ -905,6 +933,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
                       _updateActiveFilters();
                       _notifyFiltersChanged(); // Apply filters immediately
                     });
+                    print('🔍 Price range updated and filters notified - panel should stay open');
                   },
                 ),
               ),
@@ -919,49 +948,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
             ],
           ),
           
-          const SizedBox(height: 12),
-          
-          // Apply filter button
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                _updateActiveFilters();
-                _notifyFiltersChanged();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Price range applied: PKR ${(safePriceRange.start / 1000000).toStringAsFixed(2)}M - ${(safePriceRange.end / 1000000).toStringAsFixed(0)}M'),
-                    backgroundColor: const Color(0xFF20B2AA),
-                    duration: const Duration(seconds: 2),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF20B2AA), // Same as other filter elements
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12), // Smaller padding
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                elevation: 0, // No elevation for smaller look
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.check, size: 10), // Smaller icon
-                  SizedBox(width: 3),
-                  Text(
-                    'Apply Range',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 10, // Smaller text
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          const SizedBox(height: 8),
         ],
       ),
     );
@@ -997,6 +984,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
   }
 
   void _adjustPriceRange(String type, double amount) {
+    print('🔍 Price range adjusted: $type by $amount');
     setState(() {
       if (type == 'min') {
         final newMin = (_priceRange.start + amount).clamp(_minPrice, _maxPrice);
@@ -1012,6 +1000,7 @@ class _ModernFiltersPanelState extends State<ModernFiltersPanel>
       _updateActiveFilters();
       _notifyFiltersChanged(); // Apply filters immediately
     });
+    print('🔍 Price range adjustment completed - panel should stay open');
   }
 
   Widget _buildActiveFiltersSection() {

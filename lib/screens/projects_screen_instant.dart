@@ -19,9 +19,11 @@ import '../ui/widgets/small_plot_info_card.dart';
 import '../ui/widgets/map_popup_widget.dart';
 import '../ui/widgets/selected_plot_details_widget.dart';
 import '../ui/widgets/plot_details_modal.dart';
+import '../ui/widgets/phase_label_widget.dart';
 import '../ui/screens/auth/login_screen.dart';
-import '../core/services/instant_boundary_service.dart' as boundary;
-import '../core/services/optimized_boundary_service.dart';
+import '../core/services/enhanced_maptiler_boundary_service.dart' as maptiler;
+import '../core/services/optimized_local_boundary_service.dart' as local;
+import '../core/services/unified_memory_cache.dart';
 import '../core/services/optimized_plots_cache.dart';
 import '../core/services/optimized_tile_cache.dart';
 // import '../core/services/enhanced_startup_preloader.dart';
@@ -125,7 +127,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   
   // Map related variables
   LatLng _mapCenter = const LatLng(33.6844, 73.0479); // Islamabad/Rawalpindi coordinates
-  double _zoom = 14.0; // Increased zoom for better satellite view
+  double _zoom = 12.0; // Start with lower zoom for better performance
   MapController _mapController = MapController();
   
   // Selected plot for details
@@ -142,8 +144,11 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   // Modern filter manager
   final ModernFilterManager _filterManager = ModernFilterManager();
   
+  // Global key for persistent filter panel
+  final GlobalKey<ModernFiltersPanelState> _filterPanelKey = GlobalKey<ModernFiltersPanelState>();
+  
   // Boundary polygons
-  List<boundary.BoundaryPolygon> _boundaryPolygons = [];
+  List<BoundaryPolygon> _boundaryPolygons = [];
   bool _isLoadingBoundaries = true;
   bool _showBoundaries = true;
   
@@ -184,6 +189,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   /// Initialize modern filter manager
   void _initializeFilterManager() {
     _filterManager.onPlotsUpdated = (plots) {
+      print('🔍 Filter Manager: onPlotsUpdated called - _showFilters = $_showFilters');
       setState(() {
         _plots = plots;
         print('✅ Filter Manager: Updated plots count to ${plots.length}');
@@ -199,12 +205,15 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           }
         }
       });
+      print('🔍 Filter Manager: onPlotsUpdated completed - _showFilters = $_showFilters');
     };
     
     _filterManager.onLoadingChanged = (isLoading) {
+      print('🔍 Filter Manager: onLoadingChanged called - _showFilters = $_showFilters');
       setState(() {
         _isDataLoading = isLoading;
       });
+      print('🔍 Filter Manager: onLoadingChanged completed - _showFilters = $_showFilters');
     };
     
     _filterManager.onErrorChanged = (error) {
@@ -296,10 +305,12 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     // The filter manager will automatically update _plots through the callback
     // No need to navigate immediately - let the polygons update first
     print('✅ Filters applied - Plot polygons will update automatically');
+    print('🔍 Filter panel should remain open: _showFilters = $_showFilters');
   }
 
   /// Update bottom sheet visibility based on active filters
   void _updateBottomSheetVisibility() {
+    print('🔍 _updateBottomSheetVisibility called - _showFilters = $_showFilters');
     final hasActiveFilters = _activeFilters.isNotEmpty && 
                             _activeFilters.first != 'All Plots' &&
                             (_selectedPlotType != null || 
@@ -315,6 +326,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     
     print('Bottom sheet visibility: $_isBottomSheetVisible (Active filters: ${_activeFilters.length})');
     print('Plot polygons visibility: $_showPlotPolygons');
+    print('🔍 _updateBottomSheetVisibility completed - _showFilters = $_showFilters');
   }
 
   /// Navigate to a specific plot on the map
@@ -330,7 +342,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         final plotLocation = LatLng(plot.latitude!, plot.longitude!);
         
         // Animate to plot location using flutter_map API
-        _mapController.move(plotLocation, 13.0);
+        _mapController.move(plotLocation, 16.0);
         
         print('✅ Navigated to plot ${plot.plotNo} at ${plot.latitude}, ${plot.longitude}');
       } else {
@@ -445,8 +457,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         // Load detailed plot data with GeoJSON parsing
         await _loadDetailedPlots();
         
-        // Load amenities on demand
-        await _loadAmenitiesMarkers();
+        // Amenities will be loaded lazily when zoom level reaches 16+
+        // await _loadAmenitiesMarkers(); // Removed - lazy loading only
         
         setState(() {
           _isDataLoading = false;
@@ -517,8 +529,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         return;
       }
       
-      // Check if we need to load amenities based on current zoom
-      if (_zoom >= 12.0 && _showAmenities && !_amenitiesLoaded && !_isLoadingAmenities) {
+      // Check if we need to load amenities based on current zoom (lazy loading at 16+)
+      if (_zoom >= 16.0 && _showAmenities && !_amenitiesLoaded && !_isLoadingAmenities) {
         print('Auto-loading amenities based on zoom level: $_zoom');
         _loadAmenitiesMarkers();
         timer.cancel(); // Stop monitoring once loaded
@@ -585,30 +597,39 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   Future<void> _loadBoundaryPolygons() async {
     try {
-      print('🔄 Loading boundary polygons...');
+      print('🔄 Loading boundary polygons from optimized local files (NO NETWORK CALLS)...');
       
-      // Try to get boundaries instantly from cache first
-      final instantBoundaries = boundary.InstantBoundaryService.getBoundariesInstantly();
-      if (instantBoundaries.isNotEmpty) {
+      // Check if boundaries are already loaded
+      if (local.OptimizedLocalBoundaryService.isLoaded) {
+        final instantBoundaries = local.OptimizedLocalBoundaryService.getBoundariesInstantly();
         setState(() {
           _boundaryPolygons = instantBoundaries;
           _isLoadingBoundaries = false;
         });
-        print('✅ Instant loading: Loaded ${instantBoundaries.length} boundaries from cache');
+        print('✅ Instant loading: Loaded ${instantBoundaries.length} boundaries from local cache (NO FILE LOADING)');
         return;
       }
       
-      print('⚠️ No cached boundaries found, loading from files...');
+      // Check if we've already attempted loading
+      if (local.OptimizedLocalBoundaryService.hasAttemptedLoad) {
+        print('⚠️ Boundaries already attempted to load, returning empty list');
+        setState(() {
+          _isLoadingBoundaries = false;
+        });
+        return;
+      }
       
-      // If not cached, load with optimization
-      final boundaries = await boundary.InstantBoundaryService.loadAllBoundaries();
+      print('⚠️ No cached boundaries found, loading from local files (OPTIMIZED)...');
+      
+      // If not cached, load from local files and store permanently
+      final boundaries = await local.OptimizedLocalBoundaryService.loadAllBoundaries();
       setState(() {
         _boundaryPolygons = boundaries;
         _isLoadingBoundaries = false;
       });
-      print('✅ Optimized loading: Loaded ${boundaries.length} boundaries with memory cache optimization');
+      print('✅ Optimized local loading: Loaded ${boundaries.length} boundaries from local files (NO NETWORK CALLS)');
     } catch (e) {
-      print('❌ Error loading boundary polygons: $e');
+      print('❌ Error loading boundary polygons from local files: $e');
       setState(() {
         _isLoadingBoundaries = false;
       });
@@ -619,6 +640,11 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     try {
       print('=== AMENITIES LOADING DEBUG ===');
       print('Loading amenities markers...');
+      
+      // Set loading state
+      setState(() {
+        _isLoadingAmenities = true;
+      });
       
       // Load amenities from GeoJSON file
       final amenitiesFeatures = await geojson.AmenitiesGeoJsonService.loadAmenitiesWithContext(context);
@@ -721,6 +747,12 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     print('_showAmenities: $_showAmenities');
     print('zoomLevel: $zoomLevel');
     print('amenityMarkers.length: ${amenityMarkers.length}');
+    
+    // CRITICAL: Only show amenities at zoom level 16 and above
+    if (zoomLevel < 16.0) {
+      print('🚫 Zoom level too low: $zoomLevel < 16.0 - Hiding all amenities');
+      return [];
+    }
     
     // Convert to optimized format and use optimized renderer
     final List<renderer.AmenityMarker> optimizedAmenities = amenityMarkers.map((amenity) => 
@@ -915,10 +947,16 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               minZoom: 8.0,
               maxZoom: 20.0,
               onTap: (tapPosition, point) {
-                _handleMapTap(point);
+                // Don't handle map taps when filter panel is open to prevent interference
+                if (!_showFilters) {
+                  _handleMapTap(point);
+                }
               },
-              // onPositionChanged callback removed due to API changes in flutter_map 8.2.2
-              // TODO: Implement proper position change handling
+              onPositionChanged: (position, hasGesture) {
+                if (hasGesture) {
+                  _handleZoomChange(position.zoom.round());
+                }
+              },
             ),
             children: [
               // Use optimized tile layer for better web performance
@@ -963,6 +1001,11 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               PolylineLayer(
                 polylines: _getDottedBoundaryLines(),
               ),
+              // Phase labels on boundaries
+              if (_showBoundaries && _boundaryPolygons.isNotEmpty)
+                MarkerLayer(
+                  markers: _getPhaseLabelMarkers(),
+                ),
               // Plot polygons - showing filtered plots
               if (_showPlotPolygons) ...[
                 PolygonLayer(
@@ -997,11 +1040,16 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               MarkerLayer(
                 markers: _getPlotMarkers(),
               ),
-               // Amenities markers (only show when toggle is on and at zoom level 12+)
+               // Amenities markers (only show when toggle is on and at zoom level 16+)
                // NOTE: We only want MARKERS, not polygons for amenities
                if (_showAmenities)
                  MarkerLayer(
                    markers: _getFilteredAmenitiesMarkers(_amenitiesMarkers, _zoom),
+                 ),
+               // Plot Details Popup - Show when a plot is selected on map
+               if (_selectedPlot != null && _selectedPlotDetails != null)
+                 MarkerLayer(
+                   markers: _getPlotPopupMarker(),
                  ),
             ],
           ),
@@ -1026,14 +1074,16 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
             right: 0,
             child: Container(
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
+                color: Colors.white,
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(20),
+                ),
+                border: const Border(
+                  bottom: BorderSide(
+                    color: Color(0xFF1B5993), // Navy blue border
+                    width: 2.0,
+                  ),
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -1044,116 +1094,51 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 ],
               ),
                 child: Padding(
-                padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Scaffold.of(context).openDrawer();
-                            },
-                            child: Container(
-                            padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Icon(
-                              Icons.menu,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                          child: Text(
-                                  l10n.dhaProjectsMap,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                    fontFamily: 'Poppins',
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: _showViewTypeSelector,
-                          icon: const Icon(Icons.layers, color: Colors.white),
-                                ),
-                              ],
-                            ),
-                    const SizedBox(height: 12),
-                    // View controls and indicators
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                      Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            _getTranslatedViewType(_selectedView, l10n),
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                            // Filtered plot count indicator
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                '${_plots.length} Plots',
-                                style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                        const SizedBox(width: 8),
-                        // Status indicator
-                            Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: _isInitialized ? Colors.green.withOpacity(0.8) : Colors.orange.withOpacity(0.8),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                _isInitialized ? Icons.check_circle : Icons.sync,
-                              color: Colors.white,
-                                size: 14,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                _isInitialized ? 'Ready' : 'Loading',
-                                style: const TextStyle(
-                                  fontFamily: 'Inter',
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                            ),
-                          ],
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Left side - Hamburger menu
+                    IconButton(
+                      onPressed: () {
+                        Scaffold.of(context).openDrawer();
+                      },
+                      icon: const Icon(
+                        Icons.menu,
+                        color: Color(0xFF1B5993),
+                        size: 24,
+                      ),
+                    ),
+                    
+                    // Center - Title
+                    Text(
+                      l10n.dhaProjectsMap,
+                      style: TextStyle(
+                        fontFamily: 'GT Walsheim',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF1B5993),
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    
+                    // Right side - View type selector
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1B5993),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: IconButton(
+                        onPressed: _showViewTypeSelector,
+                        icon: const Icon(
+                          Icons.layers,
+                          color: Colors.white,
+                          size: 20,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
                   ],
                 ),
               ),
@@ -1162,7 +1147,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           
           // Map Controls (Top Left of Map)
           Positioned(
-            top: 140,
+            top: 100,
             left: 20,
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -1202,17 +1187,22 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           
           // Filters Button (Top Right of Map)
           Positioned(
-            top: 140,
+            top: 100,
             right: 20,
             child: GestureDetector(
               onTap: () {
+                print('🔍 Filter button tapped - current state: _showFilters = $_showFilters');
                 setState(() {
                   _showFilters = !_showFilters;
                   // Automatically close map controls when filter panel is opened
                   if (_showFilters) {
                     _showMapControls = false;
+                    print('🔍 Filter panel opened - closing map controls');
+                  } else {
+                    print('🔍 Filter panel closed by user');
                   }
                 });
+                print('🔍 Filter panel state after toggle: _showFilters = $_showFilters');
               },
               child: Stack(
                 children: [
@@ -1237,7 +1227,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                           height: 20,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+                              colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
@@ -1256,7 +1246,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                             fontFamily: 'Inter',
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF1E3C90),
+                            color: const Color(0xFF1B5993),
                           ),
                         ),
                       ],
@@ -1271,10 +1261,10 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: const Color(0xFF1E3C90), width: 2),
+                            border: Border.all(color: const Color(0xFF1B5993), width: 2),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF1E3C90).withOpacity(0.2),
+                                color: const Color(0xFF1B5993).withOpacity(0.2),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -1287,7 +1277,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                         child: Text(
                           '${_activeFilters.length}',
                           style: const TextStyle(
-                            color: Color(0xFF1E3C90),
+                            color: Color(0xFF1B5993),
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
@@ -1304,14 +1294,21 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           Positioned(
             top: 120,
             right: 8,
-            child: Container(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.6,
-                maxWidth: MediaQuery.of(context).size.width * 0.75,
-              ),
-            child: ModernFiltersPanel(
+            child: GestureDetector(
+              onTap: () {
+                // Prevent tap events from propagating to the map
+                // This ensures the filter panel stays open when interacting with it
+              },
+              child: Container(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.6,
+                  maxWidth: MediaQuery.of(context).size.width * 0.75,
+                ),
+              child: ModernFiltersPanel(
+              key: _filterPanelKey,
               isVisible: _showFilters,
               onClose: () {
+                print('🔍 Filter panel: User explicitly closed the panel');
                 setState(() {
                   _showFilters = false;
                 });
@@ -1324,9 +1321,15 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                   _selectedPlotSize = filters['plotSize'];
                   _priceRange = filters['priceRange'] ?? const RangeValues(5475000, 565000000);
                   _activeFilters = List<String>.from(filters['activeFilters'] ?? []);
-                  // Ensure filter panel stays open after applying filters
-                  _showFilters = true;
+                  // CRITICAL: Keep filter panel open - do not change _showFilters state
+                  // _showFilters should remain true until user explicitly closes it
                 });
+                print('🔍 Filter panel state preserved during filter change: _showFilters = $_showFilters');
+                
+                // CRITICAL: Force the filter panel to stay open during filter operations
+                if (_filterPanelKey.currentState != null) {
+                  _filterPanelKey.currentState!.forceStayOpen();
+                }
                 
                 // Apply filters to modern filter manager immediately
                 _applyFiltersToManager(filters);
@@ -1335,6 +1338,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 _updateBottomSheetVisibility();
                 
                 print('🔍 Filter panel state after filter change: _showFilters = $_showFilters');
+                print('🔍 Active filters: $_activeFilters');
               },
               initialFilters: {
                 'plotType': _selectedPlotType,
@@ -1345,6 +1349,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               // Pass dynamic filter options from the filter manager
               enabledPhases: _filterManager.availablePhases,
               enabledSizes: _filterManager.availableSizes,
+            ),
             ),
             ),
           ),
@@ -1438,6 +1443,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                         _showMapControls = !_showMapControls;
                         // Automatically close filter panel when map controls are opened
                         if (_showMapControls) {
+                          print('🔍 Map controls opened - closing filter panel');
                           _showFilters = false;
                         }
                       });
@@ -1464,8 +1470,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           _buildBottomSheet(),
 
           // Plot Details Popup - Show when a plot is selected on map
-          if (_selectedPlot != null && _selectedPlotDetails != null)
-            _buildPlotDetailsPopup(),
+          // This will be rendered as a map overlay instead of floating widget
         ],
       ),
     );
@@ -1615,9 +1620,46 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       case 'reserved':
         return Colors.orange;
       case 'unsold':
-        return const Color(0xFF1E3C90); // Blue
+        return const Color(0xFF1B5993); // Blue
       default:
         return Colors.grey;
+    }
+  }
+
+  /// Get phase label markers for boundaries
+  List<Marker> _getPhaseLabelMarkers() {
+    try {
+      if (_boundaryPolygons.isEmpty) {
+        return [];
+      }
+
+      final markers = <Marker>[];
+      
+      for (final boundary in _boundaryPolygons) {
+        // Only show labels at zoom level 12 and above to reduce clutter
+        if (_zoom < 12) continue;
+        
+        final center = boundary.center;
+        final marker = Marker(
+          point: center,
+          width: 80,
+          height: 20,
+          child: EnhancedPhaseLabel(
+            phaseName: boundary.phaseName,
+            color: boundary.color,
+            icon: boundary.icon,
+            position: center,
+            zoom: _zoom,
+          ),
+        );
+        
+        markers.add(marker);
+      }
+      
+      return markers;
+    } catch (e) {
+      print('❌ Error creating phase label markers: $e');
+      return [];
     }
   }
 
@@ -1709,7 +1751,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         });
         
         // Automatically collapse bottom sheet to make room for floating plot info
-        _safeAnimateBottomSheet(0.03); // Ultra aggressive collapse
+        _safeAnimateBottomSheet(0.1); // Collapse to 10% to show plot boundaries
           print('✅ Plot info card should now be visible for plot ${tappedPlot.plotNo}');
           return;
         } else {
@@ -1844,7 +1886,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               child: Text(
                 amenity.amenityType,
                 style: const TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'GT Walsheim',
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1935,7 +1977,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         );
       case 'unsold':
         return const LinearGradient(
-          colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+          colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         );
@@ -2087,7 +2129,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         title: const Text(
           'Search by Plot ID',
           style: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'GT Walsheim',
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -2535,7 +2577,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         print('🎬 Target location: $plotLocation');
         
         // Use moveAndRotate for better control with optimal zoom for satellite imagery
-        _mapController.moveAndRotate(plotLocation, 14.0, 0.0);
+        _mapController.moveAndRotate(plotLocation, 16.0, 0.0);
         
         print('🗺️ Map navigation completed for plot ${plot.plotNo}');
         print('🗺️ New map center: ${_mapController.camera.center}');
@@ -2560,7 +2602,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         });
 
         // Expand bottom sheet to show selected plot details
-        _safeAnimateBottomSheet(0.6);
+        _safeAnimateBottomSheet(0.5);
 
         // Add a delay to ensure map animation completes and polygon renders before showing info card
         await Future.delayed(const Duration(milliseconds: 1500));
@@ -2658,7 +2700,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         print('🎯 Current map center: ${_mapController.camera.center}');
         
         // Navigate to plot location with higher zoom
-        _mapController.moveAndRotate(plotLocation, 13.0, 0.0);
+        _mapController.moveAndRotate(plotLocation, 16.0, 0.0);
         
         print('🎯 Map navigation completed');
         print('🎯 New map center: ${_mapController.camera.center}');
@@ -2704,46 +2746,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       final centroid = LatLng(sumLat / count, sumLng / count);
       print('📍 Plot polygon centroid: ${centroid.latitude}, ${centroid.longitude}');
 
-      // Convert LatLng to screen coordinates
-      // For web, we need to use the map's projection to convert lat/lng to screen pixels
-      final size = MediaQuery.of(context).size;
-      
-      // Since we're on web, we can use a more accurate approach
-      // Calculate position based on the plot's position relative to screen
-      // This will position the popup at the plot's location on the map
-      
-      // Convert LatLng to screen coordinates using proper map projection
-      final screenWidth = size.width;
-      final screenHeight = size.height;
-      
-      // Calculate the plot's position on the map based on its coordinates
-      // This should position the popup directly on the plot polygon on the map
-      
-      // For web maps, we need to convert lat/lng to screen pixels
-      // The map typically covers most of the screen, so we calculate relative position
-      final mapWidth = screenWidth;
-      final mapHeight = screenHeight - 200; // Account for app bar and bottom sheet
-      
-      // Convert lat/lng to screen coordinates
-      // This is a simplified conversion - in a real implementation, you'd use the map's projection
-      final lat = centroid.latitude;
-      final lng = centroid.longitude;
-      
-      // Calculate relative position on the map
-      // Assuming the map shows a specific geographic area
-      // You may need to adjust these bounds based on your actual map coverage
-      final minLat = 33.5; // Adjust based on your map bounds
-      final maxLat = 34.0;
-      final minLng = 72.5;
-      final maxLng = 73.5;
-      
-      // Convert to screen coordinates
-      final plotX = ((lng - minLng) / (maxLng - minLng)) * mapWidth;
-      final plotY = ((maxLat - lat) / (maxLat - minLat)) * mapHeight + 100; // Add offset for app bar
-      
-      print('📍 Plot screen position calculated from coordinates: x=$plotX, y=$plotY');
-      print('📍 Plot coordinates: lat=$lat, lng=$lng');
-      return Offset(plotX, plotY);
+      // Since we're using map markers now, we don't need screen coordinates
+      // The popup will be positioned by the map marker system
+      return null; // This will trigger the fallback to map marker positioning
     } catch (e) {
       print('❌ Error calculating plot screen position: $e');
       return null;
@@ -2799,16 +2804,16 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           final lngRange = maxLng - minLng;
           final maxRange = latRange > lngRange ? latRange : lngRange;
           
-          // Determine zoom level based on polygon size - optimized for satellite imagery visualization
-          double zoomLevel = 14.0; // Default zoom - optimal for satellite imagery
+          // Determine zoom level based on polygon size - optimized for plot boundary and amenities visibility
+          double zoomLevel = 16.0; // Default zoom - optimal for plot boundaries and amenities
           if (maxRange > 0.01) {
-            zoomLevel = 13.0; // Large polygon - show more context
+            zoomLevel = 16.0; // Large polygon - still detailed view for boundaries
           } else if (maxRange > 0.005) {
-            zoomLevel = 14.0; // Medium polygon - optimal for satellite imagery
+            zoomLevel = 16.5; // Medium polygon - optimal for plot boundaries
           } else if (maxRange > 0.001) {
-            zoomLevel = 15.0; // Small polygon - still readable
+            zoomLevel = 17.0; // Small polygon - detailed view for boundaries
           } else {
-            zoomLevel = 16.0; // Very small polygon - detailed view
+            zoomLevel = 17.5; // Very small polygon - maximum detail for boundaries
           }
           
           print('🎯 Calculated zoom level: $zoomLevel (polygon range: $maxRange)');
@@ -2829,7 +2834,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           // Fallback to plot coordinates if polygon is invalid
           if (plot.latitude != null && plot.longitude != null) {
             final plotLocation = LatLng(plot.latitude!, plot.longitude!);
-            _mapController.moveAndRotate(plotLocation, 14.0, 0.0);
+            _mapController.moveAndRotate(plotLocation, 16.0, 0.0);
             print('🎯 Fallback navigation to plot coordinates: $plotLocation');
           }
         }
@@ -2840,7 +2845,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         // Fallback to plot coordinates if no polygon
         if (plot.latitude != null && plot.longitude != null) {
           final plotLocation = LatLng(plot.latitude!, plot.longitude!);
-          _mapController.moveAndRotate(plotLocation, 14.0, 0.0);
+          _mapController.moveAndRotate(plotLocation, 16.0, 0.0);
           print('🎯 Fallback navigation to plot coordinates: $plotLocation');
         }
       }
@@ -2851,7 +2856,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       // Final fallback to plot coordinates
       if (plot.latitude != null && plot.longitude != null) {
         final plotLocation = LatLng(plot.latitude!, plot.longitude!);
-        _mapController.moveAndRotate(plotLocation, 13.0, 0.0);
+        _mapController.moveAndRotate(plotLocation, 16.0, 0.0);
         print('🎯 Emergency fallback navigation to plot coordinates: $plotLocation');
       }
     }
@@ -2904,18 +2909,23 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   // Performance optimization: Handle zoom level changes
   void _handleZoomChange(int newZoomLevel) {
-    // Update zoom level
+    print('🔍 Zoom change detected: $_zoom -> $newZoomLevel');
+    
+    // Update zoom level and force rebuild
     setState(() {
       _zoom = newZoomLevel.toDouble();
     });
     
-    // Load amenities when zoom level is appropriate and not already loaded
-    if (newZoomLevel >= 12 && _showAmenities && !_amenitiesLoaded && !_isLoadingAmenities) {
-      print('Loading amenities on zoom change to level: $newZoomLevel');
+    // Load amenities when zoom level is appropriate and not already loaded (lazy loading at 16+)
+    if (newZoomLevel >= 16 && _showAmenities && !_amenitiesLoaded && !_isLoadingAmenities) {
+      print('🚀 Loading amenities on zoom change to level: $newZoomLevel');
       _loadAmenitiesMarkers();
+    } else {
+      print('⏸️ Amenities not loaded - zoom: $newZoomLevel, showAmenities: $_showAmenities, loaded: $_amenitiesLoaded, loading: $_isLoadingAmenities');
     }
     
-    // Plots API removed - no longer handling zoom level changes for plots
+    // Force map rebuild to update marker visibility
+    print('🔄 Forcing map rebuild for zoom level: $newZoomLevel');
   }
 
   /// Build town plan legend
@@ -3312,16 +3322,17 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       return const SizedBox.shrink();
     }
 
-    // When a plot is selected, collapse the bottom sheet to make room for the floating plot info
+    // Dynamic bottom sheet - user can adjust from 10% to 80% of screen
     final shouldCollapseForPlot = _selectedPlot != null && !_showSelectedPlotDetails;
-    final initialSize = shouldCollapseForPlot ? 0.03 : (_showSelectedPlotDetails ? 0.4 : 0.2); // Ultra aggressive collapse
-    final maxSize = shouldCollapseForPlot ? 0.08 : (_showSelectedPlotDetails ? 0.7 : 0.75); // Minimal max size when collapsed
+    final initialSize = shouldCollapseForPlot ? 0.1 : (_showSelectedPlotDetails ? 0.4 : 0.2); // Start at 10% when plot selected
+    final minSize = 0.1; // Minimum 10% of screen
+    final maxSize = 0.8; // Maximum 80% of screen
 
     return DraggableScrollableSheet(
       controller: _bottomSheetController,
       initialChildSize: initialSize,
-      minChildSize: shouldCollapseForPlot ? 0.03 : 0.15, // Ultra aggressive minimum when plot selected
-      maxChildSize: maxSize, // Reduced to account for bottom navigation bar
+      minChildSize: minSize, // User can collapse to 10%
+      maxChildSize: maxSize, // User can expand to 80%
       builder: (context, scrollController) {
         // Initialize the bottom sheet controller
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -3357,13 +3368,22 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Handle bar (moved to left)
+                    // Enhanced drag handle with visual feedback
                     Container(
-                      width: 40,
+                      width: 50,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: Colors.grey[300],
+                        color: Colors.grey[400],
                         borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    // Drag indicator text
+                    Text(
+                      'Drag to adjust',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     // Expand/Collapse button (moved to extreme right, no background)
@@ -3374,15 +3394,15 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                         });
                         
                         if (_isBottomSheetExpanded) {
+                          // Collapse to minimum size (10%)
+                          _safeAnimateBottomSheet(0.1);
+                        } else {
                           // Expand to appropriate size based on content
                           if (_showSelectedPlotDetails) {
-                            _safeAnimateBottomSheet(0.6);
+                            _safeAnimateBottomSheet(0.5);
                         } else {
-                          _safeAnimateBottomSheet(0.75);
+                            _safeAnimateBottomSheet(0.5);
                         }
-                        } else {
-                          // Collapse to minimum size
-                          _safeAnimateBottomSheet(0.15);
                         }
                       },
                       child: Container(
@@ -3413,7 +3433,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1E3C90),
+                            color: const Color(0xFF1B5993),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -3472,14 +3492,14 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                 _isBottomSheetExpanded = true;
                                 _showSelectedPlotDetails = false;
                               });
-                              _safeAnimateBottomSheet(0.75);
+                              _safeAnimateBottomSheet(0.5);
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               decoration: BoxDecoration(
                                 border: Border(
                                   bottom: BorderSide(
-                                    color: _showSelectedPlotDetails ? Colors.grey[300]! : const Color(0xFF1E3C90),
+                                    color: _showSelectedPlotDetails ? Colors.grey[300]! : const Color(0xFF1B5993),
                                     width: 2,
                                   ),
                                 ),
@@ -3490,7 +3510,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: _showSelectedPlotDetails ? Colors.grey[600] : const Color(0xFF1E3C90),
+                                  color: _showSelectedPlotDetails ? Colors.grey[600] : const Color(0xFF1B5993),
                                 ),
                               ),
                             ),
@@ -3504,7 +3524,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                   _showSelectedPlotDetails = true;
                                   _isBottomSheetExpanded = true;
                                 });
-                                _safeAnimateBottomSheet(0.6);
+                                _safeAnimateBottomSheet(0.5);
                               }
                             },
                             child: Container(
@@ -3512,7 +3532,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                               decoration: BoxDecoration(
                                 border: Border(
                                   bottom: BorderSide(
-                                    color: _showSelectedPlotDetails ? const Color(0xFF1E3C90) : Colors.grey[300]!,
+                                    color: _showSelectedPlotDetails ? const Color(0xFF1B5993) : Colors.grey[300]!,
                                     width: 2,
                                   ),
                                 ),
@@ -3526,7 +3546,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                 style: TextStyle(
                                   fontSize: 16,
                                       fontWeight: FontWeight.w600,
-                                      color: _showSelectedPlotDetails ? const Color(0xFF1E3C90) : Colors.grey[600],
+                                      color: _showSelectedPlotDetails ? const Color(0xFF1B5993) : Colors.grey[600],
                                     ),
                                   ),
                                   if (_selectedPlotDetails != null) ...[
@@ -3534,7 +3554,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF1E3C90),
+                                        color: const Color(0xFF1B5993),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       child: Text(
@@ -3682,7 +3702,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                               width: 24,
                               height: 24,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF1E3C90),
+                                color: const Color(0xFF1B5993),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: const Icon(
@@ -3697,7 +3717,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                               style: TextStyle(
                                 fontSize: 8,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF1E3C90),
+                                color: Color(0xFF1B5993),
                               ),
                             ),
                           ],
@@ -3750,17 +3770,17 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                             setState(() {
                               _showSelectedPlotDetails = true;
                             });
-                            _safeAnimateBottomSheet(0.6);
+                            _safeAnimateBottomSheet(0.5);
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                             decoration: BoxDecoration(
                               color: Colors.grey[50],
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: const Color(0xFF1E3C90).withOpacity(0.3)),
+                              border: Border.all(color: const Color(0xFF1B5993).withOpacity(0.3)),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF1E3C90).withOpacity(0.1),
+                                  color: const Color(0xFF1B5993).withOpacity(0.1),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),
@@ -3770,7 +3790,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                               'View Details',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Color(0xFF1E3C90),
+                                color: Color(0xFF1B5993),
                                 fontWeight: FontWeight.w700,
                                 letterSpacing: 0.3,
                               ),
@@ -3937,101 +3957,41 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     );
   }
 
-  /// Build small plot info card positioned on the plot location (attached to plot boundary)
-  Widget _buildPlotDetailsPopup() {
+  /// Get plot popup marker for map overlay
+  List<Marker> _getPlotPopupMarker() {
     if (_selectedPlot == null || _selectedPlotDetails == null) {
-      return const SizedBox.shrink();
+      return [];
     }
 
-    // Get screen dimensions
-    final screenSize = MediaQuery.of(context).size;
-    final popupWidth = 280.0; // Width for map popup with pointer
-    final popupHeight = 200.0; // Height for map popup with pointer
-    
-    // Calculate position to be attached to the plot polygon
-    double left, top;
-    
-    // Try to get the plot's screen position from polygon coordinates
-    final plotScreenPosition = _calculatePlotScreenPosition();
-    
-    if (plotScreenPosition != null) {
-      // Calculate available space considering bottom sheet
-      final bottomSheetHeight = _selectedPlot != null && !_showSelectedPlotDetails 
-          ? screenSize.height * 0.08  // Ultra collapsed bottom sheet - minimal space
-          : screenSize.height * 0.35; // Normal bottom sheet
-      
-      final availableTopSpace = screenSize.height - bottomSheetHeight - popupHeight - 60; // 60px buffer
-      final availableBottomSpace = screenSize.height - bottomSheetHeight - 20; // 20px buffer
-      
-      // Try to position above the plot first (preferred position) - like a map popup
-      left = plotScreenPosition.dx - (popupWidth / 2); // Center horizontally on plot
-      top = plotScreenPosition.dy - popupHeight - 50; // Position above plot with margin for pointer
-      
-      // Check if there's enough space above the plot
-      if (top < 80) { // Too close to top of screen
-        // Try positioning below the plot
-        top = plotScreenPosition.dy + 30; // Position below plot with more margin
-        
-        // If still not enough space, position to the side
-        if (top + popupHeight > availableBottomSpace) {
-          // Position to the right of the plot - like a map popup
-          left = plotScreenPosition.dx + 30; // 30px to the right of plot
-          top = plotScreenPosition.dy - (popupHeight / 2); // Center vertically on plot
-          
-          // If it would go off screen to the right, position to the left instead
-          if (left + popupWidth > screenSize.width - 30) {
-            left = plotScreenPosition.dx - popupWidth - 30; // 30px to the left of plot
-          }
-        }
-      }
-      
-      print('📍 Small plot info card positioned attached to plot at: left=$left, top=$top');
-      print('📍 Plot screen position: $plotScreenPosition');
-      print('📍 Available space - Top: $availableTopSpace, Bottom: $availableBottomSpace');
-    } else if (_selectedPlot!.latitude != null && _selectedPlot!.longitude != null) {
-      // Fallback: Use plot center coordinates for positioning
-      print('📍 Using plot center coordinates: ${_selectedPlot!.latitude}, ${_selectedPlot!.longitude}');
-      
-      // Convert plot coordinates to screen position
-      final lat = _selectedPlot!.latitude ?? 0.0;
-      final lng = _selectedPlot!.longitude ?? 0.0;
-      
-      // Calculate position on map based on coordinates
-      final mapWidth = screenSize.width;
-      final mapHeight = screenSize.height - 200; // Account for app bar and bottom sheet
-      
-      // Convert to screen coordinates (same logic as above)
-      final minLat = 33.5;
-      final maxLat = 34.0;
-      final minLng = 72.5;
-      final maxLng = 73.5;
-      
-      final plotX = ((lng - minLng) / (maxLng - minLng)) * mapWidth;
-      final plotY = ((maxLat - lat) / (maxLat - minLat)) * mapHeight + 100;
-      
-      left = plotX - (popupWidth / 2);
-      top = plotY - popupHeight - 50; // Position above plot with margin for pointer
-      
-      print('📍 Small plot info card positioned using center coordinates: left=$left, top=$top');
-    } else {
-      // Final fallback: Position in center of map area
-      left = (screenSize.width - popupWidth) / 2;
-      top = (screenSize.height - 200) / 2; // Position in center of map area
-      print('📍 Small plot info card positioned at map center: left=$left, top=$top');
+    // Calculate plot center from polygon coordinates
+    final polygonCoordinates = _selectedPlot!.polygonCoordinates;
+    if (polygonCoordinates.isEmpty) return [];
+
+    final coordinates = polygonCoordinates.first;
+    if (coordinates.length < 3) return [];
+
+    // Calculate centroid
+    double sumLat = 0;
+    double sumLng = 0;
+    int count = 0;
+    for (final coord in coordinates) {
+      sumLat += coord.latitude;
+      sumLng += coord.longitude;
+      count++;
     }
+    if (count == 0) return [];
+
+    final centroid = LatLng(sumLat / count, sumLng / count);
+
+    // Position popup slightly above the centroid to anchor it to plot boundary
+    final popupPosition = LatLng(centroid.latitude + 0.0002, centroid.longitude);
     
-    // Ensure popup stays within map bounds and avoid app bar area
-    left = left.clamp(20.0, screenSize.width - popupWidth - 20);
-    top = top.clamp(80.0, screenSize.height - 300); // Keep within map area, well above bottom sheet
-    
-    return AnimatedPositioned(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-      left: left,
-      top: top,
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 200),
-          opacity: 1.0,
+    return [
+      Marker(
+        point: popupPosition,
+        width: 180,
+        height: 140,
+        alignment: Alignment.bottomCenter, // Anchor popup to bottom center
           child: MapPopupWidget(
             plot: _selectedPlot!,
             onClose: () {
@@ -4041,7 +4001,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 _showProjectDetails = false;
                 _showSelectedPlotDetails = false;
                 // Collapse bottom sheet when plot is deselected
-                _safeAnimateBottomSheet(0.15);
+              _safeAnimateBottomSheet(0.1);
               });
             },
             onViewDetails: () {
@@ -4049,11 +4009,11 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               setState(() {
                 _showSelectedPlotDetails = true;
               });
-              _safeAnimateBottomSheet(0.6);
+            _safeAnimateBottomSheet(0.5);
             },
           ),
         ),
-    );
+    ];
   }
 
 
@@ -4212,7 +4172,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
-                    color: _showBoundaries ? const Color(0xFF1E3C90).withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                    color: _showBoundaries ? const Color(0xFF1B5993).withOpacity(0.1) : Colors.grey.withOpacity(0.1),
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(12),
                       topRight: Radius.circular(12),
@@ -4223,7 +4183,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                     children: [
                       Icon(
                         Icons.layers,
-                        color: _showBoundaries ? const Color(0xFF1E3C90) : Colors.grey,
+                        color: _showBoundaries ? const Color(0xFF1B5993) : Colors.grey,
                         size: 18,
                       ),
                       const SizedBox(width: 8),
@@ -4234,7 +4194,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                             fontFamily: 'Inter',
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: _showBoundaries ? const Color(0xFF1E3C90) : Colors.grey,
+                            color: _showBoundaries ? const Color(0xFF1B5993) : Colors.grey,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -4250,7 +4210,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                         child: Container(
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: _showBoundaries ? const Color(0xFF1E3C90) : Colors.grey,
+                            color: _showBoundaries ? const Color(0xFF1B5993) : Colors.grey,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Icon(

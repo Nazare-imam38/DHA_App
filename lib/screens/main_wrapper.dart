@@ -120,6 +120,12 @@ class _MainWrapperState extends State<MainWrapper>
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
+        border: Border(
+          top: BorderSide(
+            color: const Color(0xFF1B5993), // Navy blue border
+            width: 2.0,
+          ),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -192,7 +198,7 @@ class _MainWrapperState extends State<MainWrapper>
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
             gradient: isSelected ? const LinearGradient(
-              colors: [Color(0xFF00A651), Color(0xFF3498DB)],
+              colors: [Color(0xFF1B5993), Color(0xFF1B5993)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ) : null,
@@ -200,7 +206,7 @@ class _MainWrapperState extends State<MainWrapper>
             borderRadius: BorderRadius.circular(8),
             boxShadow: isSelected ? [
               BoxShadow(
-                color: const Color(0xFF00A651).withOpacity(0.3),
+                color: const Color(0xFF1B5993).withOpacity(0.3),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),

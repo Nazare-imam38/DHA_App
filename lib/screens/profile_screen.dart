@@ -804,21 +804,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header with DHA Marketplace gradient
+            // Header with white background
             Container(
               decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
+                color: Colors.white,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(20),
                 ),
+                border: Border(
+                  bottom: BorderSide(
+                    color: Color(0xFF1B5993), // Navy blue border
+                    width: 2.0,
+                  ),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
+                  ),
+                ],
               ),
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                 child: Row(
                   children: [
                     GestureDetector(
@@ -828,7 +837,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: const Color(0xFF1B5993),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(
@@ -846,7 +855,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           fontFamily: 'Poppins',
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: const Color(0xFF1B5993),
                         ),
                       ),
                     ),
@@ -854,7 +863,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onPressed: () {
                         // Settings functionality
                       },
-                      icon: const Icon(Icons.settings, color: Colors.white),
+                      icon: const Icon(Icons.settings, color: Color(0xFF1B5993)),
                     ),
                   ],
                 ),
@@ -889,7 +898,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             height: 80,
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+                                colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
@@ -1242,7 +1251,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         statusColor = const Color(0xFF2ECC71);
         break;
       case 'Completed':
-        statusColor = const Color(0xFF1E3C90);
+        statusColor = const Color(0xFF1B5993);
         break;
       default:
         statusColor = Colors.grey;

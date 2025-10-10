@@ -63,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen>
     {
       'title': 'DHA Phase 1',
       'subtitle': 'Premium Commercial Area',
-      'gradient': [Color(0xFF20B2AA), Color(0xFF1E3C90)],
+      'gradient': [Color(0xFF20B2AA), Color(0xFF1B5993)],
     },
     {
       'title': 'DHA Phase 2',
@@ -73,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen>
     {
       'title': 'DHA Phase 3',
       'subtitle': 'Luxury Living Standards',
-      'gradient': [Color(0xFF1E3C90), Color(0xFF1E3C90)],
+      'gradient': [Color(0xFF1B5993), Color(0xFF1B5993)],
     },
     {
       'title': 'DHA Phase 4',
@@ -310,7 +310,7 @@ class _HomeScreenState extends State<HomeScreen>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Filtering: $_selectedPropertyType $_selectedPropertyCategory in $_selectedLocation (${_selectedFilter})'),
-        backgroundColor: const Color(0xFF1E3C90),
+        backgroundColor: const Color(0xFF1B5993),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -381,7 +381,7 @@ class _HomeScreenState extends State<HomeScreen>
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF1E3C90).withValues(alpha: 0.15),
+                  color: const Color(0xFF1B5993).withValues(alpha: 0.15),
                   blurRadius: 30,
                   offset: const Offset(0, 10),
                 ),
@@ -400,7 +400,7 @@ class _HomeScreenState extends State<HomeScreen>
                   padding: const EdgeInsets.all(24),
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+                      colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -433,7 +433,7 @@ class _HomeScreenState extends State<HomeScreen>
                       const Text(
                         'Login Required',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'GT Walsheim',
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
@@ -506,14 +506,14 @@ class _HomeScreenState extends State<HomeScreen>
                               height: 48,
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
-                                  colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+                                  colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
                                 ),
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color(0xFF1E3C90).withValues(alpha: 0.3),
+                                    color: const Color(0xFF1B5993).withValues(alpha: 0.3),
                                     blurRadius: 12,
                                     offset: const Offset(0, 4),
                                   ),
@@ -615,15 +615,24 @@ class _HomeScreenState extends State<HomeScreen>
             // Simplified Header with Menu Only
             Container(
               decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
+                color: Colors.white,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(20),
                 ),
+                border: Border(
+                  bottom: BorderSide(
+                    color: Color(0xFF1B5993), // Medium to dark blue border
+                    width: 2.0,
+                  ),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
+                  ),
+                ],
               ),
               child: SafeArea(
                 child: Container(
@@ -640,10 +649,10 @@ class _HomeScreenState extends State<HomeScreen>
                           child: Text(
                             l10n.home,
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'GT Walsheim',
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                              color: const Color(0xFF1B5993),
                               letterSpacing: 1,
                             ),
                           ),
@@ -659,17 +668,10 @@ class _HomeScreenState extends State<HomeScreen>
                             onTap: () {
                               _scaffoldKey.currentState?.openDrawer();
                             },
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Icon(
-                                Icons.menu,
-                                color: Colors.white,
-                                size: 24,
-                              ),
+                            child: const Icon(
+                              Icons.menu,
+                              color: Color(0xFF1B5993),
+                              size: 24,
                             ),
                           ),
                         ),
@@ -703,7 +705,7 @@ class _HomeScreenState extends State<HomeScreen>
                                         begin: Alignment.topLeft,
                                         end: Alignment.bottomRight,
                                       colors: [
-                                        const Color(0xFF1E3C90).withOpacity(0.1),
+                                        const Color(0xFF1B5993).withOpacity(0.1),
                                         const Color(0xFF20B2AA).withOpacity(0.05),
                                         Colors.white,
                                       ],
@@ -748,21 +750,21 @@ class _HomeScreenState extends State<HomeScreen>
                                                         position: _heroSlideAnimation,
                                                         child: ShaderMask(
                                                           shaderCallback: (bounds) => const LinearGradient(
-                                                            colors: [Color(0xFF1E3C90), Color(0xFF1E3C90)],
+                                                            colors: [Color(0xFF1B5993), Color(0xFF1B5993)],
                                                             begin: Alignment.topLeft,
                                                             end: Alignment.bottomRight,
                                                           ).createShader(bounds),
                                                           child: Text(
                                                             l10n.appTitle.split(' ')[0],
                                                             style: TextStyle(
-                                                              fontFamily: 'Poppins',
+                                                              fontFamily: 'GT Walsheim',
                                                               fontSize: 32,
                                                               fontWeight: FontWeight.w900,
                                                               color: Colors.white,
                                                               letterSpacing: 2,
                                                               shadows: [
                                                                 Shadow(
-                                                                  color: const Color(0xFF1E3C90).withOpacity(0.5),
+                                                                  color: const Color(0xFF1B5993).withOpacity(0.5),
                                                                   offset: const Offset(0, 2),
                                                                   blurRadius: 4,
                                                                 ),
@@ -788,14 +790,14 @@ class _HomeScreenState extends State<HomeScreen>
                                                         position: _heroSlideAnimation,
                                                         child: ShaderMask(
                                                           shaderCallback: (bounds) => const LinearGradient(
-                                                            colors: [Color(0xFF20B2AA), Color(0xFF1E3C90)],
+                                                            colors: [Color(0xFF20B2AA), Color(0xFF1B5993)],
                                                             begin: Alignment.centerLeft,
                                                             end: Alignment.centerRight,
                                                           ).createShader(bounds),
                                                           child: Text(
                                                             l10n.appTitle.split(' ')[1],
                                                             style: TextStyle(
-                                                              fontFamily: 'Poppins',
+                                                              fontFamily: 'GT Walsheim',
                                                               fontSize: 18,
                                                               fontWeight: FontWeight.w700,
                                                               color: Colors.white,
@@ -871,7 +873,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       stats['commercial'].toString(),
                                       l10n.propertiesCount,
                                       Icons.business,
-                                      const Color(0xFF1E3C90),
+                                      const Color(0xFF1B5993),
                                       animation: _commercialCounterAnimation,
                                     ),
                                   ),
@@ -905,7 +907,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       buttonText: l10n.tryItNow,
                                       icon: Icons.map_outlined,
                                       gradient: const LinearGradient(
-                                        colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+                                        colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
                                         begin: Alignment.topLeft,
                                         end: Alignment.bottomRight,
                                       ),
@@ -946,7 +948,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       buttonText: l10n.postAnAd,
                                       icon: Icons.add_home_work_outlined,
                                 gradient: const LinearGradient(
-                                        colors: [Color(0xFF20B2AA), Color(0xFF1E3C90)],
+                                        colors: [Color(0xFF20B2AA), Color(0xFF1B5993)],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
@@ -974,7 +976,7 @@ class _HomeScreenState extends State<HomeScreen>
                           Text(
                             l10n.newProjects,
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'GT Walsheim',
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
                               color: Colors.black,
@@ -985,7 +987,7 @@ class _HomeScreenState extends State<HomeScreen>
                             style: TextStyle(
                               fontFamily: 'Inter',
                               fontSize: 14,
-                              color: const Color(0xFF1E3C90),
+                              color: const Color(0xFF1B5993),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -1025,7 +1027,7 @@ class _HomeScreenState extends State<HomeScreen>
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           gradient: isSelected ? const LinearGradient(
-            colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+            colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ) : null,
@@ -1063,7 +1065,7 @@ class _HomeScreenState extends State<HomeScreen>
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           gradient: isSelected ? const LinearGradient(
-            colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+            colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ) : null,
@@ -1133,7 +1135,7 @@ class _HomeScreenState extends State<HomeScreen>
                   Text(
                     title,
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'GT Walsheim',
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
@@ -1249,7 +1251,7 @@ class _HomeScreenState extends State<HomeScreen>
               return Text(
                 animation != null ? animation!.value.round().toString() : count,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'GT Walsheim',
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                   color: color,
@@ -1289,7 +1291,7 @@ class _HomeScreenState extends State<HomeScreen>
         'badge': 'Featured',
         'badgeColor': Colors.orange,
         'category': 'Infrastructure',
-        'categoryColor': Color(0xFF1E3C90),
+        'categoryColor': Color(0xFF1B5993),
         'image': 'assets/gallery/dha-gate-night.jpg',
       },
       {
@@ -1399,7 +1401,7 @@ class _HomeScreenState extends State<HomeScreen>
                           gradient: LinearGradient(
                             colors: [
                               const Color(0xFF20B2AA).withOpacity(0.15),
-                              const Color(0xFF1E3C90).withOpacity(0.15),
+                              const Color(0xFF1B5993).withOpacity(0.15),
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
@@ -1408,7 +1410,7 @@ class _HomeScreenState extends State<HomeScreen>
                         child: const Center(
                           child: Icon(
                             Icons.home_work,
-                            color: Color(0xFF1E3C90),
+                            color: Color(0xFF1B5993),
                             size: 40,
                           ),
                         ),
@@ -1484,7 +1486,7 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                           child: const Icon(
                             Icons.favorite_border,
-                            color: Color(0xFF1E3C90),
+                            color: Color(0xFF1B5993),
                             size: 16,
                           ),
                         ),
@@ -1502,7 +1504,7 @@ class _HomeScreenState extends State<HomeScreen>
                 Text(
                     project['title'] as String,
                   style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'GT Walsheim',
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: Colors.black,
@@ -1565,7 +1567,7 @@ class _BackgroundPatternPainter extends CustomPainter {
     
     // Add some dots
     final dotPaint = Paint()
-      ..color = const Color(0xFF1E3C90).withOpacity(0.03)
+      ..color = const Color(0xFF1B5993).withOpacity(0.03)
       ..style = PaintingStyle.fill;
     
     for (int i = 0; i < 20; i++) {

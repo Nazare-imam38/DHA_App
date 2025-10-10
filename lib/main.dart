@@ -11,8 +11,7 @@ import 'providers/auth_provider.dart';
 import 'providers/plots_provider.dart';
 import 'providers/plot_stats_provider.dart';
 import 'core/services/location_service.dart';
-import 'core/services/instant_boundary_service.dart';
-import 'core/services/optimized_boundary_service.dart';
+import 'core/services/optimized_local_boundary_service.dart';
 import 'core/services/optimized_plots_cache.dart';
 import 'core/services/optimized_tile_cache.dart';
 import 'core/services/unified_memory_cache.dart';
@@ -112,13 +111,13 @@ class _DHAMarketplaceAppState extends State<DHAMarketplaceApp> {
       }
     });
     
-    // Preload boundaries at startup
+    // Preload boundaries from pre-compiled data at startup (INSTANT)
     Future.microtask(() async {
       try {
-        await InstantBoundaryService.preloadBoundaries();
-        print('Main: Boundaries preloaded at startup');
+        await OptimizedLocalBoundaryService.preloadBoundaries();
+        print('Main: Pre-compiled boundaries preloaded INSTANTLY at startup');
       } catch (e) {
-        print('Main: Error preloading boundaries: $e');
+        print('Main: Error preloading pre-compiled boundaries: $e');
       }
     });
     
@@ -210,14 +209,14 @@ class _DHAMarketplaceAppState extends State<DHAMarketplaceApp> {
             ],
             theme: ThemeData(
         primarySwatch: Colors.green,
-        fontFamily: 'Poppins',
+        fontFamily: 'GT Walsheim',
         textTheme: const TextTheme(
-          headlineLarge: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w700),
-          headlineMedium: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w600),
-          headlineSmall: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w600),
-          titleLarge: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w600),
-          titleMedium: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w500),
-          titleSmall: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w500),
+          headlineLarge: TextStyle(fontFamily: 'GT Walsheim', fontWeight: FontWeight.w700),
+          headlineMedium: TextStyle(fontFamily: 'GT Walsheim', fontWeight: FontWeight.w600),
+          headlineSmall: TextStyle(fontFamily: 'GT Walsheim', fontWeight: FontWeight.w600),
+          titleLarge: TextStyle(fontFamily: 'GT Walsheim', fontWeight: FontWeight.w600),
+          titleMedium: TextStyle(fontFamily: 'GT Walsheim', fontWeight: FontWeight.w500),
+          titleSmall: TextStyle(fontFamily: 'GT Walsheim', fontWeight: FontWeight.w500),
           bodyLarge: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w400),
           bodyMedium: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w400),
           bodySmall: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w400),

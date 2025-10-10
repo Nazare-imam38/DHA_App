@@ -273,12 +273,22 @@ class UnifiedMemoryCache {
     for (final key in sortedKeys) {
       if (_currentCacheSize + requiredSize <= _maxCacheSize) break;
       
+      // NEVER remove boundaries - they are critical and should persist
+      if (key == 'boundaries_all' || key.startsWith('boundary_')) {
+        continue;
+      }
+      
       _remove(key);
     }
   }
   
   /// Check if cache entry is expired
   bool _isExpired(String key, DateTime timestamp) {
+    // Boundaries should never expire - they are critical data
+    if (key == 'boundaries_all' || key.startsWith('boundary_')) {
+      return false;
+    }
+    
     final priority = _cachePriorities[key] ?? CachePriority.normal;
     final expiry = priority == CachePriority.critical ? _criticalExpiry : _defaultExpiry;
     
@@ -300,9 +310,11 @@ class UnifiedMemoryCache {
   
   /// Start cleanup timer for expired data
   void _startCleanupTimer() {
-    Timer.periodic(const Duration(minutes: 5), (timer) {
-      _cleanupExpired();
-    });
+    // DISABLED: Cleanup timer removed to prevent boundaries from disappearing
+    // Timer.periodic(const Duration(minutes: 5), (timer) {
+    //   _cleanupExpired();
+    // });
+    print('🧠 UnifiedMemoryCache: Cleanup timer disabled to preserve boundaries');
   }
   
   /// Cleanup expired data
