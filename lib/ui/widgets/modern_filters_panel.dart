@@ -263,7 +263,7 @@ class ModernFiltersPanelState extends State<ModernFiltersPanel>
               child: Container(
               width: MediaQuery.of(context).size.width * 0.6,
               constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.7,
+                maxHeight: MediaQuery.of(context).size.height * 0.9,
                 minHeight: 200,
               ),
               decoration: BoxDecoration(
@@ -290,9 +290,10 @@ class ModernFiltersPanelState extends State<ModernFiltersPanel>
                   children: [
                     _buildHeader(),
                     Flexible(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Column(
+                      child: ClipRect(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Column(
                           children: [
                             _buildFilterCard(
                               icon: Icons.currency_rupee, // Keep for fallback, but won't be used
@@ -413,6 +414,7 @@ class ModernFiltersPanelState extends State<ModernFiltersPanel>
                         ),
                       ),
                     ),
+                  ),
                   ],
               ),
             ),
