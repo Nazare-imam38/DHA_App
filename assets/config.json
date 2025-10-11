@@ -1,0 +1,23 @@
+{
+  "options": {
+    "paths": {
+      "root": ".",
+      "fonts": "C:/Users/user/APP/assets/fonts/mapbox-gl-fonts-master",
+      "styles": "C:/Users/user/APP/assets/styles",
+      "mbtiles": "C:/Users/user/APP/assets"
+    }
+  },
+  "styles": {
+    "dha-style": {
+      "style": "C:/Users/user/APP/assets/styles/dha-style/style.json",
+      "tilejson": {
+        "bounds": [66.9, 24.7, 67.3, 25.1]
+      }
+    }
+  },
+  "data": {
+    "dha-tiles": {
+      "mbtiles": "C:/Users/user/APP/assets/DHA_Geo.mbtiles"
+    }
+  }
+}

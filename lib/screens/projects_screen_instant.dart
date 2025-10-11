@@ -22,7 +22,7 @@ import '../ui/widgets/plot_details_modal.dart';
 import '../ui/widgets/phase_label_widget.dart';
 import '../ui/screens/auth/login_screen.dart';
 import '../core/services/enhanced_maptiler_boundary_service.dart' as maptiler;
-import '../core/services/optimized_local_boundary_service.dart' as local;
+import '../core/services/dha_geojson_boundary_service.dart' as dha;
 import '../core/services/unified_memory_cache.dart';
 import '../core/services/optimized_plots_cache.dart';
 import '../core/services/optimized_tile_cache.dart';
@@ -90,6 +90,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   // Plot polygon visibility
   bool _showPlotPolygons = true; // Always show plot polygons
   
+  // TopoJSON boundaries from assets (High Performance)
+  List<dha.BoundaryPolygon> _boundaryPolygons = [];
+  
   // Filter states
   String? _selectedEvent;
   RangeValues _priceRange = const RangeValues(0, 10000000);
@@ -147,8 +150,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   // Global key for persistent filter panel
   final GlobalKey<ModernFiltersPanelState> _filterPanelKey = GlobalKey<ModernFiltersPanelState>();
   
-  // Boundary polygons
-  List<BoundaryPolygon> _boundaryPolygons = [];
+  // TILESERVER ONLY - NO GeoJSON
   bool _isLoadingBoundaries = true;
   bool _showBoundaries = true;
   
@@ -438,7 +440,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       await OptimizedPlotsCache.initialize();
       await OptimizedTileCache.instance.initialize();
       
-      // Load boundaries using existing method
+      // Load boundaries from TopoJSON assets (High Performance)
       await _loadBoundaryPolygons();
       
       // Load plots using existing method
@@ -597,39 +599,49 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   Future<void> _loadBoundaryPolygons() async {
     try {
-      print('🔄 Loading boundary polygons from optimized local files (NO NETWORK CALLS)...');
+      print('🔄 Loading boundaries from DHA GeoJSON assets (High Performance)...');
       
-      // Check if boundaries are already loaded
-      if (local.OptimizedLocalBoundaryService.isLoaded) {
-        final instantBoundaries = local.OptimizedLocalBoundaryService.getBoundariesInstantly();
-        setState(() {
-          _boundaryPolygons = instantBoundaries;
-          _isLoadingBoundaries = false;
-        });
-        print('✅ Instant loading: Loaded ${instantBoundaries.length} boundaries from local cache (NO FILE LOADING)');
-        return;
+      // Load boundaries from DHA GeoJSON assets
+      final boundaries = await dha.DhaGeoJSONBoundaryService.loadDhaBoundaries();
+      
+      print('📊 Loaded ${boundaries.length} boundary polygons from DHA GeoJSON');
+      
+      // Debug: Print details about each boundary
+      for (final boundary in boundaries) {
+        print('📍 Boundary: ${boundary.phaseName} - ${boundary.polygons.length} polygons');
+        if (boundary.polygons.isNotEmpty && boundary.polygons.first.isNotEmpty) {
+          final firstPoint = boundary.polygons.first.first;
+          print('   First point: Lat=${firstPoint.latitude}, Lng=${firstPoint.longitude}');
+          
+          // Validate coordinates are in Islamabad region
+          if (firstPoint.latitude > 33.0 && firstPoint.latitude < 34.0 && 
+              firstPoint.longitude > 72.0 && firstPoint.longitude < 74.0) {
+            print('   ✅ Coordinates are in Islamabad region');
+          } else {
+            print('   ⚠️ Coordinates may be outside Islamabad region');
+          }
+        }
       }
       
-      // Check if we've already attempted loading
-      if (local.OptimizedLocalBoundaryService.hasAttemptedLoad) {
-        print('⚠️ Boundaries already attempted to load, returning empty list');
-        setState(() {
-          _isLoadingBoundaries = false;
-        });
-        return;
-      }
-      
-      print('⚠️ No cached boundaries found, loading from local files (OPTIMIZED)...');
-      
-      // If not cached, load from local files and store permanently
-      final boundaries = await local.OptimizedLocalBoundaryService.loadAllBoundaries();
       setState(() {
         _boundaryPolygons = boundaries;
         _isLoadingBoundaries = false;
       });
-      print('✅ Optimized local loading: Loaded ${boundaries.length} boundaries from local files (NO NETWORK CALLS)');
+      
+      print('✅ DHA GeoJSON loading: ${boundaries.length} boundary polygons loaded (ZERO IMPACT)');
+      print('🎯 Map should now show ${boundaries.length} DHA phase boundaries');
+      
+      // Auto-center map to first boundary after loading
+      if (boundaries.isNotEmpty && boundaries.first.polygons.isNotEmpty) {
+        final firstPolygon = boundaries.first.polygons.first;
+        if (firstPolygon.isNotEmpty) {
+          print('🎯 Auto-centering map to first boundary at ${firstPolygon.first.latitude}, ${firstPolygon.first.longitude}');
+          _mapController.move(firstPolygon.first, 14.0); // zoom near DHA
+        }
+      }
+      
     } catch (e) {
-      print('❌ Error loading boundary polygons from local files: $e');
+      print('❌ Error loading DHA GeoJSON boundaries: $e');
       setState(() {
         _isLoadingBoundaries = false;
       });
@@ -993,19 +1005,33 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                     );
                   },
                 ),
-              // Boundary polygons with hollow fill and dotted borders
+            // DEBUG: Test polygon to verify rendering works
+            if (_showBoundaries)
+              PolygonLayer(
+                polygons: [
+                  Polygon(
+                    points: [
+                      const LatLng(33.6844, 73.0479), // Islamabad center
+                      const LatLng(33.6854, 73.0479),
+                      const LatLng(33.6854, 73.0489),
+                      const LatLng(33.6844, 73.0489),
+                    ],
+                    color: Colors.red.withOpacity(0.5),
+                    borderColor: Colors.red,
+                    borderStrokeWidth: 3.0,
+                  ),
+                ],
+              ),
+            // DHA GeoJSON BOUNDARIES from assets (High Performance)
+            if (_showBoundaries && _boundaryPolygons.isNotEmpty)
               PolygonLayer(
                 polygons: _getBoundaryPolygons(),
               ),
-              // Dotted boundary lines
-              PolylineLayer(
-                polylines: _getDottedBoundaryLines(),
+            // Phase labels for DHA GeoJSON boundaries
+            if (_showBoundaries && _boundaryPolygons.isNotEmpty)
+              MarkerLayer(
+                markers: _getPhaseLabelMarkers(),
               ),
-              // Phase labels on boundaries
-              if (_showBoundaries && _boundaryPolygons.isNotEmpty)
-                MarkerLayer(
-                  markers: _getPhaseLabelMarkers(),
-                ),
               // Plot polygons - showing filtered plots
               if (_showPlotPolygons) ...[
                 PolygonLayer(
@@ -1489,42 +1515,93 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     }
   }
 
+  /// Get DHA GeoJSON boundary polygons from assets (High Performance)
   List<Polygon> _getBoundaryPolygons() {
-    // Use optimized renderer for better performance
-    // Convert boundary.BoundaryPolygon to renderer.BoundaryPolygon
-    final rendererBoundaries = _boundaryPolygons.map((boundary) => 
-      renderer.BoundaryPolygon(
-        phaseName: boundary.phaseName,
-        polygons: boundary.polygons,
-        color: boundary.color,
-        icon: boundary.icon,
-      )
-    ).toList();
+    if (_boundaryPolygons.isEmpty) {
+      print('⚠️ No boundary polygons available for rendering');
+      return [];
+    }
     
-    return renderer.OptimizedMapRenderer.getOptimizedBoundaryPolygons(
-      rendererBoundaries,
-      _zoom,
-      _showBoundaries,
-    );
+    final polygons = <Polygon>[];
+    print('🟩 Rendering ${_boundaryPolygons.length} boundaries on map');
+    
+    for (final boundary in _boundaryPolygons) {
+      print('🔄 Processing ${boundary.phaseName} with ${boundary.polygons.length} polygons');
+      for (final polygonCoords in boundary.polygons) {
+        if (polygonCoords.isNotEmpty) {
+          // Enhanced styling with visible borders
+          polygons.add(Polygon(
+            points: polygonCoords,
+            color: boundary.color.withOpacity(0.3),
+            borderColor: Colors.black, // Visible black border
+            borderStrokeWidth: 3.0, // Thick border
+          ));
+          print('✅ Added polygon for ${boundary.phaseName} with ${polygonCoords.length} points');
+        } else {
+          print('⚠️ Empty polygon coordinates for ${boundary.phaseName}');
+        }
+      }
+    }
+    
+    print('✅ Total polygons for rendering: ${polygons.length}');
+    return polygons;
   }
 
-  List<Polyline> _getDottedBoundaryLines() {
-    // Use optimized renderer for better performance
-    // Convert boundary.BoundaryPolygon to renderer.BoundaryPolygon
-    final rendererBoundaries = _boundaryPolygons.map((boundary) => 
-      renderer.BoundaryPolygon(
-        phaseName: boundary.phaseName,
-        polygons: boundary.polygons,
-        color: boundary.color,
-        icon: boundary.icon,
-      )
-    ).toList();
+  /// Get phase label markers for TopoJSON boundaries
+  List<Marker> _getPhaseLabelMarkers() {
+    if (_boundaryPolygons.isEmpty) return [];
     
-    return renderer.OptimizedMapRenderer.getOptimizedBoundaryLines(
-      rendererBoundaries,
-      _zoom,
-      _showBoundaries,
-    );
+    final markers = <Marker>[];
+    
+    // Only show labels at zoom level 12 and above
+    if (_zoom < 12) return markers;
+    
+    for (final boundary in _boundaryPolygons) {
+      // Calculate center point of the first polygon in the boundary
+      if (boundary.polygons.isNotEmpty) {
+        final firstPolygon = boundary.polygons.first;
+        double centerLat = 0;
+        double centerLng = 0;
+        for (final point in firstPolygon) {
+          centerLat += point.latitude;
+          centerLng += point.longitude;
+        }
+        centerLat /= firstPolygon.length;
+        centerLng /= firstPolygon.length;
+        
+        final marker = Marker(
+          point: LatLng(centerLat, centerLng),
+          width: 80,
+          height: 20,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: boundary.color.withOpacity(0.8),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white, width: 1),
+            ),
+            child: Text(
+              boundary.phaseName,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        );
+        
+        markers.add(marker);
+      }
+    }
+    
+    return markers;
+  }
+
+
+  List<Polyline> _getDottedBoundaryLines() {
+    // DEPRECATED: No longer used - replaced with tileserver
+    return [];
   }
 
   List<LatLng> _createDottedLine(LatLng start, LatLng end, int segments) {
@@ -1626,42 +1703,6 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     }
   }
 
-  /// Get phase label markers for boundaries
-  List<Marker> _getPhaseLabelMarkers() {
-    try {
-      if (_boundaryPolygons.isEmpty) {
-        return [];
-      }
-
-      final markers = <Marker>[];
-      
-      for (final boundary in _boundaryPolygons) {
-        // Only show labels at zoom level 12 and above to reduce clutter
-        if (_zoom < 12) continue;
-        
-        final center = boundary.center;
-        final marker = Marker(
-          point: center,
-          width: 80,
-          height: 20,
-          child: EnhancedPhaseLabel(
-            phaseName: boundary.phaseName,
-            color: boundary.color,
-            icon: boundary.icon,
-            position: center,
-            zoom: _zoom,
-          ),
-        );
-        
-        markers.add(marker);
-      }
-      
-      return markers;
-    } catch (e) {
-      print('❌ Error creating phase label markers: $e');
-      return [];
-    }
-  }
 
   /// Get filtered plot polygons for rendering
   List<Polygon> _getFilteredPlotPolygons() {
@@ -2189,57 +2230,25 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   }
 
   void _centerMapOnBoundaries() {
-    if (_boundaryPolygons.isEmpty) return;
-    
-    double minLat = double.infinity;
-    double maxLat = -double.infinity;
-    double minLng = double.infinity;
-    double maxLng = -double.infinity;
-    
-    for (final boundary in _boundaryPolygons) {
-      for (final polygon in boundary.polygons) {
-        for (final point in polygon) {
-          minLat = minLat < point.latitude ? minLat : point.latitude;
-          maxLat = maxLat > point.latitude ? maxLat : point.latitude;
-          minLng = minLng < point.longitude ? minLng : point.longitude;
-          maxLng = maxLng > point.longitude ? maxLng : point.longitude;
-        }
-      }
-    }
-    
-    final centerLat = (minLat + maxLat) / 2;
-    final centerLng = (minLng + maxLng) / 2;
-    final center = LatLng(centerLat, centerLng);
-    
-    // Calculate appropriate zoom level
-    final latDiff = maxLat - minLat;
-    final lngDiff = maxLng - minLng;
-    final maxDiff = latDiff > lngDiff ? latDiff : lngDiff;
-    
-    double zoom = 12.0;
-    if (maxDiff > 0.1) zoom = 10.0;
-    else if (maxDiff > 0.05) zoom = 11.0;
-    else if (maxDiff > 0.02) zoom = 12.0;
-    else if (maxDiff > 0.01) zoom = 13.0;
-    else zoom = 14.0;
-    
-    _mapController.move(center, zoom);
+    // DEPRECATED: No longer used - replaced with tileserver centering
+    // Use default DHA center
+    _mapController.move(const LatLng(33.5348, 73.0951), 12.0);
   }
 
-  /// Center map on phase boundaries when app loads
+  /// Center map on phase boundaries when app loads - TopoJSON VERSION
   void _centerMapOnPhaseBoundaries() {
     // Delay to ensure boundaries are loaded
     Future.delayed(const Duration(milliseconds: 2000), () {
       if (_boundaryPolygons.isNotEmpty) {
-        print('🎯 Centering map on phase boundaries');
-        _centerMapOnBoundaries();
+        print('🎯 Centering map on TopoJSON boundaries (High Performance)');
+        _mapController.move(const LatLng(33.5348, 73.0951), 12.0);
         setState(() {
           _showBoundaries = true; // Ensure boundaries are visible
         });
       } else {
-        print('⚠️ No boundary polygons available for centering');
+        print('⚠️ Using default center for boundaries');
         // Fallback to default center with appropriate zoom for phase boundaries
-        _mapController.move(const LatLng(33.6844, 73.0479), 12.0);
+        _mapController.move(const LatLng(33.5348, 73.0951), 12.0);
       }
     });
   }
@@ -4252,7 +4261,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  'Loading boundaries...',
+                                  'DHA GeoJSON boundaries loaded (High Performance)',
                                   style: TextStyle(
                                     fontFamily: 'Inter',
                                     fontSize: 12,
