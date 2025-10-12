@@ -1529,13 +1529,12 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       print('🔄 Processing ${boundary.phaseName} with ${boundary.polygons.length} polygons');
       for (final polygonCoords in boundary.polygons) {
         if (polygonCoords.isNotEmpty) {
-          // Hollow polygons with white dotted borders (as shown in image)
+          // Hollow polygons with white borders (as shown in image)
           polygons.add(Polygon(
             points: polygonCoords,
             color: Colors.transparent, // Hollow/transparent fill
             borderColor: Colors.white, // White border
             borderStrokeWidth: 2.0, // Moderate border thickness
-            isDotted: true, // Dotted/dashed border
           ));
           print('✅ Added polygon for ${boundary.phaseName} with ${polygonCoords.length} points');
         } else {
