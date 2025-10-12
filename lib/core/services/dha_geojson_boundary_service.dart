@@ -75,7 +75,6 @@ class DhaGeoJSONBoundaryService {
         if (phase == null) continue;
         
         print('🔄 Processing DHA phase: $phase');
-        print('🔍 Phase properties: $properties');
         print('🔍 Geometry type: ${geometry['type']}');
         
         // Convert geometry to polygons
@@ -96,13 +95,19 @@ class DhaGeoJSONBoundaryService {
             print('📍 First point for $phase: Lat=${firstPoint.latitude}, Lng=${firstPoint.longitude}');
           }
         } else {
-          print('⚠️ No polygons generated for $phase - checking geometry...');
-          print('🔍 Geometry coordinates length: ${(geometry['coordinates'] as List).length}');
+          print('⚠️ No polygons generated for $phase');
         }
       }
       
     } catch (e) {
       print('❌ Error parsing DHA GeoJSON: $e');
+    }
+    
+    // Debug: Print summary of loaded phases
+    print('📊 DHA GeoJSON Parsing Summary:');
+    print('   Total boundaries loaded: ${boundaries.length}');
+    for (final boundary in boundaries) {
+      print('   ✅ $boundary.phaseName: ${boundary.polygons.length} polygons');
     }
     
     return boundaries;
@@ -119,15 +124,19 @@ class DhaGeoJSONBoundaryService {
       print('🔍 Processing geometry type: $geometryType');
       
       if (geometryType == 'Polygon') {
-        // Single polygon - coordinates is List<List<List<double>>>
+        // Single polygon - coordinates is List<List<List<double>>> (polygon with rings)
         print('📍 Processing single Polygon');
-        print('🔍 Polygon coordinates structure: ${coordinates.runtimeType}');
-        final polygonCoords = _convertPolygonCoordinates(coordinates);
+        final polygonCoords = coordinates as List<dynamic>;
+        print('🔍 Polygon has ${polygonCoords.length} rings');
+        
+        // For Polygon, we want the first ring (exterior ring)
         if (polygonCoords.isNotEmpty) {
-          polygons.add(polygonCoords);
-          print('✅ Added polygon with ${polygonCoords.length} points');
-        } else {
-          print('⚠️ Empty polygon coordinates for single Polygon');
+          final exteriorRing = polygonCoords[0] as List<dynamic>;
+          final ringCoords = _convertPolygonCoordinates(exteriorRing);
+          if (ringCoords.isNotEmpty) {
+            polygons.add(ringCoords);
+            print('✅ Added Polygon with ${ringCoords.length} points');
+          }
         }
       } else if (geometryType == 'MultiPolygon') {
         // Multiple polygons - coordinates is List<List<List<List<double>>>>
@@ -136,24 +145,15 @@ class DhaGeoJSONBoundaryService {
         print('🔍 MultiPolygon has ${multiPolygonCoords.length} polygon groups');
         
         // Robust parser with double loop for all nesting cases
-        for (int i = 0; i < multiPolygonCoords.length; i++) {
-          final polygonGroup = multiPolygonCoords[i] as List<dynamic>;
-          print('🔍 Processing polygon group $i with ${polygonGroup.length} rings');
-          
-          for (int j = 0; j < polygonGroup.length; j++) {
-            final ring = polygonGroup[j] as List<dynamic>;
-            print('🔍 Processing ring $j with ${ring.length} coordinates');
+        for (final polygonGroup in multiPolygonCoords) {
+          for (final ring in polygonGroup) {
             final polygonCoords = _convertPolygonCoordinates(ring);
             if (polygonCoords.isNotEmpty) {
               polygons.add(polygonCoords);
-              print('✅ Added MultiPolygon ring $j with ${polygonCoords.length} points');
-            } else {
-              print('⚠️ Empty coordinates for ring $j');
+              print('✅ Added MultiPolygon ring with ${polygonCoords.length} points');
             }
           }
         }
-      } else {
-        print('⚠️ Unknown geometry type: $geometryType');
       }
       
     } catch (e) {
@@ -211,7 +211,6 @@ class DhaGeoJSONBoundaryService {
 
   /// Get phase color
   static Color _getPhaseColor(String phase) {
-    print('🎨 Getting color for phase: "$phase"');
     switch (phase.toLowerCase()) {
       case 'phase 1':
         return const Color(0xFF4CAF50); // Green
@@ -234,14 +233,12 @@ class DhaGeoJSONBoundaryService {
       case 'phase 7':
         return const Color(0xFF3F51B5); // Indigo
       default:
-        print('⚠️ Unknown phase: "$phase" - using default color');
         return const Color(0xFF757575); // Grey
     }
   }
 
   /// Get phase icon
   static IconData _getPhaseIcon(String phase) {
-    print('🎯 Getting icon for phase: "$phase"');
     switch (phase.toLowerCase()) {
       case 'phase 1':
         return Icons.home;
