@@ -2930,10 +2930,19 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   void _handleZoomChange(int newZoomLevel) {
     print('🔍 Zoom change detected: $_zoom -> $newZoomLevel');
     
+    // Clamp zoom level to maximum of 18
+    final clampedZoom = newZoomLevel.clamp(8, 18);
+    
     // Update zoom level and force rebuild
     setState(() {
-      _zoom = newZoomLevel.toDouble();
+      _zoom = clampedZoom.toDouble();
     });
+    
+    // If zoom was clamped, update the map controller
+    if (clampedZoom != newZoomLevel) {
+      print('🔒 Zoom level clamped to maximum: $clampedZoom');
+      _mapController.move(_mapController.camera.center, clampedZoom.toDouble());
+    }
     
     // Load amenities when zoom level is appropriate and not already loaded (lazy loading at 16+)
     if (newZoomLevel >= 16 && _showAmenities && !_amenitiesLoaded && !_isLoadingAmenities) {
