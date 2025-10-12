@@ -1028,10 +1028,10 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 polygons: _getBoundaryPolygons(),
               ),
             // Phase labels for DHA GeoJSON boundaries
-            if (_showBoundaries && _boundaryPolygons.isNotEmpty)
-              MarkerLayer(
-                markers: _getPhaseLabelMarkers(),
-              ),
+              if (_showBoundaries && _boundaryPolygons.isNotEmpty)
+                MarkerLayer(
+                  markers: _getPhaseLabelMarkers(),
+                ),
               // Plot polygons - showing filtered plots
               if (_showPlotPolygons) ...[
                 PolygonLayer(
@@ -1529,12 +1529,13 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       print('🔄 Processing ${boundary.phaseName} with ${boundary.polygons.length} polygons');
       for (final polygonCoords in boundary.polygons) {
         if (polygonCoords.isNotEmpty) {
-          // Enhanced styling with visible borders
+          // Hollow polygons with white dotted borders (as shown in image)
           polygons.add(Polygon(
             points: polygonCoords,
-            color: boundary.color.withOpacity(0.3),
-            borderColor: Colors.black, // Visible black border
-            borderStrokeWidth: 3.0, // Thick border
+            color: Colors.transparent, // Hollow/transparent fill
+            borderColor: Colors.white, // White border
+            borderStrokeWidth: 2.0, // Moderate border thickness
+            isDotted: true, // Dotted/dashed border
           ));
           print('✅ Added polygon for ${boundary.phaseName} with ${polygonCoords.length} points');
         } else {
@@ -1576,16 +1577,22 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: boundary.color.withOpacity(0.8),
+              color: Colors.transparent, // No background (hollow)
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white, width: 1),
             ),
             child: Text(
               boundary.phaseName,
               style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
+                color: Colors.white, // White text as shown in image
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
+                shadows: [
+                  Shadow(
+                    offset: Offset(1, 1),
+                    blurRadius: 2,
+                    color: Colors.black54,
+                  ),
+                ],
               ),
             ),
           ),
