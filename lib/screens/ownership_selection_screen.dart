@@ -133,7 +133,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                 background: Container(
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+                      colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                     ),
@@ -219,7 +219,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                                 fontFamily: 'Poppins',
                                 fontSize: 32,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFF1E3C90),
+                                color: Color(0xFF1B5993),
                                 height: 1.1,
                                 letterSpacing: -0.5,
                               ),
@@ -234,12 +234,12 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                                 color: const Color(0xCCFFFFFF),
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: const Color(0x1A1E3C90),
+                                  color: const Color(0x1A1B5993),
                                   width: 1,
                                 ),
                                 boxShadow: const [
                                   BoxShadow(
-                                    color: Color(0x0D1E3C90),
+                                    color: Color(0x0D1B5993),
                                     blurRadius: 20,
                                     offset: Offset(0, 4),
                                   ),
@@ -323,11 +323,11 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                           width: double.infinity,
                                 padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
-                                  ),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: const [
                                     BoxShadow(
@@ -512,7 +512,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
         decoration: BoxDecoration(
           gradient: isSelected
               ? const LinearGradient(
-                  colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+                  colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 )
@@ -522,25 +522,25 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
           border: Border.all(
             color: isSelected 
                 ? Colors.transparent
-                : const Color(0x1A1E3C90),
+                : const Color(0x1A1B5993),
             width: 2,
           ),
           boxShadow: isSelected
               ? const [
                   BoxShadow(
-                    color: Color(0x4D1E3C90),
+                    color: Color(0x4D1B5993),
                     blurRadius: 20,
                     offset: Offset(0, 8),
                   ),
                   BoxShadow(
-                    color: Color(0x331E3C90),
+                    color: Color(0x331B5993),
                     blurRadius: 16,
                     offset: Offset(0, 4),
                   ),
                 ]
               : const [
                   BoxShadow(
-                    color: Color(0x141E3C90),
+                    color: Color(0x141B5993),
                     blurRadius: 12,
                     offset: Offset(0, 4),
                   ),
@@ -564,7 +564,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                       )
                     : const LinearGradient(
                         colors: [
-                          Color(0x1A1E3C90),
+                          Color(0x1A1B5993),
                           Color(0x0D20B2AA),
                         ],
                         begin: Alignment.topLeft,
@@ -574,14 +574,14 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                 border: Border.all(
                   color: isSelected 
                       ? const Color(0x4DFFFFFF)
-                      : const Color(0x1A1E3C90),
+                      : const Color(0x1A1B5993),
                   width: 1,
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: isSelected 
                         ? const Color(0x33FFFFFF)
-                        : const Color(0x1A1E3C90),
+                        : const Color(0x1A1B5993),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -589,7 +589,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
               ),
               child: Icon(
                 icon,
-                color: isSelected ? Colors.white : const Color(0xFF1E3C90),
+                color: isSelected ? Colors.white : const Color(0xFF1B5993),
                 size: 32,
               ),
             ),
@@ -607,7 +607,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                       fontFamily: 'Poppins',
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
-                      color: isSelected ? Colors.white : const Color(0xFF1E3C90),
+                      color: isSelected ? Colors.white : const Color(0xFF1B5993),
                       letterSpacing: -0.3,
                     ),
                   ),
@@ -1050,7 +1050,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
               ),
             ],
           ),
-          backgroundColor: const Color(0xFF1E3C90),
+          backgroundColor: const Color(0xFF1B5993),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),

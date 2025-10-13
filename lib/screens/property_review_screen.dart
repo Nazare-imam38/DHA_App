@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'property_details_form_screen.dart';
-import 'ms_otp_verification_screen.dart';
-import '../services/ms_verification_service.dart';
+import 'property_success_screen.dart';
 
-class MSVerificationScreen extends StatefulWidget {
-  const MSVerificationScreen({super.key});
+class PropertyReviewScreen extends StatefulWidget {
+  const PropertyReviewScreen({super.key});
 
   @override
-  State<MSVerificationScreen> createState() => _MSVerificationScreenState();
+  State<PropertyReviewScreen> createState() => _PropertyReviewScreenState();
 }
 
-class _MSVerificationScreenState extends State<MSVerificationScreen>
+class _PropertyReviewScreenState extends State<PropertyReviewScreen>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _slideController;
@@ -22,9 +20,22 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
   late Animation<double> _scaleAnimation;
   late Animation<double> _expandAnimation;
 
-  final TextEditingController _msNumberController = TextEditingController();
-  bool _isVerifying = false;
   bool _showQuickActions = false;
+  bool _isSubmitting = false;
+
+  // Sample property data (in real app, this would come from previous screens)
+  final Map<String, dynamic> _propertyData = {
+    'title': 'Beautiful 3 Bedroom House',
+    'type': 'House',
+    'price': 'PKR 5,000,000',
+    'size': '3 Marla',
+    'phase': 'Phase 2',
+    'address': '123 Main Street, DHA Phase 2, Karachi',
+    'description': 'A beautiful 3 bedroom house with modern amenities, parking space, and garden.',
+    'condition': 'Excellent',
+    'features': ['Parking Available', 'Garden', 'Security'],
+    'contact': '+92-300-1234567',
+  };
 
   @override
   void initState() {
@@ -94,140 +105,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
     _slideController.dispose();
     _scaleController.dispose();
     _expandController.dispose();
-    _msNumberController.dispose();
     super.dispose();
-  }
-
-  void _verifyMSNumber() async {
-    if (_msNumberController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Please enter your MS number'),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      );
-      return;
-    }
-
-    setState(() {
-      _isVerifying = true;
-    });
-
-    try {
-      // Verify MS number with backend
-      final msService = MSVerificationService();
-      final response = await msService.verifyMSNumber(_msNumberController.text.trim());
-      
-      if (!response.isValid) {
-        setState(() {
-          _isVerifying = false;
-        });
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Invalid MS number. Please check and try again.'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        );
-        return;
-      }
-
-      setState(() {
-        _isVerifying = false;
-      });
-
-      // Show success message briefly then navigate automatically
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0x33FFFFFF),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.check_circle_rounded,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'MS Number verified successfully! Proceeding to OTP verification...',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: const Color(0xFF1B5993),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          margin: const EdgeInsets.all(16),
-          duration: const Duration(seconds: 1),
-        ),
-      );
-
-      // Navigate to MS OTP Verification Screen after brief delay
-      await Future.delayed(const Duration(milliseconds: 1000));
-      
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => MSOtpVerificationScreen(
-              msNumber: _msNumberController.text.trim(),
-              email: response.email ?? 'member@dha.gov.pk',
-              phoneNumber: response.phoneNumber ?? '+92 300 1234567',
-            ),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(1.0, 0.0),
-                  end: Offset.zero,
-                ).animate(CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeInOutCubic,
-                )),
-                child: child,
-              );
-            },
-            transitionDuration: const Duration(milliseconds: 400),
-          ),
-        );
-      }
-    } catch (e) {
-      setState(() {
-        _isVerifying = false;
-      });
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Verification failed: ${e.toString()}'),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      );
-    }
   }
 
   @override
@@ -298,14 +176,14 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(
-                                Icons.verified_user_rounded,
+                                Icons.rate_review_rounded,
                                 color: Colors.white,
                                 size: 24,
                               ),
                             ),
                             const SizedBox(width: 12),
                             const Text(
-                              'MS VERIFICATION',
+                              'REVIEW & SUBMIT',
                               style: TextStyle(
                                 fontFamily: 'Poppins',
                                 fontSize: 18,
@@ -369,7 +247,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                     ),
                                     child: const Center(
                                       child: Text(
-                                        '2',
+                                        '4',
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
@@ -380,7 +258,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                   ),
                                   const SizedBox(width: 8),
                                   const Text(
-                                    'MS Number Verification',
+                                    'Review & Submit',
                                     style: TextStyle(
                                       fontFamily: 'Inter',
                                       fontSize: 14,
@@ -397,12 +275,12 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                           
                           // Main Title
                           const Text(
-                            'Verify Your MS Number',
+                            'Review Your Property',
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: 28,
                               fontWeight: FontWeight.w800,
-                              color: Color(0xFF1E3C90),
+                              color: Color(0xFF1B5993),
                               letterSpacing: -0.5,
                             ),
                           ),
@@ -411,7 +289,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                           
                           // Subtitle
                           Text(
-                            'Enter your DHA membership number to verify property ownership',
+                            'Please review all information before submitting your property listing',
                             style: TextStyle(
                               fontFamily: 'Inter',
                               fontSize: 16,
@@ -423,7 +301,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                           
                           const SizedBox(height: 32),
                           
-                          // Main Form Card
+                          // Property Review Card
                           Container(
                             width: double.infinity,
                             padding: const EdgeInsets.all(24),
@@ -432,7 +310,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF1E3C90).withValues(alpha: 0.08),
+                                  color: const Color(0xFF1B5993).withValues(alpha: 0.08),
                                   blurRadius: 20,
                                   offset: const Offset(0, 4),
                                 ),
@@ -441,68 +319,149 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Input Label
-                                const Text(
-                                  'DHA Membership Number (MS)',
-                                  style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF1B5993),
-                                  ),
+                                // Property Title
+                                _buildReviewSection(
+                                  'Property Title',
+                                  _propertyData['title'],
+                                  Icons.title,
                                 ),
                                 
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 20),
                                 
-                                // Input Field
+                                // Basic Info Row
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: _buildReviewSection(
+                                        'Type',
+                                        _propertyData['type'],
+                                        Icons.home,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: _buildReviewSection(
+                                        'Price',
+                                        _propertyData['price'],
+                                        Icons.attach_money,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                
+                                const SizedBox(height: 20),
+                                
+                                // Size and Phase Row
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: _buildReviewSection(
+                                        'Size',
+                                        _propertyData['size'],
+                                        Icons.straighten,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: _buildReviewSection(
+                                        'Phase',
+                                        _propertyData['phase'],
+                                        Icons.location_on,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                
+                                const SizedBox(height: 20),
+                                
+                                // Address
+                                _buildReviewSection(
+                                  'Address',
+                                  _propertyData['address'],
+                                  Icons.location_city,
+                                ),
+                                
+                                const SizedBox(height: 20),
+                                
+                                // Description
+                                _buildReviewSection(
+                                  'Description',
+                                  _propertyData['description'],
+                                  Icons.description,
+                                ),
+                                
+                                const SizedBox(height: 20),
+                                
+                                // Condition
+                                _buildReviewSection(
+                                  'Condition',
+                                  _propertyData['condition'],
+                                  Icons.build,
+                                ),
+                                
+                                const SizedBox(height: 20),
+                                
+                                // Features
+                                _buildFeaturesSection(),
+                                
+                                const SizedBox(height: 20),
+                                
+                                // Contact
+                                _buildReviewSection(
+                                  'Contact',
+                                  _propertyData['contact'],
+                                  Icons.phone,
+                                ),
+                                
+                                const SizedBox(height: 32),
+                                
+                                // Terms and Conditions
                                 Container(
+                                  padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: Colors.grey[50],
+                                    color: const Color(0xFFE8F4FD),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: Colors.grey[300]!,
-                                      width: 1,
+                                      color: const Color(0xFF1B5993).withValues(alpha: 0.2),
                                     ),
                                   ),
-                                  child: TextField(
-                                    controller: _msNumberController,
-                                    keyboardType: TextInputType.number,
-                                    style: const TextStyle(
-                                      fontFamily: 'Inter',
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      color: Color(0xFF1B5993),
-                                    ),
-                                    decoration: InputDecoration(
-                                      hintText: 'Enter Your MS Number',
-                                      hintStyle: TextStyle(
-                                        fontFamily: 'Inter',
-                                        fontSize: 16,
-                                        color: Colors.grey[400],
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.info_outline,
+                                            color: const Color(0xFF1B5993),
+                                            size: 20,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          const Text(
+                                            'Terms & Conditions',
+                                            style: TextStyle(
+                                              fontFamily: 'Inter',
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: Color(0xFF1B5993),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      border: InputBorder.none,
-                                      contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 16,
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'By submitting this listing, you agree to DHA Marketplace terms and conditions. All information must be accurate and truthful.',
+                                        style: TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontSize: 12,
+                                          color: Colors.grey[600],
+                                          height: 1.4,
+                                        ),
                                       ),
-                                    ),
+                                    ],
                                   ),
                                 ),
                                 
-                                const SizedBox(height: 12),
-                                
-                                // Purpose explanation
-                                Text(
-                                  'This number is used to verify your property ownership',
-                                  style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontSize: 14,
-                                    color: Colors.grey[500],
-                                    height: 1.3,
-                                  ),
-                                ),
-                                
-                                const SizedBox(height: 24),
+                                const SizedBox(height: 32),
                                 
                                 // Action Buttons
                                 Row(
@@ -552,13 +511,13 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                     
                                     const SizedBox(width: 12),
                                     
-                                    // Verify Button
+                                    // Submit Button
                                     Expanded(
                                       child: Container(
                                         height: 48,
                                         decoration: BoxDecoration(
                                           gradient: const LinearGradient(
-                                            colors: [Color(0xFF20B2AA), Color(0xFF1E3C90)],
+                                            colors: [Color(0xFF20B2AA), Color(0xFF1B5993)],
                                             begin: Alignment.centerLeft,
                                             end: Alignment.centerRight,
                                           ),
@@ -572,13 +531,13 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                           ],
                                         ),
                                         child: TextButton(
-                                          onPressed: _isVerifying ? null : _verifyMSNumber,
+                                          onPressed: _isSubmitting ? null : _handleSubmit,
                                           style: TextButton.styleFrom(
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(12),
                                             ),
                                           ),
-                                          child: _isVerifying
+                                          child: _isSubmitting
                                               ? const SizedBox(
                                                   width: 20,
                                                   height: 20,
@@ -591,13 +550,13 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                                   mainAxisAlignment: MainAxisAlignment.center,
                                                   children: [
                                                     const Icon(
-                                                      Icons.verified_user,
+                                                      Icons.check_circle,
                                                       color: Colors.white,
                                                       size: 18,
                                                     ),
                                                     const SizedBox(width: 8),
                                                     const Text(
-                                                      'Verify MS',
+                                                      'Submit Listing',
                                                       style: TextStyle(
                                                         fontFamily: 'Inter',
                                                         fontSize: 16,
@@ -611,65 +570,6 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                       ),
                                     ),
                                   ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          
-                          const SizedBox(height: 24),
-                          
-                          // Help Section
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE8F4FD),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: const Color(0xFF1E3C90).withValues(alpha: 0.1),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF1E3C90).withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: const Icon(
-                                    Icons.help_outline,
-                                    color: Color(0xFF1B5993),
-                                    size: 20,
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        'Need Help?',
-                                        style: TextStyle(
-                                          fontFamily: 'Inter',
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w700,
-                                          color: Color(0xFF1B5993),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'Your MS number can be found on your DHA membership card or property documents. If you\'re having trouble finding it, please contact DHA support.',
-                                        style: TextStyle(
-                                          fontFamily: 'Inter',
-                                          fontSize: 14,
-                                          color: Colors.grey[600],
-                                          height: 1.4,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
                                 ),
                               ],
                             ),
@@ -698,14 +598,14 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
                                     gradient: const LinearGradient(
-                                      colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+                                      colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
                                       begin: Alignment.centerLeft,
                                       end: Alignment.centerRight,
                                     ),
                                     borderRadius: BorderRadius.circular(16),
                                     boxShadow: const [
                                       BoxShadow(
-                                        color: Color(0x4D1E3C90),
+                                        color: Color(0x4D1B5993),
                                         blurRadius: 12,
                                         offset: Offset(0, 4),
                                       ),
@@ -714,14 +614,14 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                          const Text(
+                                      const Text(
                                         'Quick Actions & Support',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
+                                        style: TextStyle(
+                                          fontFamily: 'Poppins',
                                           fontSize: 18,
-                              fontWeight: FontWeight.w700,
+                                          fontWeight: FontWeight.w700,
                                           color: Colors.white,
-                              letterSpacing: -0.3,
+                                          letterSpacing: -0.3,
                                         ),
                                       ),
                                       AnimatedRotation(
@@ -754,99 +654,49 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                   margin: const EdgeInsets.only(top: 16),
                                   child: Column(
                                     children: [
-                                      // First Row - Support Options
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildQuickActionButton(
-                                  icon: Icons.phone_in_talk_rounded,
-                                  title: 'Call Support',
-                                  subtitle: 'Get immediate help',
-                                  onTap: () => _callSupport(),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _buildQuickActionButton(
-                                  icon: Icons.email_rounded,
-                                  title: 'Email Support',
-                                  subtitle: 'Send your query',
-                                  onTap: () => _emailSupport(),
-                                ),
-                              ),
-                            ],
-                          ),
-                          
-                          const SizedBox(height: 12),
-                          
-                                      // Second Row - Live Support
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildQuickActionButton(
-                                  icon: Icons.live_help_rounded,
-                                  title: 'Live Chat',
-                                  subtitle: 'Chat with agent',
-                                  onTap: () => _startLiveChat(),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _buildQuickActionButton(
+                                      // First Row - Help Options
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: _buildQuickActionButton(
+                                              icon: Icons.edit_rounded,
+                                              title: 'Edit Details',
+                                              subtitle: 'Modify information',
+                                              onTap: () => Navigator.pop(context),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: _buildQuickActionButton(
                                               icon: Icons.help_outline_rounded,
-                                  title: 'FAQ',
-                                  subtitle: 'Common questions',
-                                  onTap: () => _showFAQ(),
-                                ),
-                              ),
-                            ],
+                                              title: 'Get Help',
+                                              subtitle: 'Need assistance?',
+                                              onTap: () => _showHelpDialog(),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                       
                                       const SizedBox(height: 12),
                                       
-                                      // Third Row - MS Number Help
+                                      // Second Row - Support
                                       Row(
                                         children: [
                                           Expanded(
                                             child: _buildQuickActionButton(
-                                              icon: Icons.credit_card_rounded,
-                                              title: 'Find MS Number',
-                                              subtitle: 'Where to locate it',
-                                              onTap: () => _showMSNumberHelp(),
+                                              icon: Icons.phone_rounded,
+                                              title: 'Call Support',
+                                              subtitle: 'Direct assistance',
+                                              onTap: () => _callSupport(),
                                             ),
                                           ),
                                           const SizedBox(width: 12),
                                           Expanded(
                                             child: _buildQuickActionButton(
-                                              icon: Icons.verified_user_rounded,
-                                              title: 'Verify Status',
-                                              subtitle: 'Check membership',
-                                              onTap: () => _checkMembershipStatus(),
-                                            ),
-                          ),
-                        ],
-                      ),
-                                      
-                                      const SizedBox(height: 12),
-                                      
-                                      // Fourth Row - Additional Resources
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: _buildQuickActionButton(
-                                              icon: Icons.document_scanner_rounded,
-                                              title: 'Documents',
-                                              subtitle: 'Required papers',
-                                              onTap: () => _showRequiredDocuments(),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Expanded(
-                                            child: _buildQuickActionButton(
-                                              icon: Icons.schedule_rounded,
-                                              title: 'Process Time',
-                                              subtitle: 'Verification duration',
-                                              onTap: () => _showProcessTime(),
+                                              icon: Icons.email_rounded,
+                                              title: 'Email Support',
+                                              subtitle: 'Send your query',
+                                              onTap: () => _emailSupport(),
                                             ),
                                           ),
                                         ],
@@ -870,6 +720,96 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
     );
   }
 
+  Widget _buildReviewSection(String label, String value, IconData icon) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              icon,
+              color: const Color(0xFF1B5993),
+              size: 16,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1B5993),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFeaturesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.star,
+              color: const Color(0xFF1B5993),
+              size: 16,
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'Features',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1B5993),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: _propertyData['features'].map<Widget>((feature) {
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8F4FD),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: const Color(0xFF1B5993).withValues(alpha: 0.2),
+                ),
+              ),
+              child: Text(
+                feature,
+                style: const TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF1B5993),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
   Widget _buildQuickActionButton({
     required IconData icon,
     required String title,
@@ -884,12 +824,12 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: const Color(0x1A1E3C90),
+            color: const Color(0x1A1B5993),
             width: 1,
           ),
           boxShadow: const [
             BoxShadow(
-              color: Color(0x141E3C90),
+              color: Color(0x141B5993),
               blurRadius: 8,
               offset: Offset(0, 2),
             ),
@@ -904,7 +844,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [
-                    Color(0xFF1E3C90),
+                    Color(0xFF1B5993),
                     Color(0xFF2C5AA0),
                   ],
                   begin: Alignment.topLeft,
@@ -925,7 +865,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                 fontFamily: 'Poppins',
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF1E3C90),
+                color: Color(0xFF1B5993),
               ),
             ),
             const SizedBox(height: 4),
@@ -944,6 +884,70 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
     );
   }
 
+  void _handleSubmit() async {
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    // Brief processing animation (no API call)
+    await Future.delayed(const Duration(milliseconds: 1500));
+
+    setState(() {
+      _isSubmitting = false;
+    });
+
+    // Navigate to success screen
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const PropertySuccessScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(1.0, 0.0),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeInOutCubic,
+            )),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 400),
+      ),
+    );
+  }
+
+  void _showHelpDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Need Help?',
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF1B5993),
+          ),
+        ),
+        content: const Text(
+          'If you need to make changes:\n\n• Click "Back" to edit details\n• Contact support for assistance\n• Review all information carefully\n• Ensure accuracy before submitting',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Got it'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _callSupport() {
     showDialog(
       context: context,
@@ -954,11 +958,11 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
           style: TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1E3C90),
+            color: Color(0xFF1B5993),
           ),
         ),
         content: const Text(
-          'Contact DHA Support Team:\n\n📞 Main Line: +92-21-111-342-111\n📞 MS Verification: +92-21-111-342-222\n📞 Property Listing: +92-21-111-342-333\n\nAvailable 24/7 for your convenience.',
+          'Contact DHA Support Team:\n\n📞 Main Line: +92-21-111-342-111\n📞 Property Listing: +92-21-111-342-333\n📞 Technical Support: +92-21-111-342-444\n\nAvailable 24/7 for your convenience.',
           style: TextStyle(
             fontFamily: 'Inter',
             height: 1.5,
@@ -984,11 +988,11 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
           style: TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1E3C90),
+            color: Color(0xFF1B5993),
           ),
         ),
         content: const Text(
-          'Send your query to DHA Support:\n\n📧 General: support@dha.gov.pk\n📧 MS Issues: ms-verification@dha.gov.pk\n📧 Property Listing: property@dha.gov.pk\n\nWe respond within 2-4 hours during business hours.',
+          'Send your query to DHA Support:\n\n📧 General: support@dha.gov.pk\n📧 Property Listing: property@dha.gov.pk\n📧 Technical Issues: tech@dha.gov.pk\n\nWe respond within 2-4 hours during business hours.',
           style: TextStyle(
             fontFamily: 'Inter',
             height: 1.5,
@@ -998,204 +1002,6 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Got it'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _startLiveChat() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Live Chat Support',
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF1E3C90),
-          ),
-        ),
-        content: const Text(
-          'Connect with our support team:\n\n💬 Available: 9 AM - 6 PM (PKT)\n💬 Average wait time: 2-3 minutes\n💬 Languages: English, Urdu\n\nClick "Start Chat" to begin your conversation.',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            height: 1.5,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Live chat feature coming soon!'),
-                  backgroundColor: Color(0xFF1E3C90),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1B5993),
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Start Chat'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showFAQ() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Frequently Asked Questions',
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF1E3C90),
-          ),
-        ),
-        content: SingleChildScrollView(
-          child: const Text(
-            'Common MS Verification Questions:\n\nQ: Where can I find my MS number?\nA: Check your DHA membership card or property documents.\n\nQ: What if I don\'t have an MS number?\nA: Contact DHA support to verify your membership status.\n\nQ: How long does verification take?\nA: Usually 2-5 minutes for valid MS numbers.\n\nQ: What if verification fails?\nA: Double-check your MS number or contact support.\n\nQ: Can I use someone else\'s MS number?\nA: No, you must use your own valid MS number.',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              height: 1.5,
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showMSNumberHelp() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Finding Your MS Number',
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF1E3C90),
-          ),
-        ),
-        content: const Text(
-          'Where to find your MS number:\n\n• DHA Membership Card (front side)\n• Property Ownership Documents\n• DHA Portal Account\n• Previous DHA correspondence\n• Contact DHA office if lost\n\nMS number format: Usually 6-8 digits',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            height: 1.5,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Got it'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _checkMembershipStatus() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Check Membership Status',
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF1E3C90),
-          ),
-        ),
-        content: const Text(
-          'To verify your DHA membership:\n\n• Visit DHA office with CNIC\n• Call DHA helpline: 111-342-111\n• Check online portal\n• Email: membership@dha.gov.pk\n\nActive membership required for property listing.',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            height: 1.5,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Understood'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showRequiredDocuments() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Required Documents',
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF1E3C90),
-          ),
-        ),
-        content: const Text(
-          'Documents needed for MS verification:\n\n• Valid CNIC/NICOP\n• DHA Membership Card\n• Property Ownership Documents\n• Recent utility bills\n• Passport (if applicable)\n\nAll documents must be clear and legible.',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            height: 1.5,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Got it'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showProcessTime() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Verification Process Time',
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF1E3C90),
-          ),
-        ),
-        content: const Text(
-          'Expected verification times:\n\n• Valid MS number: 2-5 minutes\n• Invalid MS number: Immediate rejection\n• System issues: 10-15 minutes\n• Manual verification: 1-2 hours\n• Peak hours: May take longer\n\nStatus updates sent via SMS/email.',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            height: 1.5,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Understood'),
           ),
         ],
       ),

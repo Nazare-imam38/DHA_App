@@ -35,20 +35,21 @@ class PhaseLabelWidget extends StatelessWidget {
     return Positioned(
       left: _calculateLabelPosition(boundary).dx,
       top: _calculateLabelPosition(boundary).dy,
-      child: Text(
-        boundary.phaseName,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'Inter',
-          shadows: [
-            Shadow(
-              color: Colors.black,
-              blurRadius: 2,
-              offset: Offset(1, 1),
-            ),
-          ],
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          boundary.phaseName,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Inter',
+            letterSpacing: 0.5,
+          ),
         ),
       ),
     );
@@ -115,20 +116,21 @@ class EnhancedPhaseLabel extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Text(
-      phaseName,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 10,
-        fontWeight: FontWeight.bold,
-        fontFamily: 'Inter',
-        shadows: [
-          Shadow(
-            color: Colors.black,
-            blurRadius: 2,
-            offset: Offset(1, 1),
-          ),
-        ],
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        phaseName,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Inter',
+          letterSpacing: 0.5,
+        ),
       ),
     );
   }

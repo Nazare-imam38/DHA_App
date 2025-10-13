@@ -51,6 +51,8 @@ flutter:
   assets:
     - assets/images/
     - assets/images/dhalogo.png
+    - assets/images/dha.png
+    - assets/images/dha-logo.png
     - assets/Boundaries/geojsons/
     - assets/gallery/
     - assets/earth_textures/

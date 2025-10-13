@@ -15,6 +15,8 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
   String _selectedPropertyType = 'All';
   String _selectedPriceRange = 'Any';
   String _selectedLocation = 'Any';
+  String _searchQuery = '';
+  late final TextEditingController _searchController;
 
   final List<Map<String, dynamic>> _properties = [
     {
@@ -50,6 +52,41 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
       'size': '2 Kanal',
     },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<Map<String, dynamic>> get _filteredProperties {
+    if (_searchQuery.isEmpty || _searchQuery.trim().isEmpty) {
+      return _properties;
+    }
+    
+    return _properties.where((property) {
+      final title = property['title']?.toString().toLowerCase() ?? '';
+      final phase = property['phase']?.toString().toLowerCase() ?? '';
+      final size = property['size']?.toString().toLowerCase() ?? '';
+      final query = _searchQuery.toLowerCase().trim();
+      
+      return title.contains(query) || 
+             phase.contains(query) || 
+             size.contains(query);
+    }).toList();
+  }
+
+  void _onSearchChanged(String value) {
+    setState(() {
+      _searchQuery = value;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -127,23 +164,45 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.grey[300]!,
+                          width: 1,
+                        ),
                       ),
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 16),
-                          const Icon(Icons.search, color: Colors.grey),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              l10n.searchProperties,
-                              style: TextStyle(
-                              fontFamily: 'Inter',
-                                color: Colors.grey[600],
-                                fontSize: 14,
-                              ),
-                            ),
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: _onSearchChanged,
+                        decoration: InputDecoration(
+                          hintText: l10n.searchProperties,
+                          hintStyle: TextStyle(
+                            fontFamily: 'Inter',
+                            color: Colors.grey[600],
+                            fontSize: 14,
                           ),
-                        ],
+                          prefixIcon: const Icon(
+                            Icons.search,
+                            color: Colors.grey,
+                            size: 20,
+                          ),
+                          suffixIcon: (_searchQuery.isNotEmpty && _searchQuery.trim().isNotEmpty)
+                              ? IconButton(
+                                  icon: const Icon(
+                                    Icons.clear,
+                                    color: Colors.grey,
+                                    size: 20,
+                                  ),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    _onSearchChanged('');
+                                  },
+                                )
+                              : null,
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -175,14 +234,46 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
             
             // Properties List
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: _properties.length,
-                itemBuilder: (context, index) {
-                  final property = _properties[index];
-                  return _buildZameenPropertyCard(property, index);
-                },
-              ),
+              child: _filteredProperties.isEmpty && _searchQuery.isNotEmpty && _searchQuery.trim().isNotEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No properties found',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Try searching with different keywords',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 14,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _filteredProperties.length,
+                      itemBuilder: (context, index) {
+                        final property = _filteredProperties[index];
+                        return _buildZameenPropertyCard(property, index);
+                      },
+                    ),
             ),
           ],
         ),

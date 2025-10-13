@@ -475,14 +475,26 @@ class _ProjectsScreenPureTileserverState extends State<ProjectsScreenPureTileser
       
       final marker = Marker(
         point: center,
-        width: 80,
-        height: 20,
-        child: EnhancedPhaseLabel(
-          phaseName: phase,
-          color: DHATileserverService.getPhaseColor(phase),
-          icon: DHATileserverService.getPhaseIcon(phase),
-          position: center,
-          zoom: _zoom,
+        width: 120,
+        height: 40,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            phase,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Inter',
+              letterSpacing: 0.8,
+              height: 1.2,
+            ),
+          ),
         ),
       );
       

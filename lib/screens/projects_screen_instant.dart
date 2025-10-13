@@ -1571,27 +1571,24 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         
         final marker = Marker(
           point: LatLng(centerLat, centerLng),
-          width: 80,
-          height: 20,
+          width: 120,
+          height: 40,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.transparent, // No background (hollow)
-              borderRadius: BorderRadius.circular(12),
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
               boundary.phaseName,
+              textAlign: TextAlign.center,
               style: const TextStyle(
-                color: Colors.white, // White text as shown in image
-                fontSize: 14,
+                color: Colors.white,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
-                shadows: [
-                  Shadow(
-                    offset: Offset(1, 1),
-                    blurRadius: 2,
-                    color: Colors.black54,
-                  ),
-                ],
+                fontFamily: 'Inter',
+                letterSpacing: 0.8,
+                height: 1.2,
               ),
             ),
           ),
@@ -3395,13 +3392,34 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Enhanced drag handle with visual feedback
-                    Container(
-                      width: 50,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[400],
-                        borderRadius: BorderRadius.circular(2),
+                    // Enhanced drag handle with visual feedback and interaction
+                    GestureDetector(
+                      onTap: () {
+                        // Toggle bottom sheet expansion
+                        setState(() {
+                          _isBottomSheetExpanded = !_isBottomSheetExpanded;
+                        });
+                        
+                        if (_isBottomSheetExpanded) {
+                          _safeAnimateBottomSheet(0.5);
+                        } else {
+                          _safeAnimateBottomSheet(0.1);
+                        }
+                      },
+                      child: Container(
+                        width: 60,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[500],
+                          borderRadius: BorderRadius.circular(3),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 2,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     // Drag indicator text
@@ -3421,15 +3439,15 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                         });
                         
                         if (_isBottomSheetExpanded) {
-                          // Collapse to minimum size (10%)
-                          _safeAnimateBottomSheet(0.1);
-                        } else {
                           // Expand to appropriate size based on content
                           if (_showSelectedPlotDetails) {
                             _safeAnimateBottomSheet(0.5);
-                        } else {
+                          } else {
                             _safeAnimateBottomSheet(0.5);
-                        }
+                          }
+                        } else {
+                          // Collapse to minimum size (10%)
+                          _safeAnimateBottomSheet(0.1);
                         }
                       },
                       child: Container(
@@ -3632,7 +3650,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 const SizedBox(height: 16),
               ],
               
-              // Plot list or selected plot details
+              // Plot list or selected plot details with scroll indicator
               Expanded(
                 child: _showSelectedPlotDetails && _selectedPlotDetails != null
                     ? _buildSelectedPlotContent()
@@ -3646,18 +3664,46 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                               ),
                             ),
                           )
-                        : ListView.builder(
-                            controller: scrollController,
-                            padding: const EdgeInsets.only(
-                              left: 20,
-                              right: 20,
-                              bottom: 20, // Add bottom padding to prevent content from being cut off
-                            ),
-                            itemCount: _plots.length,
-                            itemBuilder: (context, index) {
-                              final plot = _plots[index];
-                              return _buildPlotCard(plot);
-                            },
+                        : Stack(
+                            children: [
+                              ListView.builder(
+                                controller: scrollController,
+                                physics: const BouncingScrollPhysics(),
+                                padding: const EdgeInsets.only(
+                                  left: 20,
+                                  right: 20,
+                                  bottom: 120, // Increased bottom padding to prevent overflow
+                                ),
+                                itemCount: _plots.length,
+                                itemBuilder: (context, index) {
+                                  final plot = _plots[index];
+                                  return _buildPlotCard(plot);
+                                },
+                              ),
+                              // Scroll indicator
+                              if (_plots.length > 3)
+                                Positioned(
+                                  right: 10,
+                                  top: 0,
+                                  bottom: 0,
+                                  child: Container(
+                                    width: 4,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[300],
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                    child: FractionallySizedBox(
+                                      heightFactor: 0.3,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF1B5993),
+                                          borderRadius: BorderRadius.circular(2),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
               ),
             ],

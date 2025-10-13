@@ -101,12 +101,12 @@ class _FavoritesScreenState extends State<FavoritesScreen>
     final languageService = Provider.of<LanguageService>(context);
     
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: const Color(0xFFF8F9FA), // Light blue/off-white background like profile page
       drawer: const SidebarDrawer(),
       body: SafeArea(
         child: Column(
           children: [
-            // Header with DHA Marketplace gradient matching Properties screen
+            // Header with transparent background
             Container(
               decoration: const BoxDecoration(
                 color: Colors.white,
@@ -131,35 +131,31 @@ class _FavoritesScreenState extends State<FavoritesScreen>
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Left side - Hamburger menu
-                    IconButton(
-                      onPressed: () {
+                    GestureDetector(
+                      onTap: () {
                         Scaffold.of(context).openDrawer();
                       },
-                      icon: const Icon(
+                      child: const Icon(
                         Icons.menu,
                         color: Color(0xFF1B5993),
                         size: 24,
                       ),
                     ),
-                    
-                    // Center - Title
-                    Text(
-                      'MY BOOKINGS',
+                    Expanded(
+                      child: Text(
+                        l10n.myBookings,
+                        textAlign: TextAlign.center,
                             style: TextStyle(
-                        fontFamily: 'Inter',
+                          fontFamily: 'Poppins',
                               fontSize: 18,
-                        fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                               color: const Color(0xFF1B5993),
-                        letterSpacing: 1.2,
                       ),
                     ),
-                    
-                    // Right side - Refresh icon
+                    ),
                     IconButton(
-                      onPressed: _isRefreshing ? null : _refreshBookings,
+                      onPressed: _refreshBookings,
                       icon: _isRefreshing 
                         ? const SizedBox(
                             width: 20,
@@ -172,7 +168,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                         : const Icon(
                             Icons.refresh,
                             color: Color(0xFF1B5993),
-                            size: 20,
+                              size: 24,
                           ),
                     ),
                   ],
@@ -180,41 +176,60 @@ class _FavoritesScreenState extends State<FavoritesScreen>
               ),
             ),
             
-            // Filter chips
+            // Filter chips with profile page styling
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: _filters.map((filter) {
                     final isSelected = _selectedFilter == filter;
                     return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: FilterChip(
-                        label: Text(
-                          filter,
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: isSelected ? Colors.white : const Color(0xFF1B5993),
-                          ),
-                        ),
-                        selected: isSelected,
-                        onSelected: (selected) {
+                      padding: const EdgeInsets.only(right: 12),
+                      child: GestureDetector(
+                        onTap: () {
                           setState(() {
                             _selectedFilter = filter;
                           });
                         },
-                        backgroundColor: Colors.white,
-                        selectedColor: const Color(0xFF1B5993),
-                        checkmarkColor: Colors.white,
-                        side: BorderSide(
-                          color: isSelected ? const Color(0xFF1B5993) : Colors.grey[300]!,
-                          width: 1,
-                        ),
-                        shape: RoundedRectangleBorder(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isSelected ? const Color(0xFF1B5993) : Colors.white,
                             borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: isSelected ? const Color(0xFF1B5993) : const Color(0xFF1B5993).withOpacity(0.3),
+                              width: 1,
+                            ),
+                            boxShadow: isSelected ? [
+                              BoxShadow(
+                                color: const Color(0xFF1B5993).withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ] : null,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (isSelected)
+                                const Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                              if (isSelected) const SizedBox(width: 4),
+                              Text(
+                          filter,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                                  fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: isSelected ? Colors.white : const Color(0xFF1B5993),
+                          ),
+                        ),
+                            ],
+                          ),
                         ),
                       ),
                     );
@@ -647,35 +662,28 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
     Color statusColor = _getStatusColor(widget.booking.status);
     
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 15,
             offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         children: [
-          // Header
+          // Header with profile page styling
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  const Color(0xFF1B5993).withOpacity(0.06),
-                  const Color(0xFF20B2AA).withOpacity(0.03),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: const Color(0xFF20B2AA).withOpacity(0.05),
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
               ),
             ),
             child: Row(
@@ -687,50 +695,43 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                     Text(
                       'Booking #${widget.booking.id}',
                       style: TextStyle(
-                        fontFamily: 'GT Walsheim',
-                        fontSize: 16,
+                        fontFamily: 'Poppins',
+                        fontSize: 18,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF1B5993),
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1B5993).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
+                    const SizedBox(height: 4),
+                    Text(
                         'Plot ${widget.booking.plot.plotNo}',
                         style: TextStyle(
-                          fontFamily: 'GT Walsheim',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF1B5993),
-                        ),
+                        fontFamily: 'Inter',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey[600],
                       ),
                     ),
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: statusColor,
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: statusColor.withOpacity(0.2),
-                        blurRadius: 4,
-                        offset: const Offset(0, 1),
+                        color: statusColor.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
                   child: Text(
                     widget.booking.status,
                     style: const TextStyle(
-                      fontFamily: 'GT Walsheim',
+                      fontFamily: 'Inter',
                       fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
                   ),
@@ -739,37 +740,39 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
             ),
           ),
           
-          // Main content
+          // Main content with profile page styling
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Plot details - improved design with better sizing
+                // Plot details with DHA logo
                 Row(
                   children: [
                     Container(
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
+                        color: const Color(0xFF20B2AA).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF1B5993).withOpacity(0.15),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
                       ),
-                      child: const Icon(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.asset(
+                          'assets/images/dhalogo.png',
+                          width: 30,
+                          height: 30,
+                          fit: BoxFit.contain,
+                          gaplessPlayback: true,
+                          errorBuilder: (context, error, stackTrace) {
+                            print('Error loading DHA logo: $error');
+                            return const Icon(
                         Icons.home_work,
-                        color: Colors.white,
+                              color: Color(0xFF20B2AA),
                         size: 24,
+                            );
+                          },
+                        ),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -780,7 +783,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                           Text(
                             '${widget.booking.plot.category} Plot',
                             style: TextStyle(
-                              fontFamily: 'GT Walsheim',
+                              fontFamily: 'Poppins',
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
                               color: Colors.black,
@@ -792,7 +795,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                               Icon(
                                 Icons.location_on,
                                 size: 16,
-                                color: Colors.grey[600],
+                                color: const Color(0xFF20B2AA),
                               ),
                               const SizedBox(width: 6),
                               Expanded(
@@ -801,7 +804,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                                   style: TextStyle(
                                     fontFamily: 'Inter',
                                     fontSize: 14,
-                                    color: Colors.grey[600],
+                                    color: const Color(0xFF20B2AA),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -816,23 +819,16 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                 
                 const SizedBox(height: 8),
                 
-                // Improved timer section for pending bookings
+                // Timer section with profile page styling
                 if (widget.booking.status == 'Pending') ...[
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.orange.withOpacity(0.08),
-                          Colors.red.withOpacity(0.04),
-                        ],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      ),
+                      color: Colors.orange.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: Colors.orange.withOpacity(0.2),
-                        width: 1.5,
+                        color: Colors.orange.withOpacity(0.3),
+                        width: 1,
                       ),
                     ),
                     child: Row(
@@ -898,22 +894,15 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                   const SizedBox(height: 12),
                 ],
                 
-                // Improved plot price section
+                // Plot price section with profile page styling
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        const Color(0xFF1B5993).withOpacity(0.08),
-                        const Color(0xFF20B2AA).withOpacity(0.04),
-                      ],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
+                    color: const Color(0xFF20B2AA).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: const Color(0xFF1B5993).withOpacity(0.15),
-                      width: 1.5,
+                      color: const Color(0xFF20B2AA).withOpacity(0.3),
+                      width: 1,
                     ),
                   ),
                   child: Row(
@@ -976,15 +965,15 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                 
                 const SizedBox(height: 8),
                 
-                // Improved plot information
+                // Plot information with profile page styling
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.grey[50],
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: Colors.grey[200]!,
-                      width: 1.5,
+                      width: 1,
                     ),
                   ),
                   child: Row(
@@ -1024,149 +1013,6 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                   ),
                 ),
                 
-                const SizedBox(height: 12),
-                
-                // Enhanced action buttons with better styling
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 44,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.white,
-                              const Color(0xFF1B5993).withOpacity(0.02),
-                            ],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                          ),
-                          border: Border.all(
-                            color: const Color(0xFF1B5993),
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF1B5993).withOpacity(0.1),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () {
-                              _showPlotDetails(widget.booking);
-                            },
-                            borderRadius: BorderRadius.circular(14),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    width: 30,
-                                    height: 30,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF1B5993).withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Icon(
-                                      Icons.info_outline,
-                                      size: 18,
-                                      color: Color(0xFF1B5993),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const Text(
-                                    'Details',
-                                    style: TextStyle(
-                                      fontFamily: 'Inter',
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xFF1B5993),
-                                      letterSpacing: 0.3,
-                                      height: 1.2,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (widget.booking.status == 'Pending') ...[
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Container(
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(
-                              color: const Color(0xFF1B5993),
-                              width: 2.0,
-                            ),
-                            borderRadius: BorderRadius.circular(14),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF1B5993).withOpacity(0.1),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () {
-                                // Handle payment action
-                              },
-                              borderRadius: BorderRadius.circular(14),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      width: 30,
-                                      height: 30,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF1B5993).withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: const Icon(
-                                        Icons.payment,
-                                        size: 18,
-                                        color: Color(0xFF1B5993),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    const Text(
-                                      'Pay Now',
-                                      style: TextStyle(
-                                        fontFamily: 'Inter',
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        color: Color(0xFF1B5993),
-                                        letterSpacing: 0.3,
-                                        height: 1.2,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
               ],
             ),
           ),
