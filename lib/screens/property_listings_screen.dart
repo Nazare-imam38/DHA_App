@@ -175,10 +175,10 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                         decoration: InputDecoration(
                           hintText: l10n.searchProperties,
                           hintStyle: TextStyle(
-                            fontFamily: 'Inter',
-                            color: Colors.grey[600],
-                            fontSize: 14,
-                          ),
+                              fontFamily: 'Inter',
+                                color: Colors.grey[600],
+                                fontSize: 14,
+                              ),
                           prefixIcon: const Icon(
                             Icons.search,
                             color: Colors.grey,
@@ -267,13 +267,13 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                       ),
                     )
                   : ListView.builder(
-                      padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                       itemCount: _filteredProperties.length,
-                      itemBuilder: (context, index) {
+                itemBuilder: (context, index) {
                         final property = _filteredProperties[index];
-                        return _buildZameenPropertyCard(property, index);
-                      },
-                    ),
+                  return _buildZameenPropertyCard(property, index);
+                },
+              ),
             ),
           ],
         ),
