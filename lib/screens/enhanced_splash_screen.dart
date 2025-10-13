@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../ui/screens/auth/login_screen.dart';
-import '../ui/widgets/dha_loading_widget.dart';
 import 'main_wrapper.dart';
-import '../core/services/enhanced_startup_preloader.dart';
-import '../core/services/unified_cache_manager.dart';
 
 /// Enhanced Splash Screen with Real Preloading
 /// Shows progress and only navigates when essential data is ready
@@ -38,7 +35,6 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
   
   // Timer for fallback
   Timer? _fallbackTimer;
-  static const Duration _maxPreloadTime = Duration(seconds: 10);
   
   @override
   void initState() {
@@ -129,7 +125,7 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
           context,
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) => 
-              authProvider.isLoggedIn ? MainWrapper() : LoginScreen(),
+              authProvider.isLoggedIn ? const MainWrapper() : const LoginScreen(),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               return FadeTransition(opacity: animation, child: child);
             },
@@ -138,13 +134,13 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
         );
       }
     } catch (e) {
-      print('❌ Error navigating to main app: $e');
+      debugPrint('❌ Error navigating to main app: $e');
       // Fallback to login screen
       if (mounted) {
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => LoginScreen(),
+            pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               return FadeTransition(opacity: animation, child: child);
             },
@@ -200,7 +196,7 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
+                                color: Colors.black.withValues(alpha: 0.2),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
@@ -242,7 +238,7 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
                             'Your Gateway to Premium Properties',
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.white.withValues(alpha: 0.8),
                             ),
                           ),
                         ],
@@ -282,7 +278,7 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
                             Container(
                               height: 6,
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(3),
                               ),
                               child: Stack(
@@ -290,7 +286,7 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
                                   // Background
                                   Container(
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.2),
+                                      color: Colors.white.withValues(alpha: 0.2),
                                       borderRadius: BorderRadius.circular(3),
                                     ),
                                   ),
@@ -363,7 +359,7 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
                             'Powered by Advanced Caching Technology',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.white.withOpacity(0.6),
+                              color: Colors.white.withValues(alpha: 0.6),
                             ),
                           ),
                           const SizedBox(height: 20),

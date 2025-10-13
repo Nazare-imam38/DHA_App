@@ -817,6 +817,9 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
       // Check if it's an authentication error
       if (e.toString().contains('Unauthenticated') || e.toString().contains('not authenticated')) {
         _showLoginRequiredDialog();
+      } else if (e.toString().contains('maximum limit of bookings') || e.toString().contains('complete your existing bookings')) {
+        // Show booking limit alert
+        _showBookingLimitDialog();
       } else {
         // Show error message
         if (mounted) {
@@ -829,6 +832,102 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
         }
       }
     }
+  }
+
+  void _showBookingLimitDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              color: Colors.orange[600],
+              size: 28,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Booking Limit Reached',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'You have reached the maximum limit of bookings.',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Please complete your existing bookings before creating a new one.',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue[50],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.blue[200]!),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: Colors.blue[600],
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'You can view and manage your existing bookings in the "My Bookings" section.',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 13,
+                        color: Colors.blue[700],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              'OK',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.blue[600],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showLoginRequiredDialog() {
