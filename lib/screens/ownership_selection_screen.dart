@@ -12,6 +12,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
     with TickerProviderStateMixin {
   String? _selectedOption;
   bool _isLoading = false;
+  bool _isQuickActionsExpanded = false;
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
@@ -69,31 +70,32 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(20),
-            bottomRight: Radius.circular(20),
+        leading: Container(
+          margin: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1B5993),
+            borderRadius: BorderRadius.circular(12),
           ),
-        ),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: Color(0xFF1B5993),
-            size: 20,
+          child: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new,
+              color: Colors.white,
+              size: 20,
+            ),
+            onPressed: () => Navigator.pop(context),
           ),
-          onPressed: () => Navigator.pop(context),
         ),
         title: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF1B5993).withValues(alpha: 0.1),
+                color: const Color(0xFF1B5993),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
                 Icons.home_work_rounded,
-                color: Color(0xFF1B5993),
+                color: Colors.white,
                 size: 20,
               ),
             ),
@@ -111,6 +113,11 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
           ],
         ),
         centerTitle: false,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(20),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
@@ -222,11 +229,15 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _handleContinue,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1B5993),
-                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF1B5993),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: const Color(0xFF1B5993),
+                            width: 2,
+                          ),
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
@@ -236,7 +247,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                               height: 24,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1B5993)),
                               ),
                             )
                           : Row(
@@ -245,6 +256,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                                 const Icon(
                                   Icons.check_circle_rounded,
                                   size: 20,
+                                  color: Color(0xFF1B5993),
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
@@ -255,6 +267,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                                     fontFamily: 'Inter',
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
+                                    color: Color(0xFF1B5993),
                                   ),
                                 ),
                               ],
@@ -273,7 +286,6 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                 opacity: _fadeAnimation,
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -290,57 +302,106 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                     ],
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Quick Actions & Resources',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF1B5993),
+                      // Header with expand/collapse
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isQuickActionsExpanded = !_isQuickActionsExpanded;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(20),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1B5993),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  Icons.lightbulb_outline,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              const Expanded(
+                                child: Text(
+                                  'Quick Actions & Resources',
+                                  style: TextStyle(
+                                    fontFamily: 'Inter',
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF1B5993),
+                                  ),
+                                ),
+                              ),
+                              AnimatedRotation(
+                                turns: _isQuickActionsExpanded ? 0.5 : 0.0,
+                                duration: const Duration(milliseconds: 300),
+                                child: const Icon(
+                                  Icons.keyboard_arrow_down,
+                                  color: Color(0xFF1B5993),
+                                  size: 24,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildQuickActionButton(
-                              icon: Icons.info_outline_rounded,
-                              title: 'Property Info',
-                              onTap: () => _showPropertyInfo(),
-                            ),
+                      // Expandable content
+                      if (_isQuickActionsExpanded) ...[
+                        const Divider(color: Colors.grey),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildQuickActionButton(
+                                      icon: Icons.info_outline_rounded,
+                                      title: 'Property Info',
+                                      onTap: () => _showPropertyInfo(),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _buildQuickActionButton(
+                                      icon: Icons.help_outline_rounded,
+                                      title: 'Get Help',
+                                      onTap: () => _showHelpDialog(),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildQuickActionButton(
+                                      icon: Icons.document_scanner_rounded,
+                                      title: 'Documents',
+                                      onTap: () => _showDocumentsInfo(),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _buildQuickActionButton(
+                                      icon: Icons.schedule_rounded,
+                                      title: 'Timeline',
+                                      onTap: () => _showTimelineInfo(),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildQuickActionButton(
-                              icon: Icons.help_outline_rounded,
-                              title: 'Get Help',
-                              onTap: () => _showHelpDialog(),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildQuickActionButton(
-                              icon: Icons.document_scanner_rounded,
-                              title: 'Documents',
-                              onTap: () => _showDocumentsInfo(),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildQuickActionButton(
-                              icon: Icons.schedule_rounded,
-                              title: 'Timeline',
-                              onTap: () => _showTimelineInfo(),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -365,7 +426,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isSelected ? const Color(0xFF1B5993) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? const Color(0xFF1B5993) : const Color(0xFFE0E0E0),
@@ -374,7 +435,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
           boxShadow: [
             BoxShadow(
               color: isSelected 
-                  ? const Color(0xFF1B5993).withValues(alpha: 0.1)
+                  ? const Color(0xFF1B5993).withValues(alpha: 0.3)
                   : Colors.black.withValues(alpha: 0.05),
               blurRadius: isSelected ? 12 : 8,
               offset: const Offset(0, 4),
@@ -388,12 +449,14 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: const Color(0xFF1B5993).withValues(alpha: 0.1),
+                color: isSelected 
+                    ? Colors.white.withValues(alpha: 0.2)
+                    : const Color(0xFF1B5993).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
+              child: Icon(
                 icon,
-                color: Color(0xFF1B5993),
+                color: isSelected ? Colors.white : const Color(0xFF1B5993),
                 size: 28,
               ),
             ),
@@ -407,21 +470,23 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF1B5993),
+                      color: isSelected ? Colors.white : const Color(0xFF1B5993),
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
+                  Text(
                     subtitle,
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF616161),
+                      color: isSelected 
+                          ? Colors.white.withValues(alpha: 0.9)
+                          : const Color(0xFF616161),
                       height: 1.3,
                     ),
                   ),
@@ -434,17 +499,17 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF1B5993) : Colors.transparent,
+                color: isSelected ? Colors.white : Colors.transparent,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: const Color(0xFF1B5993),
+                  color: isSelected ? Colors.white : const Color(0xFFBDBDBD),
                   width: 2,
                 ),
               ),
               child: isSelected
                   ? const Icon(
                       Icons.check_rounded,
-                      color: Colors.white,
+                      color: Color(0xFF1B5993),
                       size: 16,
                     )
                   : null,
@@ -463,12 +528,12 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1B5993).withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
+          color: Colors.grey[50],
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFF1B5993).withValues(alpha: 0.2),
+            color: Colors.grey[200]!,
             width: 1,
           ),
         ),

@@ -19,6 +19,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
 
   final TextEditingController _msNumberController = TextEditingController();
   bool _isVerifying = false;
+  bool _isQuickActionsExpanded = false;
 
   @override
   void initState() {
@@ -71,44 +72,56 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1B5993),
-              elevation: 0,
-              leading: IconButton(
-                icon: const Icon(
-                  Icons.arrow_back_ios_new,
-                  color: Colors.white,
-            size: 20,
-                ),
-                onPressed: () => Navigator.pop(context),
-              ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: Container(
+          margin: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1B5993),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new,
+              color: Colors.white,
+              size: 20,
+            ),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
         title: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1B5993),
                 borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Icon(
-                                Icons.verified_user_rounded,
-                                color: Colors.white,
+              ),
+              child: const Icon(
+                Icons.verified_user_rounded,
+                color: Colors.white,
                 size: 20,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            const Text(
-                              'MS VERIFICATION',
-                              style: TextStyle(
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'MS VERIFICATION',
+              style: TextStyle(
                 fontFamily: 'Inter',
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1B5993),
                 letterSpacing: 0.5,
-                              ),
-                            ),
-                          ],
-                        ),
+              ),
+            ),
+          ],
+        ),
         centerTitle: false,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(20),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
@@ -310,8 +323,8 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                           color: Colors.white,
                                           borderRadius: BorderRadius.circular(12),
                                           border: Border.all(
-                                  color: const Color(0xFFE0E0E0),
-                                            width: 1,
+                                            color: const Color(0xFF1B5993),
+                                            width: 2,
                                           ),
                                         ),
                                         child: TextButton(
@@ -326,7 +339,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                             children: [
                                               Icon(
                                                 Icons.arrow_back_ios,
-                                                color: Colors.grey[600],
+                                                color: const Color(0xFF1B5993),
                                                 size: 16,
                                               ),
                                               const SizedBox(width: 4),
@@ -336,7 +349,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                                   fontFamily: 'Inter',
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w600,
-                                                  color: Colors.grey[600],
+                                                  color: const Color(0xFF1B5993),
                                                 ),
                                               ),
                                             ],
@@ -352,15 +365,12 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                       child: Container(
                                         height: 48,
                                         decoration: BoxDecoration(
-                                color: const Color(0xFF1B5993),
+                                          color: Colors.white,
                                           borderRadius: BorderRadius.circular(12),
-                                          boxShadow: [
-                                            BoxShadow(
-                                    color: const Color(0xFF1B5993).withValues(alpha: 0.3),
-                                    blurRadius: 8,
-                                              offset: const Offset(0, 4),
-                                            ),
-                                          ],
+                                          border: Border.all(
+                                            color: const Color(0xFF1B5993),
+                                            width: 2,
+                                          ),
                                         ),
                                         child: TextButton(
                                           onPressed: _isVerifying ? null : _verifyMSNumber,
@@ -375,7 +385,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                                   height: 20,
                                                   child: CircularProgressIndicator(
                                                     strokeWidth: 2,
-                                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1B5993)),
                                                   ),
                                                 )
                                               : Row(
@@ -383,7 +393,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                                   children: [
                                                     const Icon(
                                                       Icons.verified_user,
-                                                      color: Colors.white,
+                                                      color: Color(0xFF1B5993),
                                                       size: 18,
                                                     ),
                                                     const SizedBox(width: 8),
@@ -393,7 +403,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                                         fontFamily: 'Inter',
                                                         fontSize: 16,
                                                         fontWeight: FontWeight.w700,
-                                                        color: Colors.white,
+                                                        color: Color(0xFF1B5993),
                                                       ),
                                                     ),
                                                   ],
@@ -481,74 +491,126 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
               position: _slideAnimation,
               child: FadeTransition(
                 opacity: _fadeAnimation,
-                                child: Container(
-                                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                                  decoration: BoxDecoration(
-                    color: const Color(0xFF1B5993),
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: const Color(0xFFE0E0E0),
+                      width: 1,
+                    ),
                     boxShadow: [
-                                      BoxShadow(
-                        color: const Color(0xFF1B5993).withValues(alpha: 0.3),
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                          const Text(
-                                        'Quick Actions & Support',
-                            style: TextStyle(
-                          fontFamily: 'Inter',
-                                          fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                                          color: Colors.white,
-                        ),
                       ),
-                      const SizedBox(height: 16),
-                          Row(
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      // Header with expand/collapse
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isQuickActionsExpanded = !_isQuickActionsExpanded;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(20),
+                          child: Row(
                             children: [
-                              Expanded(
-                                child: _buildQuickActionButton(
-                                  icon: Icons.phone_in_talk_rounded,
-                                  title: 'Call Support',
-                                  onTap: () => _callSupport(),
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1B5993),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  Icons.lightbulb_outline,
+                                  color: Colors.white,
+                                  size: 20,
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              Expanded(
-                                child: _buildQuickActionButton(
-                                  icon: Icons.email_rounded,
-                                  title: 'Email Support',
-                                  onTap: () => _emailSupport(),
+                              const Expanded(
+                                child: Text(
+                                  'Quick Actions & Support',
+                                  style: TextStyle(
+                                    fontFamily: 'Inter',
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF1B5993),
+                                  ),
+                                ),
+                              ),
+                              AnimatedRotation(
+                                turns: _isQuickActionsExpanded ? 0.5 : 0.0,
+                                duration: const Duration(milliseconds: 300),
+                                child: const Icon(
+                                  Icons.keyboard_arrow_down,
+                                  color: Color(0xFF1B5993),
+                                  size: 24,
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 12),
-                          Row(
+                        ),
+                      ),
+                      // Expandable content
+                      if (_isQuickActionsExpanded) ...[
+                        const Divider(color: Colors.grey),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                          child: Column(
                             children: [
-                              Expanded(
-                                child: _buildQuickActionButton(
-                                              icon: Icons.help_outline_rounded,
-                                  title: 'FAQ',
-                                  onTap: () => _showFAQ(),
-                                ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildQuickActionButton(
+                                      icon: Icons.phone_in_talk_rounded,
+                                      title: 'Call Support',
+                                      onTap: () => _callSupport(),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _buildQuickActionButton(
+                                      icon: Icons.email_rounded,
+                                      title: 'Email Support',
+                                      onTap: () => _emailSupport(),
+                                    ),
+                                  ),
+                                ],
                               ),
-                          const SizedBox(width: 12),
-                                          Expanded(
-                                            child: _buildQuickActionButton(
-                                              icon: Icons.credit_card_rounded,
-                                              title: 'Find MS Number',
-                                              onTap: () => _showMSNumberHelp(),
-                                            ),
+                              const SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildQuickActionButton(
+                                      icon: Icons.help_outline_rounded,
+                                      title: 'FAQ',
+                                      onTap: () => _showFAQ(),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _buildQuickActionButton(
+                                      icon: Icons.credit_card_rounded,
+                                      title: 'Find MS Number',
+                                      onTap: () => _showMSNumberHelp(),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        ],
-                                          ),
-                                        ],
-                                      ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -566,18 +628,22 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(8),
+          color: Colors.grey[50],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Colors.grey[200]!,
+            width: 1,
+          ),
         ),
         child: Column(
           children: [
             Icon(
-                icon,
-                color: Colors.white,
-                size: 20,
-              ),
+              icon,
+              color: const Color(0xFF1B5993),
+              size: 20,
+            ),
             const SizedBox(height: 8),
             Text(
               title,
@@ -585,7 +651,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                 fontFamily: 'Inter',
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: Color(0xFF1B5993),
               ),
               textAlign: TextAlign.center,
             ),
