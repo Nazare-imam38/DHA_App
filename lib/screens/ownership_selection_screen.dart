@@ -67,12 +67,18 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1B5993),
+        backgroundColor: Colors.white,
         elevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
+          ),
+        ),
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: Color(0xFF1B5993),
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
@@ -82,12 +88,12 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: const Color(0xFF1B5993).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
                 Icons.home_work_rounded,
-                color: Colors.white,
+                color: Color(0xFF1B5993),
                 size: 20,
               ),
             ),
@@ -98,7 +104,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                 fontFamily: 'Inter',
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: Color(0xFF1B5993),
                 letterSpacing: 0.5,
               ),
             ),
@@ -269,11 +275,15 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1B5993),
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: const Color(0xFFE0E0E0),
+                      width: 1,
+                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF1B5993).withValues(alpha: 0.3),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -288,7 +298,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                           fontFamily: 'Inter',
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          color: Color(0xFF1B5993),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -355,7 +365,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF1B5993) : Colors.white,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? const Color(0xFF1B5993) : const Color(0xFFE0E0E0),
@@ -364,7 +374,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
           boxShadow: [
             BoxShadow(
               color: isSelected 
-                  ? const Color(0xFF1B5993).withValues(alpha: 0.3)
+                  ? const Color(0xFF1B5993).withValues(alpha: 0.1)
                   : Colors.black.withValues(alpha: 0.05),
               blurRadius: isSelected ? 12 : 8,
               offset: const Offset(0, 4),
@@ -378,14 +388,12 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: isSelected 
-                    ? Colors.white.withValues(alpha: 0.2)
-                    : const Color(0xFF1B5993).withValues(alpha: 0.1),
+                color: const Color(0xFF1B5993).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
+              child: const Icon(
                 icon,
-                color: isSelected ? Colors.white : const Color(0xFF1B5993),
+                color: Color(0xFF1B5993),
                 size: 28,
               ),
             ),
@@ -399,23 +407,21 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: isSelected ? Colors.white : const Color(0xFF1B5993),
+                      color: Color(0xFF1B5993),
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
+                  const Text(
                     subtitle,
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: isSelected 
-                          ? Colors.white.withValues(alpha: 0.9)
-                          : const Color(0xFF616161),
+                      color: Color(0xFF616161),
                       height: 1.3,
                     ),
                   ),
@@ -428,17 +434,17 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: isSelected ? Colors.white : Colors.transparent,
+                color: isSelected ? const Color(0xFF1B5993) : Colors.transparent,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected ? Colors.white : const Color(0xFFBDBDBD),
+                  color: const Color(0xFF1B5993),
                   width: 2,
                 ),
               ),
               child: isSelected
                   ? const Icon(
                       Icons.check_rounded,
-                      color: Color(0xFF1B5993),
+                      color: Colors.white,
                       size: 16,
                     )
                   : null,
@@ -459,14 +465,18 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.2),
+          color: const Color(0xFF1B5993).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: const Color(0xFF1B5993).withValues(alpha: 0.2),
+            width: 1,
+          ),
         ),
         child: Column(
           children: [
             Icon(
               icon,
-              color: Colors.white,
+              color: const Color(0xFF1B5993),
               size: 20,
             ),
             const SizedBox(height: 8),
@@ -476,7 +486,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                 fontFamily: 'Inter',
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: Color(0xFF1B5993),
               ),
               textAlign: TextAlign.center,
             ),
