@@ -309,12 +309,12 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
             Container(
               padding: const EdgeInsets.all(AppTheme.paddingSmall),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBlue,
+                color: const Color(0xFFE8F4FD),
                 borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
               ),
               child: const Icon(
                 Icons.verified_user_rounded,
-                color: Colors.white,
+                color: Color(0xFF1B5993),
                 size: 20,
               ),
             ),

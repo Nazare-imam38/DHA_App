@@ -74,37 +74,37 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
       backgroundColor: AppTheme.backgroundGrey,
       appBar: AppBar(
         backgroundColor: AppTheme.cardWhite,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
             color: Color(0xFF1B5993), // Blue color
             size: 16, // Smaller size
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
+                ),
+                onPressed: () => Navigator.pop(context),
+              ),
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
               padding: const EdgeInsets.all(AppTheme.paddingSmall),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryBlue,
+                              decoration: BoxDecoration(
+                color: const Color(0xFFE8F4FD),
                 borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-              ),
-              child: const Icon(
-                Icons.verified_user_rounded,
-                color: Colors.white,
+                              ),
+                              child: const Icon(
+                                Icons.verified_user_rounded,
+                                color: Color(0xFF1B5993),
                 size: 20,
-              ),
-            ),
+                              ),
+                            ),
             const SizedBox(width: AppTheme.paddingMedium),
             Text(
-              'MS VERIFICATION',
+                              'MS VERIFICATION',
               style: AppTheme.titleLarge,
-            ),
-          ],
-        ),
+                                  ),
+                                ],
+                              ),
         centerTitle: true,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
@@ -473,21 +473,21 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                     ],
                   ),
                   child: Column(
-                    children: [
+                            children: [
                       // Header with expand/collapse
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
                             _isQuickActionsExpanded = !_isQuickActionsExpanded;
-                          });
-                        },
-                        child: Container(
+                                  });
+                                },
+                                child: Container(
                           padding: const EdgeInsets.all(20),
                           child: Row(
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
+                                  decoration: BoxDecoration(
                                   color: const Color(0xFF1B5993),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -500,80 +500,80 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                               const SizedBox(width: 12),
                               const Expanded(
                                 child: Text(
-                                  'Quick Actions & Support',
-                                  style: TextStyle(
+                                        'Quick Actions & Support',
+                            style: TextStyle(
                                     fontFamily: 'Inter',
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
+                                          fontSize: 18,
+                              fontWeight: FontWeight.w700,
                                     color: Color(0xFF1B5993),
+                                  ),
+                                        ),
+                                      ),
+                                      AnimatedRotation(
+                                turns: _isQuickActionsExpanded ? 0.5 : 0.0,
+                                        duration: const Duration(milliseconds: 300),
+                                        child: const Icon(
+                                  Icons.keyboard_arrow_down,
+                                  color: Color(0xFF1B5993),
+                                          size: 24,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
-                              AnimatedRotation(
-                                turns: _isQuickActionsExpanded ? 0.5 : 0.0,
-                                duration: const Duration(milliseconds: 300),
-                                child: const Icon(
-                                  Icons.keyboard_arrow_down,
-                                  color: Color(0xFF1B5993),
-                                  size: 24,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
                       // Expandable content
                       if (_isQuickActionsExpanded) ...[
                         const Divider(color: Colors.grey),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                          child: Column(
-                            children: [
+                                  child: Column(
+                                    children: [
                               const SizedBox(height: 16),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildQuickActionButton(
-                                      icon: Icons.phone_in_talk_rounded,
-                                      title: 'Call Support',
-                                      onTap: () => _callSupport(),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: _buildQuickActionButton(
-                                      icon: Icons.email_rounded,
-                                      title: 'Email Support',
-                                      onTap: () => _emailSupport(),
-                                    ),
-                                  ),
-                                ],
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildQuickActionButton(
+                                  icon: Icons.phone_in_talk_rounded,
+                                  title: 'Call Support',
+                                  onTap: () => _callSupport(),
+                                ),
                               ),
-                              const SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildQuickActionButton(
-                                      icon: Icons.help_outline_rounded,
-                                      title: 'FAQ',
-                                      onTap: () => _showFAQ(),
-                                    ),
-                                  ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _buildQuickActionButton(
+                                  icon: Icons.email_rounded,
+                                  title: 'Email Support',
+                                  onTap: () => _emailSupport(),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildQuickActionButton(
+                                              icon: Icons.help_outline_rounded,
+                                  title: 'FAQ',
+                                  onTap: () => _showFAQ(),
+                                ),
+                              ),
                                   const SizedBox(width: 12),
-                                  Expanded(
-                                    child: _buildQuickActionButton(
-                                      icon: Icons.credit_card_rounded,
-                                      title: 'Find MS Number',
-                                      onTap: () => _showMSNumberHelp(),
-                                    ),
+                                          Expanded(
+                                            child: _buildQuickActionButton(
+                                              icon: Icons.credit_card_rounded,
+                                              title: 'Find MS Number',
+                                              onTap: () => _showMSNumberHelp(),
+                                            ),
                                   ),
                                 ],
                               ),
                             ],
-                          ),
-                        ),
-                      ],
-                    ],
+                                ),
+                              ),
+                            ],
+                        ],
                   ),
                 ),
               ),
@@ -604,10 +604,10 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
         child: Column(
           children: [
             Icon(
-              icon,
+                icon,
               color: AppTheme.primaryBlue,
-              size: 20,
-            ),
+                size: 20,
+              ),
             const SizedBox(height: AppTheme.paddingSmall),
             Text(
               title,
