@@ -282,32 +282,49 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
   }
 
   Widget _buildFilterChip(String label, bool isSelected) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        gradient: isSelected ? const LinearGradient(
-          colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ) : null,
-        color: isSelected ? null : Colors.grey[100],
-        borderRadius: BorderRadius.circular(20),
-        border: isSelected ? null : Border.all(color: Colors.grey[300]!),
-        boxShadow: isSelected ? [
-          BoxShadow(
-            color: const Color(0xFF20B2AA).withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedPropertyType = label;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF1B5993) : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF1B5993) : const Color(0xFF1B5993).withOpacity(0.3),
+            width: 1,
           ),
-        ] : null,
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-                              fontFamily: 'Inter',
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: isSelected ? Colors.white : Colors.grey[600],
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: const Color(0xFF1B5993).withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ] : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isSelected)
+              const Icon(
+                Icons.check,
+                color: Colors.white,
+                size: 16,
+              ),
+            if (isSelected) const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.white : const Color(0xFF1B5993),
+              ),
+            ),
+          ],
         ),
       ),
     );
