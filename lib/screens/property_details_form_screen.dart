@@ -291,7 +291,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Property Title
-                              _buildCompactFormField(
+                              _buildModernFormField(
                         controller: _propertyTitleController,
                         label: 'Property Title',
                         hint: 'e.g., Beautiful 3 Bedroom House',
@@ -304,7 +304,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                               Row(
                                 children: [
                                   Expanded(
-                                    child: _buildCompactDropdownField(
+                                    child: _buildModernDropdownField(
                         label: 'Property Type',
                         value: _selectedPropertyType,
                         items: _propertyTypes,
@@ -314,7 +314,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
-                                    child: _buildCompactDropdownField(
+                                    child: _buildModernDropdownField(
                                       label: 'DHA Phase',
                                       value: _selectedPhase,
                                       items: _phases,
@@ -331,20 +331,20 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                       Row(
                         children: [
                           Expanded(
-                                    child: _buildCompactFormField(
+                                    child: _buildModernFormField(
                               controller: _priceController,
                               label: 'Price (PKR)',
-                                      hint: '5,000,000',
+                                      hint: 'e.g., 5,000,000',
                               icon: Icons.attach_money,
                               keyboardType: TextInputType.number,
                             ),
                           ),
                                   const SizedBox(width: 12),
                           Expanded(
-                                    child: _buildCompactFormField(
+                                    child: _buildModernFormField(
                               controller: _sizeController,
                               label: 'Size',
-                                      hint: '3 Marla',
+                                      hint: 'e.g., 3 Marla',
                               icon: Icons.straighten,
                             ),
                           ),
@@ -354,7 +354,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                               const SizedBox(height: 16),
                       
                       // Address
-                              _buildCompactFormField(
+                              _buildModernFormField(
                         controller: _addressController,
                         label: 'Address',
                         hint: 'Enter complete address',
@@ -365,18 +365,18 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                               const SizedBox(height: 16),
                       
                       // Description
-                              _buildCompactFormField(
+                              _buildModernFormField(
                         controller: _descriptionController,
                         label: 'Description',
                         hint: 'Describe your property in detail',
                         icon: Icons.description,
-                                maxLines: 3,
+                                maxLines: 4,
                       ),
                       
                               const SizedBox(height: 16),
                       
                       // Condition Dropdown
-                              _buildCompactDropdownField(
+                              _buildModernDropdownField(
                         label: 'Property Condition',
                         value: _selectedCondition,
                         items: _conditions,
@@ -403,15 +403,15 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                               Row(
                                 children: [
                                   Expanded(
-                                    child: _buildCompactFeatureCheckbox('Parking', _hasParking, Icons.local_parking),
+                                    child: _buildModernFeatureCheckbox('Parking Available', _hasParking, Icons.local_parking),
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
-                                    child: _buildCompactFeatureCheckbox('Garden', _hasGarden, Icons.yard),
+                                    child: _buildModernFeatureCheckbox('Garden', _hasGarden, Icons.yard),
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
-                                    child: _buildCompactFeatureCheckbox('Security', _hasSecurity, Icons.security),
+                                    child: _buildModernFeatureCheckbox('Security', _hasSecurity, Icons.security),
                                   ),
                                 ],
                               ),
@@ -419,10 +419,10 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                               const SizedBox(height: 20),
                       
                       // Contact Information
-                              _buildCompactFormField(
+                              _buildModernFormField(
                         controller: _contactController,
                         label: 'Contact Number',
-                                hint: '+92-300-1234567',
+                                hint: 'e.g., +92-300-1234567',
                         icon: Icons.phone,
                         keyboardType: TextInputType.phone,
                       ),
@@ -614,17 +614,19 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                               Row(
                                 children: [
                                   Expanded(
-                                            child: _buildCompactQuickActionButton(
+                                            child: _buildModernQuickActionButton(
                                       icon: Icons.help_outline_rounded,
                                       title: 'Get Help',
+                                      subtitle: 'Property listing guide',
                                       onTap: () => _showHelpDialog(),
                                     ),
                                   ),
                                           const SizedBox(width: 8),
                                   Expanded(
-                                            child: _buildCompactQuickActionButton(
+                                            child: _buildModernQuickActionButton(
                                       icon: Icons.calculate_rounded,
                                       title: 'Price Calculator',
+                                      subtitle: 'Estimate market value',
                                       onTap: () => _showPriceCalculator(),
                                     ),
                                   ),
@@ -636,17 +638,19 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                               Row(
                                 children: [
                                   Expanded(
-                                            child: _buildCompactQuickActionButton(
+                                            child: _buildModernQuickActionButton(
                                       icon: Icons.document_scanner_rounded,
                                       title: 'Required Docs',
+                                      subtitle: 'Check documents needed',
                                       onTap: () => _showRequiredDocuments(),
                                     ),
                                   ),
                                           const SizedBox(width: 8),
                                   Expanded(
-                                            child: _buildCompactQuickActionButton(
+                                            child: _buildModernQuickActionButton(
                                       icon: Icons.schedule_rounded,
                                       title: 'Timeline',
+                                      subtitle: 'Listing process time',
                                       onTap: () => _showTimelineInfo(),
                                     ),
                                   ),
