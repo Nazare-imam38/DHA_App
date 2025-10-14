@@ -14,12 +14,10 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late AnimationController _scaleController;
-  late AnimationController _expandController;
   
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _scaleAnimation;
-  late Animation<double> _expandAnimation;
 
   // Form controllers
   final TextEditingController _propertyTitleController = TextEditingController();
@@ -32,7 +30,6 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
   // Form state
   String _selectedPropertyType = 'House';
   String _selectedPhase = 'Phase 1';
-  bool _showQuickActions = false;
 
   final List<String> _propertyTypes = ['House', 'Flat', 'Plot', 'Commercial'];
   final List<String> _phases = ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'Phase 5', 'Phase 6', 'Phase 7'];
@@ -54,10 +51,6 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     );
     _scaleController = AnimationController(
       duration: const Duration(milliseconds: 500),
-      vsync: this,
-    );
-    _expandController = AnimationController(
-      duration: const Duration(milliseconds: 400),
       vsync: this,
     );
 
@@ -85,13 +78,6 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
       curve: Curves.elasticOut,
     ));
 
-    _expandAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _expandController,
-      curve: Curves.easeInOut,
-    ));
 
     // Start animations
     _fadeController.forward();
@@ -104,7 +90,6 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     _fadeController.dispose();
     _slideController.dispose();
     _scaleController.dispose();
-    _expandController.dispose();
     _propertyTitleController.dispose();
     _descriptionController.dispose();
     _priceController.dispose();
@@ -475,139 +460,6 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                 
                         const SizedBox(height: 20),
                 
-                        // Collapsible Quick Actions Section
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                              color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: const Color(0xFFE0E0E0),
-                              width: 1,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.05),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              // Header with expand/collapse
-                              GestureDetector(
-                                onTap: () {
-                              setState(() {
-                                _showQuickActions = !_showQuickActions;
-                                if (_showQuickActions) {
-                                  _expandController.forward();
-                                } else {
-                                  _expandController.reverse();
-                                }
-                              });
-                            },
-                                child: Container(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF1B5993),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                              child: const Icon(
-                                          Icons.lightbulb_outline,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      const Expanded(
-                                        child: Text(
-                                          'Quick Actions & Support',
-                                          style: TextStyle(
-                                            fontFamily: 'Inter',
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w700,
-                                            color: Color(0xFF1B5993),
-                                          ),
-                                        ),
-                                      ),
-                                      AnimatedRotation(
-                                        turns: _showQuickActions ? 0.5 : 0.0,
-                                        duration: const Duration(milliseconds: 300),
-                                        child: const Icon(
-                                          Icons.keyboard_arrow_down,
-                                          color: Color(0xFF1B5993),
-                                          size: 24,
-                            ),
-                          ),
-                        ],
-                      ),
-                                ),
-                              ),
-                              // Expandable content
-                              if (_showQuickActions) ...[
-                                const Divider(color: Colors.grey),
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                          child: Column(
-                            children: [
-                                      const SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  Expanded(
-                                            child: _buildModernQuickActionButton(
-                                      icon: Icons.help_outline_rounded,
-                                      title: 'Get Help',
-                                      subtitle: 'Property listing guide',
-                                      onTap: () => _showHelpDialog(),
-                                    ),
-                                  ),
-                                          const SizedBox(width: 8),
-                                  Expanded(
-                                            child: _buildModernQuickActionButton(
-                                      icon: Icons.calculate_rounded,
-                                      title: 'Price Calculator',
-                                      subtitle: 'Estimate market value',
-                                      onTap: () => _showPriceCalculator(),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              
-                                      const SizedBox(height: 8),
-                              
-                              Row(
-                                children: [
-                                  Expanded(
-                                            child: _buildModernQuickActionButton(
-                                      icon: Icons.document_scanner_rounded,
-                                      title: 'Required Docs',
-                                      subtitle: 'Check documents needed',
-                                      onTap: () => _showRequiredDocuments(),
-                                    ),
-                                  ),
-                                          const SizedBox(width: 8),
-                                  Expanded(
-                                            child: _buildModernQuickActionButton(
-                                      icon: Icons.schedule_rounded,
-                                      title: 'Timeline',
-                                      subtitle: 'Listing process time',
-                                      onTap: () => _showTimelineInfo(),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                        ),
-                      ),
-                              ],
-                    ],
-                  ),
-                ),
               ],
             ),
           ),
@@ -751,63 +603,6 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
           ),
         ),
       ],
-    );
-  }
-
-
-  Widget _buildModernQuickActionButton({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(AppTheme.paddingMedium),
-        decoration: BoxDecoration(
-          color: AppTheme.inputBackground,
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          border: Border.all(
-            color: AppTheme.borderGrey,
-            width: 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: AppTheme.primaryBlue,
-                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-              ),
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 18,
-              ),
-            ),
-            const SizedBox(height: AppTheme.paddingSmall),
-            Text(
-              title,
-              style: AppTheme.bodySmall.copyWith(
-                fontWeight: FontWeight.w600,
-                color: AppTheme.primaryBlue,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            Text(
-              subtitle,
-              style: AppTheme.bodySmall.copyWith(
-                fontSize: 10,
-                color: AppTheme.textLight,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
     );
   }
 
