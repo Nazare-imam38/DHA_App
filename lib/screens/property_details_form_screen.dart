@@ -127,20 +127,13 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
             pinned: true,
             backgroundColor: AppTheme.cardWhite,
         elevation: 0,
-            leading: Container(
-              margin: const EdgeInsets.all(AppTheme.paddingSmall),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryBlue,
-                borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+            leading: IconButton(
+              icon: const Icon(
+                Icons.arrow_back_ios_new,
+                color: Color(0xFF1B5993), // Blue color
+                size: 16, // Smaller size
               ),
-              child: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.white,
-            size: 18,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
+              onPressed: () => Navigator.pop(context),
             ),
             flexibleSpace: FlexibleSpaceBar(
         title: Row(

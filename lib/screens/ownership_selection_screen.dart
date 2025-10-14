@@ -70,20 +70,13 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
       appBar: AppBar(
         backgroundColor: Colors.white,
               elevation: 0,
-        leading: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1B5993),
-            borderRadius: BorderRadius.circular(12),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Color(0xFF1B5993), // Blue color
+            size: 16, // Smaller size
           ),
-          child: IconButton(
-                  icon: const Icon(
-                    Icons.arrow_back_ios_new,
-                  color: Colors.white,
-              size: 20,
-                  ),
-                  onPressed: () => Navigator.pop(context),
-              ),
+          onPressed: () => Navigator.pop(context),
         ),
         title: Row(
                           children: [
