@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'property_details_form_screen.dart';
 import 'ms_otp_verification_screen.dart';
 import '../services/ms_verification_service.dart';
+import '../core/theme/app_theme.dart';
 
 class MSVerificationScreen extends StatefulWidget {
   const MSVerificationScreen({super.key});
@@ -70,15 +71,15 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppTheme.backgroundGrey,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.cardWhite,
         elevation: 0,
         leading: Container(
-          margin: const EdgeInsets.all(8),
+          margin: const EdgeInsets.all(AppTheme.paddingSmall),
           decoration: BoxDecoration(
-            color: const Color(0xFF1B5993),
-            borderRadius: BorderRadius.circular(12),
+            color: AppTheme.primaryBlue,
+            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           ),
           child: IconButton(
             icon: const Icon(
@@ -92,10 +93,10 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(AppTheme.paddingSmall),
               decoration: BoxDecoration(
-                color: const Color(0xFF1B5993),
-                borderRadius: BorderRadius.circular(8),
+                color: AppTheme.primaryBlue,
+                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
               ),
               child: const Icon(
                 Icons.verified_user_rounded,
@@ -103,28 +104,22 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                 size: 20,
               ),
             ),
-            const SizedBox(width: 12),
-            const Text(
+            const SizedBox(width: AppTheme.paddingMedium),
+            Text(
               'MS VERIFICATION',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF1B5993),
-                letterSpacing: 0.5,
-              ),
+              style: AppTheme.titleLarge,
             ),
           ],
         ),
         centerTitle: false,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(20),
+            bottom: Radius.circular(AppTheme.radiusXLarge),
           ),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(AppTheme.paddingLarge),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -152,7 +147,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                     width: 24,
                                     height: 24,
                                     decoration: const BoxDecoration(
-                                      color: Color(0xFF20B2AA),
+                                      color: Color(0xFF1B5993),
                                       shape: BoxShape.circle,
                                     ),
                                     child: const Center(
@@ -167,13 +162,11 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  const Text(
+                                  Text(
                                     'MS Number Verification',
-                                    style: TextStyle(
-                                      fontFamily: 'Inter',
-                                      fontSize: 14,
+                                    style: AppTheme.bodyMedium.copyWith(
                                       fontWeight: FontWeight.w600,
-                                      color: Color(0xFF1B5993),
+                                      color: AppTheme.primaryBlue,
                                     ),
                                   ),
                                 ],
@@ -193,28 +186,16 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                          const Text(
+                          Text(
                             'Verify Your MS Number',
-                            style: TextStyle(
-                        fontFamily: 'Inter',
-                              fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1B5993),
-                        height: 1.2,
-                            ),
+                            style: AppTheme.headingMedium,
                           ),
                           
                           const SizedBox(height: 8),
                           
                           Text(
                             'Enter your DHA membership number to verify property ownership',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey[600],
-                              height: 1.4,
-                      ),
+                            style: AppTheme.bodyLarge,
                     ),
                   ],
                 ),
@@ -230,34 +211,23 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                 opacity: _fadeAnimation,
                 child: Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.all(24),
+                            padding: const EdgeInsets.all(AppTheme.paddingLarge),
                             decoration: BoxDecoration(
-                              color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
+                              color: AppTheme.cardWhite,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                     border: Border.all(
-                      color: const Color(0xFFE0E0E0),
+                      color: AppTheme.borderGrey,
                       width: 1,
                     ),
-                              boxShadow: [
-                                BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                                ),
-                              ],
+                              boxShadow: AppTheme.lightShadow,
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 // Input Label
-                                const Text(
+                                Text(
                                   'DHA Membership Number (MS)',
-                                  style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF1B5993),
-                                  ),
+                                  style: AppTheme.titleMedium,
                                 ),
                                 
                                 const SizedBox(height: 12),
@@ -265,10 +235,10 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                 // Input Field
                                 Container(
                                   decoration: BoxDecoration(
-                          color: const Color(0xFFF8F9FA),
-                                    borderRadius: BorderRadius.circular(12),
+                          color: AppTheme.inputBackground,
+                                    borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                                     border: Border.all(
-                            color: const Color(0xFFE0E0E0),
+                            color: AppTheme.borderGrey,
                                       width: 1,
                                     ),
                                   ),
@@ -276,22 +246,22 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                     controller: _msNumberController,
                                     keyboardType: TextInputType.number,
                                     style: const TextStyle(
-                                      fontFamily: 'Inter',
+                                      fontFamily: AppTheme.primaryFont,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
-                                      color: Color(0xFF1B5993),
+                                      color: AppTheme.textPrimary,
                                     ),
                                     decoration: InputDecoration(
                                       hintText: 'Enter Your MS Number',
-                                      hintStyle: TextStyle(
-                                        fontFamily: 'Inter',
+                                      hintStyle: const TextStyle(
+                                        fontFamily: AppTheme.primaryFont,
                                         fontSize: 16,
-                                        color: Colors.grey[400],
+                                        color: AppTheme.textLight,
                                       ),
                                       border: InputBorder.none,
                                       contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 16,
+                                        horizontal: AppTheme.paddingMedium,
+                                        vertical: AppTheme.paddingMedium,
                                       ),
                                     ),
                                   ),
@@ -628,12 +598,12 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppTheme.paddingMedium),
         decoration: BoxDecoration(
-          color: Colors.grey[50],
-          borderRadius: BorderRadius.circular(12),
+          color: AppTheme.backgroundGrey,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           border: Border.all(
-            color: Colors.grey[200]!,
+            color: AppTheme.borderGrey,
             width: 1,
           ),
         ),
@@ -641,17 +611,15 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
           children: [
             Icon(
               icon,
-              color: const Color(0xFF1B5993),
+              color: AppTheme.primaryBlue,
               size: 20,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppTheme.paddingSmall),
             Text(
               title,
-              style: const TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 12,
+              style: AppTheme.bodySmall.copyWith(
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF1B5993),
+                color: AppTheme.primaryBlue,
               ),
               textAlign: TextAlign.center,
             ),

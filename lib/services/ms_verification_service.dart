@@ -1,3 +1,5 @@
+import '../core/theme/app_theme.dart';
+
 // Frontend-only implementation - no HTTP calls needed
 
 class MSVerificationService {

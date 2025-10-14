@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'property_details_form_screen.dart';
 import '../services/ms_verification_service.dart';
+import '../core/theme/app_theme.dart';
 
 class MSOtpVerificationScreen extends StatefulWidget {
   final String msNumber;
@@ -291,15 +292,15 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppTheme.backgroundGrey,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.cardWhite,
         elevation: 0,
         leading: Container(
-          margin: const EdgeInsets.all(8),
+          margin: const EdgeInsets.all(AppTheme.paddingSmall),
           decoration: BoxDecoration(
-            color: const Color(0xFF1B5993),
-            borderRadius: BorderRadius.circular(12),
+            color: AppTheme.primaryBlue,
+            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           ),
           child: IconButton(
             icon: const Icon(
@@ -313,10 +314,10 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(AppTheme.paddingSmall),
               decoration: BoxDecoration(
-                color: const Color(0xFF1B5993),
-                borderRadius: BorderRadius.circular(8),
+                color: AppTheme.primaryBlue,
+                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
               ),
               child: const Icon(
                 Icons.verified_user_rounded,
@@ -324,28 +325,22 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
                 size: 20,
               ),
             ),
-            const SizedBox(width: 12),
-            const Text(
+            const SizedBox(width: AppTheme.paddingMedium),
+            Text(
               'OTP VERIFICATION',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF1B5993),
-                letterSpacing: 0.5,
-              ),
+              style: AppTheme.titleLarge,
             ),
           ],
         ),
         centerTitle: false,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(20),
+            bottom: Radius.circular(AppTheme.radiusXLarge),
           ),
         ),
       ),
       body: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(AppTheme.paddingLarge),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -719,9 +714,9 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
                                         ),
                                         child: const Icon(
                                           Icons.lightbulb_outline,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
+                            color: Colors.white,
+                            size: 20,
+                          ),
                                       ),
                                       const SizedBox(width: 12),
                                       const Expanded(
@@ -732,9 +727,9 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
                                             fontSize: 18,
                                             fontWeight: FontWeight.w700,
                                             color: Color(0xFF1B5993),
-                                          ),
-                                        ),
-                                      ),
+                            ),
+                          ),
+                        ),
                                       AnimatedRotation(
                                         turns: _isQuickActionsExpanded ? 0.5 : 0.0,
                                         duration: const Duration(milliseconds: 300),
@@ -742,12 +737,12 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
                                           Icons.keyboard_arrow_down,
                                           color: Color(0xFF1B5993),
                                           size: 24,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
                               // Expandable content
                               if (_isQuickActionsExpanded) ...[
                                 const Divider(color: Colors.grey),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'property_success_screen.dart';
+import '../core/theme/app_theme.dart';
 
 class PropertyReviewScreen extends StatefulWidget {
   const PropertyReviewScreen({super.key});
@@ -111,18 +112,10 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppTheme.backgroundGrey,
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFF8F9FA),
-              Color(0xFFE8F4FD),
-              Color(0xFFF0F8FF),
-            ],
-          ),
+          gradient: AppTheme.backgroundGradient,
         ),
         child: CustomScrollView(
           slivers: [

@@ -69,7 +69,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0,
+              elevation: 0,
         leading: Container(
           margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
@@ -77,54 +77,106 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
             borderRadius: BorderRadius.circular(12),
           ),
           child: IconButton(
-            icon: const Icon(
-              Icons.arrow_back_ios_new,
-              color: Colors.white,
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new,
+                  color: Colors.white,
               size: 20,
-            ),
-            onPressed: () => Navigator.pop(context),
-          ),
+                  ),
+                  onPressed: () => Navigator.pop(context),
+              ),
         ),
         title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
                 color: const Color(0xFF1B5993),
                 borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.home_work_rounded,
-                color: Colors.white,
+                              ),
+                              child: const Icon(
+                                Icons.home_work_rounded,
+                                color: Colors.white,
                 size: 20,
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Text(
-              'OWNERSHIP SELECTION',
-              style: TextStyle(
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Text(
+                        'OWNERSHIP SELECTION',
+                        style: TextStyle(
                 fontFamily: 'Inter',
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
                 color: Color(0xFF1B5993),
                 letterSpacing: 0.5,
-              ),
-            ),
-          ],
-        ),
+                              ),
+                            ),
+                          ],
+                        ),
         centerTitle: false,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             bottom: Radius.circular(20),
-          ),
-        ),
-      ),
+                      ),
+                    ),
+                  ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
             const SizedBox(height: 20),
+            
+            // Process Indicator
+            Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F4FD),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: const Color(0xFF1B5993).withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF1B5993),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Center(
+                        child: Text(
+                          '1',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Ownership Selection',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF1B5993),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 32),
             
             // Main Question
             SlideTransition(
@@ -134,87 +186,87 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Who owns this property?',
-                      style: TextStyle(
+                            const Text(
+                              'Who owns this property?',
+                              style: TextStyle(
                         fontFamily: 'Inter',
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF1B5993),
+                                color: Color(0xFF1B5993),
                         height: 1.2,
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 16),
-                    
+                              ),
+                            ),
+                            
+                            const SizedBox(height: 16),
+                            
                     // Instructions Card
-                    Container(
+                            Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
+                                border: Border.all(
                           color: const Color(0xFFE0E0E0),
-                          width: 1,
-                        ),
+                                  width: 1,
+                                ),
                         boxShadow: [
-                          BoxShadow(
+                                  BoxShadow(
                             color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: const Text(
-                        'Please select whether you are listing your own property or listing on behalf of someone else.',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF616161),
-                          height: 1.5,
+                                  ),
+                                ],
+                              ),
+                              child: const Text(
+                                'Please select whether you are listing your own property or listing on behalf of someone else.',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF616161),
+                                  height: 1.5,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-            
-            const SizedBox(height: 40),
-            
+                    
+                    const SizedBox(height: 40),
+                    
             // Selection Options
-            SlideTransition(
-              position: _slideAnimation,
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: Column(
-                  children: [
-                    // My Own Property Option
+                    SlideTransition(
+                      position: _slideAnimation,
+                      child: FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: Column(
+                          children: [
+                            // My Own Property Option
                     _buildOptionCard(
-                      title: 'My Own Property',
-                      subtitle: 'I am the owner of this property',
-                      icon: Icons.home_rounded,
-                      isSelected: _selectedOption == 'own',
-                      onTap: () => _selectOption('own'),
-                    ),
-                    
+                              title: 'My Own Property',
+                              subtitle: 'I am the owner of this property',
+                              icon: Icons.home_rounded,
+                              isSelected: _selectedOption == 'own',
+                              onTap: () => _selectOption('own'),
+                            ),
+                            
                     const SizedBox(height: 16),
-                    
-                    // On Behalf of Someone Else Option
+                            
+                            // On Behalf of Someone Else Option
                     _buildOptionCard(
-                      title: 'On Behalf of Someone Else',
-                      subtitle: 'I am listing this property for someone else',
-                      icon: Icons.people_rounded,
-                      isSelected: _selectedOption == 'behalf',
-                      onTap: () => _selectOption('behalf'),
+                              title: 'On Behalf of Someone Else',
+                              subtitle: 'I am listing this property for someone else',
+                              icon: Icons.people_rounded,
+                              isSelected: _selectedOption == 'behalf',
+                              onTap: () => _selectOption('behalf'),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-            
+                    
             const SizedBox(height: 40),
             
             // Continue Button
@@ -280,10 +332,10 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
             const SizedBox(height: 20),
             
             // Quick Actions Section
-            SlideTransition(
-              position: _slideAnimation,
-              child: FadeTransition(
-                opacity: _fadeAnimation,
+                    SlideTransition(
+                      position: _slideAnimation,
+                      child: FadeTransition(
+                        opacity: _fadeAnimation,
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
@@ -301,22 +353,22 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                       ),
                     ],
                   ),
-                  child: Column(
-                    children: [
+                        child: Column(
+                          children: [
                       // Header with expand/collapse
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
                             _isQuickActionsExpanded = !_isQuickActionsExpanded;
-                          });
-                        },
+                                });
+                              },
                         child: Container(
                           padding: const EdgeInsets.all(20),
                           child: Row(
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
+                          decoration: BoxDecoration(
                                   color: const Color(0xFF1B5993),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -329,79 +381,79 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                               const SizedBox(width: 12),
                               const Expanded(
                                 child: Text(
-                                  'Quick Actions & Resources',
-                                  style: TextStyle(
+                                      'Quick Actions & Resources',
+                                            style: TextStyle(
                                     fontFamily: 'Inter',
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w700,
                                     color: Color(0xFF1B5993),
                                   ),
-                                ),
-                              ),
-                              AnimatedRotation(
+                                      ),
+                                    ),
+                                    AnimatedRotation(
                                 turns: _isQuickActionsExpanded ? 0.5 : 0.0,
-                                duration: const Duration(milliseconds: 300),
-                                child: const Icon(
+                                      duration: const Duration(milliseconds: 300),
+                                            child: const Icon(
                                   Icons.keyboard_arrow_down,
                                   color: Color(0xFF1B5993),
-                                  size: 24,
-                                ),
-                              ),
-                            ],
-                          ),
+                                        size: 24,
+                                            ),
+                                          ),
+                                        ],
                         ),
                       ),
+                    ),
                       // Expandable content
                       if (_isQuickActionsExpanded) ...[
                         const Divider(color: Colors.grey),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                          child: Column(
-                            children: [
+                        child: Column(
+                          children: [
                               const SizedBox(height: 16),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildQuickActionButton(
-                                      icon: Icons.info_outline_rounded,
-                                      title: 'Property Info',
-                                      onTap: () => _showPropertyInfo(),
-                                    ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildQuickActionButton(
+                                    icon: Icons.info_outline_rounded,
+                                    title: 'Property Info',
+                                    onTap: () => _showPropertyInfo(),
                                   ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: _buildQuickActionButton(
-                                      icon: Icons.help_outline_rounded,
-                                      title: 'Get Help',
-                                      onTap: () => _showHelpDialog(),
-                                    ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _buildQuickActionButton(
+                                    icon: Icons.help_outline_rounded,
+                                    title: 'Get Help',
+                                    onTap: () => _showHelpDialog(),
                                   ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildQuickActionButton(
-                                      icon: Icons.document_scanner_rounded,
-                                      title: 'Documents',
-                                      onTap: () => _showDocumentsInfo(),
-                                    ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildQuickActionButton(
+                                    icon: Icons.document_scanner_rounded,
+                                    title: 'Documents',
+                                    onTap: () => _showDocumentsInfo(),
                                   ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: _buildQuickActionButton(
-                                      icon: Icons.schedule_rounded,
-                                      title: 'Timeline',
-                                      onTap: () => _showTimelineInfo(),
-                                    ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _buildQuickActionButton(
+                                    icon: Icons.schedule_rounded,
+                                    title: 'Timeline',
+                                    onTap: () => _showTimelineInfo(),
                                   ),
-                                ],
+                                ),
+                              ],
                               ),
                             ],
-                          ),
-                        ),
-                      ],
+                                          ),
+                                        ),
+                                      ],
                     ],
                   ),
                 ),
@@ -433,14 +485,14 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
             width: 2,
           ),
           boxShadow: [
-            BoxShadow(
+                  BoxShadow(
               color: isSelected 
                   ? const Color(0xFF1B5993).withValues(alpha: 0.3)
                   : Colors.black.withValues(alpha: 0.05),
               blurRadius: isSelected ? 12 : 8,
               offset: const Offset(0, 4),
-            ),
-          ],
+                  ),
+                ],
         ),
         child: Row(
           children: [
@@ -449,7 +501,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: isSelected 
+                  color: isSelected 
                     ? Colors.white.withValues(alpha: 0.2)
                     : const Color(0xFF1B5993).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
@@ -540,10 +592,10 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
         child: Column(
           children: [
             Icon(
-              icon,
+                icon,
               color: const Color(0xFF1B5993),
-              size: 20,
-            ),
+                size: 20,
+              ),
             const SizedBox(height: 8),
             Text(
               title,
@@ -703,23 +755,23 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
     
     // Navigate to next step
     if (mounted) {
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const MSVerificationScreen(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(1.0, 0.0),
-                end: Offset.zero,
-              ).animate(CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeInOutCubic,
-              )),
-              child: child,
-            );
-          },
-          transitionDuration: const Duration(milliseconds: 400),
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) => const MSVerificationScreen(),
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    return SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(1.0, 0.0),
+                        end: Offset.zero,
+                      ).animate(CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.easeInOutCubic,
+                      )),
+                      child: child,
+                    );
+                  },
+                  transitionDuration: const Duration(milliseconds: 400),
         ),
       );
     }
