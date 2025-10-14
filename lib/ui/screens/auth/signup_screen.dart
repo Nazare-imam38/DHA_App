@@ -662,36 +662,6 @@ class _SignupScreenState extends State<SignupScreen>
                   ),
                   const SizedBox(height: 30),
 
-                  // Social Media Icons
-                  SlideTransition(
-                    position: _slideAnimation,
-                    child: Column(
-                      children: [
-                        Text(
-                          'Follow us on',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _buildSocialIcon(Icons.facebook, const Color(0xFF1877F2), 'Facebook'),
-                            const SizedBox(width: 20),
-                            _buildSocialIcon(Icons.alternate_email, const Color(0xFF1DA1F2), 'Twitter'),
-                            const SizedBox(width: 20),
-                            _buildSocialIcon(Icons.camera_alt, const Color(0xFFE4405F), 'Instagram'),
-                            const SizedBox(width: 20),
-                            _buildSocialIcon(Icons.play_circle, const Color(0xFFFF0000), 'YouTube'),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
                         const SizedBox(height: 20),
                       ],
                     ),
@@ -986,33 +956,4 @@ class _SignupScreenState extends State<SignupScreen>
   }
 
 
-  Widget _buildSocialIcon(IconData icon, Color color, String tooltip) {
-    return Tooltip(
-      message: tooltip,
-      child: Container(
-        width: 55,
-        height: 55,
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(
-            color: color.withOpacity(0.2),
-            width: 2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.2),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Icon(
-          icon,
-          color: color,
-          size: 28,
-        ),
-      ),
-    );
-  }
 }
