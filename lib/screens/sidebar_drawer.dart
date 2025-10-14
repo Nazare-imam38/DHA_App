@@ -42,13 +42,6 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
     );
   }
 
-  void _navigateToProfile() {
-    Navigator.pop(context);
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const ProfileScreen()),
-    );
-  }
 
   void _navigateToContactUs() {
     Navigator.pop(context);
@@ -66,7 +59,7 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
     );
   }
 
-  void _navigateToFavorites() {
+  void _navigateToBookings() {
     Navigator.pop(context);
     Navigator.push(
       context,
@@ -151,7 +144,7 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                l10n.welcomeBack,
+                                l10n.welcomeBack.toUpperCase(),
                                 style: TextStyle(
                                   fontFamily: 'Inter',
                                   fontSize: 14,
@@ -160,7 +153,7 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                authProvider.user?.name ?? l10n.johnDoe,
+                                (authProvider.user?.name ?? l10n.johnDoe).toUpperCase(),
                                 style: TextStyle(
                                   fontFamily: 'Poppins',
                                   fontSize: 20,
@@ -246,39 +239,33 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                           children: [
                             _buildMenuItem(
                               icon: Icons.home,
-                              title: l10n.home,
-                              subtitle: l10n.browseProperties,
+                              title: l10n.home.toUpperCase(),
+                              subtitle: l10n.browseProperties.toUpperCase(),
                               onTap: _navigateToHome,
                             ),
                             _buildMenuItem(
                               icon: Icons.business,
-                              title: l10n.projects,
-                              subtitle: l10n.viewDhaProjects,
+                              title: l10n.projects.toUpperCase(),
+                              subtitle: l10n.viewDhaProjects.toUpperCase(),
                               onTap: _navigateToProjects,
                             ),
                             _buildMenuItem(
                               icon: Icons.search,
-                              title: l10n.search,
-                              subtitle: l10n.findProperties,
+                              title: l10n.search.toUpperCase(),
+                              subtitle: l10n.findProperties.toUpperCase(),
                               onTap: _navigateToSearch,
                             ),
                             _buildMenuItem(
-                              icon: Icons.favorite,
-                              title: 'Favorites',
-                              subtitle: 'Your saved properties',
-                              onTap: _navigateToFavorites,
+                              icon: Icons.book_online,
+                              title: 'BOOKINGS',
+                              subtitle: 'YOUR RESERVATIONS',
+                              onTap: _navigateToBookings,
                             ),
                             _buildMenuItem(
                               icon: Icons.help,
-                              title: l10n.helpAndSupport,
-                              subtitle: l10n.faqAndContact,
+                              title: l10n.helpAndSupport.toUpperCase(),
+                              subtitle: l10n.faqAndContact.toUpperCase(),
                               onTap: _navigateToContactUs,
-                            ),
-                            _buildMenuItem(
-                              icon: Icons.settings,
-                              title: l10n.settings,
-                              subtitle: l10n.appPreferences,
-                              onTap: _navigateToProfile,
                             ),
                           ],
                         ),
@@ -299,7 +286,7 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  l10n.appVersion,
+                                  l10n.appVersion.toUpperCase(),
                                   style: TextStyle(
                                     fontFamily: 'Inter',
                                     fontSize: 12,
@@ -323,7 +310,7 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                                   padding: const EdgeInsets.symmetric(vertical: 12),
                                 ),
                                 child: Text(
-                                  l10n.logout,
+                                  l10n.logout.toUpperCase(),
                                   style: const TextStyle(
                                     fontFamily: 'Inter',
                                     fontSize: 16,
