@@ -121,28 +121,30 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
               onPressed: () => Navigator.pop(context),
             ),
             flexibleSpace: FlexibleSpaceBar(
-        title: Row(
-          children: [
-            Container(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
                     padding: const EdgeInsets.all(AppTheme.paddingSmall),
-              decoration: BoxDecoration(
+                    decoration: BoxDecoration(
                       color: AppTheme.primaryBlue,
-                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                    ),
+                    child: const Icon(
+                      Icons.home_work_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: AppTheme.paddingMedium),
+                  Text(
+                    'PROPERTY DETAILS',
+                    style: AppTheme.titleLarge.copyWith(fontSize: 16),
+                  ),
+                ],
               ),
-              child: const Icon(
-                Icons.home_work_rounded,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: AppTheme.paddingMedium),
-            Text(
-              'PROPERTY DETAILS',
-              style: AppTheme.titleLarge.copyWith(fontSize: 16),
-            ),
-          ],
-        ),
-              titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
+              centerTitle: true,
+              titlePadding: const EdgeInsets.only(bottom: 16),
             ),
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(
