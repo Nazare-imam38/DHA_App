@@ -126,7 +126,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
         slivers: [
           // Modern App Bar
           SliverAppBar(
-            expandedHeight: 120,
+            expandedHeight: 100,
             floating: false,
             pinned: true,
             backgroundColor: Colors.white,
@@ -186,7 +186,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
           // Main Content
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(16),
               child: FadeTransition(
                 opacity: _fadeAnimation,
                 child: SlideTransition(
@@ -200,12 +200,12 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                         Center(
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
+                              horizontal: 16,
+                              vertical: 8,
                             ),
                             decoration: BoxDecoration(
                               color: const Color(0xFFE8F4FD),
-                              borderRadius: BorderRadius.circular(25),
+                              borderRadius: BorderRadius.circular(20),
                               border: Border.all(
                                 color: const Color(0xFF1B5993).withValues(alpha: 0.2),
                                 width: 1,
@@ -215,8 +215,8 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Container(
-                                  width: 28,
-                                  height: 28,
+                                  width: 24,
+                                  height: 24,
                                   decoration: const BoxDecoration(
                                     color: Color(0xFF1B5993),
                                     shape: BoxShape.circle,
@@ -227,17 +227,17 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 14,
+                                        fontSize: 12,
                                       ),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 12),
+                                const SizedBox(width: 8),
                                 const Text(
                                   'Property Details',
                                   style: TextStyle(
                                     fontFamily: 'Inter',
-                                    fontSize: 16,
+                                    fontSize: 14,
                                     fontWeight: FontWeight.w600,
                                     color: Color(0xFF1B5993),
                                   ),
@@ -247,48 +247,48 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                           ),
                         ),
                         
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 20),
                         
                         // Main Title
                         const Text(
                           'Property Information',
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 32,
+                            fontSize: 24,
                             fontWeight: FontWeight.w800,
                             color: Color(0xFF1B5993),
                             letterSpacing: -0.5,
                           ),
                         ),
                         
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 6),
                         
                         // Subtitle
                         Text(
                           'Provide detailed information about your property',
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 16,
+                            fontSize: 14,
                             fontWeight: FontWeight.w500,
                             color: Colors.grey[600],
                             height: 1.4,
                           ),
                         ),
                         
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 20),
                         
-                        // Form Card
+                        // Compact Form Card
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(28),
+                          padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(0xFF1B5993).withValues(alpha: 0.08),
-                                blurRadius: 24,
-                                offset: const Offset(0, 8),
+                                blurRadius: 16,
+                                offset: const Offset(0, 4),
                               ),
                             ],
                           ),
@@ -296,65 +296,70 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // Property Title
-                              _buildModernFormField(
+                              _buildCompactFormField(
                                 controller: _propertyTitleController,
                                 label: 'Property Title',
                                 hint: 'e.g., Beautiful 3 Bedroom House',
                                 icon: Icons.title,
                               ),
                               
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 16),
                               
-                              // Property Type Dropdown
-                              _buildModernDropdownField(
-                                label: 'Property Type',
-                                value: _selectedPropertyType,
-                                items: _propertyTypes,
-                                onChanged: (value) => setState(() => _selectedPropertyType = value!),
-                                icon: Icons.home,
+                              // Property Type and Phase Row
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildCompactDropdownField(
+                                      label: 'Property Type',
+                                      value: _selectedPropertyType,
+                                      items: _propertyTypes,
+                                      onChanged: (value) => setState(() => _selectedPropertyType = value!),
+                                      icon: Icons.home,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _buildCompactDropdownField(
+                                      label: 'DHA Phase',
+                                      value: _selectedPhase,
+                                      items: _phases,
+                                      onChanged: (value) => setState(() => _selectedPhase = value!),
+                                      icon: Icons.location_on,
+                                    ),
+                                  ),
+                                ],
                               ),
                               
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 16),
                               
                               // Price and Size Row
                               Row(
                                 children: [
                                   Expanded(
-                                    child: _buildModernFormField(
+                                    child: _buildCompactFormField(
                                       controller: _priceController,
                                       label: 'Price (PKR)',
-                                      hint: 'e.g., 5,000,000',
+                                      hint: '5,000,000',
                                       icon: Icons.attach_money,
                                       keyboardType: TextInputType.number,
                                     ),
                                   ),
-                                  const SizedBox(width: 16),
+                                  const SizedBox(width: 12),
                                   Expanded(
-                                    child: _buildModernFormField(
+                                    child: _buildCompactFormField(
                                       controller: _sizeController,
                                       label: 'Size',
-                                      hint: 'e.g., 3 Marla',
+                                      hint: '3 Marla',
                                       icon: Icons.straighten,
                                     ),
                                   ),
                                 ],
                               ),
                               
-                              const SizedBox(height: 24),
-                              
-                              // Phase Dropdown
-                              _buildModernDropdownField(
-                                label: 'DHA Phase',
-                                value: _selectedPhase,
-                                items: _phases,
-                                onChanged: (value) => setState(() => _selectedPhase = value!),
-                                icon: Icons.location_on,
-                              ),
-                              
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 16),
                               
                               // Address
-                              _buildModernFormField(
+                              _buildCompactFormField(
                                 controller: _addressController,
                                 label: 'Address',
                                 hint: 'Enter complete address',
@@ -362,21 +367,21 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                 maxLines: 2,
                               ),
                               
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 16),
                               
                               // Description
-                              _buildModernFormField(
+                              _buildCompactFormField(
                                 controller: _descriptionController,
                                 label: 'Description',
                                 hint: 'Describe your property in detail',
                                 icon: Icons.description,
-                                maxLines: 4,
+                                maxLines: 3,
                               ),
                               
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 16),
                               
                               // Condition Dropdown
-                              _buildModernDropdownField(
+                              _buildCompactDropdownField(
                                 label: 'Property Condition',
                                 value: _selectedCondition,
                                 items: _conditions,
@@ -384,38 +389,50 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                 icon: Icons.build,
                               ),
                               
-                              const SizedBox(height: 32),
+                              const SizedBox(height: 20),
                               
                               // Features Section
                               const Text(
                                 'Property Features',
                                 style: TextStyle(
                                   fontFamily: 'Inter',
-                                  fontSize: 18,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w700,
                                   color: Color(0xFF1B5993),
                                 ),
                               ),
                               
+                              const SizedBox(height: 12),
+                              
+                              // Feature Checkboxes - Compact Row Layout
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildCompactFeatureCheckbox('Parking', _hasParking, Icons.local_parking),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: _buildCompactFeatureCheckbox('Garden', _hasGarden, Icons.yard),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: _buildCompactFeatureCheckbox('Security', _hasSecurity, Icons.security),
+                                  ),
+                                ],
+                              ),
+                              
                               const SizedBox(height: 20),
                               
-                              // Feature Checkboxes
-                              _buildModernFeatureCheckbox('Parking Available', _hasParking, Icons.local_parking),
-                              _buildModernFeatureCheckbox('Garden', _hasGarden, Icons.yard),
-                              _buildModernFeatureCheckbox('Security', _hasSecurity, Icons.security),
-                              
-                              const SizedBox(height: 32),
-                              
                               // Contact Information
-                              _buildModernFormField(
+                              _buildCompactFormField(
                                 controller: _contactController,
                                 label: 'Contact Number',
-                                hint: 'e.g., +92-300-1234567',
+                                hint: '+92-300-1234567',
                                 icon: Icons.phone,
                                 keyboardType: TextInputType.phone,
                               ),
                               
-                              const SizedBox(height: 40),
+                              const SizedBox(height: 24),
                               
                               // Action Buttons
                               Row(
@@ -423,10 +440,10 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                   // Back Button
                                   Expanded(
                                     child: Container(
-                                      height: 56,
+                                      height: 48,
                                       decoration: BoxDecoration(
                                         color: Colors.white,
-                                        borderRadius: BorderRadius.circular(16),
+                                        borderRadius: BorderRadius.circular(12),
                                         border: Border.all(
                                           color: const Color(0xFF1B5993),
                                           width: 2,
@@ -436,7 +453,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                         onPressed: () => Navigator.pop(context),
                                         style: TextButton.styleFrom(
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(12),
                                           ),
                                         ),
                                         child: Row(
@@ -445,14 +462,14 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                             Icon(
                                               Icons.arrow_back_ios,
                                               color: const Color(0xFF1B5993),
-                                              size: 18,
+                                              size: 16,
                                             ),
-                                            const SizedBox(width: 8),
+                                            const SizedBox(width: 6),
                                             Text(
                                               'Back',
                                               style: TextStyle(
                                                 fontFamily: 'Inter',
-                                                fontSize: 16,
+                                                fontSize: 14,
                                                 fontWeight: FontWeight.w600,
                                                 color: const Color(0xFF1B5993),
                                               ),
@@ -463,20 +480,20 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                     ),
                                   ),
                                   
-                                  const SizedBox(width: 16),
+                                  const SizedBox(width: 12),
                                   
                                   // Continue Button
                                   Expanded(
                                     child: Container(
-                                      height: 56,
+                                      height: 48,
                                       decoration: BoxDecoration(
                                         color: const Color(0xFF1B5993),
-                                        borderRadius: BorderRadius.circular(16),
+                                        borderRadius: BorderRadius.circular(12),
                                         boxShadow: [
                                           BoxShadow(
                                             color: const Color(0xFF1B5993).withValues(alpha: 0.3),
-                                            blurRadius: 12,
-                                            offset: const Offset(0, 4),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 2),
                                           ),
                                         ],
                                       ),
@@ -484,7 +501,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                         onPressed: _handleContinue,
                                         style: TextButton.styleFrom(
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(12),
                                           ),
                                         ),
                                         child: Row(
@@ -494,16 +511,16 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                               'Continue',
                                               style: TextStyle(
                                                 fontFamily: 'Inter',
-                                                fontSize: 16,
+                                                fontSize: 14,
                                                 fontWeight: FontWeight.w700,
                                                 color: Colors.white,
                                               ),
                                             ),
-                                            const SizedBox(width: 8),
+                                            const SizedBox(width: 6),
                                             const Icon(
                                               Icons.arrow_forward_ios,
                                               color: Colors.white,
-                                              size: 18,
+                                              size: 16,
                                             ),
                                           ],
                                         ),
@@ -516,14 +533,14 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                           ),
                         ),
                         
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 20),
                         
                         // Collapsible Quick Actions Section
                         Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                               color: const Color(0xFFE0E0E0),
                               width: 1,
@@ -531,8 +548,8 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withValues(alpha: 0.05),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
@@ -551,28 +568,28 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                   });
                                 },
                                 child: Container(
-                                  padding: const EdgeInsets.all(20),
+                                  padding: const EdgeInsets.all(16),
                                   child: Row(
                                     children: [
                                       Container(
-                                        padding: const EdgeInsets.all(10),
+                                        padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
                                           color: const Color(0xFF1B5993),
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(8),
                                         ),
                                         child: const Icon(
                                           Icons.lightbulb_outline,
                                           color: Colors.white,
-                                          size: 24,
+                                          size: 20,
                                         ),
                                       ),
-                                      const SizedBox(width: 16),
+                                      const SizedBox(width: 12),
                                       const Expanded(
                                         child: Text(
                                           'Quick Actions & Support',
                                           style: TextStyle(
                                             fontFamily: 'Inter',
-                                            fontSize: 20,
+                                            fontSize: 16,
                                             fontWeight: FontWeight.w700,
                                             color: Color(0xFF1B5993),
                                           ),
@@ -584,7 +601,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                         child: const Icon(
                                           Icons.keyboard_arrow_down,
                                           color: Color(0xFF1B5993),
-                                          size: 28,
+                                          size: 24,
                                         ),
                                       ),
                                     ],
@@ -595,50 +612,46 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                               if (_showQuickActions) ...[
                                 const Divider(color: Colors.grey),
                                 Padding(
-                                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                                   child: Column(
                                     children: [
-                                      const SizedBox(height: 20),
+                                      const SizedBox(height: 12),
                                       Row(
                                         children: [
                                           Expanded(
-                                            child: _buildModernQuickActionButton(
+                                            child: _buildCompactQuickActionButton(
                                               icon: Icons.help_outline_rounded,
                                               title: 'Get Help',
-                                              subtitle: 'Property listing guide',
                                               onTap: () => _showHelpDialog(),
                                             ),
                                           ),
-                                          const SizedBox(width: 16),
+                                          const SizedBox(width: 8),
                                           Expanded(
-                                            child: _buildModernQuickActionButton(
+                                            child: _buildCompactQuickActionButton(
                                               icon: Icons.calculate_rounded,
                                               title: 'Price Calculator',
-                                              subtitle: 'Estimate market value',
                                               onTap: () => _showPriceCalculator(),
                                             ),
                                           ),
                                         ],
                                       ),
                                       
-                                      const SizedBox(height: 16),
+                                      const SizedBox(height: 8),
                                       
                                       Row(
                                         children: [
                                           Expanded(
-                                            child: _buildModernQuickActionButton(
+                                            child: _buildCompactQuickActionButton(
                                               icon: Icons.document_scanner_rounded,
                                               title: 'Required Docs',
-                                              subtitle: 'Check documents needed',
                                               onTap: () => _showRequiredDocuments(),
                                             ),
                                           ),
-                                          const SizedBox(width: 16),
+                                          const SizedBox(width: 8),
                                           Expanded(
-                                            child: _buildModernQuickActionButton(
+                                            child: _buildCompactQuickActionButton(
                                               icon: Icons.schedule_rounded,
                                               title: 'Timeline',
-                                              subtitle: 'Listing process time',
                                               onTap: () => _showTimelineInfo(),
                                             ),
                                           ),
@@ -663,7 +676,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     );
   }
 
-  Widget _buildModernFormField({
+  Widget _buildCompactFormField({
     required TextEditingController controller,
     required String label,
     required String hint,
@@ -678,19 +691,19 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
           label,
           style: const TextStyle(
             fontFamily: 'Inter',
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
             color: Color(0xFF1B5993),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 6),
         Container(
           decoration: BoxDecoration(
             color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: Colors.grey[300]!,
-              width: 1.5,
+              width: 1,
             ),
           ),
           child: TextField(
@@ -699,7 +712,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
             maxLines: maxLines,
             style: const TextStyle(
               fontFamily: 'Inter',
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
               color: Color(0xFF1B5993),
             ),
@@ -707,25 +720,25 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
               hintText: hint,
               hintStyle: TextStyle(
                 fontFamily: 'Inter',
-                fontSize: 16,
+                fontSize: 14,
                 color: Colors.grey[400],
               ),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 20,
+                horizontal: 12,
+                vertical: 12,
               ),
               prefixIcon: Container(
-                margin: const EdgeInsets.all(8),
-                padding: const EdgeInsets.all(8),
+                margin: const EdgeInsets.all(6),
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: const Color(0xFF1B5993).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: Icon(
                   icon,
                   color: const Color(0xFF1B5993),
-                  size: 20,
+                  size: 16,
                 ),
               ),
             ),
@@ -735,7 +748,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     );
   }
 
-  Widget _buildModernDropdownField({
+  Widget _buildCompactDropdownField({
     required String label,
     required String value,
     required List<String> items,
@@ -749,19 +762,19 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
           label,
           style: const TextStyle(
             fontFamily: 'Inter',
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
             color: Color(0xFF1B5993),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 6),
         Container(
           decoration: BoxDecoration(
             color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: Colors.grey[300]!,
-              width: 1.5,
+              width: 1,
             ),
           ),
           child: DropdownButtonFormField<String>(
@@ -770,20 +783,20 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
             decoration: InputDecoration(
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 20,
+                horizontal: 12,
+                vertical: 12,
               ),
               prefixIcon: Container(
-                margin: const EdgeInsets.all(8),
-                padding: const EdgeInsets.all(8),
+                margin: const EdgeInsets.all(6),
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: const Color(0xFF1B5993).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: Icon(
                   icon,
                   color: const Color(0xFF1B5993),
-                  size: 20,
+                  size: 16,
                 ),
               ),
             ),
@@ -794,7 +807,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                   item,
                   style: const TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: Color(0xFF1B5993),
                   ),
@@ -807,131 +820,110 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     );
   }
 
-  Widget _buildModernFeatureCheckbox(String title, bool value, IconData icon) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            if (title == 'Parking Available') {
-              _hasParking = !_hasParking;
-            } else if (title == 'Garden') {
-              _hasGarden = !_hasGarden;
-            } else if (title == 'Security') {
-              _hasSecurity = !_hasSecurity;
-            }
-          });
-        },
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: value ? const Color(0xFF1B5993).withValues(alpha: 0.1) : Colors.grey[50],
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: value ? const Color(0xFF1B5993) : Colors.grey[300]!,
-              width: value ? 2 : 1,
+  Widget _buildCompactFeatureCheckbox(String title, bool value, IconData icon) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          if (title == 'Parking') {
+            _hasParking = !_hasParking;
+          } else if (title == 'Garden') {
+            _hasGarden = !_hasGarden;
+          } else if (title == 'Security') {
+            _hasSecurity = !_hasSecurity;
+          }
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: value ? const Color(0xFF1B5993).withValues(alpha: 0.1) : Colors.grey[50],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: value ? const Color(0xFF1B5993) : Colors.grey[300]!,
+            width: value ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                color: value ? const Color(0xFF1B5993) : Colors.grey[200],
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: value
+                  ? const Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 12,
+                    )
+                  : null,
             ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: value ? const Color(0xFF1B5993) : Colors.grey[200],
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: value
-                    ? const Icon(
-                        Icons.check,
-                        color: Colors.white,
-                        size: 16,
-                      )
-                    : null,
+            const SizedBox(height: 6),
+            Icon(
+              icon,
+              color: const Color(0xFF1B5993),
+              size: 16,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: value ? const Color(0xFF1B5993) : Colors.grey[700],
               ),
-              const SizedBox(width: 16),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1B5993).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  icon,
-                  color: const Color(0xFF1B5993),
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                title,
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: value ? const Color(0xFF1B5993) : Colors.grey[700],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildModernQuickActionButton({
+  Widget _buildCompactQuickActionButton({
     required IconData icon,
     required String title,
-    required String subtitle,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.grey[50],
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: Colors.grey[200]!,
             width: 1,
           ),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
                 color: const Color(0xFF1B5993),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 icon,
                 color: Colors.white,
-                size: 24,
+                size: 18,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Text(
               title,
               style: const TextStyle(
                 fontFamily: 'Inter',
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
                 color: Color(0xFF1B5993),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 14,
-                color: Colors.grey[600],
-                height: 1.2,
-              ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -986,7 +978,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
           'Property Listing Help',
           style: TextStyle(
@@ -1016,7 +1008,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
           'Price Calculator',
           style: TextStyle(
@@ -1046,7 +1038,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
           'Required Documents',
           style: TextStyle(
@@ -1076,7 +1068,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
           'Listing Timeline',
           style: TextStyle(
