@@ -128,10 +128,10 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                             child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF20B2AA).withValues(alpha: 0.1),
+                                color: const Color(0xFFE8F4FD),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                  color: const Color(0xFF20B2AA).withValues(alpha: 0.3),
+                                  color: const Color(0xFF1B5993).withValues(alpha: 0.2),
                                 ),
                               ),
                               child: Row(
@@ -141,7 +141,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                     width: 24,
                                     height: 24,
                                     decoration: const BoxDecoration(
-                                      color: Color(0xFF20B2AA),
+                                      color: Color(0xFF1B5993),
                                       shape: BoxShape.circle,
                                     ),
                                     child: const Center(
@@ -160,7 +160,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                     'MS Number Verification',
                                     style: AppTheme.bodyMedium.copyWith(
                                       fontWeight: FontWeight.w600,
-                                      color: Color(0xFF20B2AA),
+                                      color: AppTheme.primaryBlue,
                                     ),
                                   ),
                                 ],
@@ -394,7 +394,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                             width: double.infinity,
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF20B2AA).withValues(alpha: 0.1),
+                              color: const Color(0xFFE8F4FD),
                     borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                       color: const Color(0xFF1B5993).withValues(alpha: 0.1),
