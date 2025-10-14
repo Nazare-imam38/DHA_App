@@ -94,9 +94,9 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
       child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
+            colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
         child: SafeArea(
@@ -294,7 +294,7 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                               children: [
                                 Icon(
                                   Icons.info_outline,
-                                  color: Colors.grey[600],
+                                  color: const Color(0xFF1B5993).withValues(alpha: 0.6),
                                   size: 16,
                                 ),
                                 const SizedBox(width: 8),
@@ -303,7 +303,7 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                                   style: TextStyle(
                                     fontFamily: 'Inter',
                                     fontSize: 12,
-                                    color: Colors.grey[600],
+                                    color: const Color(0xFF1B5993).withValues(alpha: 0.6),
                                   ),
                                 ),
                               ],
@@ -312,15 +312,16 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                             // Logout Button
                             SizedBox(
                               width: double.infinity,
-                              child: OutlinedButton(
+                              child: ElevatedButton(
                                 onPressed: _logout,
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.red,
-                                  side: const BorderSide(color: Colors.red),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red[600],
+                                  foregroundColor: Colors.white,
+                                  elevation: 2,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
                                 ),
                                 child: Text(
                                   l10n.logout,
@@ -362,8 +363,19 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.grey[50],
+              color: Colors.white,
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFF1B5993).withValues(alpha: 0.1),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Row(
               children: [
@@ -371,12 +383,16 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF20B2AA).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    color: const Color(0xFF1B5993).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: const Color(0xFF1B5993).withValues(alpha: 0.2),
+                      width: 1,
+                    ),
                   ),
                   child: Icon(
                     icon,
-                    color: const Color(0xFF20B2AA),
+                    color: const Color(0xFF1B5993),
                     size: 20,
                   ),
                 ),
@@ -387,11 +403,11 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                     children: [
                       Text(
                         title,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
+                        style: const TextStyle(
+                          fontFamily: 'Inter',
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                          color: Color(0xFF1B5993),
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -408,7 +424,7 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                 ),
                 Icon(
                   Icons.arrow_forward_ios,
-                  color: Colors.grey[400],
+                  color: const Color(0xFF1B5993).withValues(alpha: 0.6),
                   size: 16,
                 ),
               ],
