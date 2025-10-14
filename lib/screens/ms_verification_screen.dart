@@ -84,6 +84,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
           onPressed: () => Navigator.pop(context),
         ),
         title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               padding: const EdgeInsets.all(AppTheme.paddingSmall),
@@ -104,7 +105,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
             ),
           ],
         ),
-        centerTitle: false,
+        centerTitle: true,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             bottom: Radius.circular(AppTheme.radiusXLarge),
