@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'property_details_form_screen.dart';
 import '../services/ms_verification_service.dart';
 
@@ -30,10 +29,8 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
   
   late AnimationController _fadeController;
   late AnimationController _slideController;
-  late AnimationController _scaleController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
@@ -45,39 +42,30 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
 
   void _initializeAnimations() {
     _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 600),
       vsync: this,
     );
     _slideController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-    _scaleController = AnimationController(
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
     
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeOut),
     );
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
+      begin: const Offset(0, 0.2),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
-    );
     
     _fadeController.forward();
     _slideController.forward();
-    _scaleController.forward();
   }
 
   @override
   void dispose() {
     _fadeController.dispose();
     _slideController.dispose();
-    _scaleController.dispose();
     for (var controller in _otpControllers) {
       controller.dispose();
     }
@@ -302,383 +290,401 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F6),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF1E3C90),
-              Color(0xFF2ECC71),
-            ],
+      backgroundColor: const Color(0xFFF8F9FA),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1B5993),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 20,
           ),
+          onPressed: () => Navigator.pop(context),
         ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: 40),
-                    
-                    // Logo and Title
-                    FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: Column(
-                        children: [
-                          Container(
-                            width: 120,
-                            height: 120,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.95),
-                              borderRadius: BorderRadius.circular(30),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.3),
-                                  blurRadius: 25,
-                                  offset: const Offset(0, 8),
-                                ),
-                                BoxShadow(
-                                  color: Colors.white.withOpacity(0.2),
-                                  blurRadius: 15,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(30),
-                              child: Image.asset(
-                                'assets/images/dha-logo.png',
-                                fit: BoxFit.contain,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Icon(
-                                    Icons.verified_user_rounded,
-                                    size: 60,
-                                    color: Color(0xFF1E3C90),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            'Verify MS Number',
-                            style: GoogleFonts.poppins(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Enter the OTP sent to your registered email and phone',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.inter(
-                              fontSize: 16,
-                              color: Colors.white.withOpacity(0.9),
-                              height: 1.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 40),
-                    
-                    // MS Number Display
-                    SlideTransition(
-                      position: _slideAnimation,
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.95),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.verified_user_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'OTP VERIFICATION',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
+        centerTitle: false,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              
+              // Main Title
+              SlideTransition(
+                position: _slideAnimation,
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Verify MS Number',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF1B5993),
+                          height: 1.2,
                         ),
-                        child: Column(
+                      ),
+                      
+                      const SizedBox(height: 8),
+                      
+                      Text(
+                        'Enter the OTP sent to your registered email and phone',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey[600],
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // MS Number Information Card
+              SlideTransition(
+                position: _slideAnimation,
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFFE0E0E0),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.credit_card_rounded,
-                                  color: const Color(0xFF1E3C90),
-                                  size: 24,
-                                ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  'MS Number:',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: const Color(0xFF1E3C90),
-                                  ),
-                                ),
-                              ],
+                            Icon(
+                              Icons.credit_card_rounded,
+                              color: const Color(0xFF1B5993),
+                              size: 24,
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              widget.msNumber,
-                              style: GoogleFonts.inter(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF1E3C90),
+                            const SizedBox(width: 12),
+                            const Text(
+                              'MS Number:',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF1B5993),
                               ),
-                            ),
-                            const SizedBox(height: 16),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.email_rounded,
-                                  color: const Color(0xFF2ECC71),
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    widget.email,
-                                    style: GoogleFonts.inter(
-                                      fontSize: 14,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.phone_rounded,
-                                  color: const Color(0xFF2ECC71),
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    widget.phoneNumber,
-                                    style: GoogleFonts.inter(
-                                      fontSize: 14,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ),
-                              ],
                             ),
                           ],
                         ),
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 32),
-                    
-                    // OTP Input Section
-                    SlideTransition(
-                      position: _slideAnimation,
-                      child: ScaleTransition(
-                        scale: _scaleAnimation,
-                        child: Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.95),
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
+                        const SizedBox(height: 8),
+                        Text(
+                          widget.msNumber,
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1B5993),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Enter OTP Code',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF1E3C90),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'We sent a 6-digit code to your registered email and phone number',
-                                style: GoogleFonts.inter(
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.email_rounded,
+                              color: const Color(0xFF20B2AA),
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                widget.email,
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
                                   fontSize: 14,
                                   color: Colors.grey[600],
                                 ),
                               ),
-                              const SizedBox(height: 24),
-                              
-                              // OTP Input Fields
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: List.generate(6, (index) {
-                                  return Container(
-                                    width: 45,
-                                    height: 55,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[50],
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: _focusNodes[index].hasFocus
-                                            ? const Color(0xFF1E3C90)
-                                            : Colors.grey[300]!,
-                                        width: 2,
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.05),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    child: TextFormField(
-                                      controller: _otpControllers[index],
-                                      focusNode: _focusNodes[index],
-                                      textAlign: TextAlign.center,
-                                      keyboardType: TextInputType.number,
-                                      maxLength: 1,
-                                      style: GoogleFonts.inter(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                        color: const Color(0xFF1E3C90),
-                                      ),
-                                      decoration: const InputDecoration(
-                                        counterText: '',
-                                        border: InputBorder.none,
-                                        contentPadding: EdgeInsets.zero,
-                                      ),
-                                      onChanged: (value) {
-                                        if (value.isNotEmpty) {
-                                          if (index < 5) {
-                                            _focusNodes[index + 1].requestFocus();
-                                          } else {
-                                            _focusNodes[index].unfocus();
-                                          }
-                                        }
-                                      },
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return '';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                  );
-                                }),
-                              ),
-                              
-                              const SizedBox(height: 24),
-                              
-                              // Verify Button
-                              SizedBox(
-                                width: double.infinity,
-                                height: 56,
-                                child: ElevatedButton(
-                                  onPressed: _isLoading ? null : _verifyOtp,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF1E3C90),
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    elevation: 8,
-                                    shadowColor: const Color(0xFF1E3C90).withOpacity(0.3),
-                                  ),
-                                  child: _isLoading
-                                      ? const SizedBox(
-                                          width: 24,
-                                          height: 24,
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                            strokeWidth: 2,
-                                          ),
-                                        )
-                                      : Text(
-                                          'Verify OTP',
-                                          style: GoogleFonts.inter(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                ),
-                              ),
-                              
-                              const SizedBox(height: 16),
-                              
-                              // Resend OTP
-                              Center(
-                                child: TextButton(
-                                  onPressed: _resendTimer > 0 || _isResending ? null : _resendOtp,
-                                  child: _isResending
-                                      ? const SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: Color(0xFF1E3C90),
-                                          ),
-                                        )
-                                      : Text(
-                                          _resendTimer > 0
-                                              ? 'Resend OTP in ${_resendTimer}s'
-                                              : 'Resend OTP',
-                                          style: GoogleFonts.inter(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            color: _resendTimer > 0
-                                                ? Colors.grey[400]
-                                                : const Color(0xFF1E3C90),
-                                          ),
-                                        ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Back Button
-                    SlideTransition(
-                      position: _slideAnimation,
-                      child: Center(
-                        child: TextButton.icon(
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(
-                            Icons.arrow_back_rounded,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          label: Text(
-                            'Back to MS Number Entry',
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
                             ),
-                          ),
+                          ],
                         ),
-                      ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.phone_rounded,
+                              color: const Color(0xFF20B2AA),
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                widget.phoneNumber,
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
+              
+              const SizedBox(height: 32),
+              
+              // OTP Input Section
+              SlideTransition(
+                position: _slideAnimation,
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFFE0E0E0),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Enter OTP Code',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF1B5993),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'We sent a 6-digit code to your registered email and phone number',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        
+                        // OTP Input Fields
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: List.generate(6, (index) {
+                            return Container(
+                              width: 45,
+                              height: 55,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF8F9FA),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: _focusNodes[index].hasFocus
+                                      ? const Color(0xFF1B5993)
+                                      : const Color(0xFFE0E0E0),
+                                  width: 2,
+                                ),
+                              ),
+                              child: TextFormField(
+                                controller: _otpControllers[index],
+                                focusNode: _focusNodes[index],
+                                textAlign: TextAlign.center,
+                                keyboardType: TextInputType.number,
+                                maxLength: 1,
+                                style: const TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1B5993),
+                                ),
+                                decoration: const InputDecoration(
+                                  counterText: '',
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                                onChanged: (value) {
+                                  if (value.isNotEmpty) {
+                                    if (index < 5) {
+                                      _focusNodes[index + 1].requestFocus();
+                                    } else {
+                                      _focusNodes[index].unfocus();
+                                    }
+                                  }
+                                },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return '';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            );
+                          }),
+                        ),
+                        
+                        const SizedBox(height: 24),
+                        
+                        // Verify Button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _verifyOtp,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF1B5993),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Verify OTP',
+                                    style: TextStyle(
+                                      fontFamily: 'Inter',
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 16),
+                        
+                        // Resend OTP
+                        Center(
+                          child: TextButton(
+                            onPressed: _resendTimer > 0 || _isResending ? null : _resendOtp,
+                            child: _isResending
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Color(0xFF1B5993),
+                                    ),
+                                  )
+                                : Text(
+                                    _resendTimer > 0
+                                        ? 'Resend OTP in ${_resendTimer}s'
+                                        : 'Resend OTP',
+                                    style: TextStyle(
+                                      fontFamily: 'Inter',
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: _resendTimer > 0
+                                          ? Colors.grey[400]
+                                          : const Color(0xFF1B5993),
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Back Button
+              SlideTransition(
+                position: _slideAnimation,
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Center(
+                    child: TextButton.icon(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(
+                        Icons.arrow_back_rounded,
+                        color: Color(0xFF1B5993),
+                        size: 20,
+                      ),
+                      label: const Text(
+                        'Back to MS Number Entry',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF1B5993),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
