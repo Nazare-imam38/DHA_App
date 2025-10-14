@@ -7,6 +7,7 @@ import '../../../providers/auth_provider.dart';
 import '../../../models/auth_models.dart';
 import '../../../screens/main_wrapper.dart';
 import '../../../ui/widgets/cached_asset_image.dart';
+import '../../../ui/widgets/modern_forgot_password_dialog.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -165,7 +166,10 @@ class _LoginScreenState extends State<LoginScreen>
               action: SnackBarAction(
                 label: 'Forgot Password?',
                 textColor: Colors.white,
-                onPressed: _showForgotPasswordDialog,
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (context) => const ModernForgotPasswordDialog(),
+                ),
               ),
             ),
           );
@@ -183,167 +187,6 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
-  void _showForgotPasswordDialog() {
-    final emailController = TextEditingController();
-    final cnicController = TextEditingController();
-    final phoneController = TextEditingController();
-    bool isLoading = false;
-
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: Text(
-            'Forgot Password',
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Enter your details to reset password',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: Icon(Icons.email),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: cnicController,
-                decoration: InputDecoration(
-                  labelText: 'CNIC',
-                  prefixIcon: Icon(Icons.credit_card),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                keyboardType: TextInputType.number,
-                maxLength: 13,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: phoneController,
-                decoration: InputDecoration(
-                  labelText: 'Phone Number',
-                  prefixIcon: Icon(Icons.phone),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                keyboardType: TextInputType.phone,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: isLoading ? null : () => Navigator.pop(context),
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: isLoading ? null : () async {
-                if (emailController.text.isEmpty || 
-                    cnicController.text.isEmpty || 
-                    phoneController.text.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Please fill all fields'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                  return;
-                }
-
-                setState(() {
-                  isLoading = true;
-                });
-
-                try {
-                  final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                  await authProvider.forgotPassword(ForgotPasswordRequest(
-                    email: emailController.text.trim(),
-                    cnic: cnicController.text.trim(),
-                    phone: phoneController.text.trim(),
-                  ));
-
-                  if (mounted) {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Password reset instructions sent to your email/phone'),
-                        backgroundColor: const Color(0xFF20B2AA),
-                      ),
-                    );
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    String errorMessage = 'Failed to send reset instructions. Please try again.';
-                    
-                    if (e.toString().contains('User not found')) {
-                      errorMessage = 'No account found with the provided details. Please check your information.';
-                    } else if (e.toString().contains('Invalid email')) {
-                      errorMessage = 'Please enter a valid email address.';
-                    } else if (e.toString().contains('Invalid phone')) {
-                      errorMessage = 'Please enter a valid phone number.';
-                    } else if (e.toString().contains('Invalid CNIC')) {
-                      errorMessage = 'Please enter a valid CNIC number.';
-                    } else if (e.toString().contains('Network')) {
-                      errorMessage = 'Network error. Please check your connection.';
-                    }
-                    
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(errorMessage),
-                        backgroundColor: Colors.red,
-                        behavior: SnackBarBehavior.floating,
-                        duration: const Duration(seconds: 4),
-                      ),
-                    );
-                  }
-                } finally {
-                  if (mounted) {
-                    setState(() {
-                      isLoading = false;
-                    });
-                  }
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF20B2AA),
-                foregroundColor: Colors.white,
-              ),
-              child: isLoading
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                  : Text('Reset Password'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -496,7 +339,10 @@ class _LoginScreenState extends State<LoginScreen>
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () {
-                          _showForgotPasswordDialog();
+                          showDialog(
+                            context: context,
+                            builder: (context) => const ModernForgotPasswordDialog(),
+                          );
                         },
                         child: Text(
                           l10n.forgotPassword,
