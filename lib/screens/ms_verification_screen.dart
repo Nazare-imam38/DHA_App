@@ -83,29 +83,32 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                 ),
                 onPressed: () => Navigator.pop(context),
               ),
-        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-              padding: const EdgeInsets.all(AppTheme.paddingSmall),
-                              decoration: BoxDecoration(
-                color: AppTheme.primaryBlue,
-                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                              ),
-                              child: const Icon(
-                                Icons.verified_user_rounded,
-                                color: Colors.white,
-                size: 20,
-                              ),
-                            ),
-            const SizedBox(width: AppTheme.paddingMedium),
-            Text(
-                              'MS VERIFICATION',
-              style: AppTheme.titleLarge,
-                                  ),
-                                ],
-                              ),
-        centerTitle: true,
+        title: Container(
+          width: double.infinity,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppTheme.paddingSmall),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryBlue,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                ),
+                child: const Icon(
+                  Icons.verified_user_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: AppTheme.paddingMedium),
+              Text(
+                'MS VERIFICATION',
+                style: AppTheme.titleLarge,
+              ),
+            ],
+          ),
+        ),
+        centerTitle: false,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             bottom: Radius.circular(AppTheme.radiusXLarge),
