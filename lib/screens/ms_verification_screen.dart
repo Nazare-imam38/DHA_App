@@ -78,7 +78,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
               leading: IconButton(
                 icon: const Icon(
                   Icons.arrow_back_ios_new,
-            color: Color(0xFF1B5993), // Blue color
+            color: Color(0xFF20B2AA), // Teal color
             size: 16, // Smaller size
                 ),
                 onPressed: () => Navigator.pop(context),
@@ -91,7 +91,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
               Container(
                 padding: const EdgeInsets.all(AppTheme.paddingSmall),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryBlue,
+                  color: Color(0xFF20B2AA),
                   borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                 ),
                 child: const Icon(
@@ -290,7 +290,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                           color: Colors.white,
                                           borderRadius: BorderRadius.circular(12),
                                           border: Border.all(
-                                            color: const Color(0xFF1B5993),
+                                            color: const Color(0xFF20B2AA),
                                             width: 2,
                                           ),
                                         ),
@@ -306,7 +306,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                             children: [
                                               Icon(
                                                 Icons.arrow_back_ios,
-                                                color: const Color(0xFF1B5993),
+                                                color: const Color(0xFF20B2AA),
                                                 size: 16,
                                               ),
                                               const SizedBox(width: 4),
@@ -316,7 +316,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                                   fontFamily: 'Inter',
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w600,
-                                                  color: const Color(0xFF1B5993),
+                                                  color: const Color(0xFF20B2AA),
                                                 ),
                                               ),
                                             ],
@@ -335,7 +335,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                           color: Colors.white,
                                           borderRadius: BorderRadius.circular(12),
                                           border: Border.all(
-                                            color: const Color(0xFF1B5993),
+                                            color: const Color(0xFF20B2AA),
                                             width: 2,
                                           ),
                                         ),
@@ -360,7 +360,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                                   children: [
                                                     const Icon(
                                                       Icons.verified_user,
-                                                      color: Color(0xFF1B5993),
+                                                      color: Color(0xFF20B2AA),
                                                       size: 18,
                                                     ),
                                                     const SizedBox(width: 8),
@@ -370,7 +370,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                                         fontFamily: 'Inter',
                                                         fontSize: 16,
                                                         fontWeight: FontWeight.w700,
-                                                        color: Color(0xFF1B5993),
+                                                        color: Color(0xFF20B2AA),
                                                       ),
                                                     ),
                                                   ],
@@ -414,7 +414,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                   ),
                                   child: const Icon(
                                     Icons.help_outline,
-                                    color: Color(0xFF1B5993),
+                                    color: Color(0xFF20B2AA),
                                     size: 20,
                                   ),
                                 ),
@@ -429,7 +429,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                           fontFamily: 'Inter',
                                           fontSize: 16,
                                           fontWeight: FontWeight.w700,
-                                          color: Color(0xFF1B5993),
+                                          color: Color(0xFF20B2AA),
                                         ),
                                       ),
                                       const SizedBox(height: 4),
@@ -491,7 +491,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                               Container(
                                 padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                  color: const Color(0xFF1B5993),
+                                  color: const Color(0xFF20B2AA),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: const Icon(
@@ -508,7 +508,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                     fontFamily: 'Inter',
                                           fontSize: 18,
                               fontWeight: FontWeight.w700,
-                                    color: Color(0xFF1B5993),
+                                    color: Color(0xFF20B2AA),
                                   ),
                                         ),
                                       ),
@@ -517,7 +517,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                         duration: const Duration(milliseconds: 300),
                                         child: const Icon(
                                   Icons.keyboard_arrow_down,
-                                  color: Color(0xFF1B5993),
+                                  color: Color(0xFF20B2AA),
                                           size: 24,
                                         ),
                                       ),
@@ -616,7 +616,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
               title,
               style: AppTheme.bodySmall.copyWith(
                 fontWeight: FontWeight.w600,
-                color: AppTheme.primaryBlue,
+                color: Color(0xFF20B2AA),
               ),
               textAlign: TextAlign.center,
             ),
@@ -702,7 +702,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
               ),
             ],
           ),
-              backgroundColor: const Color(0xFF1B5993),
+              backgroundColor: const Color(0xFF20B2AA),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),

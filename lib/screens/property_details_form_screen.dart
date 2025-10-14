@@ -115,7 +115,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new,
-                color: Color(0xFF1B5993), // Blue color
+                color: Color(0xFF20B2AA), // Teal color
                 size: 16, // Smaller size
           ),
           onPressed: () => Navigator.pop(context),
@@ -127,7 +127,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
             Container(
                     padding: const EdgeInsets.all(AppTheme.paddingSmall),
               decoration: BoxDecoration(
-                      color: AppTheme.primaryBlue,
+                      color: Color(0xFF20B2AA),
                       borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
               ),
               child: const Icon(
@@ -226,7 +226,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                             fontFamily: 'Inter',
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
-                    color: Color(0xFF1B5993),
+                    color: Color(0xFF20B2AA),
                             letterSpacing: -0.5,
                   ),
                 ),
@@ -372,7 +372,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                 color: Colors.white,
                                         borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                          color: const Color(0xFF1B5993),
+                                          color: const Color(0xFF20B2AA),
                                           width: 2,
                                 ),
                               ),
@@ -388,7 +388,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                   children: [
                                     Icon(
                                       Icons.arrow_back_ios,
-                                              color: const Color(0xFF1B5993),
+                                              color: const Color(0xFF20B2AA),
                                       size: 16,
                                     ),
                                             const SizedBox(width: 6),
@@ -398,7 +398,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                         fontFamily: 'Inter',
                                                 fontSize: 14,
                                         fontWeight: FontWeight.w600,
-                                                color: const Color(0xFF1B5993),
+                                                color: const Color(0xFF20B2AA),
                                       ),
                                     ),
                                   ],
@@ -414,7 +414,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                             child: Container(
                               height: 48,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF1B5993),
+                                color: const Color(0xFF20B2AA),
                                         borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
@@ -492,7 +492,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                     Container(
                                       padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1B5993),
+                    color: const Color(0xFF20B2AA),
                     borderRadius: BorderRadius.circular(12),
                   ),
                                       child: const Icon(
@@ -512,7 +512,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                               fontFamily: 'Inter',
                                               fontSize: 18,
                                               fontWeight: FontWeight.w700,
-                                              color: Color(0xFF1B5993),
+                                              color: Color(0xFF20B2AA),
                                             ),
                                           ),
                                           SizedBox(height: 4),
@@ -530,7 +530,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                     ),
                                     const Icon(
                                       Icons.arrow_forward_ios,
-                                      color: Color(0xFF1B5993),
+                                      color: Color(0xFF20B2AA),
                                       size: 16,
                                   ),
                                 ],
@@ -608,7 +608,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                 ),
                 child: Icon(
                 icon,
-                color: AppTheme.primaryBlue,
+                color: Color(0xFF20B2AA),
                   size: 16,
                 ),
               ),
@@ -661,7 +661,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                 ),
                 child: Icon(
                 icon,
-                color: AppTheme.primaryBlue,
+                color: Color(0xFF20B2AA),
                   size: 16,
                 ),
               ),
