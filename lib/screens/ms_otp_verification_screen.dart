@@ -299,7 +299,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new,
-            color: Color(0xFF1B5993), // Blue color
+            color: Color(0xFF20B2AA), // Teal color
             size: 16, // Smaller size
           ),
           onPressed: () => Navigator.pop(context),
@@ -309,12 +309,12 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
             Container(
               padding: const EdgeInsets.all(AppTheme.paddingSmall),
               decoration: BoxDecoration(
-                color: const Color(0xFFE8F4FD),
+                color: AppTheme.primaryBlue,
                 borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
               ),
               child: const Icon(
                 Icons.verified_user_rounded,
-                color: Color(0xFF1B5993),
+                color: Colors.white,
                 size: 20,
               ),
             ),
@@ -355,7 +355,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
                           fontFamily: 'Inter',
                               fontSize: 28,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF1B5993),
+                          color: Color(0xFF20B2AA),
                           height: 1.2,
                             ),
                           ),
@@ -409,7 +409,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
                               children: [
                                 Icon(
                                   Icons.credit_card_rounded,
-                              color: const Color(0xFF1B5993),
+                              color: const Color(0xFF20B2AA),
                                   size: 24,
                                 ),
                                 const SizedBox(width: 12),
@@ -419,7 +419,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
                                 fontFamily: 'Inter',
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
-                                color: Color(0xFF1B5993),
+                                color: Color(0xFF20B2AA),
                                   ),
                                 ),
                               ],
@@ -431,7 +431,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
                             fontFamily: 'Inter',
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                            color: Color(0xFF1B5993),
+                            color: Color(0xFF20B2AA),
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -516,7 +516,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
                             fontFamily: 'Inter',
                                   fontSize: 20,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF1B5993),
+                            color: Color(0xFF20B2AA),
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -558,7 +558,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
                                   fontFamily: 'Inter',
                                         fontSize: 24,
                                         fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1B5993),
+                                  color: Color(0xFF20B2AA),
                                       ),
                                       decoration: const InputDecoration(
                                         counterText: '',
@@ -599,7 +599,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                       side: BorderSide(
-                                        color: const Color(0xFF1B5993),
+                                        color: const Color(0xFF20B2AA),
                                         width: 2,
                                       ),
                                     ),
@@ -610,7 +610,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
                                           width: 24,
                                           height: 24,
                                           child: CircularProgressIndicator(
-                                            color: Color(0xFF1B5993),
+                                            color: Color(0xFF20B2AA),
                                             strokeWidth: 2,
                                           ),
                                         )
@@ -620,7 +620,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
                                       fontFamily: 'Inter',
                                             fontSize: 16,
                                       fontWeight: FontWeight.w700,
-                                      color: Color(0xFF1B5993),
+                                      color: Color(0xFF20B2AA),
                                           ),
                                         ),
                                 ),
@@ -638,7 +638,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
                                           height: 20,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
-                                      color: Color(0xFF1B5993),
+                                      color: Color(0xFF20B2AA),
                                           ),
                                         )
                                       : Text(
@@ -651,7 +651,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
                                             fontWeight: FontWeight.w600,
                                             color: _resendTimer > 0
                                                 ? Colors.grey[400]
-                                          : const Color(0xFF1B5993),
+                                          : const Color(0xFF20B2AA),
                                           ),
                                         ),
                                 ),
@@ -702,7 +702,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
                                       Container(
                                         padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF1B5993),
+                                          color: const Color(0xFF20B2AA),
                                           borderRadius: BorderRadius.circular(8),
                                         ),
                                         child: const Icon(
@@ -719,7 +719,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
                                             fontFamily: 'Inter',
                                             fontSize: 18,
                                             fontWeight: FontWeight.w700,
-                                            color: Color(0xFF1B5993),
+                                            color: Color(0xFF20B2AA),
                             ),
                           ),
                         ),
@@ -728,7 +728,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
                                         duration: const Duration(milliseconds: 300),
                                         child: const Icon(
                                           Icons.keyboard_arrow_down,
-                                          color: Color(0xFF1B5993),
+                                          color: Color(0xFF20B2AA),
                                           size: 24,
                       ),
                     ),
@@ -820,7 +820,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
           children: [
             Icon(
               icon,
-              color: const Color(0xFF1B5993),
+                                      color: const Color(0xFF20B2AA),
               size: 20,
             ),
             const SizedBox(height: 8),
@@ -830,7 +830,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
                 fontFamily: 'Inter',
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF1B5993),
+                                color: Color(0xFF20B2AA),
               ),
               textAlign: TextAlign.center,
             ),
@@ -850,7 +850,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
           style: TextStyle(
             fontFamily: 'Inter',
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1B5993),
+                                color: Color(0xFF20B2AA),
           ),
         ),
         content: const Text(
@@ -880,7 +880,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
           style: TextStyle(
             fontFamily: 'Inter',
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1B5993),
+                                color: Color(0xFF20B2AA),
           ),
         ),
         content: const Text(
@@ -910,7 +910,7 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
           style: TextStyle(
             fontFamily: 'Inter',
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1B5993),
+                                color: Color(0xFF20B2AA),
           ),
         ),
         content: SingleChildScrollView(

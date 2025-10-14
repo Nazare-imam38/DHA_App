@@ -127,12 +127,12 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
             Container(
                     padding: const EdgeInsets.all(AppTheme.paddingSmall),
               decoration: BoxDecoration(
-                      color: const Color(0xFFE8F4FD),
+                      color: AppTheme.primaryBlue,
                       borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
               ),
               child: const Icon(
                 Icons.home_work_rounded,
-                color: Color(0xFF1B5993),
+                color: Colors.white,
                 size: 20,
               ),
             ),
@@ -174,10 +174,10 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8F4FD),
+                      color: const Color(0xFF20B2AA).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                                color: const Color(0xFF1B5993).withValues(alpha: 0.2),
+                                color: const Color(0xFF20B2AA).withValues(alpha: 0.3),
                                 width: 1,
                       ),
                     ),
@@ -188,7 +188,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                           width: 24,
                           height: 24,
                           decoration: const BoxDecoration(
-                                    color: Color(0xFF1B5993),
+                            color: Color(0xFF20B2AA),
                             shape: BoxShape.circle,
                           ),
                           child: const Center(
@@ -205,12 +205,12 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                         const SizedBox(width: 8),
                         const Text(
                           'Property Details',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF1B5993),
-                          ),
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF20B2AA),
+                            ),
                         ),
                       ],
                     ),
