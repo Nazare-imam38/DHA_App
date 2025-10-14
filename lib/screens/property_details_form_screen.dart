@@ -112,37 +112,37 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
             pinned: true,
             backgroundColor: AppTheme.cardWhite,
         elevation: 0,
-            leading: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios_new,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
                 color: Color(0xFF1B5993), // Blue color
                 size: 16, // Smaller size
-              ),
-              onPressed: () => Navigator.pop(context),
-            ),
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
             flexibleSpace: FlexibleSpaceBar(
-              title: Row(
+        title: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
+          children: [
+            Container(
                     padding: const EdgeInsets.all(AppTheme.paddingSmall),
-                    decoration: BoxDecoration(
+              decoration: BoxDecoration(
                       color: AppTheme.primaryBlue,
                       borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                    ),
-                    child: const Icon(
-                      Icons.home_work_rounded,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
+              ),
+              child: const Icon(
+                Icons.home_work_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
                   const SizedBox(width: AppTheme.paddingMedium),
                   Text(
-                    'PROPERTY DETAILS',
+              'PROPERTY DETAILS',
                     style: AppTheme.titleLarge.copyWith(fontSize: 16),
-                  ),
-                ],
-              ),
+            ),
+          ],
+        ),
               centerTitle: true,
               titlePadding: const EdgeInsets.only(bottom: 16),
             ),
@@ -319,7 +319,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                     child: _buildModernFormField(
                               controller: _sizeController,
                               label: 'Size',
-                                      hint: 'e.g., 3 Marla',
+                              hint: 'e.g., 3 Marla',
                               icon: Icons.straighten,
                             ),
                           ),
@@ -345,16 +345,16 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                         label: 'Description',
                         hint: 'Describe your property in detail',
                         icon: Icons.description,
-                                maxLines: 4,
+                        maxLines: 4,
                       ),
                       
-                              const SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       
                       // Contact Information
                               _buildModernFormField(
                         controller: _contactController,
                         label: 'Contact Number',
-                                hint: 'e.g., +92-300-1234567',
+                        hint: 'e.g., +92-300-1234567',
                         icon: Icons.phone,
                         keyboardType: TextInputType.phone,
                       ),
@@ -448,7 +448,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                               Icons.arrow_forward_ios,
                                               color: Colors.white,
                                               size: 16,
-                                            ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -462,14 +462,92 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                 
                         const SizedBox(height: 20),
                 
+                        // Navigate to Home Button
+                Container(
+                  width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: const Color(0xFFE0E0E0),
+                              width: 1,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () => _navigateToHome(),
+                              borderRadius: BorderRadius.circular(16),
+                              child: Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1B5993),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                                      child: const Icon(
+                                        Icons.home_rounded,
+                                        color: Colors.white,
+                                        size: 24,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                                          Text(
+                                            'Navigate to Home',
+                            style: TextStyle(
+                                              fontFamily: 'Inter',
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w700,
+                                              color: Color(0xFF1B5993),
+                                            ),
+                                          ),
+                                          SizedBox(height: 4),
+                                          Text(
+                                            'Return to the main dashboard',
+                                            style: TextStyle(
+                                              fontFamily: 'Inter',
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                                    ),
+                                    const Icon(
+                                      Icons.arrow_forward_ios,
+                                      color: Color(0xFF1B5993),
+                                      size: 16,
+                                  ),
+                                ],
+                              ),
+                              ),
+                            ),
+                          ),
+                        ),
+                
               ],
             ),
-          ),
-        ),
-              ),
-            ),
-          ),
-        ],
+                          ),
+                        ),
+                      ),
+                  ),
+                ),
+              ],
       ),
     );
   }
@@ -768,6 +846,15 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
           ),
         ],
       ),
+    );
+  }
+
+  void _navigateToHome() {
+    // Navigate to home screen
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/home', // Assuming you have a home route defined
+      (route) => false, // Remove all previous routes
     );
   }
 }
