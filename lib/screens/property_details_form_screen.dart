@@ -32,15 +32,10 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
   // Form state
   String _selectedPropertyType = 'House';
   String _selectedPhase = 'Phase 1';
-  String _selectedCondition = 'Excellent';
-  bool _hasParking = false;
-  bool _hasGarden = false;
-  bool _hasSecurity = false;
   bool _showQuickActions = false;
 
   final List<String> _propertyTypes = ['House', 'Flat', 'Plot', 'Commercial'];
   final List<String> _phases = ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'Phase 5', 'Phase 6', 'Phase 7'];
-  final List<String> _conditions = ['Excellent', 'Good', 'Fair', 'Needs Renovation'];
 
   @override
   void initState() {
@@ -374,49 +369,6 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                       ),
                       
                               const SizedBox(height: 16),
-                      
-                      // Condition Dropdown
-                              _buildModernDropdownField(
-                        label: 'Property Condition',
-                        value: _selectedCondition,
-                        items: _conditions,
-                        onChanged: (value) => setState(() => _selectedCondition = value!),
-                        icon: Icons.build,
-                      ),
-                      
-                              const SizedBox(height: 20),
-                      
-                      // Features Section
-                      const Text(
-                        'Property Features',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                          color: Color(0xFF1B5993),
-                        ),
-                      ),
-                      
-                              const SizedBox(height: 12),
-                              
-                              // Feature Checkboxes - Compact Row Layout
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildModernFeatureCheckbox('Parking Available', _hasParking, Icons.local_parking),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: _buildModernFeatureCheckbox('Garden', _hasGarden, Icons.yard),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: _buildModernFeatureCheckbox('Security', _hasSecurity, Icons.security),
-                                  ),
-                                ],
-                              ),
-                              
-                              const SizedBox(height: 20),
                       
                       // Contact Information
                               _buildModernFormField(
@@ -809,67 +761,6 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     );
   }
 
-  Widget _buildModernFeatureCheckbox(String title, bool value, IconData icon) {
-    return GestureDetector(
-            onTap: () {
-              setState(() {
-          if (title == 'Parking Available') {
-                  _hasParking = !_hasParking;
-                } else if (title == 'Garden') {
-                  _hasGarden = !_hasGarden;
-                } else if (title == 'Security') {
-                  _hasSecurity = !_hasSecurity;
-                }
-              });
-            },
-            child: Container(
-        padding: const EdgeInsets.all(AppTheme.paddingMedium),
-              decoration: BoxDecoration(
-          color: value ? AppTheme.primaryBlue.withOpacity(0.1) : AppTheme.inputBackground,
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                border: Border.all(
-            color: value ? AppTheme.primaryBlue : AppTheme.borderGrey,
-            width: value ? 2 : 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 20,
-              height: 20,
-              decoration: BoxDecoration(
-                color: value ? AppTheme.primaryBlue : AppTheme.borderGrey,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: value
-                  ? const Icon(
-                      Icons.check,
-                      color: Colors.white,
-                      size: 12,
-                    )
-                  : null,
-            ),
-            const SizedBox(width: AppTheme.paddingSmall),
-            Icon(
-              icon,
-              color: AppTheme.primaryBlue,
-              size: 16,
-            ),
-            const SizedBox(width: AppTheme.paddingSmall),
-            Text(
-              title,
-              style: TextStyle(
-                fontFamily: AppTheme.primaryFont,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: value ? AppTheme.primaryBlue : AppTheme.textSecondary,
-            ),
-          ),
-        ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildModernQuickActionButton({
     required IconData icon,
