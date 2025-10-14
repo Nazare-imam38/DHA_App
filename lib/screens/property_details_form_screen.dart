@@ -122,28 +122,22 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFF8F9FA),
-              Color(0xFFE8F4FD),
-              Color(0xFFF0F8FF),
-            ],
-          ),
-        ),
-        child: CustomScrollView(
-          slivers: [
-            // Modern App Bar
-            SliverAppBar(
-              expandedHeight: 120,
-              floating: false,
-              pinned: true,
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              leading: IconButton(
+      body: CustomScrollView(
+        slivers: [
+          // Modern App Bar
+          SliverAppBar(
+            expandedHeight: 120,
+            floating: false,
+            pinned: true,
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: Container(
+              margin: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1B5993),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: IconButton(
                 icon: const Icon(
                   Icons.arrow_back_ios_new,
                   color: Colors.white,
@@ -151,278 +145,96 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                 ),
                 onPressed: () => Navigator.pop(context),
               ),
-              flexibleSpace: FlexibleSpaceBar(
-                background: Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
+            ),
+            flexibleSpace: FlexibleSpaceBar(
+              title: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1B5993),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
-                    ),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x1A000000),
-                        blurRadius: 10,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 16, right: 16),
-                    child: Center(
-                      child: FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(
-                                Icons.home_work_rounded,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            const Text(
-                              'PROPERTY DETAILS',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                                letterSpacing: 1.0,
-                                shadows: [
-                                  Shadow(
-                                    color: Colors.black26,
-                                    blurRadius: 4,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    child: const Icon(
+                      Icons.home_work_rounded,
+                      color: Colors.white,
+                      size: 20,
                     ),
                   ),
-                ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'PROPERTY DETAILS',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1B5993),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
+              titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
+            ),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(20),
               ),
             ),
-            
-            // Main Content
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: SlideTransition(
-                    position: _slideAnimation,
-                    child: ScaleTransition(
-                      scale: _scaleAnimation,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Process Indicator
-                          Center(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFE8F4FD),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: const Color(0xFF1B5993).withValues(alpha: 0.2),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: 24,
-                                    height: 24,
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFF20B2AA),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Center(
-                                      child: Text(
-                                        '3',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const Text(
-                                    'Property Details',
-                                    style: TextStyle(
-                                      fontFamily: 'Inter',
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color(0xFF1B5993),
-                                    ),
-                                  ),
-                                ],
-                              ),
+          ),
+          
+          // Main Content
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Process Indicator
+                        Center(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
                             ),
-                          ),
-                          
-                          const SizedBox(height: 32),
-                          
-                          // Main Title
-                          const Text(
-                            'Property Information',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 28,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF1B5993),
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                          
-                          const SizedBox(height: 8),
-                          
-                          // Subtitle
-                          Text(
-                            'Provide detailed information about your property',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey[600],
-                              height: 1.4,
-                            ),
-                          ),
-                          
-                          const SizedBox(height: 32),
-                          
-                          // Form Card
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(24),
                             decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(0xFF1B5993).withValues(alpha: 0.08),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
+                              color: const Color(0xFFE8F4FD),
+                              borderRadius: BorderRadius.circular(25),
+                              border: Border.all(
+                                color: const Color(0xFF1B5993).withValues(alpha: 0.2),
+                                width: 1,
+                              ),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                // Property Title
-                                _buildFormField(
-                                  controller: _propertyTitleController,
-                                  label: 'Property Title',
-                                  hint: 'e.g., Beautiful 3 Bedroom House',
-                                  icon: Icons.title,
-                                ),
-                                
-                                const SizedBox(height: 20),
-                                
-                                // Property Type Dropdown
-                                _buildDropdownField(
-                                  label: 'Property Type',
-                                  value: _selectedPropertyType,
-                                  items: _propertyTypes,
-                                  onChanged: (value) => setState(() => _selectedPropertyType = value!),
-                                  icon: Icons.home,
-                                ),
-                                
-                                const SizedBox(height: 20),
-                                
-                                // Price and Size Row
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: _buildFormField(
-                                        controller: _priceController,
-                                        label: 'Price (PKR)',
-                                        hint: 'e.g., 5000000',
-                                        icon: Icons.attach_money,
-                                        keyboardType: TextInputType.number,
+                                Container(
+                                  width: 28,
+                                  height: 28,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF1B5993),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Center(
+                                    child: Text(
+                                      '3',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
                                       ),
                                     ),
-                                    const SizedBox(width: 16),
-                                    Expanded(
-                                      child: _buildFormField(
-                                        controller: _sizeController,
-                                        label: 'Size',
-                                        hint: 'e.g., 3 Marla',
-                                        icon: Icons.straighten,
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                                
-                                const SizedBox(height: 20),
-                                
-                                // Phase Dropdown
-                                _buildDropdownField(
-                                  label: 'DHA Phase',
-                                  value: _selectedPhase,
-                                  items: _phases,
-                                  onChanged: (value) => setState(() => _selectedPhase = value!),
-                                  icon: Icons.location_on,
-                                ),
-                                
-                                const SizedBox(height: 20),
-                                
-                                // Address
-                                _buildFormField(
-                                  controller: _addressController,
-                                  label: 'Address',
-                                  hint: 'Enter complete address',
-                                  icon: Icons.location_city,
-                                  maxLines: 2,
-                                ),
-                                
-                                const SizedBox(height: 20),
-                                
-                                // Description
-                                _buildFormField(
-                                  controller: _descriptionController,
-                                  label: 'Description',
-                                  hint: 'Describe your property in detail',
-                                  icon: Icons.description,
-                                  maxLines: 4,
-                                ),
-                                
-                                const SizedBox(height: 20),
-                                
-                                // Condition Dropdown
-                                _buildDropdownField(
-                                  label: 'Property Condition',
-                                  value: _selectedCondition,
-                                  items: _conditions,
-                                  onChanged: (value) => setState(() => _selectedCondition = value!),
-                                  icon: Icons.build,
-                                ),
-                                
-                                const SizedBox(height: 24),
-                                
-                                // Features Section
+                                const SizedBox(width: 12),
                                 const Text(
-                                  'Property Features',
+                                  'Property Details',
                                   style: TextStyle(
                                     fontFamily: 'Inter',
                                     fontSize: 16,
@@ -430,137 +242,303 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                     color: Color(0xFF1B5993),
                                   ),
                                 ),
-                                
-                                const SizedBox(height: 16),
-                                
-                                // Feature Checkboxes
-                                _buildFeatureCheckbox('Parking Available', _hasParking, Icons.local_parking),
-                                _buildFeatureCheckbox('Garden', _hasGarden, Icons.yard),
-                                _buildFeatureCheckbox('Security', _hasSecurity, Icons.security),
-                                
-                                const SizedBox(height: 24),
-                                
-                                // Contact Information
-                                _buildFormField(
-                                  controller: _contactController,
-                                  label: 'Contact Number',
-                                  hint: 'e.g., +92-300-1234567',
-                                  icon: Icons.phone,
-                                  keyboardType: TextInputType.phone,
-                                ),
-                                
-                                const SizedBox(height: 32),
-                                
-                                // Action Buttons
-                                Row(
-                                  children: [
-                                    // Back Button
-                                    Expanded(
-                                      child: Container(
-                                        height: 48,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(
-                                            color: Colors.grey[300]!,
-                                            width: 1,
-                                          ),
-                                        ),
-                                        child: TextButton(
-                                          onPressed: () => Navigator.pop(context),
-                                          style: TextButton.styleFrom(
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(12),
-                                            ),
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Icon(
-                                                Icons.arrow_back_ios,
-                                                color: Colors.grey[600],
-                                                size: 16,
-                                              ),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                'Back',
-                                                style: TextStyle(
-                                                  fontFamily: 'Inter',
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.grey[600],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    
-                                    const SizedBox(width: 12),
-                                    
-                                    // Continue Button
-                                    Expanded(
-                                      child: Container(
-                                        height: 48,
-                                        decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            colors: [Color(0xFF20B2AA), Color(0xFF1B5993)],
-                                            begin: Alignment.centerLeft,
-                                            end: Alignment.centerRight,
-                                          ),
-                                          borderRadius: BorderRadius.circular(12),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: const Color(0xFF20B2AA).withValues(alpha: 0.3),
-                                              blurRadius: 12,
-                                              offset: const Offset(0, 4),
-                                            ),
-                                          ],
-                                        ),
-                                        child: TextButton(
-                                          onPressed: _handleContinue,
-                                          style: TextButton.styleFrom(
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(12),
-                                            ),
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              const Icon(
-                                                Icons.arrow_forward_ios,
-                                                color: Colors.white,
-                                                size: 16,
-                                              ),
-                                              const SizedBox(width: 8),
-                                              const Text(
-                                                'Continue',
-                                                style: TextStyle(
-                                                  fontFamily: 'Inter',
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w700,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
                               ],
                             ),
                           ),
-                          
-                          const SizedBox(height: 24),
-                          
-                          // Collapsible Quick Actions Section
-                          Column(
+                        ),
+                        
+                        const SizedBox(height: 32),
+                        
+                        // Main Title
+                        const Text(
+                          'Property Information',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1B5993),
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 8),
+                        
+                        // Subtitle
+                        Text(
+                          'Provide detailed information about your property',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey[600],
+                            height: 1.4,
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 32),
+                        
+                        // Form Card
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(28),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF1B5993).withValues(alpha: 0.08),
+                                blurRadius: 24,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Toggle Button for Quick Actions
+                              // Property Title
+                              _buildModernFormField(
+                                controller: _propertyTitleController,
+                                label: 'Property Title',
+                                hint: 'e.g., Beautiful 3 Bedroom House',
+                                icon: Icons.title,
+                              ),
+                              
+                              const SizedBox(height: 24),
+                              
+                              // Property Type Dropdown
+                              _buildModernDropdownField(
+                                label: 'Property Type',
+                                value: _selectedPropertyType,
+                                items: _propertyTypes,
+                                onChanged: (value) => setState(() => _selectedPropertyType = value!),
+                                icon: Icons.home,
+                              ),
+                              
+                              const SizedBox(height: 24),
+                              
+                              // Price and Size Row
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildModernFormField(
+                                      controller: _priceController,
+                                      label: 'Price (PKR)',
+                                      hint: 'e.g., 5,000,000',
+                                      icon: Icons.attach_money,
+                                      keyboardType: TextInputType.number,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: _buildModernFormField(
+                                      controller: _sizeController,
+                                      label: 'Size',
+                                      hint: 'e.g., 3 Marla',
+                                      icon: Icons.straighten,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              
+                              const SizedBox(height: 24),
+                              
+                              // Phase Dropdown
+                              _buildModernDropdownField(
+                                label: 'DHA Phase',
+                                value: _selectedPhase,
+                                items: _phases,
+                                onChanged: (value) => setState(() => _selectedPhase = value!),
+                                icon: Icons.location_on,
+                              ),
+                              
+                              const SizedBox(height: 24),
+                              
+                              // Address
+                              _buildModernFormField(
+                                controller: _addressController,
+                                label: 'Address',
+                                hint: 'Enter complete address',
+                                icon: Icons.location_city,
+                                maxLines: 2,
+                              ),
+                              
+                              const SizedBox(height: 24),
+                              
+                              // Description
+                              _buildModernFormField(
+                                controller: _descriptionController,
+                                label: 'Description',
+                                hint: 'Describe your property in detail',
+                                icon: Icons.description,
+                                maxLines: 4,
+                              ),
+                              
+                              const SizedBox(height: 24),
+                              
+                              // Condition Dropdown
+                              _buildModernDropdownField(
+                                label: 'Property Condition',
+                                value: _selectedCondition,
+                                items: _conditions,
+                                onChanged: (value) => setState(() => _selectedCondition = value!),
+                                icon: Icons.build,
+                              ),
+                              
+                              const SizedBox(height: 32),
+                              
+                              // Features Section
+                              const Text(
+                                'Property Features',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF1B5993),
+                                ),
+                              ),
+                              
+                              const SizedBox(height: 20),
+                              
+                              // Feature Checkboxes
+                              _buildModernFeatureCheckbox('Parking Available', _hasParking, Icons.local_parking),
+                              _buildModernFeatureCheckbox('Garden', _hasGarden, Icons.yard),
+                              _buildModernFeatureCheckbox('Security', _hasSecurity, Icons.security),
+                              
+                              const SizedBox(height: 32),
+                              
+                              // Contact Information
+                              _buildModernFormField(
+                                controller: _contactController,
+                                label: 'Contact Number',
+                                hint: 'e.g., +92-300-1234567',
+                                icon: Icons.phone,
+                                keyboardType: TextInputType.phone,
+                              ),
+                              
+                              const SizedBox(height: 40),
+                              
+                              // Action Buttons
+                              Row(
+                                children: [
+                                  // Back Button
+                                  Expanded(
+                                    child: Container(
+                                      height: 56,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: const Color(0xFF1B5993),
+                                          width: 2,
+                                        ),
+                                      ),
+                                      child: TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        style: TextButton.styleFrom(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(16),
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.arrow_back_ios,
+                                              color: const Color(0xFF1B5993),
+                                              size: 18,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              'Back',
+                                              style: TextStyle(
+                                                fontFamily: 'Inter',
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                                color: const Color(0xFF1B5993),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  
+                                  const SizedBox(width: 16),
+                                  
+                                  // Continue Button
+                                  Expanded(
+                                    child: Container(
+                                      height: 56,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF1B5993),
+                                        borderRadius: BorderRadius.circular(16),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: const Color(0xFF1B5993).withValues(alpha: 0.3),
+                                            blurRadius: 12,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ],
+                                      ),
+                                      child: TextButton(
+                                        onPressed: _handleContinue,
+                                        style: TextButton.styleFrom(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(16),
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            const Text(
+                                              'Continue',
+                                              style: TextStyle(
+                                                fontFamily: 'Inter',
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            const Icon(
+                                              Icons.arrow_forward_ios,
+                                              color: Colors.white,
+                                              size: 18,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 32),
+                        
+                        // Collapsible Quick Actions Section
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: const Color(0xFFE0E0E0),
+                              width: 1,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              // Header with expand/collapse
                               GestureDetector(
                                 onTap: () {
                                   setState(() {
@@ -573,80 +551,67 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                   });
                                 },
                                 child: Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                    ),
-                                    borderRadius: BorderRadius.circular(16),
-                                    boxShadow: const [
-                                      BoxShadow(
-                                        color: Color(0x4D1B5993),
-                                        blurRadius: 12,
-                                        offset: Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
+                                  padding: const EdgeInsets.all(20),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const Text(
-                                        'Quick Actions & Support',
-                                        style: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w700,
+                                      Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF1B5993),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: const Icon(
+                                          Icons.lightbulb_outline,
                                           color: Colors.white,
-                                          letterSpacing: -0.3,
+                                          size: 24,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      const Expanded(
+                                        child: Text(
+                                          'Quick Actions & Support',
+                                          style: TextStyle(
+                                            fontFamily: 'Inter',
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF1B5993),
+                                          ),
                                         ),
                                       ),
                                       AnimatedRotation(
                                         turns: _showQuickActions ? 0.5 : 0.0,
                                         duration: const Duration(milliseconds: 300),
                                         child: const Icon(
-                                          Icons.keyboard_arrow_down_rounded,
-                                          color: Colors.white,
-                                          size: 24,
+                                          Icons.keyboard_arrow_down,
+                                          color: Color(0xFF1B5993),
+                                          size: 28,
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
                               ),
-                              
-                              // Collapsible Content
-                              AnimatedBuilder(
-                                animation: _expandAnimation,
-                                builder: (context, child) {
-                                  return SizeTransition(
-                                    sizeFactor: _expandAnimation,
-                                    child: FadeTransition(
-                                      opacity: _expandAnimation,
-                                      child: child,
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  margin: const EdgeInsets.only(top: 16),
+                              // Expandable content
+                              if (_showQuickActions) ...[
+                                const Divider(color: Colors.grey),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
                                   child: Column(
                                     children: [
-                                      // First Row - Help Options
+                                      const SizedBox(height: 20),
                                       Row(
                                         children: [
                                           Expanded(
-                                            child: _buildQuickActionButton(
+                                            child: _buildModernQuickActionButton(
                                               icon: Icons.help_outline_rounded,
                                               title: 'Get Help',
                                               subtitle: 'Property listing guide',
                                               onTap: () => _showHelpDialog(),
                                             ),
                                           ),
-                                          const SizedBox(width: 12),
+                                          const SizedBox(width: 16),
                                           Expanded(
-                                            child: _buildQuickActionButton(
+                                            child: _buildModernQuickActionButton(
                                               icon: Icons.calculate_rounded,
                                               title: 'Price Calculator',
                                               subtitle: 'Estimate market value',
@@ -656,22 +621,21 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                         ],
                                       ),
                                       
-                                      const SizedBox(height: 12),
+                                      const SizedBox(height: 16),
                                       
-                                      // Second Row - Documentation
                                       Row(
                                         children: [
                                           Expanded(
-                                            child: _buildQuickActionButton(
+                                            child: _buildModernQuickActionButton(
                                               icon: Icons.document_scanner_rounded,
                                               title: 'Required Docs',
                                               subtitle: 'Check documents needed',
                                               onTap: () => _showRequiredDocuments(),
                                             ),
                                           ),
-                                          const SizedBox(width: 12),
+                                          const SizedBox(width: 16),
                                           Expanded(
-                                            child: _buildQuickActionButton(
+                                            child: _buildModernQuickActionButton(
                                               icon: Icons.schedule_rounded,
                                               title: 'Timeline',
                                               subtitle: 'Listing process time',
@@ -683,23 +647,23 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                     ],
                                   ),
                                 ),
-                              ),
+                              ],
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildFormField({
+  Widget _buildModernFormField({
     required TextEditingController controller,
     required String label,
     required String hint,
@@ -714,19 +678,19 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
           label,
           style: const TextStyle(
             fontFamily: 'Inter',
-            fontSize: 14,
+            fontSize: 16,
             fontWeight: FontWeight.w600,
             color: Color(0xFF1B5993),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
             color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: Colors.grey[300]!,
-              width: 1,
+              width: 1.5,
             ),
           ),
           child: TextField(
@@ -748,13 +712,21 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
               ),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 16,
+                horizontal: 20,
+                vertical: 20,
               ),
-              prefixIcon: Icon(
-                icon,
-                color: const Color(0xFF1B5993),
-                size: 20,
+              prefixIcon: Container(
+                margin: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1B5993).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  color: const Color(0xFF1B5993),
+                  size: 20,
+                ),
               ),
             ),
           ),
@@ -763,7 +735,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     );
   }
 
-  Widget _buildDropdownField({
+  Widget _buildModernDropdownField({
     required String label,
     required String value,
     required List<String> items,
@@ -777,19 +749,19 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
           label,
           style: const TextStyle(
             fontFamily: 'Inter',
-            fontSize: 14,
+            fontSize: 16,
             fontWeight: FontWeight.w600,
             color: Color(0xFF1B5993),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
             color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: Colors.grey[300]!,
-              width: 1,
+              width: 1.5,
             ),
           ),
           child: DropdownButtonFormField<String>(
@@ -798,13 +770,21 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
             decoration: InputDecoration(
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 16,
+                horizontal: 20,
+                vertical: 20,
               ),
-              prefixIcon: Icon(
-                icon,
-                color: const Color(0xFF1B5993),
-                size: 20,
+              prefixIcon: Container(
+                margin: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1B5993).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  color: const Color(0xFF1B5993),
+                  size: 20,
+                ),
               ),
             ),
             items: items.map((String item) {
@@ -827,77 +807,79 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     );
   }
 
-  Widget _buildFeatureCheckbox(String title, bool value, IconData icon) {
+  Widget _buildModernFeatureCheckbox(String title, bool value, IconData icon) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: value ? const Color(0xFF1B5993) : Colors.grey[200],
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: value
-                ? const Icon(
-                    Icons.check,
-                    color: Colors.white,
-                    size: 16,
-                  )
-                : null,
-          ),
-          const SizedBox(width: 12),
-          Icon(
-            icon,
-            color: const Color(0xFF1B5993),
-            size: 20,
-          ),
-          const SizedBox(width: 8),
-          Text(
-            title,
-            style: const TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF1B5993),
+      padding: const EdgeInsets.only(bottom: 16),
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            if (title == 'Parking Available') {
+              _hasParking = !_hasParking;
+            } else if (title == 'Garden') {
+              _hasGarden = !_hasGarden;
+            } else if (title == 'Security') {
+              _hasSecurity = !_hasSecurity;
+            }
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: value ? const Color(0xFF1B5993).withValues(alpha: 0.1) : Colors.grey[50],
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: value ? const Color(0xFF1B5993) : Colors.grey[300]!,
+              width: value ? 2 : 1,
             ),
           ),
-          const Spacer(),
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                if (title == 'Parking Available') {
-                  _hasParking = !_hasParking;
-                } else if (title == 'Garden') {
-                  _hasGarden = !_hasGarden;
-                } else if (title == 'Security') {
-                  _hasSecurity = !_hasSecurity;
-                }
-              });
-            },
-            child: Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                color: value ? const Color(0xFF1B5993) : Colors.grey[200],
-                borderRadius: BorderRadius.circular(6),
+          child: Row(
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: value ? const Color(0xFF1B5993) : Colors.grey[200],
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: value
+                    ? const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                        size: 16,
+                      )
+                    : null,
               ),
-              child: value
-                  ? const Icon(
-                      Icons.check,
-                      color: Colors.white,
-                      size: 16,
-                    )
-                  : null,
-            ),
+              const SizedBox(width: 16),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1B5993).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  color: const Color(0xFF1B5993),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: value ? const Color(0xFF1B5993) : Colors.grey[700],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildQuickActionButton({
+  Widget _buildModernQuickActionButton({
     required IconData icon,
     required String title,
     required String subtitle,
@@ -906,52 +888,38 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.grey[50],
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: const Color(0x1A1B5993),
+            color: Colors.grey[200]!,
             width: 1,
           ),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x141B5993),
-              blurRadius: 8,
-              offset: Offset(0, 2),
-            ),
-          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 48,
+              height: 48,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [
-                    Color(0xFF1B5993),
-                    Color(0xFF2C5AA0),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: const Color(0xFF1B5993),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 icon,
                 color: Colors.white,
-                size: 20,
+                size: 24,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text(
               title,
               style: const TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+                fontFamily: 'Inter',
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
                 color: Color(0xFF1B5993),
               ),
             ),
@@ -960,7 +928,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
               subtitle,
               style: TextStyle(
                 fontFamily: 'Inter',
-                fontSize: 12,
+                fontSize: 14,
                 color: Colors.grey[600],
                 height: 1.2,
               ),
@@ -985,7 +953,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
       );
@@ -1018,11 +986,11 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
           'Property Listing Help',
           style: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Inter',
             fontWeight: FontWeight.w700,
             color: Color(0xFF1B5993),
           ),
@@ -1048,11 +1016,11 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
           'Price Calculator',
           style: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Inter',
             fontWeight: FontWeight.w700,
             color: Color(0xFF1B5993),
           ),
@@ -1078,11 +1046,11 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
           'Required Documents',
           style: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Inter',
             fontWeight: FontWeight.w700,
             color: Color(0xFF1B5993),
           ),
@@ -1108,11 +1076,11 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
           'Listing Timeline',
           style: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Inter',
             fontWeight: FontWeight.w700,
             color: Color(0xFF1B5993),
           ),
