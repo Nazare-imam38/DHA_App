@@ -127,44 +127,29 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF20B2AA), Color(0xFF1B5993)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
+                  color: const Color(0xFFE8F4FD),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: const Color(0xFF20B2AA).withValues(alpha: 0.3),
                   ),
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF20B2AA).withValues(alpha: 0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
+                      width: 24,
+                      height: 24,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF20B2AA),
                         shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                              blurRadius: 4,
-                            offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
+                      ),
                       child: const Center(
                         child: Text(
                           '1',
                           style: TextStyle(
-                            color: Color(0xFF1B5993),
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                            fontSize: 12,
                           ),
                         ),
                       ),
@@ -172,12 +157,12 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                     const SizedBox(width: 8),
                     const Text(
                       'Ownership Selection',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF20B2AA),
+                        ),
                     ),
                   ],
                 ),
@@ -194,33 +179,14 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [Color(0xFF20B2AA), Color(0xFF1B5993)],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(0xFF20B2AA).withValues(alpha: 0.2),
-                                    blurRadius: 15,
-                                    offset: const Offset(0, 5),
-                                  ),
-                                ],
-                              ),
-                              child: const Text(
+                            const Text(
                               'Who owns this property?',
                               style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                  height: 1.2,
-                                ),
-                                textAlign: TextAlign.center,
+                        fontFamily: 'Inter',
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                                color: Color(0xFF1B5993),
+                        height: 1.2,
                               ),
                             ),
                             
@@ -232,16 +198,16 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                          color: const Color(0xFF20B2AA).withValues(alpha: 0.3),
-                                  width: 2,
+                          color: const Color(0xFFE0E0E0),
+                                  width: 1,
                                 ),
                         boxShadow: [
                                   BoxShadow(
-                            color: const Color(0xFF20B2AA).withValues(alpha: 0.1),
-                                    blurRadius: 20,
-                            offset: const Offset(0, 8),
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
                                   ),
                                 ],
                               ),
@@ -251,7 +217,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                                   fontFamily: 'Inter',
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color: const Color(0xFF1B5993),
+                                  color: Color(0xFF616161),
                                   height: 1.5,
                                 ),
                               ),
@@ -312,9 +278,9 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                         foregroundColor: const Color(0xFF1B5993),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          side: const BorderSide(
-                            color: Color(0xFF20B2AA),
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: const Color(0xFF1B5993),
                             width: 2,
                           ),
                         ),
@@ -505,28 +471,19 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          gradient: isSelected
-              ? const LinearGradient(
-                  colors: [Color(0xFF20B2AA), Color(0xFF1B5993)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                )
-              : null,
-          color: isSelected ? null : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          color: isSelected ? const Color(0xFF1B5993) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected 
-                ? const Color(0xFF20B2AA) 
-                : const Color(0xFF20B2AA).withValues(alpha: 0.3),
+            color: isSelected ? const Color(0xFF1B5993) : const Color(0xFFE0E0E0),
             width: 2,
           ),
           boxShadow: [
                   BoxShadow(
               color: isSelected 
-                  ? const Color(0xFF20B2AA).withValues(alpha: 0.4)
-                  : const Color(0xFF20B2AA).withValues(alpha: 0.1),
-              blurRadius: isSelected ? 20 : 12,
-              offset: const Offset(0, 6),
+                  ? const Color(0xFF1B5993).withValues(alpha: 0.3)
+                  : Colors.black.withValues(alpha: 0.05),
+              blurRadius: isSelected ? 12 : 8,
+              offset: const Offset(0, 4),
                   ),
                 ],
         ),
@@ -534,25 +491,18 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
           children: [
             // Icon Container
             Container(
-              width: 60,
-              height: 60,
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
                   color: isSelected 
                     ? Colors.white.withValues(alpha: 0.2)
-                    : const Color(0xFF20B2AA).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: isSelected ? [
-                  BoxShadow(
-                    color: Colors.white.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ] : null,
+                    : const Color(0xFF1B5993).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 icon,
-                color: isSelected ? Colors.white : const Color(0xFF20B2AA),
-                size: 30,
+                color: isSelected ? Colors.white : const Color(0xFF1B5993),
+                size: 28,
               ),
             ),
             

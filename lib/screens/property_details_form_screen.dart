@@ -174,7 +174,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF20B2AA).withValues(alpha: 0.1),
+                      color: const Color(0xFFE8F4FD),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                                 color: const Color(0xFF20B2AA).withValues(alpha: 0.3),
@@ -188,7 +188,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                           width: 24,
                           height: 24,
                           decoration: const BoxDecoration(
-                            color: Color(0xFF20B2AA),
+                                    color: Color(0xFF20B2AA),
                             shape: BoxShape.circle,
                           ),
                           child: const Center(
@@ -205,12 +205,12 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                         const SizedBox(width: 8),
                         const Text(
                           'Property Details',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF20B2AA),
-                            ),
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF20B2AA),
+                          ),
                         ),
                       ],
                     ),
