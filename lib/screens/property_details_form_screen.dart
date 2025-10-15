@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 import 'property_review_screen.dart';
 import '../core/theme/app_theme.dart';
+import '../core/services/geocoding_service.dart';
+import '../ui/widgets/location_map_widget.dart';
 
 class PropertyDetailsFormScreen extends StatefulWidget {
   const PropertyDetailsFormScreen({super.key});
@@ -30,6 +33,11 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
   String _selectedPropertyType = 'House';
   String _selectedPhase = 'Phase 1';
 
+  // Map and geocoding state
+  LatLng? _propertyLocation;
+  bool _isGeocoding = false;
+  final GeocodingService _geocodingService = GeocodingService();
+
   final List<String> _propertyTypes = ['House', 'Flat', 'Plot', 'Commercial'];
   final List<String> _phases = ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'Phase 5', 'Phase 6', 'Phase 7'];
 
@@ -37,6 +45,48 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
   void initState() {
     super.initState();
     _initializeAnimations();
+    _setupAddressListener();
+  }
+
+  void _setupAddressListener() {
+    _addressController.addListener(() {
+      _debounceGeocoding();
+    });
+  }
+
+  void _debounceGeocoding() {
+    // Debounce geocoding to avoid too many API calls
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      if (_addressController.text.trim().isNotEmpty) {
+        _geocodeAddress();
+      }
+    });
+  }
+
+  Future<void> _geocodeAddress() async {
+    if (_isGeocoding) return;
+    
+    setState(() {
+      _isGeocoding = true;
+    });
+
+    try {
+      final address = _addressController.text.trim();
+      if (address.isNotEmpty) {
+        final location = await _geocodingService.geocodeAddress(address);
+        if (location != null) {
+          setState(() {
+            _propertyLocation = location;
+          });
+        }
+      }
+    } catch (e) {
+      print('Geocoding error: $e');
+    } finally {
+      setState(() {
+        _isGeocoding = false;
+      });
+    }
   }
 
   void _initializeAnimations() {
@@ -336,6 +386,27 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                       ),
                       
                               const SizedBox(height: 16),
+                      
+                      // Location Map
+                      if (_addressController.text.trim().isNotEmpty) ...[
+                        Text(
+                          'Property Location',
+                          style: AppTheme.titleMedium.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textPrimary,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                        const SizedBox(height: AppTheme.paddingSmall),
+                        LocationMapWidget(
+                          location: _propertyLocation,
+                          address: _addressController.text.trim(),
+                          height: 200,
+                          showMarker: true,
+                        ),
+                        const SizedBox(height: 16),
+                      ],
                       
                       // Contact Information
                               _buildModernFormField(
