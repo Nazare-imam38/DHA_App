@@ -550,9 +550,13 @@ class ModernFilterManager {
         }
       }
       
-      // Size filter
-      if (_size != null && plot.catArea.toLowerCase() != _size!.toLowerCase()) {
-        return false;
+      // Size filter - normalize both values for comparison
+      if (_size != null) {
+        final plotSize = plot.catArea.trim().toLowerCase();
+        final filterSize = _size!.trim().toLowerCase();
+        if (plotSize != filterSize) {
+          return false;
+        }
       }
       
       // Status filter
@@ -675,15 +679,21 @@ class ModernFilterManager {
     if (_phase == null || _category == null || _minPrice == null || _maxPrice == null) return;
     
     try {
-      _availableSizes = await ProgressiveFilter.ProgressiveFilterService.getAvailableSizes(
+      // Get the filtered plots for the current phase, category, and price range
+      final result = await ProgressiveFilter.ProgressiveFilterService.filterByPhase(
         phase: _phase!,
         category: _category!,
         priceFrom: _minPrice!,
         priceTo: _maxPrice!,
       );
+      
+      // Extract unique catArea values from the filtered results
+      _availableSizes = result.plots.map((plot) => plot.catArea).toSet().toList();
+      _availableSizes.sort(); // Sort for consistent display
+      
       _sizesLoaded = true;
       onSizesUpdated?.call(_availableSizes);
-      print('ModernFilterManager: ✅ Loaded ${_availableSizes.length} available sizes');
+      print('ModernFilterManager: ✅ Loaded ${_availableSizes.length} available sizes from filtered results: $_availableSizes');
     } catch (e) {
       print('ModernFilterManager: ❌ Error loading sizes: $e');
       _availableSizes = [];

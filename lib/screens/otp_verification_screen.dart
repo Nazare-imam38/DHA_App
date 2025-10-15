@@ -355,7 +355,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(20),
                                   child: CachedAssetImage(
-                                    assetPath: 'assets/images/dhalogo.png',
+                                    assetPath: 'assets/images/logo.png',
                                     width: 70,
                                     height: 70,
                                     fit: BoxFit.contain,

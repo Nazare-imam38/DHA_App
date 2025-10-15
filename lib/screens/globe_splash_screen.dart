@@ -199,7 +199,7 @@ class _GlobeSplashScreenState extends State<GlobeSplashScreen>
                       ),
                       child: ClipOval(
                         child: CachedAssetImage(
-                          assetPath: 'assets/images/dhalogo.png',
+                          assetPath: 'assets/images/logo.png',
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) {
                             return Container(

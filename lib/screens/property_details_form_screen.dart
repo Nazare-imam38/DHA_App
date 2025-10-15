@@ -191,7 +191,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new,
-                color: AppTheme.navyBlue, // Navy blue color
+                color: Color(0xFF005289), // Navy blue color
                 size: 16, // Smaller size
           ),
           onPressed: () => Navigator.pop(context),
@@ -203,7 +203,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
             Container(
                     padding: const EdgeInsets.all(AppTheme.paddingSmall),
               decoration: BoxDecoration(
-                      color: AppTheme.navyBlue,
+                      color: Color(0xFF005289), // Navy blue color
                       borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
               ),
               child: const Icon(
@@ -215,7 +215,10 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                   const SizedBox(width: AppTheme.paddingMedium),
                   Text(
               'PROPERTY DETAILS',
-                    style: AppTheme.titleLarge.copyWith(fontSize: 16),
+                    style: AppTheme.titleLarge.copyWith(
+                      fontSize: 16,
+                      color: Color(0xFF005289), // Navy blue color
+                    ),
             ),
           ],
         ),
@@ -232,7 +235,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
               child: Container(
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppTheme.navyBlue,
+                  color: Color(0xFF005289), // Navy blue color
                   borderRadius: const BorderRadius.vertical(
                     bottom: Radius.circular(20),
                   ),
@@ -262,10 +265,10 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8F4FD),
+                      color: const Color(0xFFE0F7FA), // Light teal background
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                                color: AppTheme.tealAccent.withValues(alpha: 0.3),
+                                color: const Color(0xFF20B2AA), // Teal border
                                 width: 1,
                       ),
                     ),
@@ -276,7 +279,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                           width: 24,
                           height: 24,
                            decoration: const BoxDecoration(
-                                     color: Color(0xFF005289),
+                                     color: Color(0xFF20B2AA), // Teal color
                              shape: BoxShape.circle,
                            ),
                           child: const Center(
@@ -297,7 +300,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                             fontFamily: 'Inter',
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF005289),
+                            color: Color(0xFF20B2AA), // Teal color
                           ),
                         ),
                       ],
@@ -710,7 +713,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
               ),
               prefixIcon: Icon(
                 icon,
-                color: const Color(0xFF005289),
+                color: const Color(0xFF20B2AA), // Teal color for icons
                 size: 20,
               ),
             ),
@@ -760,7 +763,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
               ),
               prefixIcon: Icon(
                 icon,
-                color: const Color(0xFF005289),
+                color: const Color(0xFF20B2AA), // Teal color for icons
                 size: 20,
               ),
             ),

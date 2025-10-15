@@ -347,9 +347,13 @@ class PlotsProvider with ChangeNotifier {
         return false;
       }
 
-      // Size filter
-      if (_selectedSize != null && plot.catArea.toLowerCase() != _selectedSize!.toLowerCase()) {
-        return false;
+      // Size filter - normalize both values for comparison
+      if (_selectedSize != null) {
+        final plotSize = plot.catArea.trim().toLowerCase();
+        final filterSize = _selectedSize!.trim().toLowerCase();
+        if (plotSize != filterSize) {
+          return false;
+        }
       }
 
       // Area filter (legacy)

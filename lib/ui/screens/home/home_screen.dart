@@ -5,6 +5,7 @@ import '../../../services/language_service.dart';
 import '../../../screens/property_listings_screen.dart';
 import '../../../screens/projects_screen_instant.dart';
 import '../../../screens/ownership_selection_screen.dart';
+import '../../../screens/sidebar_drawer.dart';
 import '../../../ui/screens/auth/login_screen.dart';
 import '../../../ui/widgets/cached_asset_image.dart';
 import '../../../providers/plot_stats_provider.dart';
@@ -609,6 +610,7 @@ class _HomeScreenState extends State<HomeScreen>
       child: Scaffold(
         key: _scaffoldKey,
         backgroundColor: Colors.white,
+        drawer: const SidebarDrawer(),
         body: SafeArea(
         child: Column(
           children: [

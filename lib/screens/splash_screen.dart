@@ -156,7 +156,7 @@ class _SplashScreenState extends State<SplashScreen>
                   return Transform.scale(
                     scale: _logoScale.value,
                     child: CachedAssetImage(
-                      assetPath: 'assets/images/dhalogo.png',
+                      assetPath: 'assets/images/logo.png',
                       width: 160,
                       height: 160,
                       fit: BoxFit.contain,
