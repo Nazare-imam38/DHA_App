@@ -1,5 +1,6 @@
 import 'package:geocoding/geocoding.dart';
 import 'package:latlong2/latlong.dart';
+import 'custom_geocoding_service.dart';
 
 class GeocodingService {
   static final GeocodingService _instance = GeocodingService._internal();
@@ -11,17 +12,53 @@ class GeocodingService {
     try {
       if (address.trim().isEmpty) return null;
       
-      List<Location> locations = await locationFromAddress(address);
+      print('Attempting to geocode: $address');
       
-      if (locations.isNotEmpty) {
-        Location location = locations.first;
-        return LatLng(location.latitude, location.longitude);
+      // Use custom geocoding service as primary method (more reliable)
+      print('Using custom geocoding service as primary method');
+      CustomGeocodingService customService = CustomGeocodingService();
+      LatLng? customResult = await customService.geocodeAddress(address);
+      
+      if (customResult != null) {
+        print('Custom geocoding successful');
+        return customResult;
       }
       
-      return null;
+      // Fallback to standard geocoding if custom fails
+      print('Custom geocoding failed, trying standard service');
+      List<String> addressVariations = _generateAddressVariations(address);
+      
+      for (String addr in addressVariations.take(3)) { // Limit to 3 attempts
+        try {
+          print('Trying standard geocoding for: $addr');
+          
+          List<Location> locations = await locationFromAddress(addr)
+              .timeout(const Duration(seconds: 5));
+          
+          if (locations.isNotEmpty) {
+            Location location = locations.first;
+            print('Standard geocoding successful for: $addr');
+            print('Coordinates: ${location.latitude}, ${location.longitude}');
+            return LatLng(location.latitude, location.longitude);
+          }
+        } catch (e) {
+          print('Standard geocoding failed for $addr: $e');
+          if (e.toString().contains('Null check operator')) {
+            print('Skipping standard geocoding due to null check error');
+            break;
+          }
+          continue;
+        }
+      }
+      
+      // Final fallback to Islamabad
+      print('All geocoding attempts failed, using fallback location');
+      return const LatLng(33.6844, 73.0479); // Islamabad coordinates
+      
     } catch (e) {
       print('Geocoding error: $e');
-      return null;
+      // Return a fallback location in Islamabad
+      return const LatLng(33.6844, 73.0479);
     }
   }
 
@@ -43,6 +80,67 @@ class GeocodingService {
       print('Reverse geocoding error: $e');
       return null;
     }
+  }
+
+  /// Generate smart address variations for better geocoding success
+  List<String> _generateAddressVariations(String address) {
+    List<String> variations = [];
+    
+    // Clean the address
+    String cleanAddress = address.trim();
+    variations.add(cleanAddress);
+    
+    // Add Pakistan context if not present
+    if (!cleanAddress.toLowerCase().contains('pakistan')) {
+      variations.add('$cleanAddress, Pakistan');
+    }
+    
+    // Add city context based on common Pakistani cities
+    List<String> pakistaniCities = [
+      'Islamabad', 'Karachi', 'Lahore', 'Rawalpindi', 'Faisalabad', 
+      'Multan', 'Peshawar', 'Quetta', 'Sialkot', 'Gujranwala'
+    ];
+    
+    // Check if address contains any Pakistani city
+    bool hasCity = pakistaniCities.any((city) => 
+        cleanAddress.toLowerCase().contains(city.toLowerCase()));
+    
+    if (!hasCity) {
+      // Add Islamabad as default city context
+      variations.add('$cleanAddress, Islamabad, Pakistan');
+    }
+    
+    // Try with different city contexts if no specific city found
+    for (String city in pakistaniCities.take(3)) { // Try top 3 cities
+      if (!cleanAddress.toLowerCase().contains(city.toLowerCase())) {
+        variations.add('$cleanAddress, $city, Pakistan');
+      }
+    }
+    
+    // Add simplified versions
+    List<String> words = cleanAddress.split(' ');
+    if (words.length > 3) {
+      // Try with fewer words
+      variations.add(words.take(3).join(' '));
+      variations.add(words.take(2).join(' '));
+    }
+    
+    // Add common Pakistani area indicators
+    if (cleanAddress.toLowerCase().contains('sector')) {
+      variations.add(cleanAddress.replaceAll(RegExp(r'[Ss]ector\s*', caseSensitive: false), ''));
+    }
+    
+    // Remove common words that might confuse geocoding
+    String simplified = cleanAddress
+        .replaceAll(RegExp(r'\b(opposite|near|beside|next to|close to)\b', caseSensitive: false), '')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+    if (simplified != cleanAddress) {
+      variations.add(simplified);
+    }
+    
+    // Remove duplicates and return
+    return variations.toSet().toList();
   }
 
   /// Get formatted address from placemark

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'property_review_screen.dart';
@@ -54,10 +55,15 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     });
   }
 
+  Timer? _debounceTimer;
+
   void _debounceGeocoding() {
-    // Debounce geocoding to avoid too many API calls
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      if (_addressController.text.trim().isNotEmpty) {
+    // Cancel previous timer
+    _debounceTimer?.cancel();
+    
+    // Start new timer
+    _debounceTimer = Timer(const Duration(milliseconds: 1500), () {
+      if (_addressController.text.trim().isNotEmpty && !_isGeocoding) {
         _geocodeAddress();
       }
     });
@@ -66,26 +72,47 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
   Future<void> _geocodeAddress() async {
     if (_isGeocoding) return;
     
+    final address = _addressController.text.trim();
+    if (address.isEmpty) {
+      setState(() {
+        _propertyLocation = null;
+      });
+      return;
+    }
+    
     setState(() {
       _isGeocoding = true;
     });
 
     try {
-      final address = _addressController.text.trim();
-      if (address.isNotEmpty) {
-        final location = await _geocodingService.geocodeAddress(address);
+      print('Attempting to geocode: $address');
+      final location = await _geocodingService.geocodeAddress(address);
+      
+      if (mounted) {
+        setState(() {
+          _propertyLocation = location;
+        });
+        
         if (location != null) {
-          setState(() {
-            _propertyLocation = location;
-          });
+          print('Geocoding successful: ${location.latitude}, ${location.longitude}');
+        } else {
+          print('Geocoding failed: No location found');
         }
       }
     } catch (e) {
       print('Geocoding error: $e');
+      if (mounted) {
+        // Even if geocoding fails, show a fallback location
+        setState(() {
+          _propertyLocation = const LatLng(33.6844, 73.0479); // Islamabad fallback
+        });
+      }
     } finally {
-      setState(() {
-        _isGeocoding = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isGeocoding = false;
+        });
+      }
     }
   }
 
@@ -136,6 +163,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _fadeController.dispose();
     _slideController.dispose();
     _scaleController.dispose();
@@ -199,6 +227,18 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                 bottom: Radius.circular(20),
               ),
             ),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(4),
+              child: Container(
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppTheme.navyBlue,
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(20),
+                  ),
+                ),
+              ),
+            ),
           ),
           
           // Main Content
@@ -235,10 +275,10 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                         Container(
                           width: 24,
                           height: 24,
-                          decoration: const BoxDecoration(
-                                    color: AppTheme.tealAccent,
-                            shape: BoxShape.circle,
-                          ),
+                           decoration: const BoxDecoration(
+                                     color: Color(0xFF005289),
+                             shape: BoxShape.circle,
+                           ),
                           child: const Center(
                             child: Text(
                               '3',
@@ -257,7 +297,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                             fontFamily: 'Inter',
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.tealAccent,
+                            color: Color(0xFF005289),
                           ),
                         ),
                       ],
@@ -295,18 +335,18 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                 
                         const SizedBox(height: 20),
                 
-                        // Compact Form Card
+                        // Form Card
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                                color: const Color(0xFF1B5993).withValues(alpha: 0.08),
-                                blurRadius: 16,
-                                offset: const Offset(0, 4),
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
                       ),
                     ],
                   ),
@@ -389,14 +429,29 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                       
                       // Location Map
                       if (_addressController.text.trim().isNotEmpty) ...[
-                        Text(
-                          'Property Location',
-                          style: AppTheme.titleMedium.copyWith(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.textPrimary,
-                            letterSpacing: 0.3,
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              'Property Location',
+                              style: AppTheme.titleMedium.copyWith(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.textPrimary,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                            if (_isGeocoding) ...[
+                              const SizedBox(width: 8),
+                              const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.tealAccent),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                         const SizedBox(height: AppTheme.paddingSmall),
                         LocationMapWidget(
@@ -428,17 +483,17 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                               height: 48,
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                        borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                          color: AppTheme.navyBlue,
-                                          width: 2,
+                                  color: AppTheme.navyBlue,
+                                  width: 1,
                                 ),
                               ),
                               child: TextButton(
                                 onPressed: () => Navigator.pop(context),
                                 style: TextButton.styleFrom(
                                   shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
                                 child: Row(
@@ -446,14 +501,13 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                   children: [
                                     Icon(
                                       Icons.arrow_back_ios,
-                                              color: AppTheme.navyBlue,
+                                      color: AppTheme.navyBlue,
                                       size: 16,
                                     ),
-                                            const SizedBox(width: 6),
+                                    const SizedBox(width: 6),
                                     Text(
                                       'Back',
                                       style: TextStyle(
-                                        fontFamily: 'Inter',
                                                 fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                                 color: AppTheme.navyBlue,
@@ -473,14 +527,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                               height: 48,
                               decoration: BoxDecoration(
                                 color: AppTheme.navyBlue,
-                                        borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                            color: const Color(0xFF1B5993).withValues(alpha: 0.3),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
+                                borderRadius: BorderRadius.circular(12),
                               ),
                               child: TextButton(
                                 onPressed: _handleContinue,
@@ -623,67 +670,48 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
       children: [
         Text(
           label,
-          style: AppTheme.titleMedium.copyWith(
-            fontSize: 16,
+          style: TextStyle(
+            fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppTheme.textPrimary,
-            letterSpacing: 0.3,
+            color: const Color(0xFF005289),
+            letterSpacing: 0.2,
           ),
         ),
-        const SizedBox(height: AppTheme.paddingSmall),
+        const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.borderGrey.withOpacity(0.8),
-              width: 2,
+              color: Colors.grey.withValues(alpha: 0.3),
+              width: 1,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.primaryBlue.withOpacity(0.1),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
           ),
           child: TextField(
             controller: controller,
             keyboardType: keyboardType,
             maxLines: maxLines,
-            style: const TextStyle(
-              fontFamily: AppTheme.primaryFont,
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: AppTheme.textPrimary,
-              letterSpacing: 0.2,
+              color: Colors.grey[800],
             ),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: const TextStyle(
-                fontFamily: AppTheme.primaryFont,
+              hintStyle: TextStyle(
                 fontSize: 16,
-                color: AppTheme.textLight,
+                color: Colors.grey[400],
                 fontWeight: FontWeight.w400,
-                letterSpacing: 0.1,
               ),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 20,
+                horizontal: 16,
+                vertical: 16,
               ),
-              prefixIcon: Container(
-                margin: const EdgeInsets.only(left: 8, right: 12),
-                child: Icon(
-                  icon,
-                  color: AppTheme.tealAccent,
-                  size: 22,
-                ),
+              prefixIcon: Icon(
+                icon,
+                color: const Color(0xFF005289),
+                size: 20,
               ),
             ),
           ),
@@ -704,29 +732,22 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
       children: [
         Text(
           label,
-          style: AppTheme.titleMedium.copyWith(
-            fontSize: 16,
+          style: TextStyle(
+            fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppTheme.textPrimary,
-            letterSpacing: 0.3,
+            color: const Color(0xFF005289),
+            letterSpacing: 0.2,
           ),
         ),
-        const SizedBox(height: AppTheme.paddingSmall),
+        const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.borderGrey.withOpacity(0.3),
+              color: Colors.grey.withValues(alpha: 0.3),
               width: 1,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
           ),
           child: DropdownButtonFormField<String>(
             value: value,
@@ -734,16 +755,13 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
             decoration: InputDecoration(
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 20,
+                horizontal: 16,
+                vertical: 16,
               ),
-              prefixIcon: Container(
-                margin: const EdgeInsets.only(left: 8, right: 12),
-                child: Icon(
-                  icon,
-                  color: AppTheme.tealAccent,
-                  size: 22,
-                ),
+              prefixIcon: Icon(
+                icon,
+                color: const Color(0xFF005289),
+                size: 20,
               ),
             ),
             items: items.map((String item) {
@@ -751,12 +769,10 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                 value: item,
                 child: Text(
                   item,
-                  style: const TextStyle(
-                    fontFamily: AppTheme.primaryFont,
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: AppTheme.textPrimary,
-                    letterSpacing: 0.2,
+                    color: Colors.grey[800],
                   ),
                 ),
               );
