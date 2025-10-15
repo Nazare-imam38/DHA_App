@@ -94,7 +94,7 @@ class PlotsService {
         queryParams['sector'] = sector;
       }
       if (size != null && size.isNotEmpty) {
-        queryParams['size'] = size;
+        queryParams['cat_area'] = size;
       }
       if (minPrice != null) {
         queryParams['min_price'] = minPrice.toString();

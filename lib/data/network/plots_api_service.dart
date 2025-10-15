@@ -238,7 +238,7 @@ class PlotsApiService {
       if (sector != null) queryParams['sector'] = sector;
       if (status != null) queryParams['status'] = status;
       if (category != null) queryParams['category'] = category;
-      if (size != null) queryParams['size'] = size;
+      if (size != null) queryParams['cat_area'] = size;
 
       // Use the new endpoint if we have price filters, otherwise use the regular endpoint
       final String endpoint = (minPrice != null || maxPrice != null) 

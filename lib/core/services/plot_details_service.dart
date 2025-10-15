@@ -47,7 +47,7 @@ class PlotDetailsService {
         'phase': plot.phase,
         'sector': plot.sector,
         'street': plot.streetNo,
-        'size': plot.size,
+        'size': plot.catArea,
         'dimension': plot.dimension,
         'status': plot.status,
         'category': plot.category,

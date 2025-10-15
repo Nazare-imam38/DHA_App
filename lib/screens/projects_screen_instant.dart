@@ -3908,7 +3908,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                         Expanded(
                           child: _buildDetailChipWithIcon(
                             Icons.straighten,
-                            plot.size,
+                            plot.catArea,
                             backgroundColor: Colors.orange[50],
                             iconColor: Colors.orange[600],
                             textColor: Colors.orange[700],

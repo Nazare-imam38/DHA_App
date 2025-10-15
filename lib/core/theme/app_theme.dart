@@ -4,6 +4,7 @@ class AppTheme {
   // Primary Colors
   static const Color primaryBlue = Color(0xFF1B5993);
   static const Color tealAccent = Color(0xFF20B2AA);
+  static const Color navyBlue = Color(0xFF1E3C90);
   static const Color backgroundGrey = Color(0xFFF8F9FA);
   static const Color cardWhite = Colors.white;
   

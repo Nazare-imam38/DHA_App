@@ -149,7 +149,7 @@ class _PlotDetailScreenState extends State<PlotDetailScreen>
                           const SizedBox(height: 16),
                           
                           // Plot specifications
-                          _buildSpecRow('Size', widget.plot.size, Icons.straighten),
+                          _buildSpecRow('Size', widget.plot.catArea, Icons.straighten),
                           _buildSpecRow('Category', widget.plot.category, Icons.category),
                           _buildSpecRow('Area', widget.plot.catArea, Icons.area_chart),
                           _buildSpecRow('Phase', widget.plot.phase, Icons.location_city),
@@ -433,7 +433,7 @@ class _PlotDetailScreenState extends State<PlotDetailScreen>
           const SizedBox(height: 16),
           
           _buildInfoRow('Plot Number', widget.plot.plotNo),
-          _buildInfoRow('Size', widget.plot.size),
+          _buildInfoRow('Size', widget.plot.catArea),
           _buildInfoRow('Category', widget.plot.category),
           _buildInfoRow('Phase', widget.plot.phase),
           _buildInfoRow('Sector', 'Sector ${widget.plot.sector}'),

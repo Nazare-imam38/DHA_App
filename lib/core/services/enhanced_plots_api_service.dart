@@ -31,7 +31,7 @@ class EnhancedPlotsApiService {
       String apiPhase = _convertPhaseToApiFormat(phase);
       queryParams['phase'] = apiPhase;
     }
-    if (size != null) queryParams['size'] = size;
+    if (size != null) queryParams['cat_area'] = size;
     if (status != null) queryParams['status'] = status;
     if (sector != null) queryParams['sector'] = sector;
     
@@ -237,7 +237,7 @@ class EnhancedPlotsApiService {
         String apiPhase = _convertPhaseToApiFormat(phase);
         queryParams['phase'] = apiPhase;
       }
-      if (size != null) queryParams['size'] = size;
+      if (size != null) queryParams['cat_area'] = size;
       if (status != null) queryParams['status'] = status;
       if (sector != null) queryParams['sector'] = sector;
       

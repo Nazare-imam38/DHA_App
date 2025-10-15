@@ -20,7 +20,6 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
 
   final TextEditingController _msNumberController = TextEditingController();
   bool _isVerifying = false;
-  bool _isQuickActionsExpanded = false;
 
   @override
   void initState() {
@@ -78,37 +77,34 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
               leading: IconButton(
                 icon: const Icon(
                   Icons.arrow_back_ios_new,
-            color: Color(0xFF20B2AA), // Teal color
+            color: Color(0xFF1B5993), // Navy blue color
             size: 16, // Smaller size
                 ),
                 onPressed: () => Navigator.pop(context),
               ),
-        title: Container(
-          width: double.infinity,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(AppTheme.paddingSmall),
-                decoration: BoxDecoration(
-                  color: Color(0xFF20B2AA),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                ),
-                child: const Icon(
-                  Icons.verified_user_rounded,
-                  color: Colors.white,
-                  size: 20,
-                ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(AppTheme.paddingSmall),
+              decoration: BoxDecoration(
+                color: Color(0xFF1B5993), // Navy blue color
+                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
               ),
-              const SizedBox(width: AppTheme.paddingMedium),
-              Text(
-                'MS VERIFICATION',
-                style: AppTheme.titleLarge,
+              child: const Icon(
+                Icons.verified_user_rounded,
+                color: Colors.white,
+                size: 20,
               ),
-            ],
-          ),
+            ),
+            const SizedBox(width: AppTheme.paddingMedium),
+            Text(
+              'MS VERIFICATION',
+              style: AppTheme.titleLarge,
+            ),
+          ],
         ),
-        centerTitle: false,
+        centerTitle: true,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             bottom: Radius.circular(AppTheme.radiusXLarge),
@@ -290,7 +286,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                           color: Colors.white,
                                           borderRadius: BorderRadius.circular(12),
                                           border: Border.all(
-                                            color: const Color(0xFF20B2AA),
+                                            color: const Color(0xFF1B5993), // Navy blue border
                                             width: 2,
                                           ),
                                         ),
@@ -306,7 +302,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                             children: [
                                               Icon(
                                                 Icons.arrow_back_ios,
-                                                color: const Color(0xFF20B2AA),
+                                                color: const Color(0xFF1B5993), // Navy blue color
                                                 size: 16,
                                               ),
                                               const SizedBox(width: 4),
@@ -316,7 +312,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                                   fontFamily: 'Inter',
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w600,
-                                                  color: const Color(0xFF20B2AA),
+                                                  color: const Color(0xFF1B5993), // Navy blue color
                                                 ),
                                               ),
                                             ],
@@ -332,10 +328,10 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                       child: Container(
                                         height: 48,
                                         decoration: BoxDecoration(
-                                          color: Colors.white,
+                                          color: const Color(0xFF1B5993), // Navy blue background
                                           borderRadius: BorderRadius.circular(12),
                                           border: Border.all(
-                                            color: const Color(0xFF20B2AA),
+                                            color: const Color(0xFF1B5993), // Navy blue border
                                             width: 2,
                                           ),
                                         ),
@@ -360,7 +356,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                                   children: [
                                                     const Icon(
                                                       Icons.verified_user,
-                                                      color: Color(0xFF20B2AA),
+                                                      color: Colors.white, // White color
                                                       size: 18,
                                                     ),
                                                     const SizedBox(width: 8),
@@ -370,7 +366,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                                         fontFamily: 'Inter',
                                                         fontSize: 16,
                                                         fontWeight: FontWeight.w700,
-                                                        color: Color(0xFF20B2AA),
+                                                        color: Colors.white, // White color
                                                       ),
                                                     ),
                                                   ],
@@ -453,178 +449,13 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                           
                           const SizedBox(height: 24),
                           
-            // Quick Actions Section
-            SlideTransition(
-              position: _slideAnimation,
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: const Color(0xFFE0E0E0),
-                      width: 1,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                            children: [
-                      // Header with expand/collapse
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                            _isQuickActionsExpanded = !_isQuickActionsExpanded;
-                                  });
-                                },
-                                child: Container(
-                          padding: const EdgeInsets.all(20),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                  color: const Color(0xFF20B2AA),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: const Icon(
-                                  Icons.lightbulb_outline,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              const Expanded(
-                                child: Text(
-                                        'Quick Actions & Support',
-                            style: TextStyle(
-                                    fontFamily: 'Inter',
-                                          fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                                    color: Color(0xFF20B2AA),
-                                  ),
-                                        ),
-                                      ),
-                                      AnimatedRotation(
-                                turns: _isQuickActionsExpanded ? 0.5 : 0.0,
-                                        duration: const Duration(milliseconds: 300),
-                                        child: const Icon(
-                                  Icons.keyboard_arrow_down,
-                                  color: Color(0xFF20B2AA),
-                                          size: 24,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                      // Expandable content
-                      if (_isQuickActionsExpanded) ...[
-                        const Divider(color: Colors.grey),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                                  child: Column(
-                                    children: [
-                              const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildQuickActionButton(
-                                  icon: Icons.phone_in_talk_rounded,
-                                  title: 'Call Support',
-                                  onTap: () => _callSupport(),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _buildQuickActionButton(
-                                  icon: Icons.email_rounded,
-                                  title: 'Email Support',
-                                  onTap: () => _emailSupport(),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildQuickActionButton(
-                                              icon: Icons.help_outline_rounded,
-                                  title: 'FAQ',
-                                  onTap: () => _showFAQ(),
-                                ),
-                              ),
-                                  const SizedBox(width: 12),
-                                          Expanded(
-                                            child: _buildQuickActionButton(
-                                              icon: Icons.credit_card_rounded,
-                                              title: 'Find MS Number',
-                                              onTap: () => _showMSNumberHelp(),
-                                            ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                                ),
-                              ),
-                            ],
-                        ],
-                  ),
-                ),
-              ),
-            ),
+            // Quick Actions Section - REMOVED COMPLETELY
           ],
         ),
       ),
     );
   }
 
-  Widget _buildQuickActionButton({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(AppTheme.paddingMedium),
-        decoration: BoxDecoration(
-          color: AppTheme.backgroundGrey,
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          border: Border.all(
-            color: AppTheme.borderGrey,
-            width: 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-                icon,
-              color: AppTheme.primaryBlue,
-                size: 20,
-              ),
-            const SizedBox(height: AppTheme.paddingSmall),
-            Text(
-              title,
-              style: AppTheme.bodySmall.copyWith(
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF20B2AA),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   void _verifyMSNumber() async {
     if (_msNumberController.text.trim().isEmpty) {
@@ -702,7 +533,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
               ),
             ],
           ),
-              backgroundColor: const Color(0xFF20B2AA),
+              backgroundColor: const Color(0xFF1B5993), // Navy blue background
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -758,125 +589,4 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
     }
   }
 
-  void _callSupport() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text(
-          'Call DHA Support',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF1B5993),
-          ),
-        ),
-        content: const Text(
-          'Contact DHA Support Team:\n\n📞 Main Line: +92-21-111-342-111\n📞 MS Verification: +92-21-111-342-222\n📞 Property Listing: +92-21-111-342-333\n\nAvailable 24/7 for your convenience.',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            height: 1.5,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _emailSupport() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text(
-          'Email Support',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF1B5993),
-          ),
-        ),
-        content: const Text(
-          'Send your query to DHA Support:\n\n📧 General: support@dha.gov.pk\n📧 MS Issues: ms-verification@dha.gov.pk\n📧 Property Listing: property@dha.gov.pk\n\nWe respond within 2-4 hours during business hours.',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            height: 1.5,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Got it'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showFAQ() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text(
-          'Frequently Asked Questions',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF1B5993),
-          ),
-        ),
-        content: SingleChildScrollView(
-          child: const Text(
-            'Common MS Verification Questions:\n\nQ: Where can I find my MS number?\nA: Check your DHA membership card or property documents.\n\nQ: What if I don\'t have an MS number?\nA: Contact DHA support to verify your membership status.\n\nQ: How long does verification take?\nA: Usually 2-5 minutes for valid MS numbers.\n\nQ: What if verification fails?\nA: Double-check your MS number or contact support.\n\nQ: Can I use someone else\'s MS number?\nA: No, you must use your own valid MS number.',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            height: 1.5,
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showMSNumberHelp() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text(
-          'Finding Your MS Number',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF1B5993),
-          ),
-        ),
-        content: const Text(
-          'Where to find your MS number:\n\n• DHA Membership Card (front side)\n• Property Ownership Documents\n• DHA Portal Account\n• Previous DHA correspondence\n• Contact DHA office if lost\n\nMS number format: Usually 6-8 digits',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            height: 1.5,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Got it'),
-          ),
-        ],
-      ),
-    );
-  }
 }

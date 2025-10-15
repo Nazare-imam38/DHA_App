@@ -21,7 +21,6 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
 
   // Form controllers
   final TextEditingController _propertyTitleController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _sizeController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
@@ -91,7 +90,6 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     _slideController.dispose();
     _scaleController.dispose();
     _propertyTitleController.dispose();
-    _descriptionController.dispose();
     _priceController.dispose();
     _sizeController.dispose();
     _addressController.dispose();
@@ -115,7 +113,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new,
-                color: Color(0xFF20B2AA), // Teal color
+                color: AppTheme.navyBlue, // Navy blue color
                 size: 16, // Smaller size
           ),
           onPressed: () => Navigator.pop(context),
@@ -127,7 +125,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
             Container(
                     padding: const EdgeInsets.all(AppTheme.paddingSmall),
               decoration: BoxDecoration(
-                      color: Color(0xFF20B2AA),
+                      color: AppTheme.navyBlue,
                       borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
               ),
               child: const Icon(
@@ -177,7 +175,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                       color: const Color(0xFFE8F4FD),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                                color: const Color(0xFF20B2AA).withValues(alpha: 0.3),
+                                color: AppTheme.tealAccent.withValues(alpha: 0.3),
                                 width: 1,
                       ),
                     ),
@@ -188,7 +186,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                           width: 24,
                           height: 24,
                           decoration: const BoxDecoration(
-                                    color: Color(0xFF20B2AA),
+                                    color: AppTheme.tealAccent,
                             shape: BoxShape.circle,
                           ),
                           child: const Center(
@@ -209,7 +207,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                             fontFamily: 'Inter',
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF20B2AA),
+                            color: AppTheme.tealAccent,
                           ),
                         ),
                       ],
@@ -226,7 +224,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                             fontFamily: 'Inter',
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
-                    color: Color(0xFF20B2AA),
+                    color: AppTheme.navyBlue,
                             letterSpacing: -0.5,
                   ),
                 ),
@@ -339,17 +337,6 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                       
                               const SizedBox(height: 16),
                       
-                      // Description
-                              _buildModernFormField(
-                        controller: _descriptionController,
-                        label: 'Description',
-                        hint: 'Describe your property in detail',
-                        icon: Icons.description,
-                        maxLines: 4,
-                      ),
-                      
-                      const SizedBox(height: 16),
-                      
                       // Contact Information
                               _buildModernFormField(
                         controller: _contactController,
@@ -372,7 +359,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                 color: Colors.white,
                                         borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                          color: const Color(0xFF20B2AA),
+                                          color: AppTheme.navyBlue,
                                           width: 2,
                                 ),
                               ),
@@ -388,7 +375,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                   children: [
                                     Icon(
                                       Icons.arrow_back_ios,
-                                              color: const Color(0xFF20B2AA),
+                                              color: AppTheme.navyBlue,
                                       size: 16,
                                     ),
                                             const SizedBox(width: 6),
@@ -398,7 +385,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                         fontFamily: 'Inter',
                                                 fontSize: 14,
                                         fontWeight: FontWeight.w600,
-                                                color: const Color(0xFF20B2AA),
+                                                color: AppTheme.navyBlue,
                                       ),
                                     ),
                                   ],
@@ -414,7 +401,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                             child: Container(
                               height: 48,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF20B2AA),
+                                color: AppTheme.navyBlue,
                                         borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
@@ -565,17 +552,34 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
       children: [
         Text(
           label,
-          style: AppTheme.titleMedium,
+          style: AppTheme.titleMedium.copyWith(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.textPrimary,
+            letterSpacing: 0.3,
+          ),
         ),
         const SizedBox(height: AppTheme.paddingSmall),
         Container(
           decoration: BoxDecoration(
-            color: AppTheme.inputBackground,
-            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: AppTheme.borderGrey,
-              width: 1,
+              color: AppTheme.borderGrey.withOpacity(0.8),
+              width: 2,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.primaryBlue.withOpacity(0.1),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: TextField(
             controller: controller,
@@ -583,33 +587,31 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
             maxLines: maxLines,
             style: const TextStyle(
               fontFamily: AppTheme.primaryFont,
-              fontSize: 14,
+              fontSize: 16,
               fontWeight: FontWeight.w500,
               color: AppTheme.textPrimary,
+              letterSpacing: 0.2,
             ),
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: const TextStyle(
                 fontFamily: AppTheme.primaryFont,
-                fontSize: 14,
+                fontSize: 16,
                 color: AppTheme.textLight,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 0.1,
               ),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: AppTheme.paddingMedium,
-                vertical: AppTheme.paddingMedium,
+                horizontal: 24,
+                vertical: 20,
               ),
               prefixIcon: Container(
-                margin: const EdgeInsets.all(6),
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryBlue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(6),
-                ),
+                margin: const EdgeInsets.only(left: 8, right: 12),
                 child: Icon(
-                icon,
-                color: Color(0xFF20B2AA),
-                  size: 16,
+                  icon,
+                  color: AppTheme.tealAccent,
+                  size: 22,
                 ),
               ),
             ),
@@ -631,17 +633,29 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
       children: [
         Text(
           label,
-          style: AppTheme.titleMedium,
+          style: AppTheme.titleMedium.copyWith(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.textPrimary,
+            letterSpacing: 0.3,
+          ),
         ),
         const SizedBox(height: AppTheme.paddingSmall),
         Container(
           decoration: BoxDecoration(
-            color: AppTheme.inputBackground,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
             border: Border.all(
-              color: AppTheme.borderGrey,
+              color: AppTheme.borderGrey.withOpacity(0.3),
               width: 1,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: DropdownButtonFormField<String>(
             value: value,
@@ -649,20 +663,15 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
             decoration: InputDecoration(
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: AppTheme.paddingMedium,
-                vertical: AppTheme.paddingMedium,
+                horizontal: 24,
+                vertical: 20,
               ),
               prefixIcon: Container(
-                margin: const EdgeInsets.all(6),
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryBlue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(6),
-                ),
+                margin: const EdgeInsets.only(left: 8, right: 12),
                 child: Icon(
-                icon,
-                color: Color(0xFF20B2AA),
-                  size: 16,
+                  icon,
+                  color: AppTheme.tealAccent,
+                  size: 22,
                 ),
               ),
             ),
@@ -673,9 +682,10 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                   item,
                   style: const TextStyle(
                     fontFamily: AppTheme.primaryFont,
-                    fontSize: 14,
+                    fontSize: 16,
                     fontWeight: FontWeight.w500,
                     color: AppTheme.textPrimary,
+                    letterSpacing: 0.2,
                   ),
                 ),
               );
@@ -692,7 +702,6 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
         _priceController.text.trim().isEmpty ||
         _sizeController.text.trim().isEmpty ||
         _addressController.text.trim().isEmpty ||
-        _descriptionController.text.trim().isEmpty ||
         _contactController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

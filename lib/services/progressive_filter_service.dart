@@ -222,7 +222,7 @@ class ProgressiveFilterService {
   }) async {
     print('ProgressiveFilterService: Filtering by size $size with phase $phase, category $category and price $priceFrom - $priceTo');
     
-    final url = '$baseUrl/filter-plots-range?price_from=${priceFrom.toInt()}&price_to=${priceTo.toInt()}&phase=$phase&category=$category&size=$size';
+    final url = '$baseUrl/filter-plots-range?price_from=${priceFrom.toInt()}&price_to=${priceTo.toInt()}&phase=$phase&category=$category&cat_area=$size';
     
     for (int attempt = 1; attempt <= _maxRetries; attempt++) {
       try {
@@ -318,7 +318,7 @@ class ProgressiveFilterService {
       );
       
       // Extract unique sizes from the plots
-      final sizes = result.plots.map((plot) => plot.size).toSet().toList();
+      final sizes = result.plots.map((plot) => plot.catArea).toSet().toList();
       
       print('ProgressiveFilterService: Available sizes for $phase, $category in price $priceFrom-$priceTo: $sizes');
       return sizes;

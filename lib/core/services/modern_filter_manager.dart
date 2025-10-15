@@ -551,7 +551,7 @@ class ModernFilterManager {
       }
       
       // Size filter
-      if (_size != null && plot.size.toLowerCase() != _size!.toLowerCase()) {
+      if (_size != null && plot.catArea.toLowerCase() != _size!.toLowerCase()) {
         return false;
       }
       

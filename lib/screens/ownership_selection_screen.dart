@@ -12,7 +12,6 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
     with TickerProviderStateMixin {
   String? _selectedOption;
   bool _isLoading = false;
-  bool _isQuickActionsExpanded = false;
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
@@ -73,7 +72,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
               leading: IconButton(
                   icon: const Icon(
                     Icons.arrow_back_ios_new,
-            color: Color(0xFF20B2AA), // Teal color
+            color: Color(0xFF1B5993), // Navy blue color
             size: 16, // Smaller size
                   ),
                   onPressed: () => Navigator.pop(context),
@@ -83,7 +82,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                color: const Color(0xFF20B2AA),
+                color: const Color(0xFF1B5993), // Navy blue color
                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Icon(
@@ -99,7 +98,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                 fontFamily: 'Inter',
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
-                color: Color(0xFF20B2AA),
+                color: Color(0xFF1B5993), // Navy blue color
                 letterSpacing: 0.5,
                               ),
                             ),
@@ -185,7 +184,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                         fontFamily: 'Inter',
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
-                                color: Color(0xFF20B2AA),
+                                color: Color(0xFF1B5993), // Navy blue color
                         height: 1.2,
                               ),
                             ),
@@ -324,134 +323,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
             
             const SizedBox(height: 20),
             
-            // Quick Actions Section
-                    SlideTransition(
-                      position: _slideAnimation,
-                      child: FadeTransition(
-                        opacity: _fadeAnimation,
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: const Color(0xFFE0E0E0),
-                      width: 1,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                        child: Column(
-                          children: [
-                      // Header with expand/collapse
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                            _isQuickActionsExpanded = !_isQuickActionsExpanded;
-                                });
-                              },
-                        child: Container(
-                          padding: const EdgeInsets.all(20),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                                  color: const Color(0xFF20B2AA),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: const Icon(
-                                  Icons.lightbulb_outline,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              const Expanded(
-                                child: Text(
-                                      'Quick Actions & Resources',
-                                            style: TextStyle(
-                                    fontFamily: 'Inter',
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w700,
-                                    color: Color(0xFF20B2AA),
-                                  ),
-                                      ),
-                                    ),
-                                    AnimatedRotation(
-                                turns: _isQuickActionsExpanded ? 0.5 : 0.0,
-                                      duration: const Duration(milliseconds: 300),
-                                            child: const Icon(
-                                  Icons.keyboard_arrow_down,
-                                  color: Color(0xFF20B2AA),
-                                        size: 24,
-                                            ),
-                                          ),
-                                        ],
-                        ),
-                      ),
-                    ),
-                      // Expandable content
-                      if (_isQuickActionsExpanded) ...[
-                        const Divider(color: Colors.grey),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                        child: Column(
-                          children: [
-                              const SizedBox(height: 16),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _buildQuickActionButton(
-                                    icon: Icons.info_outline_rounded,
-                                    title: 'Property Info',
-                                    onTap: () => _showPropertyInfo(),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: _buildQuickActionButton(
-                                    icon: Icons.help_outline_rounded,
-                                    title: 'Get Help',
-                                    onTap: () => _showHelpDialog(),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _buildQuickActionButton(
-                                    icon: Icons.document_scanner_rounded,
-                                    title: 'Documents',
-                                    onTap: () => _showDocumentsInfo(),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: _buildQuickActionButton(
-                                    icon: Icons.schedule_rounded,
-                                    title: 'Timeline',
-                                    onTap: () => _showTimelineInfo(),
-                                  ),
-                                ),
-                              ],
-                              ),
-                            ],
-                                          ),
-                                        ),
-                                      ],
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            // Quick Actions Section - REMOVED COMPLETELY
           ],
         ),
       ),
@@ -471,10 +343,10 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF20B2AA) : Colors.white,
+            color: Colors.white, // Always white background
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? const Color(0xFF20B2AA) : const Color(0xFFE0E0E0),
+            color: isSelected ? const Color(0xFF20B2AA) : const Color(0xFFE0E0E0), // Teal border when selected
             width: 2,
           ),
           boxShadow: [
@@ -494,14 +366,12 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                  color: isSelected 
-                    ? Colors.white.withValues(alpha: 0.2)
-                    : const Color(0xFF20B2AA).withValues(alpha: 0.1),
+                  color: isSelected ? const Color(0xFF20B2AA).withValues(alpha: 0.1) : const Color(0xFF1B5993).withValues(alpha: 0.1), // Teal background when selected, navy blue when not
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 icon,
-                color: isSelected ? Colors.white : const Color(0xFF20B2AA),
+                color: isSelected ? const Color(0xFF20B2AA) : const Color(0xFF1B5993), // Teal when selected, navy blue when not
                 size: 28,
               ),
             ),
@@ -519,7 +389,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                       fontFamily: 'Inter',
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: isSelected ? Colors.white : const Color(0xFF20B2AA),
+                      color: isSelected ? const Color(0xFF20B2AA) : const Color(0xFF1B5993), // Teal when selected, navy blue when not
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -529,9 +399,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                       fontFamily: 'Inter',
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: isSelected 
-                          ? Colors.white.withValues(alpha: 0.9)
-                          : const Color(0xFF616161),
+                      color: const Color(0xFF616161), // Gray for both selected and unselected
                       height: 1.3,
                     ),
                   ),
@@ -565,46 +433,6 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
     );
   }
 
-  Widget _buildQuickActionButton({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.grey[50],
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Colors.grey[200]!,
-            width: 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-                icon,
-                            color: const Color(0xFF20B2AA),
-                size: 20,
-              ),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: const TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF20B2AA),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   void _selectOption(String option) {
     setState(() {
@@ -612,125 +440,6 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
     });
   }
 
-  void _showPropertyInfo() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text(
-          'Property Information',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w700,
-                color: Color(0xFF20B2AA),
-          ),
-        ),
-        content: const Text(
-          'To list a property on DHA Marketplace, you need to:\n\n• Be the legal owner or have written authorization\n• Have valid property documents\n• Complete MS number verification\n• Provide accurate property details',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            height: 1.5,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Got it'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showHelpDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text(
-          'Need Help?',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w700,
-                color: Color(0xFF20B2AA),
-          ),
-        ),
-        content: const Text(
-          'Contact DHA Support:\n\n📞 Phone: +92-21-111-342-111\n📧 Email: support@dha.gov.pk\n🌐 Website: www.dha.gov.pk\n\nOur support team is available 24/7 to assist you.',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            height: 1.5,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDocumentsInfo() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text(
-          'Required Documents',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w700,
-                color: Color(0xFF20B2AA),
-          ),
-        ),
-        content: const Text(
-          'You will need the following documents:\n\n• DHA Membership Card\n• Property Ownership Documents\n• CNIC/NICOP\n• Property Photos\n• NOC (if applicable)\n• Any other relevant documents',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            height: 1.5,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Understood'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showTimelineInfo() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text(
-          'Process Timeline',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w700,
-                color: Color(0xFF20B2AA),
-          ),
-        ),
-        content: const Text(
-          'Expected timeline for property listing:\n\n• Ownership Selection: 1-2 minutes\n• MS Verification: 2-5 minutes\n• Property Details: 10-15 minutes\n• Review & Submit: 5-10 minutes\n\nTotal: 20-30 minutes',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            height: 1.5,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Got it'),
-          ),
-        ],
-      ),
-    );
-  }
 
   Future<void> _handleContinue() async {
     if (_selectedOption == null) return;

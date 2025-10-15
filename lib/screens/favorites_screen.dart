@@ -193,48 +193,40 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                           });
                         },
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
+                            color: isSelected ? const Color(0xFF1B5993) : Colors.white,
+                            borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: const Color(0xFFE0E0E0),
+                              color: isSelected ? const Color(0xFF1B5993) : const Color(0xFF1B5993).withOpacity(0.3),
                               width: 1,
                             ),
-                            boxShadow: [
+                            boxShadow: isSelected ? [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.05),
+                                color: const Color(0xFF1B5993).withOpacity(0.3),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
-                            ],
+                            ] : null,
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               if (isSelected)
-                                Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF1B5993),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: const Icon(
-                                    Icons.check,
-                                    color: Colors.white,
-                                    size: 12,
-                                  ),
+                                const Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 16,
                                 ),
-                              if (isSelected) const SizedBox(width: 8),
+                              if (isSelected) const SizedBox(width: 4),
                               Text(
-                                filter,
-                                style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: isSelected ? const Color(0xFF1B5993) : Colors.grey[600],
-                                ),
-                              ),
+                          filter,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                                  fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: isSelected ? Colors.white : const Color(0xFF1B5993),
+                          ),
                         ),
                             ],
                           ),

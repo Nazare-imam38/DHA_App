@@ -266,7 +266,6 @@ class ModernFiltersPanelState extends State<ModernFiltersPanel>
                 maxHeight: MediaQuery.of(context).size.height * 0.9,
                 minHeight: 200,
               ),
-              clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: const BorderRadius.only(
@@ -294,12 +293,8 @@ class ModernFiltersPanelState extends State<ModernFiltersPanel>
                       child: ClipRect(
                         child: SingleChildScrollView(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxHeight: MediaQuery.of(context).size.height * 0.7, // Ensure content fits within panel
-                            ),
-                            child: Column(
-                            children: [
+                          child: Column(
+                          children: [
                             _buildFilterCard(
                               icon: Icons.currency_rupee, // Keep for fallback, but won't be used
                               iconColor: const Color(0xFF20B2AA),
@@ -421,11 +416,9 @@ class ModernFiltersPanelState extends State<ModernFiltersPanel>
                     ),
                   ),
                   ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+              ),
+            ),
+          ),
         );
       },
     ),
@@ -703,17 +696,8 @@ class ModernFiltersPanelState extends State<ModernFiltersPanel>
               duration: const Duration(milliseconds: 200),
               curve: Curves.easeInOut,
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.4, // Limit max height
-                ),
-                child: ClipRect(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: children,
-                    ),
-                  ),
-                ),
+              child: Column(
+                children: children,
               ),
             ),
         ],
