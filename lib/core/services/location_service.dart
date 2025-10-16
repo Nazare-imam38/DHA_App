@@ -4,9 +4,11 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocationService extends ChangeNotifier {
-  String _currentLocation = 'Lahore, Pakistan';
+  String _currentLocation = 'Islamabad, Pakistan';
   bool _isLoadingLocation = false;
+  bool _hasLocationPermission = false;
   static const String _locationKey = 'saved_location';
+  static const String _permissionKey = 'location_permission_granted';
 
   String get currentLocation => _currentLocation;
   bool get isLoadingLocation => _isLoadingLocation;
@@ -14,6 +16,22 @@ class LocationService extends ChangeNotifier {
   // Initialize location service
   Future<void> initializeLocation() async {
     await _loadSavedLocation();
+    await _checkLocationPermission();
+  }
+
+  // Check location permission status
+  Future<void> _checkLocationPermission() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _hasLocationPermission = prefs.getBool(_permissionKey) ?? false;
+      
+      // If we have permission, try to get current location
+      if (_hasLocationPermission) {
+        await getCurrentLocation();
+      }
+    } catch (e) {
+      print('Error checking location permission: $e');
+    }
   }
 
   // Load saved location from SharedPreferences
@@ -42,27 +60,52 @@ class LocationService extends ChangeNotifier {
 
   Future<void> requestLocationPermission() async {
     final status = await Permission.location.request();
+    _hasLocationPermission = status.isGranted;
+    
+    // Save permission status
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_permissionKey, _hasLocationPermission);
+    } catch (e) {
+      print('Error saving permission status: $e');
+    }
+    
     if (status.isGranted) {
       await getCurrentLocation();
+    } else {
+      // Keep default location (Islamabad) when permission denied
+      _currentLocation = 'Islamabad, Pakistan';
+      notifyListeners();
     }
   }
 
   Future<void> getCurrentLocation() async {
+    // Only get location if we have permission and haven't updated recently
+    if (!_hasLocationPermission) {
+      _currentLocation = 'Islamabad, Pakistan';
+      notifyListeners();
+      return;
+    }
+
     _isLoadingLocation = true;
     notifyListeners();
 
     try {
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 10), // Add timeout
       );
       
       // Get city name from coordinates (simplified)
       String cityName = await _getCityName(position.latitude, position.longitude);
       
-      _currentLocation = cityName;
-      await _saveLocation(cityName);
+      // Only update if location has changed significantly
+      if (cityName != _currentLocation) {
+        _currentLocation = cityName;
+        await _saveLocation(cityName);
+      }
     } catch (e) {
-      // Keep current location if failed
+      // Keep current location if failed, don't change to default
       print('Failed to get location: $e');
     } finally {
       _isLoadingLocation = false;
@@ -87,6 +130,20 @@ class LocationService extends ChangeNotifier {
   Future<void> updateLocation(String location) async {
     _currentLocation = location;
     await _saveLocation(location);
+    notifyListeners();
+  }
+
+  // Force location update (only when user explicitly requests)
+  Future<void> forceLocationUpdate() async {
+    if (_hasLocationPermission) {
+      await getCurrentLocation();
+    }
+  }
+
+  // Reset to default location
+  Future<void> resetToDefaultLocation() async {
+    _currentLocation = 'Islamabad, Pakistan';
+    await _saveLocation(_currentLocation);
     notifyListeners();
   }
 }

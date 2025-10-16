@@ -36,9 +36,11 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
 
   void _navigateToSearch() {
     Navigator.pop(context);
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const FiltersScreen()),
+      MaterialPageRoute(
+        builder: (context) => const MainWrapper(initialTabIndex: 3), // MY BOOKINGS tab
+      ),
     );
   }
 
@@ -53,17 +55,21 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
 
   void _navigateToProjects() {
     Navigator.pop(context);
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const ProjectsScreenInstant()),
+      MaterialPageRoute(
+        builder: (context) => const MainWrapper(initialTabIndex: 1), // Projects tab
+      ),
     );
   }
 
   void _navigateToBookings() {
     Navigator.pop(context);
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const FavoritesScreen()),
+      MaterialPageRoute(
+        builder: (context) => const MainWrapper(initialTabIndex: 3), // MY BOOKINGS tab
+      ),
     );
   }
 

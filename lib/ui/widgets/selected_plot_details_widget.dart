@@ -1182,9 +1182,9 @@ class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.green[50],
+                  color: const Color(0xFF2161B0).withOpacity(0.05),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.green[200]!),
+                  border: Border.all(color: const Color(0xFF2161B0).withOpacity(0.2)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1194,7 +1194,7 @@ class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.green[700],
+                        color: const Color(0xFF2161B0),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -1203,27 +1203,52 @@ class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
                     Row(
                       children: [
                         const Text('PSID/Challan:'),
-                        const Spacer(),
-                        Text(
-                          reservationData.psid,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
                         const SizedBox(width: 8),
-                        GestureDetector(
-                          onTap: () {
-                            Clipboard.setData(ClipboardData(text: reservationData.psid));
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('PSID copied: ${reservationData.psid}'),
-                                backgroundColor: Colors.green[600],
-                                duration: const Duration(seconds: 2),
-                              ),
-                            );
-                          },
-                          child: Icon(
-                            Icons.copy,
-                            size: 18,
-                            color: Colors.blue[600],
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF2161B0).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: const Color(0xFF2161B0).withOpacity(0.3)),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    reservationData.psid,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF2161B0),
+                                      fontSize: 12,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: () {
+                                    Clipboard.setData(ClipboardData(text: reservationData.psid));
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('PSID copied: ${reservationData.psid}'),
+                                        backgroundColor: const Color(0xFF2161B0),
+                                        duration: const Duration(seconds: 2),
+                                        behavior: SnackBarBehavior.floating,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Icon(
+                                    Icons.copy,
+                                    size: 16,
+                                    color: const Color(0xFF2161B0),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -1234,7 +1259,7 @@ class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
                       '(Go to your banking app/kuick pay and enter PSID)',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.green[600],
+                        color: const Color(0xFF2161B0).withOpacity(0.8),
                       ),
                     ),
                     
