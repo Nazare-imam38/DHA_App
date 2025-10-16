@@ -28,6 +28,7 @@ class PlotDetailsModal extends StatefulWidget {
 
 class _PlotDetailsModalState extends State<PlotDetailsModal> {
   String _selectedPaymentPlan = 'Lump Sum';
+  String _selectedPaymentMethod = 'KuickPay';
   PaymentSummary? _paymentSummary;
   bool _isLoadingPaymentSummary = false;
   final KuickPayService _kuickPayService = KuickPayService();
@@ -624,39 +625,20 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
         Row(
           children: [
             Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.blue[600],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  'KuickPay',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
+              child: _buildPaymentMethodButton(
+                'KuickPay',
+                Icons.account_balance_wallet,
+                _selectedPaymentMethod == 'KuickPay',
+                () => setState(() => _selectedPaymentMethod = 'KuickPay'),
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-                child: const Text(
-                  'Credit-Debit',
-                  style: TextStyle(
-                    color: Colors.black87,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
+              child: _buildPaymentMethodButton(
+                'Credit-Debit',
+                Icons.credit_card,
+                _selectedPaymentMethod == 'Credit-Debit',
+                () => setState(() => _selectedPaymentMethod = 'Credit-Debit'),
               ),
             ),
           ],
@@ -1492,5 +1474,57 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
       default:
         return Colors.grey;
     }
+  }
+
+  Widget _buildPaymentMethodButton(String title, IconData icon, bool isSelected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: BoxDecoration(
+          gradient: isSelected 
+              ? const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
+                )
+              : null,
+          color: isSelected ? null : Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF1B5993) : Colors.grey[300]!,
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: const Color(0xFF1B5993).withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ] : null,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? Colors.white : Colors.grey[600],
+              size: 18,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? Colors.white : Colors.black87,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

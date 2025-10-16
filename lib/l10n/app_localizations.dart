@@ -113,7 +113,7 @@ abstract class AppLocalizations {
   /// No description provided for @projects.
   ///
   /// In en, this message translates to:
-  /// **'PROJECTS'**
+  /// **'MARKETPLACE'**
   String get projects;
 
   /// No description provided for @search.
@@ -179,7 +179,7 @@ abstract class AppLocalizations {
   /// No description provided for @dhaProjectsMap.
   ///
   /// In en, this message translates to:
-  /// **'DHA PROJECTS MAP'**
+  /// **'DHA MARKETPLACE MAP'**
   String get dhaProjectsMap;
 
   /// No description provided for @searchProjects.
