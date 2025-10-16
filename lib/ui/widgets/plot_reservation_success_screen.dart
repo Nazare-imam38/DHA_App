@@ -116,7 +116,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'DHA PROJECTS',
+                                  'DHA MARKETPLACE',
                                   style: TextStyle(
                                     fontFamily: 'Poppins',
                                     fontSize: 18,

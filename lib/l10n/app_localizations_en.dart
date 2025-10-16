@@ -15,7 +15,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home => 'HOME';
 
   @override
-  String get projects => 'PROJECTS';
+  String get projects => 'MARKETPLACE';
 
   @override
   String get search => 'SEARCH';
@@ -48,7 +48,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get login => 'Login';
 
   @override
-  String get dhaProjectsMap => 'DHA PROJECTS MAP';
+  String get dhaProjectsMap => 'DHA MARKETPLACE MAP';
 
   @override
   String get searchProjects => 'Search projects...';
