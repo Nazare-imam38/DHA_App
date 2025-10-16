@@ -122,22 +122,6 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                 bottomRight: Radius.circular(20),
               ),
             ),
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
-              ),
-              child: Container(
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: Color(0xFF1B5993),
-                      width: 2.0,
-                    ),
-                  ),
-                ),
-              ),
-            ),
           ),
         ),
       ),

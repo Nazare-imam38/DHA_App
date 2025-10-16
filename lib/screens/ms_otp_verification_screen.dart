@@ -332,6 +332,19 @@ class _MSOtpVerificationScreenState extends State<MSOtpVerificationScreen>
             bottom: Radius.circular(AppTheme.radiusXLarge),
           ),
         ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(2.0),
+          child: Container(
+            height: 2.0,
+            decoration: const BoxDecoration(
+              color: Color(0xFF1B5993), // Navy blue border
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(AppTheme.radiusXLarge),
+                bottomRight: Radius.circular(AppTheme.radiusXLarge),
+              ),
+            ),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
               padding: const EdgeInsets.all(AppTheme.paddingLarge),
