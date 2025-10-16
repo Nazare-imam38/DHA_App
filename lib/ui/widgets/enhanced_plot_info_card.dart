@@ -108,7 +108,7 @@ class EnhancedPlotInfoCard extends StatelessWidget {
             spacing: 8,
             runSpacing: 4,
             children: [
-              _buildStatusChip('Residential', Colors.red),
+              _buildStatusChip(plot.category, _getCategoryColor(plot.category)),
               _buildStatusChip('Selected', Colors.blue),
               if (townPlanValidationStatus != null)
                 _buildStatusChip(
@@ -278,6 +278,19 @@ class EnhancedPlotInfoCard extends StatelessWidget {
       return '${(price / 1000).toStringAsFixed(0)}K';
     } else {
       return price.toStringAsFixed(0);
+    }
+  }
+
+  Color _getCategoryColor(String category) {
+    switch (category.toLowerCase()) {
+      case 'residential':
+        return Colors.green;
+      case 'commercial':
+        return Colors.orange;
+      case 'agricultural':
+        return Colors.brown;
+      default:
+        return Colors.grey;
     }
   }
 }

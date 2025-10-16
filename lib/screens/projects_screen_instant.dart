@@ -2651,6 +2651,26 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     }
   }
 
+  /// Check if there are any active filters
+  bool _hasActiveFilters() {
+    return _selectedFilter != 'All' ||
+           _selectedPhase != 'All Phases' ||
+           _selectedEvent != null ||
+           _selectedPlotType != null ||
+           _selectedDhaPhase != null ||
+           _selectedPlotSize != null ||
+           _selectedSector != null ||
+           _selectedStatus != null ||
+           _priceRange.start > 0 ||
+           _priceRange.end < 10000000 ||
+           _tokenAmountRange.start > 0 ||
+           _tokenAmountRange.end < 1000000 ||
+           _hasInstallmentPlans ||
+           _isAvailableOnly ||
+           _hasRemarks ||
+           _plotIdController.text.isNotEmpty;
+  }
+
   /// Clear plot selection
   void _clearPlotSelection() {
     setState(() {
@@ -2658,8 +2678,11 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       _selectedPlot = null;
       _showSelectedPlotDetails = false;
       _isLoadingPlotDetails = false;
-      // Also hide the bottom sheet when clearing selection
-      _isBottomSheetVisible = false;
+      // Only hide the bottom sheet if no filters are applied
+      // If filters are applied, keep the bottom sheet visible but switch to List View
+      if (!_hasActiveFilters()) {
+        _isBottomSheetVisible = false;
+      }
     });
     print('🗑️ Plot selection cleared');
   }
@@ -3507,6 +3530,11 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                             setState(() {
                               _isBottomSheetVisible = false;
                               _isBottomSheetExpanded = false;
+                              // Also clear plot selection when closing bottom sheet
+                              _selectedPlot = null;
+                              _selectedPlotDetails = null;
+                              _showSelectedPlotDetails = false;
+                              _isLoadingPlotDetails = false;
                             });
                           },
                           child: Container(
@@ -4074,8 +4102,13 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 _selectedPlotDetails = null;
                 _showProjectDetails = false;
                 _showSelectedPlotDetails = false;
-                // Collapse bottom sheet when plot is deselected
-              _safeAnimateBottomSheet(0.1);
+                // Only hide bottom sheet if no filters are applied
+                if (!_hasActiveFilters()) {
+                  _isBottomSheetVisible = false;
+                } else {
+                  // Collapse bottom sheet when plot is deselected but filters are active
+                  _safeAnimateBottomSheet(0.1);
+                }
               });
             },
           ),

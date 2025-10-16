@@ -59,7 +59,7 @@ class PlotDetailsPopup extends StatelessWidget {
           // Plot Type Selection
           Row(
             children: [
-              _buildTypeButton('Residential', true),
+              _buildTypeButton(plotDetails.category, true),
               const SizedBox(width: 8),
               _buildTypeButton('Selected', false),
             ],

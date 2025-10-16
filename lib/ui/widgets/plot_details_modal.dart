@@ -211,7 +211,7 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
                 ),
               ),
               const Spacer(),
-              _buildStatusChip('Residential', Colors.green),
+              _buildStatusChip(widget.plot.category, _getCategoryColor(widget.plot.category)),
               const SizedBox(width: 8),
               _buildStatusChip('Unsold', Colors.green),
             ],
@@ -938,6 +938,7 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
+        backgroundColor: Colors.white,
         child: Container(
           constraints: const BoxConstraints(maxWidth: 400),
           padding: const EdgeInsets.all(24),
@@ -948,15 +949,15 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.orange[50],
+                  color: const Color(0xFF2161B0).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.orange[200]!),
+                  border: Border.all(color: const Color(0xFF2161B0).withOpacity(0.3)),
                 ),
                 child: Row(
                   children: [
                     Icon(
-                      Icons.login,
-                      color: Colors.orange[600],
+                      Icons.arrow_back,
+                      color: const Color(0xFF2161B0),
                       size: 24,
                     ),
                     const SizedBox(width: 12),
@@ -966,7 +967,7 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.orange[700],
+                          color: const Color(0xFF2161B0),
                         ),
                       ),
                     ),
@@ -978,17 +979,17 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
               
               // Login message
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.blue[50],
+                  color: const Color(0xFF2161B0).withOpacity(0.05),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.blue[200]!),
+                  border: Border.all(color: const Color(0xFF2161B0).withOpacity(0.2)),
                 ),
                 child: Column(
                   children: [
                     Icon(
                       Icons.info_outline,
-                      color: Colors.blue[600],
+                      color: const Color(0xFF2161B0),
                       size: 32,
                     ),
                     const SizedBox(height: 12),
@@ -997,7 +998,7 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Colors.blue[700],
+                        color: const Color(0xFF2161B0),
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -1006,7 +1007,7 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
                       'Please login to continue with the reservation process.',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.blue[600],
+                        color: const Color(0xFF2161B0).withOpacity(0.8),
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -1020,11 +1021,16 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
               Row(
                 children: [
                   Expanded(
-                    child: TextButton(
+                    child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.grey[600],
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF2161B0),
+                        side: BorderSide(color: const Color(0xFF2161B0), width: 2),
+                        backgroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                       child: const Text('Cancel'),
                     ),
@@ -1038,7 +1044,7 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
                         widget.onClose?.call();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue[600],
+                        backgroundColor: const Color(0xFF2161B0),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
@@ -1448,5 +1454,18 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
     }
     
     return result;
+  }
+
+  Color _getCategoryColor(String category) {
+    switch (category.toLowerCase()) {
+      case 'residential':
+        return Colors.green;
+      case 'commercial':
+        return Colors.orange;
+      case 'agricultural':
+        return Colors.brown;
+      default:
+        return Colors.grey;
+    }
   }
 }

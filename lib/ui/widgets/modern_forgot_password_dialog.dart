@@ -213,6 +213,7 @@ class _ModernForgotPasswordDialogState extends State<ModernForgotPasswordDialog>
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
                                       Icons.close,
@@ -220,13 +221,16 @@ class _ModernForgotPasswordDialogState extends State<ModernForgotPasswordDialog>
                                       size: 18,
                                     ),
                                     const SizedBox(width: 8),
-                                    Text(
-                                      'Cancel',
-                                      style: TextStyle(
-                                        fontFamily: 'Inter',
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: const Color(0xFF1B5993),
+                                    Flexible(
+                                      child: Text(
+                                        'Cancel',
+                                        style: TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: const Color(0xFF1B5993),
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],
@@ -270,14 +274,18 @@ class _ModernForgotPasswordDialogState extends State<ModernForgotPasswordDialog>
                                       )
                                     : Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Text(
-                                            'Reset Password',
-                                            style: TextStyle(
-                                              fontFamily: 'Inter',
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w700,
-                                              color: Colors.white,
+                                          Flexible(
+                                            child: Text(
+                                              'Reset',
+                                              style: TextStyle(
+                                                fontFamily: 'Inter',
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.white,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                           const SizedBox(width: 8),
