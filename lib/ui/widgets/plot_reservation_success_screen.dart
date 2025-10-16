@@ -351,14 +351,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         decoration: BoxDecoration(
-          gradient: isSelected 
-              ? const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
-                )
-              : null,
-          color: isSelected ? null : Colors.grey[50],
+          color: isSelected ? const Color(0xFF1B5993) : Colors.grey[50],
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? const Color(0xFF1B5993) : Colors.grey[300]!,

@@ -1483,14 +1483,7 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
-          gradient: isSelected 
-              ? const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
-                )
-              : null,
-          color: isSelected ? null : Colors.white,
+          color: isSelected ? const Color(0xFF1B5993) : Colors.white,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelected ? const Color(0xFF1B5993) : Colors.grey[300]!,
