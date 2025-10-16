@@ -636,50 +636,48 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ],
               ),
-              child: SafeArea(
-                child: Container(
-                  height: 56, // Fixed height for consistent centering
-                  child: Stack(
-                    children: [
-                      // Perfectly centered title using absolute positioning
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        bottom: 0,
-                        child: Center(
-                          child: Text(
-                            l10n.home,
-                            style: TextStyle(
-                              fontFamily: 'GT Walsheim',
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF1B5993),
-                              letterSpacing: 1,
-                            ),
+              child: Container(
+                height: 56, // Fixed height for consistent centering
+                child: Stack(
+                  children: [
+                    // Perfectly centered title using absolute positioning
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      top: 0,
+                      bottom: 0,
+                      child: Center(
+                        child: Text(
+                          l10n.home,
+                          style: TextStyle(
+                            fontFamily: 'GT Walsheim',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF1B5993),
+                            letterSpacing: 1,
                           ),
                         ),
                       ),
-                      // Menu button positioned on the left
-                      Positioned(
-                        left: 16,
-                        top: 0,
-                        bottom: 0,
-                        child: Center(
-                          child: GestureDetector(
-                            onTap: () {
-                              _scaffoldKey.currentState?.openDrawer();
-                            },
-                            child: const Icon(
-                              Icons.menu,
-                              color: Color(0xFF1B5993),
-                              size: 24,
-                            ),
+                    ),
+                    // Menu button positioned on the left
+                    Positioned(
+                      left: 16,
+                      top: 0,
+                      bottom: 0,
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: () {
+                            _scaffoldKey.currentState?.openDrawer();
+                          },
+                          child: const Icon(
+                            Icons.menu,
+                            color: Color(0xFF1B5993),
+                            size: 24,
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
