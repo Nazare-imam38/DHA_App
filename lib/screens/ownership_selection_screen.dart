@@ -115,15 +115,27 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
           preferredSize: const Size.fromHeight(2.0),
           child: Container(
             height: 2.0,
-            decoration: BoxDecoration(
-              color: const Color(0xFF1B5993), // Navy blue border
+            decoration: const BoxDecoration(
+              color: Color(0xFF1B5993), // Navy blue border
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
+            ),
+            child: ClipRRect(
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(20),
                 bottomRight: Radius.circular(20),
               ),
-              border: Border.all(
-                color: const Color(0xFF1B5993),
-                width: 2.0,
+              child: Container(
+                decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Color(0xFF1B5993),
+                      width: 2.0,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
