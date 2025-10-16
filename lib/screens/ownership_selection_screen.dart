@@ -319,8 +319,8 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                                 const SizedBox(width: 8),
                                 Text(
                                   _selectedOption == 'own' 
-                                      ? 'Proceeding with your own property'
-                                      : 'Proceeding on behalf of someone else',
+                                      ? 'PROCEED with your own property'
+                                      : 'PROCEED on behalf of someone else',
                                   style: const TextStyle(
                                     fontFamily: 'Inter',
                                     fontSize: 16,
