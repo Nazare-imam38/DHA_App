@@ -106,11 +106,24 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                         ),
         centerTitle: false,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(20),
-                      ),
-                    ),
-                  ),
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(2.0),
+          child: Container(
+            height: 2.0,
+            decoration: const BoxDecoration(
+              color: Color(0xFF1B5993), // Navy blue border
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
+            ),
+          ),
+        ),
       body: SingleChildScrollView(
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
