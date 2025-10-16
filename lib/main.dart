@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 // import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -194,68 +195,73 @@ class _DHAMarketplaceAppState extends State<DHAMarketplaceApp> {
       ],
       child: Consumer<LanguageService>(
         builder: (context, languageService, child) {
-          return MaterialApp(
-            title: 'DHA Marketplace',
-            locale: languageService.currentLocale,
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [
-              Locale('en'), // English
-              Locale('ur'), // Urdu
-            ],
-            theme: ThemeData(
-        primarySwatch: Colors.green,
-        fontFamily: 'GT Walsheim',
-        textTheme: const TextTheme(
-          headlineLarge: TextStyle(fontFamily: 'GT Walsheim', fontWeight: FontWeight.w700),
-          headlineMedium: TextStyle(fontFamily: 'GT Walsheim', fontWeight: FontWeight.w600),
-          headlineSmall: TextStyle(fontFamily: 'GT Walsheim', fontWeight: FontWeight.w600),
-          titleLarge: TextStyle(fontFamily: 'GT Walsheim', fontWeight: FontWeight.w600),
-          titleMedium: TextStyle(fontFamily: 'GT Walsheim', fontWeight: FontWeight.w500),
-          titleSmall: TextStyle(fontFamily: 'GT Walsheim', fontWeight: FontWeight.w500),
-          bodyLarge: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w400),
-          bodyMedium: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w400),
-          bodySmall: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w400),
-        ),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF00A651),
-          primary: const Color(0xFF00A651),
-          secondary: const Color(0xFF2ECC71),
-          tertiary: const Color(0xFF3498DB),
-          surface: const Color(0xFFF8F9FA),
-        ),
-        // Custom gradient theme
-        extensions: <ThemeExtension<dynamic>>[
-          GradientTheme(
-            primaryGradient: const LinearGradient(
-              colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
+          return ScreenUtilInit(
+            designSize: const Size(390, 844),
+            minTextAdapt: true,
+            splitScreenMode: true,
+            builder: (context, child) => MaterialApp(
+              title: 'DHA Marketplace',
+              locale: languageService.currentLocale,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('en'), // English
+                Locale('ur'), // Urdu
+              ],
+              theme: ThemeData(
+                primarySwatch: Colors.green,
+                fontFamily: 'GT Walsheim',
+                textTheme: const TextTheme(
+                  headlineLarge: TextStyle(fontFamily: 'GT Walsheim', fontWeight: FontWeight.w700),
+                  headlineMedium: TextStyle(fontFamily: 'GT Walsheim', fontWeight: FontWeight.w600),
+                  headlineSmall: TextStyle(fontFamily: 'GT Walsheim', fontWeight: FontWeight.w600),
+                  titleLarge: TextStyle(fontFamily: 'GT Walsheim', fontWeight: FontWeight.w600),
+                  titleMedium: TextStyle(fontFamily: 'GT Walsheim', fontWeight: FontWeight.w500),
+                  titleSmall: TextStyle(fontFamily: 'GT Walsheim', fontWeight: FontWeight.w500),
+                  bodyLarge: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w400),
+                  bodyMedium: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w400),
+                  bodySmall: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w400),
+                ),
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: const Color(0xFF00A651),
+                  primary: const Color(0xFF00A651),
+                  secondary: const Color(0xFF2ECC71),
+                  tertiary: const Color(0xFF3498DB),
+                  surface: const Color(0xFFF8F9FA),
+                ),
+                // Custom gradient theme
+                extensions: <ThemeExtension<dynamic>>[
+                  GradientTheme(
+                    primaryGradient: const LinearGradient(
+                      colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                    secondaryGradient: const LinearGradient(
+                      colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                    accentGradient: const LinearGradient(
+                      colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                    successGradient: const LinearGradient(
+                      colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                  ),
+                ],
+              ),
+              home: const EnhancedSplashScreen(),
+              debugShowCheckedModeBanner: false,
             ),
-            secondaryGradient: const LinearGradient(
-              colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-            accentGradient: const LinearGradient(
-              colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-            successGradient: const LinearGradient(
-              colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-          ),
-        ],
-      ),
-      home: const EnhancedSplashScreen(),
-      debugShowCheckedModeBanner: false,
           );
         },
       ),

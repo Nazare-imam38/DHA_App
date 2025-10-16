@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../services/language_service.dart';
@@ -136,8 +137,8 @@ class _MainWrapperState extends State<MainWrapper>
       ),
       child: SafeArea(
         child: Container(
-          height: 60,
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          height: 60.h,
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -195,7 +196,7 @@ class _MainWrapperState extends State<MainWrapper>
     return GestureDetector(
       onTap: () => _onTabTapped(index),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
           decoration: BoxDecoration(
             gradient: isSelected ? const LinearGradient(
               colors: [Color(0xFF1B5993), Color(0xFF1B5993)],
@@ -203,12 +204,12 @@ class _MainWrapperState extends State<MainWrapper>
               end: Alignment.bottomRight,
             ) : null,
             color: isSelected ? null : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(8.r),
             boxShadow: isSelected ? [
               BoxShadow(
                 color: const Color(0xFF1B5993).withOpacity(0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+                blurRadius: 8.r,
+                offset: Offset(0, 2.h),
               ),
             ] : null,
           ),
@@ -220,15 +221,15 @@ class _MainWrapperState extends State<MainWrapper>
               child: Icon(
                 isSelected ? activeIcon : icon,
                 color: isSelected ? Colors.white : Colors.grey[600],
-                size: isSelected ? 22 : 20,
+                size: isSelected ? 22.sp : 20.sp,
               ),
             ),
-            const SizedBox(height: 2),
+            SizedBox(height: 2.h),
             Text(
               label,
               style: TextStyle(
                               fontFamily: 'Inter',
-                fontSize: 10,
+                fontSize: 10.sp,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 color: isSelected ? Colors.white : Colors.grey[600],
               ),

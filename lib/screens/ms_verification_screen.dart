@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'property_details_form_screen.dart';
 import 'ms_otp_verification_screen.dart';
 import '../services/ms_verification_service.dart';
@@ -83,7 +84,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                 onPressed: () => Navigator.pop(context),
               ),
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               padding: const EdgeInsets.all(AppTheme.paddingSmall),

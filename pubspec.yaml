@@ -38,6 +38,9 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   
+  # Responsive design
+  flutter_screenutil: ^5.9.0
+  
   # Mapbox Maps SDK for 3D globe - REMOVED (not used)
   # mapbox_maps_flutter: ^1.0.0
 

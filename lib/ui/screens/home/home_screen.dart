@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../services/language_service.dart';
@@ -616,28 +617,28 @@ class _HomeScreenState extends State<HomeScreen>
           children: [
             // Simplified Header with Menu Only
             Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
+                  bottomLeft: Radius.circular(20.r),
+                  bottomRight: Radius.circular(20.r),
                 ),
                 border: Border(
                   bottom: BorderSide(
-                    color: Color(0xFF1B5993), // Medium to dark blue border
-                    width: 2.0,
+                    color: const Color(0xFF1B5993), // Medium to dark blue border
+                    width: 2.0.w,
                   ),
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black12,
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
+                    blurRadius: 8.r,
+                    offset: Offset(0, 2.h),
                   ),
                 ],
               ),
               child: Container(
-                height: 56, // Fixed height for consistent centering
+                height: 56.h, // Fixed height for consistent centering
                 child: Stack(
                   children: [
                     // Perfectly centered title using absolute positioning
@@ -651,7 +652,7 @@ class _HomeScreenState extends State<HomeScreen>
                           l10n.home,
                           style: TextStyle(
                             fontFamily: 'GT Walsheim',
-                            fontSize: 18,
+                            fontSize: 18.sp,
                             fontWeight: FontWeight.w700,
                             color: const Color(0xFF1B5993),
                             letterSpacing: 1,
@@ -661,7 +662,7 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                     // Menu button positioned on the left
                     Positioned(
-                      left: 16,
+                      left: 16.w,
                       top: 0,
                       bottom: 0,
                       child: Center(
@@ -669,10 +670,10 @@ class _HomeScreenState extends State<HomeScreen>
                           onTap: () {
                             _scaffoldKey.currentState?.openDrawer();
                           },
-                          child: const Icon(
+                          child: Icon(
                             Icons.menu,
-                            color: Color(0xFF1B5993),
-                            size: 24,
+                            color: const Color(0xFF1B5993),
+                            size: 24.sp,
                           ),
                         ),
                       ),
@@ -690,7 +691,7 @@ class _HomeScreenState extends State<HomeScreen>
                   children: [
                     // Premium Hero Section with Parallax
                     Container(
-                      height: MediaQuery.of(context).size.height * 0.12,
+                      height: 0.12.sh,
                             child: Stack(
                               children: [
                           // Animated Background with Parallax
@@ -758,15 +759,15 @@ class _HomeScreenState extends State<HomeScreen>
                                                             l10n.appTitle.split(' ')[0],
                                                             style: TextStyle(
                                                               fontFamily: 'GT Walsheim',
-                                                              fontSize: 32,
+                                                              fontSize: 32.sp,
                                                               fontWeight: FontWeight.w900,
                                                               color: Colors.white,
                                                               letterSpacing: 2,
                                                               shadows: [
                                                                 Shadow(
                                                                   color: const Color(0xFF1B5993).withOpacity(0.5),
-                                                                  offset: const Offset(0, 2),
-                                                                  blurRadius: 4,
+                                                                  offset: Offset(0, 2.h),
+                                                                  blurRadius: 4.r,
                                                                 ),
                                                               ],
                                                             ),
@@ -798,15 +799,15 @@ class _HomeScreenState extends State<HomeScreen>
                                                             l10n.appTitle.split(' ')[1],
                                                             style: TextStyle(
                                                               fontFamily: 'GT Walsheim',
-                                                              fontSize: 18,
+                                                              fontSize: 18.sp,
                                                               fontWeight: FontWeight.w700,
                                                               color: Colors.white,
                                                               letterSpacing: 1.5,
                                                               shadows: [
                                                                 Shadow(
                                                                   color: const Color(0xFF20B2AA).withOpacity(0.5),
-                                                                  offset: const Offset(0, 1),
-                                                                  blurRadius: 2,
+                                                                  offset: Offset(0, 1.h),
+                                                                  blurRadius: 2.r,
                                                                 ),
                                                               ],
                                                             ),
@@ -834,16 +835,16 @@ class _HomeScreenState extends State<HomeScreen>
                     
                     // Residential and Commercial Details Section
                     Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-                      padding: const EdgeInsets.all(12),
+                      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 2.h),
+                      padding: EdgeInsets.all(12.w),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(16.r),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.05),
-                            blurRadius: 15,
-                            offset: const Offset(0, 4),
+                            blurRadius: 15.r,
+                            offset: Offset(0, 4.h),
                           ),
                         ],
                       ),
@@ -866,7 +867,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       animation: _residentialCounterAnimation,
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
+                                  SizedBox(width: 12.w),
                                   Expanded(
                                     child: _buildPropertyTypeCard(
                                       l10n.commercialProperties,
@@ -887,7 +888,7 @@ class _HomeScreenState extends State<HomeScreen>
                     
                     // Premium Feature Cards Section
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                             child: Column(
                               children: [
                           // Plot Finder Card
@@ -929,7 +930,7 @@ class _HomeScreenState extends State<HomeScreen>
                             },
                           ),
                           
-                          const SizedBox(height: 6),
+                          SizedBox(height: 6.h),
                           
                           // Post Property Card
                           AnimatedBuilder(
@@ -965,11 +966,11 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                     ),
                     
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16.h),
                     
                     // New Projects section
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 2.h),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -977,7 +978,7 @@ class _HomeScreenState extends State<HomeScreen>
                             l10n.newProjects,
                             style: TextStyle(
                               fontFamily: 'GT Walsheim',
-                              fontSize: 18,
+                              fontSize: 18.sp,
                               fontWeight: FontWeight.w600,
                               color: Colors.black,
                             ),
@@ -986,7 +987,7 @@ class _HomeScreenState extends State<HomeScreen>
                             l10n.viewAll,
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 14,
+                              fontSize: 14.sp,
                               color: const Color(0xFF1B5993),
                               fontWeight: FontWeight.w600,
                             ),
@@ -997,10 +998,10 @@ class _HomeScreenState extends State<HomeScreen>
                     
                     // Project cards
                     SizedBox(
-                      height: 150,
+                      height: 150.h,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
                         itemCount: 7,
                         itemBuilder: (context, index) {
                           return _buildProjectCard(index);
@@ -1008,7 +1009,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                     ),
                     
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4.h),
                   ],
                 ),
               ),
@@ -1224,27 +1225,27 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildPropertyTypeCard(String title, String count, String subtitle, IconData icon, Color color, {Animation<double>? animation}) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10.r),
       ),
       child: Column(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 40.w,
+            height: 40.h,
             decoration: BoxDecoration(
               color: color,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(20.r),
             ),
             child: Icon(
               icon,
               color: Colors.white,
-              size: 20,
+              size: 20.sp,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           AnimatedBuilder(
             animation: animation ?? const AlwaysStoppedAnimation(0.0),
             builder: (context, child) {
@@ -1252,29 +1253,29 @@ class _HomeScreenState extends State<HomeScreen>
                 animation != null ? animation!.value.round().toString() : count,
                 style: TextStyle(
                   fontFamily: 'GT Walsheim',
-                  fontSize: 20,
+                  fontSize: 20.sp,
                   fontWeight: FontWeight.w700,
                   color: color,
                 ),
               );
             },
           ),
-          const SizedBox(height: 2),
+          SizedBox(height: 2.h),
           Text(
             title,
             style: TextStyle(
               fontFamily: 'Inter',
-              fontSize: 12,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w600,
               color: Colors.black,
             ),
           ),
-          const SizedBox(height: 1),
+          SizedBox(height: 1.h),
           Text(
             subtitle,
             style: TextStyle(
               fontFamily: 'Inter',
-              fontSize: 10,
+              fontSize: 10.sp,
               color: Colors.grey[600],
             ),
           ),
@@ -1360,20 +1361,20 @@ class _HomeScreenState extends State<HomeScreen>
         );
       },
       child: Container(
-      width: 140,
-      margin: const EdgeInsets.only(right: 10),
+      width: 140.w,
+      margin: EdgeInsets.only(right: 10.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
           color: const Color(0xFFE0E0E0),
-          width: 1,
+          width: 1.w,
         ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            blurRadius: 10.r,
+            offset: Offset(0, 2.h),
           ),
         ],
       ),
@@ -1382,18 +1383,18 @@ class _HomeScreenState extends State<HomeScreen>
         children: [
           // Project Image
           Container(
-            height: 80,
+            height: 80.h,
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
             ),
             child: Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
                   child: CachedAssetImage(
                     assetPath: project['image'] as String,
                     width: double.infinity,
-                    height: 80,
+                    height: 80.h,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
@@ -1407,11 +1408,11 @@ class _HomeScreenState extends State<HomeScreen>
                             end: Alignment.bottomRight,
                           ),
                         ),
-                        child: const Center(
+                        child: Center(
                           child: Icon(
                             Icons.home_work,
-                            color: Color(0xFF1B5993),
-                            size: 40,
+                            color: const Color(0xFF1B5993),
+                            size: 40.sp,
                           ),
                         ),
                       );
@@ -1420,19 +1421,19 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
                 if (project['badge'] != null)
                   Positioned(
-                    top: 6,
-                    left: 6,
+                    top: 6.h,
+                    left: 6.w,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
                       decoration: BoxDecoration(
                           color: project['badgeColor'] as Color,
-                        borderRadius: BorderRadius.circular(3),
+                        borderRadius: BorderRadius.circular(3.r),
                       ),
                       child: Text(
                           project['badge'] as String,
                         style: TextStyle(
                               fontFamily: 'Inter',
-                          fontSize: 8,
+                          fontSize: 8.sp,
                           fontWeight: FontWeight.w500,
                           color: Colors.white,
                           ),
@@ -1441,19 +1442,19 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                 if (project['category'] != null && project['category'].toString().isNotEmpty)
                   Positioned(
-                    top: 6,
-                    right: 6,
+                    top: 6.h,
+                    right: 6.w,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
                       decoration: BoxDecoration(
                           color: project['categoryColor'] as Color,
-                        borderRadius: BorderRadius.circular(3),
+                        borderRadius: BorderRadius.circular(3.r),
                       ),
                       child: Text(
                           project['category'] as String,
                         style: TextStyle(
                               fontFamily: 'Inter',
-                          fontSize: 8,
+                          fontSize: 8.sp,
                           fontWeight: FontWeight.w500,
                           color: Colors.white,
                           ),
@@ -1462,8 +1463,8 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   if (project['category'] == null || project['category'].toString().isEmpty)
                     Positioned(
-                      top: 8,
-                      right: 8,
+                      top: 8.h,
+                      right: 8.w,
                       child: GestureDetector(
                         onTap: () {
                           // Add to favorites
@@ -1479,15 +1480,15 @@ class _HomeScreenState extends State<HomeScreen>
                           );
                         },
                         child: Container(
-                          padding: const EdgeInsets.all(4),
+                          padding: EdgeInsets.all(4.w),
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.9),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12.r),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.favorite_border,
-                            color: Color(0xFF1B5993),
-                            size: 16,
+                            color: const Color(0xFF1B5993),
+                            size: 16.sp,
                           ),
                         ),
                       ),
@@ -1496,7 +1497,7 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(6),
+            padding: EdgeInsets.all(6.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -1505,19 +1506,19 @@ class _HomeScreenState extends State<HomeScreen>
                     project['title'] as String,
                   style: TextStyle(
                               fontFamily: 'GT Walsheim',
-                    fontSize: 11,
+                    fontSize: 11.sp,
                     fontWeight: FontWeight.w600,
                     color: Colors.black,
                   ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2.h),
                 Text(
                     project['description'] as String,
                   style: TextStyle(
                               fontFamily: 'Inter',
-                    fontSize: 9,
+                    fontSize: 9.sp,
                     color: Colors.grey[600],
                     height: 1.2,
                   ),
