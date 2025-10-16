@@ -124,6 +124,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
             ),
           ),
         ),
+      ),
       body: SingleChildScrollView(
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
