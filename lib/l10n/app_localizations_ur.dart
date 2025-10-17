@@ -129,7 +129,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get interactiveSocietyMaps => 'انٹرایکٹو سوسائٹی میپس';
 
   @override
-  String get plotsCount => '1.2M+ پلاٹس | 2500+ سوسائٹیز';
+  String get plotsCount => 'رہائشی اور تجارتی جائیداد';
 
   @override
   String get tryItNow => 'ابھی آزمائیں';

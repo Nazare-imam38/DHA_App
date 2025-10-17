@@ -341,7 +341,7 @@ abstract class AppLocalizations {
   /// No description provided for @plotsCount.
   ///
   /// In en, this message translates to:
-  /// **'1.2M+ Plots | 2500+ Societies'**
+  /// **'Residential & Commercial Property'**
   String get plotsCount;
 
   /// No description provided for @tryItNow.

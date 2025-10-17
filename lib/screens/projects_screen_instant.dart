@@ -2332,7 +2332,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       final isServerUp = await _testServerConnectivity();
       if (!isServerUp) {
         print('❌ Tile server is not accessible');
-        _showTileServerError('Server not accessible. Check network connection.');
+        // _showTileServerError('Server not accessible. Check network connection.');
         return;
       }
       
@@ -2340,14 +2340,14 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       final isTileAvailable = await _testSpecificTile();
       if (!isTileAvailable) {
         print('❌ Specific tile not available');
-        _showTileServerError('Tile not available for current location/zoom.');
+        // _showTileServerError('Tile not available for current location/zoom.');
       } else {
         print('✅ Tile server test passed');
         _showTileServerSuccess('Town plan tiles are loading correctly!');
       }
     } catch (e) {
       print('❌ Tile server test failed: $e');
-      _showTileServerError('Test failed: $e');
+      // _showTileServerError('Test failed: $e');
     }
   }
   

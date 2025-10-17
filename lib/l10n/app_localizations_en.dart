@@ -129,7 +129,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get interactiveSocietyMaps => 'Interactive Society Maps';
 
   @override
-  String get plotsCount => '1.2M+ Plots | 2500+ Societies';
+  String get plotsCount => 'Residential & Commercial Property';
 
   @override
   String get tryItNow => 'Try It Now';

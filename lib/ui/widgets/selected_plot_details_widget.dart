@@ -733,8 +733,10 @@ class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
       // Close loading dialog
       Navigator.of(context).pop();
       
-      // Check if it's an authentication error
-      if (e.toString().contains('Unauthenticated') || e.toString().contains('not authenticated')) {
+      // Check if it's a duplicate booking error
+      if (e is DuplicateBookingException) {
+        _showDuplicateBookingDialog();
+      } else if (e.toString().contains('Unauthenticated') || e.toString().contains('not authenticated')) {
         _showLoginRequiredDialog();
       } else if (e.toString().contains('maximum limit of bookings') || e.toString().contains('complete your existing bookings')) {
         // Show booking limit alert
@@ -827,6 +829,73 @@ class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
                     ),
                   ),
                 ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              'OK',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.blue[600],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDuplicateBookingDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(
+              Icons.info_outline_rounded,
+              color: Colors.blue[600],
+              size: 28,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Plot Already Booked',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'You have already booked this plot. You cannot book the same plot.',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Please check your bookings or select a different plot.',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14,
+                color: Colors.grey[600],
               ),
             ),
           ],

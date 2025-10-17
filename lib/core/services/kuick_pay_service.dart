@@ -2,6 +2,15 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../services/auth_service.dart';
 
+/// Custom exception for duplicate booking errors
+class DuplicateBookingException implements Exception {
+  final String message;
+  DuplicateBookingException(this.message);
+  
+  @override
+  String toString() => message;
+}
+
 /// Service for handling KuickPay fee calculations and payments
 class KuickPayService {
   static const String baseUrl = 'https://backend-apis.dhamarketplace.com/api';
@@ -117,6 +126,14 @@ class KuickPayService {
         print('KuickPayService: API Error - Status: ${response.statusCode}');
         print('KuickPayService: API Error - Message: ${errorData['message']}');
         print('KuickPayService: API Error - Errors: ${errorData['errors']}');
+        
+        // Check for specific duplicate booking error
+        if (errorData['errors'] != null && 
+            errorData['errors']['plot_id'] != null &&
+            errorData['errors']['plot_id'].toString().contains('already booked')) {
+          throw DuplicateBookingException('You have already booked this plot. You cannot book the same plot.');
+        }
+        
         throw Exception(errorData['message'] ?? 'Failed to reserve plot');
       }
     } catch (e) {
