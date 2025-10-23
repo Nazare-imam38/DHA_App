@@ -3,7 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../services/language_service.dart';
+import '../ui/widgets/cached_asset_image.dart';
 import 'sidebar_drawer.dart';
+import 'property_detail_info_screen.dart';
 
 class PropertyListingsScreen extends StatefulWidget {
   const PropertyListingsScreen({super.key});
@@ -21,36 +23,100 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
 
   final List<Map<String, dynamic>> _properties = [
     {
-      'title': '10 Marla Plot – Phase 6',
-      'price': 'PKR 4,500,000',
+      'title': 'Luxury Villa – Phase 1',
+      'price': 'PKR 25,000,000',
       'status': 'Available',
       'image': 'assets/gallery/dha-gate-night.jpg',
-      'phase': 'Phase 6',
-      'size': '10 Marla',
+      'phase': 'Phase 1',
+      'size': '1 Kanal',
+      'type': 'House',
+      'bedrooms': '4',
+      'bathrooms': '3',
+      'description': 'Beautiful luxury villa with modern amenities',
     },
     {
-      'title': '1 Kanal Plot – Phase 3',
-      'price': 'PKR 8,200,000',
-      'status': 'Limited',
+      'title': 'Modern Apartment – Phase 3',
+      'price': 'PKR 8,500,000',
+      'status': 'Available',
       'image': 'assets/gallery/dha-medical-center.jpg',
       'phase': 'Phase 3',
-      'size': '1 Kanal',
+      'size': '2 Marla',
+      'type': 'Apartment',
+      'bedrooms': '3',
+      'bathrooms': '2',
+      'description': 'Spacious apartment with city views',
     },
     {
-      'title': '5 Marla Plot – Phase 5',
-      'price': 'PKR 2,800,000',
-      'status': 'Available',
+      'title': 'Commercial Plot – Phase 5',
+      'price': 'PKR 12,000,000',
+      'status': 'Limited',
       'image': 'assets/gallery/dha-commercial-center.jpg',
       'phase': 'Phase 5',
       'size': '5 Marla',
+      'type': 'Commercial',
+      'bedrooms': 'N/A',
+      'bathrooms': 'N/A',
+      'description': 'Prime commercial location for business',
     },
     {
-      'title': '2 Kanal Plot – Phase 2',
-      'price': 'PKR 15,000,000',
-      'status': 'Booked',
+      'title': 'Residential Plot – Phase 2',
+      'price': 'PKR 6,500,000',
+      'status': 'Available',
       'image': 'assets/gallery/dha-sports-facility.jpg',
       'phase': 'Phase 2',
-      'size': '2 Kanal',
+      'size': '10 Marla',
+      'type': 'Plot',
+      'bedrooms': 'N/A',
+      'bathrooms': 'N/A',
+      'description': 'Well-located residential plot',
+    },
+    {
+      'title': 'Penthouse – Phase 4',
+      'price': 'PKR 35,000,000',
+      'status': 'Booked',
+      'image': 'assets/gallery/dha-mosque-night.jpg',
+      'phase': 'Phase 4',
+      'size': '3 Marla',
+      'type': 'Penthouse',
+      'bedrooms': '5',
+      'bathrooms': '4',
+      'description': 'Exclusive penthouse with panoramic views',
+    },
+    {
+      'title': 'Townhouse – Phase 6',
+      'price': 'PKR 15,000,000',
+      'status': 'Available',
+      'image': 'assets/gallery/dha-park-night.jpg',
+      'phase': 'Phase 6',
+      'size': '8 Marla',
+      'type': 'Townhouse',
+      'bedrooms': '3',
+      'bathrooms': '3',
+      'description': 'Modern townhouse near park area',
+    },
+    {
+      'title': 'Office Space – Phase 7',
+      'price': 'PKR 18,000,000',
+      'status': 'Available',
+      'image': 'assets/gallery/imperial-hall.jpg',
+      'phase': 'Phase 7',
+      'size': '4 Marla',
+      'type': 'Commercial',
+      'bedrooms': 'N/A',
+      'bathrooms': 'N/A',
+      'description': 'Premium office space in business district',
+    },
+    {
+      'title': 'Duplex House – Phase 1',
+      'price': 'PKR 22,000,000',
+      'status': 'Limited',
+      'image': 'assets/gallery/dha-gate-night.jpg',
+      'phase': 'Phase 1',
+      'size': '1.5 Kanal',
+      'type': 'House',
+      'bedrooms': '4',
+      'bathrooms': '3',
+      'description': 'Spacious duplex with garden',
     },
   ];
 
@@ -144,7 +210,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: 'Poppins',
-                              fontSize: 18,
+                              fontSize: 18.sp,
                               fontWeight: FontWeight.w600,
                               color: const Color(0xFF1B5993),
                             ),
@@ -158,16 +224,16 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12.h),
                     // Search bar
                     Container(
-                      height: 45,
+                      height: 45.h,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: Colors.grey[300]!,
-                          width: 1,
+                          width: 1.w,
                         ),
                       ),
                       child: TextField(
@@ -332,7 +398,16 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
   }
 
   Widget _buildZameenPropertyCard(Map<String, dynamic> property, int index) {
-    return Container(
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PropertyDetailInfoScreen(property: property),
+          ),
+        );
+      },
+      child: Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -352,26 +427,41 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
           Container(
             height: 200,
             width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  const Color(0xFF20B2AA).withOpacity(0.1),
-                  const Color(0xFF1B5993).withOpacity(0.1),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
             ),
-            child: Stack(
-              children: [
-                const Center(
-                  child: Icon(
-                    Icons.home_work,
-                    color: Color(0xFF20B2AA),
-                    size: 50,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              child: Stack(
+                children: [
+                  // Property Image
+                  CachedAssetImage(
+                    assetPath: property['image'],
+                    width: double.infinity,
+                    height: 200,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color(0xFF20B2AA).withOpacity(0.1),
+                              const Color(0xFF1B5993).withOpacity(0.1),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.home_work,
+                            color: Color(0xFF20B2AA),
+                            size: 50,
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                ),
                 Positioned(
                   top: 12,
                   right: 12,
@@ -408,6 +498,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                 ),
               ],
             ),
+          ),
           ),
           
           // Property Details
@@ -481,7 +572,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        'Flats',
+                        property['type'],
                         style: TextStyle(
                               fontFamily: 'Inter',
                           fontSize: 12,
@@ -490,13 +581,86 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                         ),
                       ),
                     ),
+                    if (property['bedrooms'] != 'N/A') ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.bed,
+                              size: 12,
+                              color: Colors.grey[600],
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${property['bedrooms']} Beds',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    if (property['bathrooms'] != 'N/A') ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.bathroom,
+                              size: 12,
+                              color: Colors.grey[600],
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${property['bathrooms']} Baths',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  property['description'],
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 13,
+                    color: Colors.grey[600],
+                    height: 1.4,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
         ],
       ),
+    ),
     );
   }
 

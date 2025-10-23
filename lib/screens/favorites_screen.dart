@@ -129,48 +129,70 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                   ),
                 ],
               ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                child: Row(
+              child: Container(
+                height: 56.h,
+                child: Stack(
                   children: [
-                    GestureDetector(
-                      onTap: () {
-                        Scaffold.of(context).openDrawer();
-                      },
-                      child: const Icon(
-                        Icons.menu,
-                        color: Color(0xFF1B5993),
-                        size: 24,
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        l10n.myBookings,
-                        textAlign: TextAlign.center,
-                            style: TextStyle(
-                          fontFamily: 'Poppins',
-                              fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                              color: const Color(0xFF1B5993),
-                      ),
-                    ),
-                    ),
-                    IconButton(
-                      onPressed: _refreshBookings,
-                      icon: _isRefreshing 
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1B5993)),
-                            ),
-                          )
-                        : const Icon(
-                            Icons.refresh,
-                            color: Color(0xFF1B5993),
-                              size: 24,
+                    // Perfectly centered title using absolute positioning
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      top: 0,
+                      bottom: 0,
+                      child: Center(
+                        child: Text(
+                          l10n.myBookings,
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF1B5993),
                           ),
+                        ),
+                      ),
+                    ),
+                    // Menu button positioned on the left
+                    Positioned(
+                      left: 16.w,
+                      top: 0,
+                      bottom: 0,
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: () {
+                            Scaffold.of(context).openDrawer();
+                          },
+                          child: Icon(
+                            Icons.menu,
+                            color: const Color(0xFF1B5993),
+                            size: 24.sp,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Refresh button positioned on the right
+                    Positioned(
+                      right: 16.w,
+                      top: 0,
+                      bottom: 0,
+                      child: Center(
+                        child: IconButton(
+                          onPressed: _refreshBookings,
+                          icon: _isRefreshing 
+                            ? SizedBox(
+                                width: 20.w,
+                                height: 20.h,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1B5993)),
+                                ),
+                              )
+                            : Icon(
+                                Icons.refresh,
+                                color: const Color(0xFF1B5993),
+                                size: 24.sp,
+                              ),
+                        ),
+                      ),
                     ),
                   ],
                 ),

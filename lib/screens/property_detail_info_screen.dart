@@ -111,7 +111,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                             ),
                             SizedBox(width: 4.w),
                             Text(
-                              widget.property['location'] ?? 'Phase 1, DHA',
+                              widget.property['location'] ?? '${AppLocalizations.of(context)!.dhaPhase1}',
                               style: GoogleFonts.inter(
                                 fontSize: 14.sp,
                                 color: Colors.white70,
@@ -147,7 +147,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                         borderRadius: BorderRadius.circular(20.r),
                       ),
                       child: Text(
-                        'Available',
+                        AppLocalizations.of(context)!.available,
                         style: GoogleFonts.inter(
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w600,
@@ -182,7 +182,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                             children: [
                               Icon(Icons.home, size: 18.sp),
                               SizedBox(width: 8.w),
-                              Text('Features', style: TextStyle(fontSize: 14.sp)),
+                              Text(AppLocalizations.of(context)!.features, style: TextStyle(fontSize: 14.sp)),
                             ],
                           ),
                         ),
@@ -192,7 +192,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                             children: [
                               Icon(Icons.location_on, size: 18.sp),
                               SizedBox(width: 8.w),
-                              Text('Location', style: TextStyle(fontSize: 14.sp)),
+                              Text(AppLocalizations.of(context)!.location, style: TextStyle(fontSize: 14.sp)),
                             ],
                           ),
                         ),
@@ -202,7 +202,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                             children: [
                               Icon(Icons.payment, size: 18.sp),
                               SizedBox(width: 8.w),
-                              Text('Payment', style: TextStyle(fontSize: 14.sp)),
+                              Text(AppLocalizations.of(context)!.payment, style: TextStyle(fontSize: 14.sp)),
                             ],
                           ),
                         ),
@@ -258,48 +258,48 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
         children: [
           // Property Features
           _buildFeatureSection(
-            'Plot Features',
+            AppLocalizations.of(context)!.plotFeatures,
             Icons.square_foot,
             [
-              'Electricity',
-              'Sewerage',
-              'Water Supply',
-              'Accessible by Road',
+              AppLocalizations.of(context)!.electricity,
+              AppLocalizations.of(context)!.sewerage,
+              AppLocalizations.of(context)!.waterSupply,
+              AppLocalizations.of(context)!.accessibleByRoad,
             ],
           ),
           SizedBox(height: 24.h),
           
           _buildFeatureSection(
-            'Business & Communication',
+            AppLocalizations.of(context)!.businessAndCommunication,
             Icons.business,
             [
-              'Broadband Internet Access',
-              'Satellite or Cable TV Ready',
+              AppLocalizations.of(context)!.broadbandInternetAccess,
+              AppLocalizations.of(context)!.satelliteOrCableTvReady,
             ],
           ),
           SizedBox(height: 24.h),
           
           _buildFeatureSection(
-            'Nearby Facilities',
+            AppLocalizations.of(context)!.nearbyFacilities,
             Icons.location_on,
             [
-              'Nearby Hospitals',
-              'Nearby Public Transport Service',
-              'Nearby Restaurants',
-              'Nearby Schools',
-              'Nearby Shopping Malls',
+              AppLocalizations.of(context)!.nearbyHospitals,
+              AppLocalizations.of(context)!.nearbyPublicTransportService,
+              AppLocalizations.of(context)!.nearbyRestaurants,
+              AppLocalizations.of(context)!.nearbySchools,
+              AppLocalizations.of(context)!.nearbyShoppingMalls,
             ],
           ),
           SizedBox(height: 24.h),
           
           _buildFeatureSection(
-            'Other Facilities',
+            AppLocalizations.of(context)!.otherFacilities,
             Icons.more_horiz,
             [
-              'CCTV Security',
-              'Maintenance Staff',
-              'Security Staff',
-              'Pet Policy: Allowed',
+              AppLocalizations.of(context)!.cctvSecurity,
+              AppLocalizations.of(context)!.maintenanceStaff,
+              AppLocalizations.of(context)!.securityStaff,
+              AppLocalizations.of(context)!.petPolicyAllowed,
             ],
           ),
           SizedBox(height: 20.h), // Add bottom padding to prevent overflow
@@ -354,8 +354,8 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
   }
 
   Widget _buildLocationTab() {
-    // Default coordinates for DHA Phase 1, Karachi
-    final defaultLocation = LatLng(24.8607, 67.0011);
+    // Default coordinates for DHA Phase 1, Islamabad (better for DHA properties)
+    final defaultLocation = LatLng(33.5348, 73.0951);
     final propertyLocation = widget.property['coordinates'] != null 
         ? LatLng(
             widget.property['coordinates']['lat'] ?? defaultLocation.latitude,
@@ -369,7 +369,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Location',
+            AppLocalizations.of(context)!.location,
             style: GoogleFonts.inter(
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
@@ -380,7 +380,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
           
           // Interactive Map
           Container(
-            height: 200.h, // Reduced height to prevent overflow
+            height: 400.h, // Increased height for better map visibility
             width: double.infinity,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12.r),
@@ -394,19 +394,35 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12.r),
-              child: FlutterMap(
+              child: Stack(
+                children: [
+                  FlutterMap(
                 options: MapOptions(
                   initialCenter: propertyLocation,
-                  initialZoom: 15.0,
-                  minZoom: 10.0,
+                  initialZoom: 12.0, // Reduced zoom to show more area
+                  minZoom: 8.0, // Allow zooming out more
                   maxZoom: 18.0,
+                  interactionOptions: const InteractionOptions(
+                    flags: InteractiveFlag.all,
+                  ),
+                  cameraConstraint: CameraConstraint.contain(
+                    bounds: LatLngBounds(
+                      LatLng(33.0, 72.5), // Southwest corner
+                      LatLng(34.0, 73.5), // Northeast corner
+                    ),
+                  ),
                 ),
                 children: [
-                  // OpenStreetMap tiles
+                  // OpenStreetMap tiles with better configuration
                   TileLayer(
                     urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'com.dha.marketplace',
                     maxZoom: 18,
+                    minZoom: 8,
+                    tileProvider: NetworkTileProvider(),
+                    errorTileCallback: (tile, error, stackTrace) {
+                      print('Tile error: $error');
+                    },
                   ),
                   
                   // Property marker
@@ -414,30 +430,52 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                     markers: [
                       Marker(
                         point: propertyLocation,
-                        width: 40.w,
-                        height: 40.h,
+                        width: 50.w,
+                        height: 50.h,
                         child: Container(
                           decoration: BoxDecoration(
                             color: const Color(0xFF1B5993),
-                            borderRadius: BorderRadius.circular(20.r),
-                            border: Border.all(color: Colors.white, width: 3.w),
+                            borderRadius: BorderRadius.circular(25.r),
+                            border: Border.all(color: Colors.white, width: 4.w),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+                                blurRadius: 10,
+                                offset: const Offset(0, 3),
                               ),
                             ],
                           ),
                           child: Icon(
-                            Icons.location_on,
+                            Icons.home,
                             color: Colors.white,
-                            size: 24.sp,
+                            size: 28.sp,
                           ),
                         ),
                       ),
                     ],
                   ),
+                  
+                  // Map attribution
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Container(
+                      margin: EdgeInsets.all(8.w),
+                      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(4.r),
+                      ),
+                      child: Text(
+                        '© OpenStreetMap contributors',
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
                 ],
               ),
             ),
@@ -446,7 +484,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
           
           // Location Details
           Text(
-            'Property Location Details',
+            AppLocalizations.of(context)!.propertyLocationDetails,
             style: GoogleFonts.inter(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
@@ -455,7 +493,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
           ),
           SizedBox(height: 8.h),
           Text(
-            widget.property['location'] ?? 'Located in the heart of DHA Phase 1, this property offers excellent connectivity to major areas of the city.',
+            widget.property['location'] ?? 'Located in the heart of ${AppLocalizations.of(context)!.dhaPhase1}, this property offers excellent connectivity to major areas of the city.',
             style: GoogleFonts.inter(
               fontSize: 14.sp,
               color: Colors.grey[700],
@@ -466,7 +504,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
           
           // Nearby Amenities
           Text(
-            'Nearby Amenities',
+            AppLocalizations.of(context)!.nearbyAmenities,
             style: GoogleFonts.inter(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
@@ -480,12 +518,12 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
             spacing: 8.w,
             runSpacing: 8.h,
             children: [
-              _buildAmenityChip('Hospitals', Icons.local_hospital),
-              _buildAmenityChip('Schools', Icons.school),
-              _buildAmenityChip('Shopping', Icons.shopping_cart),
-              _buildAmenityChip('Restaurants', Icons.restaurant),
-              _buildAmenityChip('Transport', Icons.directions_bus),
-              _buildAmenityChip('Parks', Icons.park),
+              _buildAmenityChip(AppLocalizations.of(context)!.hospitals, Icons.local_hospital),
+              _buildAmenityChip(AppLocalizations.of(context)!.schools, Icons.school),
+              _buildAmenityChip(AppLocalizations.of(context)!.shopping, Icons.shopping_cart),
+              _buildAmenityChip(AppLocalizations.of(context)!.restaurants, Icons.restaurant),
+              _buildAmenityChip(AppLocalizations.of(context)!.transport, Icons.directions_bus),
+              _buildAmenityChip(AppLocalizations.of(context)!.parks, Icons.park),
             ],
           ),
           SizedBox(height: 20.h), // Add bottom padding to prevent overflow
@@ -541,7 +579,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
             child: Column(
               children: [
                 Text(
-                  'MONTHLY INSTALLMENTS',
+                  AppLocalizations.of(context)!.monthlyInstallments,
                   style: GoogleFonts.inter(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
@@ -563,7 +601,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                           ),
                         ),
                         Text(
-                          'Monthly',
+                          AppLocalizations.of(context)!.monthly,
                           style: GoogleFonts.inter(
                             fontSize: 12.sp,
                             color: Colors.white70,
@@ -582,7 +620,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                           ),
                         ),
                         Text(
-                          'Monthly',
+                          AppLocalizations.of(context)!.monthly,
                           style: GoogleFonts.inter(
                             fontSize: 12.sp,
                             color: Colors.white70,
@@ -598,9 +636,9 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
           SizedBox(height: 20.h),
           
           // Payment Details
-          _buildPaymentDetail('Down Payment', 'PKR 520,000'),
-          _buildPaymentDetail('Total Cost', 'PKR 1,200,000'),
-          _buildPaymentDetail('Final Payment', 'PKR 3,999,999'),
+          _buildPaymentDetail(AppLocalizations.of(context)!.downPayment, 'PKR 520,000'),
+          _buildPaymentDetail(AppLocalizations.of(context)!.totalCost, 'PKR 1,200,000'),
+          _buildPaymentDetail(AppLocalizations.of(context)!.finalPayment, 'PKR 3,999,999'),
           SizedBox(height: 16.h),
           
           // Additional Charges
@@ -615,7 +653,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Additional Charges',
+                  AppLocalizations.of(context)!.additionalCharges,
                   style: GoogleFonts.inter(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
@@ -689,7 +727,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Contact Information',
+            AppLocalizations.of(context)!.contactInformation,
             style: GoogleFonts.inter(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
@@ -697,9 +735,9 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
             ),
           ),
           SizedBox(height: 12.h),
-          _buildContactItem('BOOKING OFFICE', '+92 21 1234567'),
-          _buildContactItem('SITE OFFICE', '+92 21 7654321'),
-          _buildContactItem('24/7 SALES CENTRE', '+92 21 9876543'),
+          _buildContactItem(AppLocalizations.of(context)!.bookingOffice, '+92 21 1234567'),
+          _buildContactItem(AppLocalizations.of(context)!.siteOffice, '+92 21 7654321'),
+          _buildContactItem(AppLocalizations.of(context)!.salesCentre, '+92 21 9876543'),
         ],
       ),
     );
@@ -777,7 +815,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                         onPressed: () {},
                         icon: Icon(Icons.info_outline, color: const Color(0xFF20B2AA), size: 14.sp),
                         label: Text(
-                          'Get More Info',
+                          AppLocalizations.of(context)!.getMoreInfo,
                           style: GoogleFonts.inter(
                             fontSize: 11.sp,
                             fontWeight: FontWeight.w600,
@@ -799,7 +837,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                         onPressed: () {},
                         icon: Icon(Icons.phone, color: Colors.white, size: 14.sp),
                         label: Text(
-                          'Call',
+                          AppLocalizations.of(context)!.call,
                           style: GoogleFonts.inter(
                             fontSize: 11.sp,
                             fontWeight: FontWeight.w600,
@@ -935,3 +973,4 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
     );
   }
 }
+

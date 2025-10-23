@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../data/models/plot_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/services/kuick_pay_service.dart';
@@ -165,10 +166,10 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
       ),
       child: Row(
         children: [
-          const Text(
+          Text(
             'Selected Plot',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 20.sp,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -205,20 +206,20 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
             children: [
               Text(
                 'Plot ${widget.plot.plotNo}',
-                style: const TextStyle(
-                  fontSize: 24,
+                style: TextStyle(
+                  fontSize: 24.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
               ),
               const Spacer(),
               _buildStatusChip(widget.plot.category, _getCategoryColor(widget.plot.category)),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               _buildStatusChip('Unsold', Colors.green),
             ],
           ),
           
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           
           // Plot details in two columns
           Row(

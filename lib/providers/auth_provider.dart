@@ -234,6 +234,23 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  // Clear authentication state for guest mode
+  Future<void> clearAuthForGuest() async {
+    _setLoading(true);
+    try {
+      await _authService.clearAuthData();
+      _user = null;
+      _userInfo = null;
+      _isLoggedIn = false;
+      _clearError();
+      notifyListeners();
+    } catch (e) {
+      _setError('Failed to clear authentication: $e');
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   // Helper methods
   void _setLoading(bool loading) {
     _isLoading = loading;

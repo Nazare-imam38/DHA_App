@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:photo_view/photo_view.dart';
 import '../ui/widgets/cached_asset_image.dart';
+import '../l10n/app_localizations.dart';
 
 class GalleryScreen extends StatefulWidget {
   const GalleryScreen({super.key});
@@ -13,43 +14,45 @@ class GalleryScreen extends StatefulWidget {
 }
 
 class _GalleryScreenState extends State<GalleryScreen> {
-  final List<Map<String, dynamic>> _galleryImages = [
-    {
-      'image': 'assets/gallery/dha-gate-night.jpg',
-      'title': 'DHA Phase 4 Entrance',
-      'category': 'Infrastructure',
-    },
-    {
-      'image': 'assets/gallery/dha-medical-center.jpg',
-      'title': 'DHA Medical Center',
-      'category': 'Healthcare',
-    },
-    {
-      'image': 'assets/gallery/dha-commercial-center.jpg',
-      'title': 'DHA Commercial Center',
-      'category': 'Commercial',
-    },
-    {
-      'image': 'assets/gallery/dha-sports-facility.jpg',
-      'title': 'DHA Sports Complex',
-      'category': 'Recreation',
-    },
-    {
-      'image': 'assets/gallery/dha-mosque-night.jpg',
-      'title': 'DHA Grand Mosque',
-      'category': 'Religious',
-    },
-    {
-      'image': 'assets/gallery/imperial-hall.jpg',
-      'title': 'DHA Imperial Hall',
-      'category': 'Community',
-    },
-    {
-      'image': 'assets/gallery/dha-park-night.jpg',
-      'title': 'DHA Community Park',
-      'category': 'Recreation',
-    },
-  ];
+  List<Map<String, dynamic>> _getGalleryImages(BuildContext context) {
+    return [
+      {
+        'image': 'assets/gallery/dha-gate-night.jpg',
+        'title': AppLocalizations.of(context)!.dhaPhase4Entrance,
+        'category': 'Infrastructure',
+      },
+      {
+        'image': 'assets/gallery/dha-medical-center.jpg',
+        'title': AppLocalizations.of(context)!.dhaMedicalCenter,
+        'category': 'Healthcare',
+      },
+      {
+        'image': 'assets/gallery/dha-commercial-center.jpg',
+        'title': AppLocalizations.of(context)!.dhaCommercialCenter,
+        'category': 'Commercial',
+      },
+      {
+        'image': 'assets/gallery/dha-sports-facility.jpg',
+        'title': AppLocalizations.of(context)!.dhaSportsComplex,
+        'category': 'Recreation',
+      },
+      {
+        'image': 'assets/gallery/dha-mosque-night.jpg',
+        'title': AppLocalizations.of(context)!.dhaGrandMosque,
+        'category': 'Religious',
+      },
+      {
+        'image': 'assets/gallery/imperial-hall.jpg',
+        'title': AppLocalizations.of(context)!.dhaImperialHall,
+        'category': 'Community',
+      },
+      {
+        'image': 'assets/gallery/dha-park-night.jpg',
+        'title': 'DHA Community Park',
+        'category': 'Recreation',
+      },
+    ];
+  }
 
   String _selectedCategory = 'All';
 
@@ -63,11 +66,12 @@ class _GalleryScreenState extends State<GalleryScreen> {
     'Community',
   ];
 
-  List<Map<String, dynamic>> get _filteredImages {
+  List<Map<String, dynamic>> _getFilteredImages(BuildContext context) {
+    final galleryImages = _getGalleryImages(context);
     if (_selectedCategory == 'All') {
-      return _galleryImages;
+      return galleryImages;
     }
-    return _galleryImages.where((image) => image['category'] == _selectedCategory).toList();
+    return galleryImages.where((image) => image['category'] == _selectedCategory).toList();
   }
 
   @override
@@ -79,7 +83,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
           'Gallery',
           style: TextStyle(
             fontFamily: 'Poppins',
-            fontSize: 18,
+            fontSize: 18.sp,
             fontWeight: FontWeight.w600,
             color: Colors.white,
           ),
@@ -137,9 +141,9 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 crossAxisCount: 2,
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
-                itemCount: _filteredImages.length,
+                itemCount: _getFilteredImages(context).length,
                 itemBuilder: (context, index) {
-                  final image = _filteredImages[index];
+                  final image = _getFilteredImages(context)[index];
                   return _buildGalleryItem(image, index);
                 },
               ),
@@ -206,7 +210,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                             image['category'],
                             style: GoogleFonts.inter(
                               color: Colors.white,
-                              fontSize: 10,
+                              fontSize: 10.sp,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -235,7 +239,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 child: Text(
                   image['title'],
                   style: GoogleFonts.inter(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: const Color(0xFF222222),
                   ),
@@ -261,7 +265,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => FullScreenImageViewer(
-          images: _filteredImages,
+          images: _getFilteredImages(context),
           currentIndex: currentIndex,
         ),
       ),
@@ -359,7 +363,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                       widget.images[_currentIndex]['title'],
                       style: GoogleFonts.inter(
                         color: Colors.white,
-                        fontSize: 16,
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
                       ),
                       textAlign: TextAlign.center,
@@ -420,14 +424,14 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                       );
                     }).toList(),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   
                   // Image Info
                   Text(
                     '${_currentIndex + 1} of ${widget.images.length}',
                     style: GoogleFonts.inter(
                       color: Colors.white,
-                      fontSize: 14,
+                      fontSize: 14.sp,
                     ),
                   ),
                 ],

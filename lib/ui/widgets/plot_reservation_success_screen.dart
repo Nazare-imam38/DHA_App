@@ -49,190 +49,152 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      body: Stack(
-        children: [
-          // Animated gradient background
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF1B5993),
-                  Color(0xFF20B2AA),
-                  Color(0xFF4CAF50),
-                ],
-                stops: [0.0, 0.5, 1.0],
-              ),
-            ),
-          ),
-          
-          // Floating particles effect
-          ...List.generate(8, (index) => _buildFloatingParticle(index)),
-          
-          // Main content overlay
-          SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    
-                    // Modern header with glassmorphism
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: Colors.white.withOpacity(0.2)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 30,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                
+                // Modern header with app theme
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: const Color(0xFF1B5993), width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF1B5993).withOpacity(0.1),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
                       ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(
-                              Icons.home_work,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'DHA MARKETPLACE',
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                                Text(
-                                  'Plot Reservation',
-                                  style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                    color: Colors.white.withOpacity(0.8),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(
-                              Icons.verified,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ),
-                        ],
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1B5993),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.home_work,
+                          color: Colors.white,
+                          size: 24,
+                        ),
                       ),
-                    ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Main payment card with enhanced design
-                    Container(
-                      padding: const EdgeInsets.all(28),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(28),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 40,
-                            offset: const Offset(0, 20),
-                          ),
-                          BoxShadow(
-                            color: const Color(0xFF1B5993).withOpacity(0.1),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'DHA MARKETPLACE',
+                              style: TextStyle(
+                                fontFamily: 'GT Walsheim',
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF1B5993),
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            Text(
+                              'Plot Reservation',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: const Color(0xFF20B2AA),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      child: Column(
-                        children: [
-                          // Enhanced success message with animation
-                          _buildEnhancedSuccessMessage(),
-                          
-                          const SizedBox(height: 32),
-                          
-                          // Payment method selection with modern design
-                          _buildEnhancedPaymentMethodSelection(),
-                          
-                          const SizedBox(height: 28),
-                          
-                          // Amount summary with better styling
-                          _buildEnhancedAmountSummary(),
-                          
-                          const SizedBox(height: 20),
-                          
-                          // Terms and conditions with better styling
-                          _buildEnhancedTermsAndConditions(),
-                          
-                          const SizedBox(height: 28),
-                          
-                          // Payment information section with modern design
-                          _buildEnhancedPaymentInformationSection(),
-                          
-                          const SizedBox(height: 32),
-                          
-                          // Action buttons with enhanced design
-                          _buildEnhancedActionButtons(),
-                        ],
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF20B2AA),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.verified,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
-                    ),
-                    
-                    const SizedBox(height: 20),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+                
+                const SizedBox(height: 24),
+                
+                // Main payment card with white background and app theme
+                Container(
+                  padding: const EdgeInsets.all(28),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(28),
+                    border: Border.all(color: const Color(0xFFE0E0E0), width: 1),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                      BoxShadow(
+                        color: const Color(0xFF1B5993).withOpacity(0.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      // Enhanced success message with animation
+                      _buildEnhancedSuccessMessage(),
+                      
+                      const SizedBox(height: 32),
+                      
+                      // Payment method selection with modern design
+                      _buildEnhancedPaymentMethodSelection(),
+                      
+                      const SizedBox(height: 28),
+                      
+                      // Amount summary with better styling
+                      _buildEnhancedAmountSummary(),
+                      
+                      const SizedBox(height: 20),
+                      
+                      // Terms and conditions with better styling
+                      _buildEnhancedTermsAndConditions(),
+                      
+                      const SizedBox(height: 28),
+                      
+                      // Payment information section with modern design
+                      _buildEnhancedPaymentInformationSection(),
+                      
+                      const SizedBox(height: 32),
+                      
+                      // Action buttons with enhanced design
+                      _buildEnhancedActionButtons(),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 20),
+              ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  // Floating particle effect
-  Widget _buildFloatingParticle(int index) {
-    return Positioned(
-      left: (index * 50.0) % MediaQuery.of(context).size.width,
-      top: (index * 80.0) % MediaQuery.of(context).size.height,
-      child: Container(
-        width: 4 + (index % 3) * 2,
-        height: 4 + (index % 3) * 2,
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.3),
-          shape: BoxShape.circle,
         ),
       ),
     );
   }
+
 
   // Enhanced success message with animation
   Widget _buildEnhancedSuccessMessage() {
@@ -243,14 +205,14 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF4CAF50),
-            Color(0xFF45A049),
+            Color(0xFF1B5993),
+            Color(0xFF20B2AA),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF4CAF50).withOpacity(0.3),
+            color: const Color(0xFF1B5993).withOpacity(0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -278,7 +240,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
                 Text(
                   'Plot Reserved Successfully!',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'GT Walsheim',
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -311,7 +273,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
         Text(
           'Payment Method',
           style: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'GT Walsheim',
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF1B5993),
@@ -351,7 +313,12 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF1B5993) : Colors.grey[50],
+          gradient: isSelected ? const LinearGradient(
+            colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ) : null,
+          color: isSelected ? null : Colors.grey[50],
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? const Color(0xFF1B5993) : Colors.grey[300]!,
@@ -377,7 +344,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
             Text(
               title,
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Inter',
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: isSelected ? Colors.white : Colors.grey[700],
@@ -458,21 +425,19 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.grey[50]!,
-            Colors.grey[100]!,
-          ],
-        ),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey[200]!),
+        border: Border.all(color: const Color(0xFFE0E0E0)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: const Color(0xFF1B5993).withOpacity(0.05),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -486,7 +451,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
             height: 1,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.transparent, Colors.grey[300]!, Colors.transparent],
+                colors: [Colors.transparent, const Color(0xFF1B5993).withOpacity(0.3), Colors.transparent],
               ),
             ),
           ),
@@ -505,12 +470,12 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: isTotal ? const Color(0xFF4CAF50).withOpacity(0.1) : Colors.grey[200],
+              color: isTotal ? const Color(0xFF20B2AA).withOpacity(0.1) : const Color(0xFF1B5993).withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               icon,
-              color: isTotal ? const Color(0xFF4CAF50) : Colors.grey[600],
+              color: isTotal ? const Color(0xFF20B2AA) : const Color(0xFF1B5993),
               size: 18,
             ),
           ),
@@ -532,7 +497,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
               fontFamily: 'Inter',
               fontSize: 16,
               fontWeight: isTotal ? FontWeight.w800 : FontWeight.w600,
-              color: isTotal ? const Color(0xFF4CAF50) : const Color(0xFF1B5993),
+              color: isTotal ? const Color(0xFF20B2AA) : const Color(0xFF1B5993),
             ),
           ),
         ],
@@ -595,16 +560,16 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1B5993).withOpacity(0.05),
+          color: const Color(0xFF20B2AA).withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFF1B5993).withOpacity(0.2)),
+          border: Border.all(color: const Color(0xFF20B2AA).withOpacity(0.3)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.description,
-              color: const Color(0xFF1B5993),
+              color: const Color(0xFF20B2AA),
               size: 18,
             ),
             const SizedBox(width: 8),
@@ -614,7 +579,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
                 fontFamily: 'Inter',
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF1B5993),
+                color: const Color(0xFF20B2AA),
                 decoration: TextDecoration.underline,
               ),
             ),
@@ -647,20 +612,19 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF4CAF50),
-            Color(0xFF45A049),
-          ],
-        ),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE0E0E0)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF4CAF50).withOpacity(0.3),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 20,
             offset: const Offset(0, 8),
+          ),
+          BoxShadow(
+            color: const Color(0xFF1B5993).withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -672,7 +636,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: const Color(0xFF1B5993),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -685,10 +649,10 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
               Text(
                 'Payment Information',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'GT Walsheim',
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: const Color(0xFF1B5993),
                   letterSpacing: 0.5,
                 ),
               ),
@@ -700,9 +664,9 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
+              color: const Color(0xFF1B5993).withOpacity(0.05),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withOpacity(0.3)),
+              border: Border.all(color: const Color(0xFF1B5993).withOpacity(0.2)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -719,7 +683,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
                               fontFamily: 'Inter',
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white.withOpacity(0.9),
+                              color: const Color(0xFF1B5993),
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -729,7 +693,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
                               fontFamily: 'Inter',
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                              color: const Color(0xFF1B5993),
                               letterSpacing: 0.5,
                             ),
                           ),
@@ -742,7 +706,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: const Color(0xFF20B2AA),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(
@@ -760,7 +724,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 12,
-                    color: Colors.white.withOpacity(0.8),
+                    color: const Color(0xFF20B2AA),
                   ),
                 ),
               ],
@@ -779,7 +743,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.2),
+              color: Colors.red.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.red.withOpacity(0.3)),
             ),
@@ -818,14 +782,14 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
           Container(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: const Color(0xFF20B2AA).withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.info_outline,
-                  color: Colors.white.withOpacity(0.8),
+                  color: const Color(0xFF20B2AA),
                   size: 16,
                 ),
                 const SizedBox(width: 8),
@@ -834,7 +798,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 14,
-                    color: Colors.white.withOpacity(0.9),
+                    color: const Color(0xFF1B5993),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -850,14 +814,14 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: const Color(0xFF1B5993).withOpacity(0.05),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
           Icon(
             icon,
-            color: Colors.white.withOpacity(0.8),
+            color: const Color(0xFF1B5993),
             size: 16,
           ),
           const SizedBox(width: 8),
@@ -867,7 +831,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
               fontFamily: 'Inter',
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Colors.white.withOpacity(0.8),
+              color: const Color(0xFF1B5993),
             ),
           ),
           const SizedBox(width: 8),
@@ -877,7 +841,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
               fontFamily: 'Inter',
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: Colors.white,
+              color: const Color(0xFF20B2AA),
             ),
           ),
         ],
@@ -1035,9 +999,9 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
           child: Container(
             height: 56,
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.grey[300]!),
+              border: Border.all(color: const Color(0xFF1B5993), width: 2),
             ),
             child: Material(
               color: Colors.transparent,
@@ -1050,17 +1014,17 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
                     children: [
                       Icon(
                         Icons.close,
-                        color: Colors.grey[600],
+                        color: const Color(0xFF1B5993),
                         size: 20,
                       ),
                       const SizedBox(width: 8),
                       Text(
                         'Close',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Inter',
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
+                          color: const Color(0xFF1B5993),
                         ),
                       ),
                     ],
@@ -1110,7 +1074,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
                       Text(
                         'Go to My Bookings',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Inter',
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,

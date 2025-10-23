@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -29,6 +30,9 @@ class _HomeScreenState extends State<HomeScreen>
   String _selectedFilter = '';
   String _selectedLocation = '';
   bool _showLocationDropdown = false;
+  bool _showImageModal = false;
+  String _selectedImagePath = '';
+  String _selectedImageTitle = '';
   
   // Animation Controllers
   late AnimationController _heroAnimationController;
@@ -61,28 +65,30 @@ class _HomeScreenState extends State<HomeScreen>
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   
   
-  final List<Map<String, dynamic>> _carouselData = [
-    {
-      'title': 'DHA Phase 1',
-      'subtitle': 'Premium Commercial Area',
-      'gradient': [Color(0xFF20B2AA), Color(0xFF1B5993)],
-    },
-    {
-      'title': 'DHA Phase 2',
-      'subtitle': 'Modern Residential Plots',
-      'gradient': [Color(0xFF2ECC71), Color(0xFF1ABC9C)],
-    },
-    {
-      'title': 'DHA Phase 3',
-      'subtitle': 'Luxury Living Standards',
-      'gradient': [Color(0xFF1B5993), Color(0xFF1B5993)],
-    },
-    {
-      'title': 'DHA Phase 4',
-      'subtitle': 'Well-Planned Community',
-      'gradient': [Color(0xFF27AE60), Color(0xFF2ECC71)],
-    },
-  ];
+  List<Map<String, dynamic>> _getCarouselData(BuildContext context) {
+    return [
+      {
+        'title': AppLocalizations.of(context)!.dhaPhase1,
+        'subtitle': 'Premium Commercial Area',
+        'gradient': [Color(0xFF20B2AA), Color(0xFF1B5993)],
+      },
+      {
+        'title': AppLocalizations.of(context)!.dhaPhase2,
+        'subtitle': 'Modern Residential Plots',
+        'gradient': [Color(0xFF2ECC71), Color(0xFF1ABC9C)],
+      },
+      {
+        'title': AppLocalizations.of(context)!.dhaPhase3,
+        'subtitle': 'Luxury Living Standards',
+        'gradient': [Color(0xFF1B5993), Color(0xFF1B5993)],
+      },
+      {
+        'title': AppLocalizations.of(context)!.dhaPhase4,
+        'subtitle': 'Well-Planned Community',
+        'gradient': [Color(0xFF27AE60), Color(0xFF2ECC71)],
+      },
+    ];
+  }
 
   final List<String> _dhaPhases = [
     'Phase 1',
@@ -415,14 +421,14 @@ class _HomeScreenState extends State<HomeScreen>
                     children: [
                       // Icon container
                       Container(
-                        width: 64,
-                        height: 64,
+                        width: 64.w,
+                        height: 64.h,
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(20.r),
                           border: Border.all(
                             color: Colors.white.withValues(alpha: 0.3),
-                            width: 1,
+                            width: 1.w,
                           ),
                         ),
                         child: const Icon(
@@ -431,12 +437,12 @@ class _HomeScreenState extends State<HomeScreen>
                           size: 32,
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      const Text(
+                      SizedBox(height: 16.h),
+                      Text(
                         'Login Required',
                         style: TextStyle(
                           fontFamily: 'GT Walsheim',
-                          fontSize: 24,
+                          fontSize: 24.sp,
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
                           letterSpacing: -0.5,
@@ -451,11 +457,11 @@ class _HomeScreenState extends State<HomeScreen>
                   padding: const EdgeInsets.all(24),
                   child: Column(
                     children: [
-                      const Text(
+                      Text(
                         'You need to be logged in to post a property. Please login to continue.',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.w500,
                           color: Color(0xFF616161),
                           height: 1.5,
@@ -463,7 +469,7 @@ class _HomeScreenState extends State<HomeScreen>
                         textAlign: TextAlign.center,
                       ),
                       
-                      const SizedBox(height: 32),
+                      SizedBox(height: 32.h),
                       
                       // Action buttons
                       Row(
@@ -471,13 +477,13 @@ class _HomeScreenState extends State<HomeScreen>
                           // Cancel button
                           Expanded(
                             child: Container(
-                              height: 48,
+                              height: 48.h,
                               decoration: BoxDecoration(
                                 color: const Color(0xFFF5F5F5),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(12.r),
                                 border: Border.all(
                                   color: const Color(0xFFE0E0E0),
-                                  width: 1,
+                                  width: 1.w,
                                 ),
                               ),
                               child: TextButton(
@@ -487,11 +493,11 @@ class _HomeScreenState extends State<HomeScreen>
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   'Cancel',
                                   style: TextStyle(
                                     fontFamily: 'Inter',
-                                    fontSize: 16,
+                                    fontSize: 16.sp,
                                     fontWeight: FontWeight.w600,
                                     color: Color(0xFF757575),
                                   ),
@@ -500,12 +506,12 @@ class _HomeScreenState extends State<HomeScreen>
                             ),
                           ),
                           
-                          const SizedBox(width: 12),
+                          SizedBox(width: 12.w),
                           
                           // Login button
                           Expanded(
                             child: Container(
-                              height: 48,
+                              height: 48.h,
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
                                   colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
@@ -598,23 +604,25 @@ class _HomeScreenState extends State<HomeScreen>
     final l10n = AppLocalizations.of(context)!;
     final languageService = Provider.of<LanguageService>(context);
     
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () {
-        // Close location dropdown when tapping outside
-        if (_showLocationDropdown) {
-          setState(() {
-            _showLocationDropdown = false;
-          });
-        }
-      },
-      child: Scaffold(
-        key: _scaffoldKey,
-        backgroundColor: Colors.white,
-        drawer: const SidebarDrawer(),
-        body: SafeArea(
-        child: Column(
-          children: [
+    return Stack(
+      children: [
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            // Close location dropdown when tapping outside
+            if (_showLocationDropdown) {
+              setState(() {
+                _showLocationDropdown = false;
+              });
+            }
+          },
+          child: Scaffold(
+            key: _scaffoldKey,
+            backgroundColor: Colors.white,
+            drawer: const SidebarDrawer(),
+            body: SafeArea(
+              child: Column(
+                children: [
             // Simplified Header with Menu Only
             Container(
               decoration: BoxDecoration(
@@ -974,19 +982,19 @@ class _HomeScreenState extends State<HomeScreen>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            l10n.newProjects,
-                            style: TextStyle(
-                              fontFamily: 'GT Walsheim',
+                              Text(
+                            'GALLERY',
+                                style: TextStyle(
+                                  fontFamily: 'GT Walsheim',
                               fontSize: 18.sp,
                               fontWeight: FontWeight.w600,
                               color: Colors.black,
                             ),
                           ),
                           Text(
-                            l10n.viewAll,
-                            style: TextStyle(
-                              fontFamily: 'Inter',
+                              l10n.viewAll,
+                              style: TextStyle(
+                                fontFamily: 'Inter',
                               fontSize: 14.sp,
                               color: const Color(0xFF1B5993),
                               fontWeight: FontWeight.w600,
@@ -1014,10 +1022,16 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
             ),
-          ],
+                ],
+              ),
+            ),
+          ),
         ),
-      ),
-      ),
+        
+        // Image Modal
+        if (_showImageModal)
+          _buildImageModal(),
+      ],
     );
   }
 
@@ -1355,10 +1369,12 @@ class _HomeScreenState extends State<HomeScreen>
     
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => ProjectsScreenInstant()),
-        );
+        // Show image modal instead of navigating to marketplace
+        setState(() {
+          _selectedImagePath = project['image'] as String;
+          _selectedImageTitle = project['title'] as String;
+          _showImageModal = true;
+        });
       },
       child: Container(
       width: 140.w,
@@ -1419,6 +1435,16 @@ class _HomeScreenState extends State<HomeScreen>
                     },
                   ),
                 ),
+                // Eye icon for image modal (now redundant but kept for visual consistency)
+                Positioned(
+                  bottom: 8.h,
+                  right: 8.w,
+                  child: Icon(
+                    Icons.visibility,
+                    color: Colors.white,
+                    size: 18.sp,
+                  ),
+                ),
                 if (project['badge'] != null)
                   Positioned(
                     top: 6.h,
@@ -1463,33 +1489,20 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   if (project['category'] == null || project['category'].toString().isEmpty)
                     Positioned(
-                      top: 8.h,
+                      bottom: 8.h,
                       right: 8.w,
                       child: GestureDetector(
                         onTap: () {
-                          // Add to favorites
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('${project['title']} added to favorites'),
-                              backgroundColor: const Color(0xFF20B2AA),
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          );
+                          setState(() {
+                            _selectedImagePath = project['image'] as String;
+                            _selectedImageTitle = project['title'] as String;
+                            _showImageModal = true;
+                          });
                         },
-                        child: Container(
-                          padding: EdgeInsets.all(4.w),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          child: Icon(
-                            Icons.favorite_border,
-                            color: const Color(0xFF1B5993),
-                            size: 16.sp,
-                          ),
+                        child: Icon(
+                          Icons.visibility,
+                          color: Colors.white,
+                          size: 18.sp,
                         ),
                       ),
                     ),
@@ -1530,6 +1543,154 @@ class _HomeScreenState extends State<HomeScreen>
           ),
         ],
       ),
+      ),
+    );
+  }
+
+  // Image Modal with zoom functionality and blurry background
+  Widget _buildImageModal() {
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: Colors.black.withOpacity(0.4),
+        child: Stack(
+          children: [
+            // Blurry background
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+              child: Container(
+                color: Colors.black.withOpacity(0.1),
+                child: Center(
+                  child: InteractiveViewer(
+                    minScale: 0.5,
+                    maxScale: 4.0,
+                    child: Container(
+                      constraints: BoxConstraints(
+                        maxWidth: MediaQuery.of(context).size.width * 0.9,
+                        maxHeight: MediaQuery.of(context).size.height * 0.8,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16.r),
+                        child: CachedAssetImage(
+                          assetPath: _selectedImagePath,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              width: 300.w,
+                              height: 200.h,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: BorderRadius.circular(16.r),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.broken_image,
+                                    color: Colors.grey[400],
+                                    size: 48.sp,
+                                  ),
+                                  SizedBox(height: 8.h),
+                                  Text(
+                                    'Image not found',
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 14.sp,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            
+            // Close button
+            Positioned(
+              top: 50.h,
+              right: 20.w,
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _showImageModal = false;
+                    _selectedImagePath = '';
+                    _selectedImageTitle = '';
+                  });
+                },
+                child: Icon(
+                  Icons.close,
+                  color: Colors.white,
+                  size: 18.sp,
+                ),
+              ),
+            ),
+            
+            // Image title
+            Positioned(
+              bottom: 50.h,
+              left: 20.w,
+              right: 20.w,
+              child: Text(
+                _selectedImageTitle,
+                style: TextStyle(
+                  fontFamily: 'GT Walsheim',
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black.withOpacity(0.8),
+                      offset: const Offset(0, 1),
+                      blurRadius: 3,
+                    ),
+                    Shadow(
+                      color: Colors.black.withOpacity(0.6),
+                      offset: const Offset(0, 2),
+                      blurRadius: 6,
+                    ),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            
+            // Zoom instructions
+            Positioned(
+              bottom: 100.h,
+              left: 20.w,
+              right: 20.w,
+              child: Text(
+                'Pinch to zoom • Double tap to reset',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 14.sp,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black.withOpacity(0.8),
+                      offset: const Offset(0, 1),
+                      blurRadius: 3,
+                    ),
+                    Shadow(
+                      color: Colors.black.withOpacity(0.6),
+                      offset: const Offset(0, 2),
+                      blurRadius: 6,
+                    ),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

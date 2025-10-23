@@ -1039,6 +1039,390 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Get Started Today'**
   String get getStartedToday;
+
+  /// No description provided for @features.
+  ///
+  /// In en, this message translates to:
+  /// **'Features'**
+  String get features;
+
+  /// No description provided for @payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get payment;
+
+  /// No description provided for @plotFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Plot Features'**
+  String get plotFeatures;
+
+  /// No description provided for @electricity.
+  ///
+  /// In en, this message translates to:
+  /// **'Electricity'**
+  String get electricity;
+
+  /// No description provided for @sewerage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sewerage'**
+  String get sewerage;
+
+  /// No description provided for @waterSupply.
+  ///
+  /// In en, this message translates to:
+  /// **'Water Supply'**
+  String get waterSupply;
+
+  /// No description provided for @accessibleByRoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessible by Road'**
+  String get accessibleByRoad;
+
+  /// No description provided for @businessAndCommunication.
+  ///
+  /// In en, this message translates to:
+  /// **'Business & Communication'**
+  String get businessAndCommunication;
+
+  /// No description provided for @broadbandInternetAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Broadband Internet Access'**
+  String get broadbandInternetAccess;
+
+  /// No description provided for @satelliteOrCableTvReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Satellite or Cable TV Ready'**
+  String get satelliteOrCableTvReady;
+
+  /// No description provided for @nearbyFacilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby Facilities'**
+  String get nearbyFacilities;
+
+  /// No description provided for @nearbyHospitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby Hospitals'**
+  String get nearbyHospitals;
+
+  /// No description provided for @nearbyPublicTransportService.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby Public Transport Service'**
+  String get nearbyPublicTransportService;
+
+  /// No description provided for @nearbyRestaurants.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby Restaurants'**
+  String get nearbyRestaurants;
+
+  /// No description provided for @nearbySchools.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby Schools'**
+  String get nearbySchools;
+
+  /// No description provided for @nearbyShoppingMalls.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby Shopping Malls'**
+  String get nearbyShoppingMalls;
+
+  /// No description provided for @otherFacilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Facilities'**
+  String get otherFacilities;
+
+  /// No description provided for @cctvSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'CCTV Security'**
+  String get cctvSecurity;
+
+  /// No description provided for @maintenanceStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintenance Staff'**
+  String get maintenanceStaff;
+
+  /// No description provided for @securityStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'Security Staff'**
+  String get securityStaff;
+
+  /// No description provided for @petPolicyAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Pet Policy: Allowed'**
+  String get petPolicyAllowed;
+
+  /// No description provided for @propertyLocationDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Property Location Details'**
+  String get propertyLocationDetails;
+
+  /// No description provided for @nearbyAmenities.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby Amenities'**
+  String get nearbyAmenities;
+
+  /// No description provided for @hospitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Hospitals'**
+  String get hospitals;
+
+  /// No description provided for @schools.
+  ///
+  /// In en, this message translates to:
+  /// **'Schools'**
+  String get schools;
+
+  /// No description provided for @shopping.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping'**
+  String get shopping;
+
+  /// No description provided for @restaurants.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurants'**
+  String get restaurants;
+
+  /// No description provided for @transport.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport'**
+  String get transport;
+
+  /// No description provided for @parks.
+  ///
+  /// In en, this message translates to:
+  /// **'Parks'**
+  String get parks;
+
+  /// No description provided for @monthlyInstallments.
+  ///
+  /// In en, this message translates to:
+  /// **'MONTHLY INSTALLMENTS'**
+  String get monthlyInstallments;
+
+  /// No description provided for @monthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get monthly;
+
+  /// No description provided for @downPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Down Payment'**
+  String get downPayment;
+
+  /// No description provided for @totalCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Cost'**
+  String get totalCost;
+
+  /// No description provided for @finalPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Final Payment'**
+  String get finalPayment;
+
+  /// No description provided for @additionalCharges.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional Charges'**
+  String get additionalCharges;
+
+  /// No description provided for @contactInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Information'**
+  String get contactInformation;
+
+  /// No description provided for @bookingOffice.
+  ///
+  /// In en, this message translates to:
+  /// **'BOOKING OFFICE'**
+  String get bookingOffice;
+
+  /// No description provided for @siteOffice.
+  ///
+  /// In en, this message translates to:
+  /// **'SITE OFFICE'**
+  String get siteOffice;
+
+  /// No description provided for @salesCentre.
+  ///
+  /// In en, this message translates to:
+  /// **'24/7 SALES CENTRE'**
+  String get salesCentre;
+
+  /// No description provided for @getMoreInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Get More Info'**
+  String get getMoreInfo;
+
+  /// No description provided for @call.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get call;
+
+  /// No description provided for @dha.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA'**
+  String get dha;
+
+  /// No description provided for @dhaPhase.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Phase'**
+  String get dhaPhase;
+
+  /// No description provided for @dhaPhase1.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Phase 1'**
+  String get dhaPhase1;
+
+  /// No description provided for @dhaPhase2.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Phase 2'**
+  String get dhaPhase2;
+
+  /// No description provided for @dhaPhase3.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Phase 3'**
+  String get dhaPhase3;
+
+  /// No description provided for @dhaPhase4.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Phase 4'**
+  String get dhaPhase4;
+
+  /// No description provided for @dhaPhase5.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Phase 5'**
+  String get dhaPhase5;
+
+  /// No description provided for @dhaPhase6.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Phase 6'**
+  String get dhaPhase6;
+
+  /// No description provided for @dhaPhase7.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Phase 7'**
+  String get dhaPhase7;
+
+  /// No description provided for @dhaPhase8.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Phase 8'**
+  String get dhaPhase8;
+
+  /// No description provided for @dhaMarketplace.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Marketplace'**
+  String get dhaMarketplace;
+
+  /// No description provided for @dhaProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Properties'**
+  String get dhaProperties;
+
+  /// No description provided for @dhaDevelopment.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Development'**
+  String get dhaDevelopment;
+
+  /// No description provided for @dhaGeoJsonBoundaries.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA GeoJSON boundaries loaded (High Performance)'**
+  String get dhaGeoJsonBoundaries;
+
+  /// No description provided for @dhaLoadingWidget.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Loading Widget'**
+  String get dhaLoadingWidget;
+
+  /// No description provided for @dhaLogo.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Logo'**
+  String get dhaLogo;
+
+  /// No description provided for @dhaMedicalCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Medical Center'**
+  String get dhaMedicalCenter;
+
+  /// No description provided for @dhaCommercialCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Commercial Center'**
+  String get dhaCommercialCenter;
+
+  /// No description provided for @dhaSportsComplex.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Sports Complex'**
+  String get dhaSportsComplex;
+
+  /// No description provided for @dhaGrandMosque.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Grand Mosque'**
+  String get dhaGrandMosque;
+
+  /// No description provided for @dhaImperialHall.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Imperial Hall'**
+  String get dhaImperialHall;
+
+  /// No description provided for @dhaPhase4Entrance.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Phase 4 Entrance'**
+  String get dhaPhase4Entrance;
+
+  /// No description provided for @dhaMarketplaceMobileApp.
+  ///
+  /// In en, this message translates to:
+  /// **'DHA Marketplace Mobile App'**
+  String get dhaMarketplaceMobileApp;
 }
 
 class _AppLocalizationsDelegate

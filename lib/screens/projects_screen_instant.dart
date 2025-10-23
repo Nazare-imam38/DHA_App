@@ -695,8 +695,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           
           final marker = Marker(
             point: point,
-            width: 32,
-            height: 32,
+            width: 32.w,
+            height: 32.h,
             child: GestureDetector(
               onTap: () {
                 print('Tapped on ${feature.type} at ${feature.phase}');
@@ -706,7 +706,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: color, width: 2),
+                  border: Border.all(color: color, width: 2.w),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.2),
@@ -877,8 +877,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       print('Warning: Amenity marker has empty type');
       return Marker(
         point: amenityMarker.point,
-        width: 20,
-        height: 20,
+        width: 20.w,
+        height: 20.h,
         child: const Icon(Icons.place, color: Colors.grey),
       );
     }
@@ -888,8 +888,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       print('Warning: Amenity marker has invalid coordinates');
       return Marker(
         point: const LatLng(0, 0),
-        width: 20,
-        height: 20,
+        width: 20.w,
+        height: 20.h,
         child: const Icon(Icons.place, color: Colors.grey),
       );
     }
@@ -1054,9 +1054,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                         borderColor: Colors.red,
                         borderStrokeWidth: 2.0,
                         label: 'Test Polygon',
-                        labelStyle: const TextStyle(
+                        labelStyle: TextStyle(
                           color: Colors.white,
-                          fontSize: 12,
+                          fontSize: 12.sp,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -1142,7 +1142,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                       l10n.dhaProjectsMap,
                       style: TextStyle(
                         fontFamily: 'GT Walsheim',
-                        fontSize: 18,
+                        fontSize: 18.sp,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF1B5993),
                         letterSpacing: 1.2,
@@ -2964,6 +2964,15 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       _mapController.move(_mapController.camera.center, clampedZoom.toDouble());
     }
     
+    // Handle plot info card visibility based on zoom level
+    if (_selectedPlot != null) {
+      if (clampedZoom < 18.0) {
+        print('🔍 Plot info card will be hidden - zoom level $clampedZoom is below minimum (18.0)');
+      } else {
+        print('🔍 Plot info card will be visible - zoom level $clampedZoom is sufficient (minimum: 18.0)');
+      }
+    }
+    
     // Load amenities when zoom level is appropriate and not already loaded (lazy loading at 16+)
     if (newZoomLevel >= 16 && _showAmenities && !_amenitiesLoaded && !_isLoadingAmenities) {
       print('🚀 Loading amenities on zoom change to level: $newZoomLevel');
@@ -4065,6 +4074,13 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       return [];
     }
 
+    // Hide plot info card when zoomed out too far to prevent UI clutter
+    // Show plot cards only when zoom level is 18.0 or higher for optimal visibility
+    if (_zoom < 18.0) {
+      print('🔍 Plot info card hidden - zoom level $_zoom is too low (minimum: 18.0)');
+      return [];
+    }
+
     // Calculate plot center from polygon coordinates
     final polygonCoordinates = _selectedPlot!.polygonCoordinates;
     if (polygonCoordinates.isEmpty) return [];
@@ -4088,6 +4104,8 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     // Position popup to the side of the centroid to show plot polygon
     // Offset significantly to the side to ensure plot boundaries are visible
     final popupPosition = LatLng(centroid.latitude + 0.0006, centroid.longitude + 0.0005);
+    
+    print('🔍 Plot info card visible - zoom level $_zoom is sufficient (minimum: 18.0)');
     
     return [
       Marker(

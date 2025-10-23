@@ -256,25 +256,32 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
             ),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context); // Close dialog
+              
+              // Clear authentication state for guest mode
+              final authProvider = Provider.of<AuthProvider>(context, listen: false);
+              await authProvider.clearAuthForGuest();
+              
               // Navigate to main app as guest
-              Navigator.pushReplacement(
-                context,
-                PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) => MainWrapper(),
-                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                    return SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(1.0, 0.0),
-                        end: Offset.zero,
-                      ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
-                      child: child,
-                    );
-                  },
-                  transitionDuration: const Duration(milliseconds: 600),
-                ),
-              );
+              if (mounted) {
+                Navigator.pushReplacement(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) => MainWrapper(),
+                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                      return SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(1.0, 0.0),
+                          end: Offset.zero,
+                        ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+                        child: child,
+                      );
+                    },
+                    transitionDuration: const Duration(milliseconds: 600),
+                  ),
+                );
+              }
             },
             child: Text(
               'Continue',

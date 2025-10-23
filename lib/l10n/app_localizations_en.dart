@@ -488,4 +488,197 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get getStartedToday => 'Get Started Today';
+
+  @override
+  String get features => 'Features';
+
+  @override
+  String get payment => 'Payment';
+
+  @override
+  String get plotFeatures => 'Plot Features';
+
+  @override
+  String get electricity => 'Electricity';
+
+  @override
+  String get sewerage => 'Sewerage';
+
+  @override
+  String get waterSupply => 'Water Supply';
+
+  @override
+  String get accessibleByRoad => 'Accessible by Road';
+
+  @override
+  String get businessAndCommunication => 'Business & Communication';
+
+  @override
+  String get broadbandInternetAccess => 'Broadband Internet Access';
+
+  @override
+  String get satelliteOrCableTvReady => 'Satellite or Cable TV Ready';
+
+  @override
+  String get nearbyFacilities => 'Nearby Facilities';
+
+  @override
+  String get nearbyHospitals => 'Nearby Hospitals';
+
+  @override
+  String get nearbyPublicTransportService => 'Nearby Public Transport Service';
+
+  @override
+  String get nearbyRestaurants => 'Nearby Restaurants';
+
+  @override
+  String get nearbySchools => 'Nearby Schools';
+
+  @override
+  String get nearbyShoppingMalls => 'Nearby Shopping Malls';
+
+  @override
+  String get otherFacilities => 'Other Facilities';
+
+  @override
+  String get cctvSecurity => 'CCTV Security';
+
+  @override
+  String get maintenanceStaff => 'Maintenance Staff';
+
+  @override
+  String get securityStaff => 'Security Staff';
+
+  @override
+  String get petPolicyAllowed => 'Pet Policy: Allowed';
+
+  @override
+  String get propertyLocationDetails => 'Property Location Details';
+
+  @override
+  String get nearbyAmenities => 'Nearby Amenities';
+
+  @override
+  String get hospitals => 'Hospitals';
+
+  @override
+  String get schools => 'Schools';
+
+  @override
+  String get shopping => 'Shopping';
+
+  @override
+  String get restaurants => 'Restaurants';
+
+  @override
+  String get transport => 'Transport';
+
+  @override
+  String get parks => 'Parks';
+
+  @override
+  String get monthlyInstallments => 'MONTHLY INSTALLMENTS';
+
+  @override
+  String get monthly => 'Monthly';
+
+  @override
+  String get downPayment => 'Down Payment';
+
+  @override
+  String get totalCost => 'Total Cost';
+
+  @override
+  String get finalPayment => 'Final Payment';
+
+  @override
+  String get additionalCharges => 'Additional Charges';
+
+  @override
+  String get contactInformation => 'Contact Information';
+
+  @override
+  String get bookingOffice => 'BOOKING OFFICE';
+
+  @override
+  String get siteOffice => 'SITE OFFICE';
+
+  @override
+  String get salesCentre => '24/7 SALES CENTRE';
+
+  @override
+  String get getMoreInfo => 'Get More Info';
+
+  @override
+  String get call => 'Call';
+
+  @override
+  String get dha => 'DHA';
+
+  @override
+  String get dhaPhase => 'DHA Phase';
+
+  @override
+  String get dhaPhase1 => 'DHA Phase 1';
+
+  @override
+  String get dhaPhase2 => 'DHA Phase 2';
+
+  @override
+  String get dhaPhase3 => 'DHA Phase 3';
+
+  @override
+  String get dhaPhase4 => 'DHA Phase 4';
+
+  @override
+  String get dhaPhase5 => 'DHA Phase 5';
+
+  @override
+  String get dhaPhase6 => 'DHA Phase 6';
+
+  @override
+  String get dhaPhase7 => 'DHA Phase 7';
+
+  @override
+  String get dhaPhase8 => 'DHA Phase 8';
+
+  @override
+  String get dhaMarketplace => 'DHA Marketplace';
+
+  @override
+  String get dhaProperties => 'DHA Properties';
+
+  @override
+  String get dhaDevelopment => 'DHA Development';
+
+  @override
+  String get dhaGeoJsonBoundaries =>
+      'DHA GeoJSON boundaries loaded (High Performance)';
+
+  @override
+  String get dhaLoadingWidget => 'DHA Loading Widget';
+
+  @override
+  String get dhaLogo => 'DHA Logo';
+
+  @override
+  String get dhaMedicalCenter => 'DHA Medical Center';
+
+  @override
+  String get dhaCommercialCenter => 'DHA Commercial Center';
+
+  @override
+  String get dhaSportsComplex => 'DHA Sports Complex';
+
+  @override
+  String get dhaGrandMosque => 'DHA Grand Mosque';
+
+  @override
+  String get dhaImperialHall => 'DHA Imperial Hall';
+
+  @override
+  String get dhaPhase4Entrance => 'DHA Phase 4 Entrance';
+
+  @override
+  String get dhaMarketplaceMobileApp => 'DHA Marketplace Mobile App';
 }

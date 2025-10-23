@@ -488,4 +488,197 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get getStartedToday => 'آج ہی شروع کریں';
+
+  @override
+  String get features => 'خصوصیات';
+
+  @override
+  String get payment => 'ادائیگی';
+
+  @override
+  String get plotFeatures => 'پلاٹ کی خصوصیات';
+
+  @override
+  String get electricity => 'بجلی';
+
+  @override
+  String get sewerage => 'نکاسی آب';
+
+  @override
+  String get waterSupply => 'پانی کی فراہمی';
+
+  @override
+  String get accessibleByRoad => 'سڑک سے قابل رسائی';
+
+  @override
+  String get businessAndCommunication => 'کاروبار اور مواصلات';
+
+  @override
+  String get broadbandInternetAccess => 'براڈ بینڈ انٹرنیٹ رسائی';
+
+  @override
+  String get satelliteOrCableTvReady => 'سیٹلائٹ یا کیبل ٹی وی تیار';
+
+  @override
+  String get nearbyFacilities => 'قریبی سہولات';
+
+  @override
+  String get nearbyHospitals => 'قریبی ہسپتال';
+
+  @override
+  String get nearbyPublicTransportService => 'قریبی عوامی ٹرانسپورٹ سروس';
+
+  @override
+  String get nearbyRestaurants => 'قریبی ریسٹورانٹ';
+
+  @override
+  String get nearbySchools => 'قریبی اسکول';
+
+  @override
+  String get nearbyShoppingMalls => 'قریبی شاپنگ مال';
+
+  @override
+  String get otherFacilities => 'دیگر سہولات';
+
+  @override
+  String get cctvSecurity => 'سی سی ٹی وی سیکیورٹی';
+
+  @override
+  String get maintenanceStaff => 'دیکھ بھال کا عملہ';
+
+  @override
+  String get securityStaff => 'سیکیورٹی عملہ';
+
+  @override
+  String get petPolicyAllowed => 'پالتو جانور کی پالیسی: اجازت';
+
+  @override
+  String get propertyLocationDetails => 'پراپرٹی کے مقام کی تفصیلات';
+
+  @override
+  String get nearbyAmenities => 'قریبی سہولات';
+
+  @override
+  String get hospitals => 'ہسپتال';
+
+  @override
+  String get schools => 'اسکول';
+
+  @override
+  String get shopping => 'خریداری';
+
+  @override
+  String get restaurants => 'ریسٹورانٹ';
+
+  @override
+  String get transport => 'ٹرانسپورٹ';
+
+  @override
+  String get parks => 'پارک';
+
+  @override
+  String get monthlyInstallments => 'ماہانہ قسطیں';
+
+  @override
+  String get monthly => 'ماہانہ';
+
+  @override
+  String get downPayment => 'ڈاؤن پیمنٹ';
+
+  @override
+  String get totalCost => 'کل لاگت';
+
+  @override
+  String get finalPayment => 'آخری ادائیگی';
+
+  @override
+  String get additionalCharges => 'اضافی چارجز';
+
+  @override
+  String get contactInformation => 'رابطے کی معلومات';
+
+  @override
+  String get bookingOffice => 'بکنگ آفس';
+
+  @override
+  String get siteOffice => 'سائٹ آفس';
+
+  @override
+  String get salesCentre => '24/7 سیلز سینٹر';
+
+  @override
+  String get getMoreInfo => 'مزید معلومات حاصل کریں';
+
+  @override
+  String get call => 'کال کریں';
+
+  @override
+  String get dha => 'ڈی ایچ اے';
+
+  @override
+  String get dhaPhase => 'ڈی ایچ اے فیز';
+
+  @override
+  String get dhaPhase1 => 'ڈی ایچ اے فیز 1';
+
+  @override
+  String get dhaPhase2 => 'ڈی ایچ اے فیز 2';
+
+  @override
+  String get dhaPhase3 => 'ڈی ایچ اے فیز 3';
+
+  @override
+  String get dhaPhase4 => 'ڈی ایچ اے فیز 4';
+
+  @override
+  String get dhaPhase5 => 'ڈی ایچ اے فیز 5';
+
+  @override
+  String get dhaPhase6 => 'ڈی ایچ اے فیز 6';
+
+  @override
+  String get dhaPhase7 => 'ڈی ایچ اے فیز 7';
+
+  @override
+  String get dhaPhase8 => 'ڈی ایچ اے فیز 8';
+
+  @override
+  String get dhaMarketplace => 'ڈی ایچ اے مارکیٹ پلیس';
+
+  @override
+  String get dhaProperties => 'ڈی ایچ اے پراپرٹیز';
+
+  @override
+  String get dhaDevelopment => 'ڈی ایچ اے ڈیولپمنٹ';
+
+  @override
+  String get dhaGeoJsonBoundaries =>
+      'ڈی ایچ اے GeoJSON حدود لوڈ ہو گئیں (ہائی پرفارمنس)';
+
+  @override
+  String get dhaLoadingWidget => 'ڈی ایچ اے لوڈنگ ویجیٹ';
+
+  @override
+  String get dhaLogo => 'ڈی ایچ اے لوگو';
+
+  @override
+  String get dhaMedicalCenter => 'ڈی ایچ اے میڈیکل سینٹر';
+
+  @override
+  String get dhaCommercialCenter => 'ڈی ایچ اے کمرشل سینٹر';
+
+  @override
+  String get dhaSportsComplex => 'ڈی ایچ اے سپورٹس کمپلیکس';
+
+  @override
+  String get dhaGrandMosque => 'ڈی ایچ اے گرینڈ مسجد';
+
+  @override
+  String get dhaImperialHall => 'ڈی ایچ اے امپیریل ہال';
+
+  @override
+  String get dhaPhase4Entrance => 'ڈی ایچ اے فیز 4 انٹرنس';
+
+  @override
+  String get dhaMarketplaceMobileApp => 'ڈی ایچ اے مارکیٹ پلیس موبائل ایپ';
 }
