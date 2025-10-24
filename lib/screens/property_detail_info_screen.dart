@@ -5,6 +5,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../l10n/app_localizations.dart';
 import '../services/whatsapp_service.dart';
+import '../services/facility_service.dart';
+import '../models/nearby_facility.dart';
 import 'main_wrapper.dart';
 import 'projects_screen_instant.dart';
 import 'property_listings_screen.dart';
@@ -27,11 +29,14 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _currentImageIndex = 0;
+  List<NearbyFacility> nearbyFacilities = [];
+  bool isLoadingFacilities = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _loadNearbyFacilities();
   }
 
   @override
@@ -129,8 +134,6 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                     right: 20.w,
                     child: Row(
                       children: [
-                        _buildActionIcon(Icons.share, () {}),
-                        SizedBox(width: 12.w),
                         _buildActionIcon(Icons.chat_bubble_outline, () {
                           _launchWhatsAppForProperty();
                         }),
@@ -356,15 +359,53 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
     );
   }
 
+  Future<void> _loadNearbyFacilities() async {
+    setState(() => isLoadingFacilities = true);
+    
+    try {
+      // Default coordinates for DHA Phase 1, Lahore
+      final defaultLocation = LatLng(31.5204, 74.3587);
+      final propertyLocation = widget.property['coordinates'] != null 
+          ? LatLng(
+              widget.property['coordinates']['lat'] ?? defaultLocation.latitude,
+              widget.property['coordinates']['lng'] ?? defaultLocation.longitude,
+            )
+          : defaultLocation;
+      
+      // Debug: Print the coordinates being used for facilities
+      print('Loading facilities for: ${widget.property['title']}');
+      print('Phase: ${widget.property['phase']}');
+      print('Facility search coordinates: ${propertyLocation.latitude}, ${propertyLocation.longitude}');
+      
+      final facilities = await FacilityService.getNearbyFacilities(
+        propertyLocation,
+        radiusKm: 1.5, // 1.5km radius for more focused results
+      );
+      
+      setState(() {
+        nearbyFacilities = facilities;
+        isLoadingFacilities = false;
+      });
+    } catch (e) {
+      setState(() => isLoadingFacilities = false);
+      print('Error loading facilities: $e');
+    }
+  }
+
   Widget _buildLocationTab() {
-    // Default coordinates for DHA Phase 1, Islamabad (better for DHA properties)
-    final defaultLocation = LatLng(33.5348, 73.0951);
+    // Default coordinates for DHA Phase 1, Lahore
+    final defaultLocation = LatLng(31.5204, 74.3587);
     final propertyLocation = widget.property['coordinates'] != null 
         ? LatLng(
             widget.property['coordinates']['lat'] ?? defaultLocation.latitude,
             widget.property['coordinates']['lng'] ?? defaultLocation.longitude,
           )
         : defaultLocation;
+    
+    // Debug: Print the coordinates being used
+    print('Property: ${widget.property['title']}');
+    print('Phase: ${widget.property['phase']}');
+    print('Coordinates: ${propertyLocation.latitude}, ${propertyLocation.longitude}');
 
     return SingleChildScrollView(
       padding: EdgeInsets.all(20.w),
@@ -458,6 +499,11 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                     ],
                   ),
                   
+                  // Nearby facilities markers
+                  MarkerLayer(
+                    markers: _buildFacilityMarkers(),
+                  ),
+                  
                   // Map attribution
                   Align(
                     alignment: Alignment.bottomLeft,
@@ -516,20 +562,11 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
           ),
           SizedBox(height: 12.h),
           
-          // Amenities Grid
-          Wrap(
-            spacing: 8.w,
-            runSpacing: 8.h,
-            children: [
-              _buildAmenityChip(AppLocalizations.of(context)!.hospitals, Icons.local_hospital),
-              _buildAmenityChip(AppLocalizations.of(context)!.schools, Icons.school),
-              _buildAmenityChip(AppLocalizations.of(context)!.shopping, Icons.shopping_cart),
-              _buildAmenityChip(AppLocalizations.of(context)!.restaurants, Icons.restaurant),
-              _buildAmenityChip(AppLocalizations.of(context)!.transport, Icons.directions_bus),
-              _buildAmenityChip(AppLocalizations.of(context)!.parks, Icons.park),
-            ],
-          ),
-          SizedBox(height: 20.h), // Add bottom padding to prevent overflow
+          // Real Facilities from API
+          if (nearbyFacilities.isNotEmpty) ...[
+            _buildRealFacilitiesGrid(),
+            SizedBox(height: 16.h),
+          ],
         ],
       ),
     );
@@ -985,6 +1022,245 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
       propertyPrice: widget.property['price'] ?? 'Price not available',
       propertyLocation: widget.property['location'] ?? 'Location not available',
       context: context,
+    );
+  }
+
+  List<Marker> _buildFacilityMarkers() {
+    return nearbyFacilities.map((facility) {
+      return Marker(
+        point: facility.coordinates,
+        width: 24.w,
+        height: 24.h,
+        child: GestureDetector(
+          onTap: () => _showFacilityInfo(facility),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Color(FacilityService.getFacilityColor(facility.category)),
+              borderRadius: BorderRadius.circular(12.r),
+              border: Border.all(color: Colors.white, width: 1.w),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 3,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
+            child: Center(
+              child: Text(
+                FacilityService.getFacilityIcon(facility.category),
+                style: TextStyle(fontSize: 12.sp),
+              ),
+            ),
+          ),
+        ),
+      );
+    }).toList();
+  }
+
+  Widget _buildRealFacilitiesGrid() {
+    return Wrap(
+      spacing: 8.w,
+      runSpacing: 8.h,
+      children: nearbyFacilities.map((facility) {
+        return _buildRealFacilityChip(facility);
+      }).toList(),
+    );
+  }
+
+  Widget _buildRealFacilityChip(NearbyFacility facility) {
+    IconData icon;
+    switch (facility.category) {
+      case 'hospital':
+        icon = Icons.local_hospital;
+        break;
+      case 'school':
+        icon = Icons.school;
+        break;
+      case 'park':
+        icon = Icons.park;
+        break;
+      case 'shopping':
+        icon = Icons.shopping_cart;
+        break;
+      case 'market':
+        icon = Icons.store;
+        break;
+      case 'transport':
+        icon = Icons.directions_bus;
+        break;
+      case 'entertainment':
+        icon = Icons.attractions;
+        break;
+      default:
+        icon = Icons.place;
+    }
+
+    return GestureDetector(
+      onTap: () => _showFacilityInfo(facility),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1B5993).withOpacity(0.1),
+          borderRadius: BorderRadius.circular(20.r),
+          border: Border.all(color: const Color(0xFF1B5993).withOpacity(0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16.sp,
+              color: const Color(0xFF1B5993),
+            ),
+            SizedBox(width: 6.w),
+            Flexible(
+              child: Text(
+                _getDisplayName(facility),
+                style: GoogleFonts.inter(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF1B5993),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFacilitiesList() {
+    return Container(
+      height: 120.h,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: nearbyFacilities.length,
+        itemBuilder: (context, index) {
+          final facility = nearbyFacilities[index];
+          return _buildFacilityCard(facility);
+        },
+      ),
+    );
+  }
+
+  Widget _buildFacilityCard(NearbyFacility facility) {
+    return Container(
+      width: 120.w,
+      margin: EdgeInsets.only(right: 12.w),
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(8.w),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                FacilityService.getFacilityIcon(facility.category),
+                style: TextStyle(fontSize: 24.sp),
+              ),
+              SizedBox(height: 4.h),
+              Text(
+                facility.name,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              SizedBox(height: 2.h),
+              Text(
+                facility.category.toUpperCase(),
+                style: GoogleFonts.inter(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Color(FacilityService.getFacilityColor(facility.category)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _getDisplayName(NearbyFacility facility) {
+    // Clean up facility names for better display
+    String name = facility.name;
+    
+    // Remove common prefixes/suffixes that make names look generic
+    name = name.replaceAll(RegExp(r'^(The |A |An )'), '');
+    name = name.replaceAll(RegExp(r'\s+(Mall|Center|Centre|Plaza|Complex)$'), '');
+    
+    // Capitalize first letter of each word
+    name = name.split(' ').map((word) => 
+      word.isNotEmpty ? word[0].toUpperCase() + word.substring(1).toLowerCase() : word
+    ).join(' ');
+    
+    return name;
+  }
+
+  void _showFacilityInfo(NearbyFacility facility) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Text(
+              FacilityService.getFacilityIcon(facility.category),
+              style: TextStyle(fontSize: 24),
+            ),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                _getDisplayName(facility),
+                style: GoogleFonts.inter(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Category: ${facility.category.toUpperCase()}',
+              style: GoogleFonts.inter(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+                color: Color(FacilityService.getFacilityColor(facility.category)),
+              ),
+            ),
+            if (facility.address != null) ...[
+              SizedBox(height: 8.h),
+              Text(
+                'Address: ${facility.address}',
+                style: GoogleFonts.inter(
+                  fontSize: 12.sp,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Close'),
+          ),
+        ],
+      ),
     );
   }
 }

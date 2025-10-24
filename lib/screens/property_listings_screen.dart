@@ -36,6 +36,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
       'bedrooms': '4',
       'bathrooms': '3',
       'description': 'Beautiful luxury villa with modern amenities',
+      'coordinates': {'lat': 31.5204, 'lng': 74.3587}, // DHA Phase 1 - Main DHA area
     },
     {
       'title': 'Modern Apartment – Phase 3',
@@ -48,6 +49,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
       'bedrooms': '3',
       'bathrooms': '2',
       'description': 'Spacious apartment with city views',
+      'coordinates': {'lat': 31.4800, 'lng': 74.3200}, // DHA Phase 3 - Gulberg area
     },
     {
       'title': 'Commercial Plot – Phase 5',
@@ -60,6 +62,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
       'bedrooms': 'N/A',
       'bathrooms': 'N/A',
       'description': 'Prime commercial location for business',
+      'coordinates': {'lat': 31.4500, 'lng': 74.2800}, // DHA Phase 5 - Johar Town area
     },
     {
       'title': 'Residential Plot – Phase 2',
@@ -72,6 +75,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
       'bedrooms': 'N/A',
       'bathrooms': 'N/A',
       'description': 'Well-located residential plot',
+      'coordinates': {'lat': 31.5100, 'lng': 74.3500}, // DHA Phase 2 - Residential area
     },
     {
       'title': 'Penthouse – Phase 4',
@@ -84,6 +88,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
       'bedrooms': '5',
       'bathrooms': '4',
       'description': 'Exclusive penthouse with panoramic views',
+      'coordinates': {'lat': 31.5600, 'lng': 74.4000}, // DHA Phase 4 - Model Town area
     },
     {
       'title': 'Townhouse – Phase 6',
@@ -96,6 +101,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
       'bedrooms': '3',
       'bathrooms': '3',
       'description': 'Modern townhouse near park area',
+      'coordinates': {'lat': 31.4200, 'lng': 74.2500}, // DHA Phase 6 - Bahria Town area
     },
     {
       'title': 'Office Space – Phase 7',
@@ -108,6 +114,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
       'bedrooms': 'N/A',
       'bathrooms': 'N/A',
       'description': 'Premium office space in business district',
+      'coordinates': {'lat': 31.3900, 'lng': 74.2200}, // DHA Phase 7 - Defence area
     },
     {
       'title': 'Duplex House – Phase 1',
@@ -120,6 +127,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
       'bedrooms': '4',
       'bathrooms': '3',
       'description': 'Spacious duplex with garden',
+      'coordinates': {'lat': 31.5220, 'lng': 74.3600}, // DHA Phase 1 - Duplex area
     },
   ];
 
@@ -134,6 +142,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
     _searchController.dispose();
     super.dispose();
   }
+
 
   List<Map<String, dynamic>> get _filteredProperties {
     if (_searchQuery.isEmpty || _searchQuery.trim().isEmpty) {
@@ -524,8 +533,6 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                   right: 12,
                   child: Row(
                     children: [
-                      _buildActionButton(Icons.share, () {}),
-                      const SizedBox(width: 8),
                       _buildActionButton(Icons.message, () {
                         _launchWhatsAppForProperty(property);
                       }),
@@ -727,6 +734,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
       ),
     );
   }
+
 
   Widget _buildFilterSection(String title, IconData icon, List<String> options, String selectedValue, Function(String) onChanged) {
     return Container(
