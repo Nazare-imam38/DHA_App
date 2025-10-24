@@ -1,8 +1,10 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../services/language_service.dart';
+import '../services/whatsapp_service.dart';
 import '../ui/widgets/cached_asset_image.dart';
 import 'sidebar_drawer.dart';
 import 'property_detail_info_screen.dart';
@@ -20,6 +22,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
   String _selectedLocation = 'Any';
   String _searchQuery = '';
   late final TextEditingController _searchController;
+
 
   final List<Map<String, dynamic>> _properties = [
     {
@@ -154,6 +157,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
       _searchQuery = value;
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -482,6 +486,38 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                     ),
                   ),
                 ),
+                // Tilted DHA Managed tag - very gentle angle for complete text visibility
+                Positioned(
+                  top: 0,
+                  left: -30,
+                  child: Transform.rotate(
+                    angle: -0.3, // Very gentle angle (about 17 degrees) for maximum text visibility
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF20B2AA), // Teal color
+                        // No borderRadius for rectangle shape
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        'Managed by DHA',
+                        style: const TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
                 // Action buttons
                 Positioned(
                   bottom: 12,
@@ -490,7 +526,9 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                     children: [
                       _buildActionButton(Icons.share, () {}),
                       const SizedBox(width: 8),
-                      _buildActionButton(Icons.message, () {}),
+                      _buildActionButton(Icons.message, () {
+                        _launchWhatsAppForProperty(property);
+                      }),
                       const SizedBox(width: 8),
                       _buildActionButton(Icons.phone, () {}),
                     ],
@@ -933,6 +971,16 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _launchWhatsAppForProperty(Map<String, dynamic> property) {
+    WhatsAppService.launchWhatsAppForProperty(
+      phoneNumber: WhatsAppService.defaultContactNumber,
+      propertyTitle: property['title'] ?? 'Property',
+      propertyPrice: property['price'] ?? 'Price not available',
+      propertyLocation: property['phase'] ?? 'Location not available',
+      context: context,
     );
   }
 }

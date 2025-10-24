@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../l10n/app_localizations.dart';
+import '../services/whatsapp_service.dart';
 import 'main_wrapper.dart';
 import 'projects_screen_instant.dart';
 import 'property_listings_screen.dart';
@@ -130,7 +131,9 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                       children: [
                         _buildActionIcon(Icons.share, () {}),
                         SizedBox(width: 12.w),
-                        _buildActionIcon(Icons.chat_bubble_outline, () {}),
+                        _buildActionIcon(Icons.chat_bubble_outline, () {
+                          _launchWhatsAppForProperty();
+                        }),
                         SizedBox(width: 12.w),
                         _buildActionIcon(Icons.phone, () {}),
                       ],
@@ -856,7 +859,9 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        _launchWhatsAppForProperty();
+                      },
                       icon: Icon(Icons.chat, color: Colors.white, size: 16.sp),
                     ),
                   ),
@@ -970,6 +975,16 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
         builder: (context) => MainWrapper(initialTabIndex: index),
       ),
       (route) => false,
+    );
+  }
+
+  void _launchWhatsAppForProperty() {
+    WhatsAppService.launchWhatsAppForProperty(
+      phoneNumber: WhatsAppService.defaultContactNumber,
+      propertyTitle: widget.property['title'] ?? 'Property',
+      propertyPrice: widget.property['price'] ?? 'Price not available',
+      propertyLocation: widget.property['location'] ?? 'Location not available',
+      context: context,
     );
   }
 }
