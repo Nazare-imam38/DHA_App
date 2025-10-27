@@ -180,32 +180,25 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundGrey,
-      body: CustomScrollView(
-        slivers: [
-          // Modern App Bar
-          SliverAppBar(
-            expandedHeight: 100,
-            floating: false,
-            pinned: true,
-            backgroundColor: AppTheme.cardWhite,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-                color: Color(0xFF005289), // Navy blue color
-                size: 16, // Smaller size
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-            flexibleSpace: FlexibleSpaceBar(
+      appBar: AppBar(
+        backgroundColor: AppTheme.cardWhite,
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
+            color: Color(0xFF1B5993), // Navy blue color
+            size: 16, // Smaller size
+                ),
+                onPressed: () => Navigator.pop(context),
+              ),
         title: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-                    padding: const EdgeInsets.all(AppTheme.paddingSmall),
+              padding: const EdgeInsets.all(AppTheme.paddingSmall),
               decoration: BoxDecoration(
-                      color: Color(0xFF005289), // Navy blue color
-                      borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                color: Color(0xFF1B5993), // Navy blue color
+                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
               ),
               child: const Icon(
                 Icons.home_work_rounded,
@@ -213,37 +206,35 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                 size: 20,
               ),
             ),
-                  const SizedBox(width: AppTheme.paddingMedium),
-                  Text(
+            const SizedBox(width: AppTheme.paddingMedium),
+            Text(
               'PROPERTY DETAILS',
-                    style: AppTheme.titleLarge.copyWith(
-                      fontSize: 16,
-                      color: Color(0xFF005289), // Navy blue color
-                    ),
+              style: AppTheme.titleLarge,
             ),
           ],
         ),
-              centerTitle: true,
-              titlePadding: const EdgeInsets.only(bottom: 16),
-            ),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(20),
-              ),
-            ),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(4),
-              child: Container(
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Color(0xFF005289), // Navy blue color
-                  borderRadius: const BorderRadius.vertical(
-                    bottom: Radius.circular(20),
-                  ),
-                ),
+        centerTitle: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(AppTheme.radiusXLarge),
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(2.0),
+          child: Container(
+            height: 2.0,
+            decoration: const BoxDecoration(
+              color: Color(0xFF1B5993), // Navy blue border
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(AppTheme.radiusXLarge),
+                bottomRight: Radius.circular(AppTheme.radiusXLarge),
               ),
             ),
           ),
+        ),
+      ),
+      body: CustomScrollView(
+        slivers: [
           
           // Main Content
           SliverToBoxAdapter(

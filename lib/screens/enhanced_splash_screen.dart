@@ -4,6 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../ui/screens/auth/login_screen.dart';
+import '../ui/widgets/cached_asset_image.dart';
+import '../ui/widgets/dha_loading_widget.dart';
 import 'main_wrapper.dart';
 
 /// Enhanced Splash Screen with Real Preloading
@@ -166,21 +168,13 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF1E3A8A), // Deep blue
-              Color(0xFF3B82F6), // Blue
-              Color(0xFF60A5FA), // Light blue
-            ],
-          ),
+          color: Colors.white,
         ),
         child: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo section
+              // Logo section - Clean Logo Only
               Expanded(
                 flex: 3,
                 child: Center(
@@ -190,23 +184,26 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
                       return Transform.scale(
                         scale: _logoScale.value,
                         child: Container(
-                          width: 120,
-                          height: 120,
+                          width: 180,
+                          height: 180,
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(25),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.2),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
+                                color: Colors.black.withValues(alpha: 0.25),
+                                blurRadius: 25,
+                                offset: const Offset(0, 12),
+                                spreadRadius: 3,
                               ),
                             ],
                           ),
-                          child: const Icon(
-                            Icons.home_work,
-                            size: 60,
-                            color: Color(0xFF1E3A8A),
+                          padding: EdgeInsets.all(25),
+                          child: CachedAssetImage(
+                            assetPath: 'assets/images/dhalogo.png',
+                            width: 130,
+                            height: 130,
+                            fit: BoxFit.contain,
                           ),
                         ),
                       );
@@ -215,41 +212,7 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
                 ),
               ),
               
-              // App name section
-              Expanded(
-                flex: 1,
-                child: AnimatedBuilder(
-                  animation: _textFade,
-                  builder: (context, child) {
-                    return Opacity(
-                      opacity: _textFade.value,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'DHA Marketplace',
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Your Gateway to Premium Properties',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white.withValues(alpha: 0.8),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-              
-              // Progress section
+              // Progress section with DHA Loading Widget
               Expanded(
                 flex: 2,
                 child: AnimatedBuilder(
@@ -257,88 +220,31 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
                   builder: (context, child) {
                     return Opacity(
                       opacity: _progressFade.value,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // Progress message
-                            Text(
-                              _preloadMessage,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              textAlign: TextAlign.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // DHA Loading Widget - Much Bigger
+                          DHALoadingWidget(
+                            size: 160,
+                            primaryColor: const Color(0xFF1E3A8A),
+                            secondaryColor: const Color(0xFF3B82F6),
+                            message: 'Loading data...',
+                            showMessage: true,
+                          ),
+                          
+                          const SizedBox(height: 20),
+                          
+                          // Progress percentage
+                          Text(
+                            '${_preloadProgress.toStringAsFixed(0)}%',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Color(0xFF1E3A8A),
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 1.0,
                             ),
-                            
-                            const SizedBox(height: 20),
-                            
-                            // Progress bar
-                            Container(
-                              height: 6,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(3),
-                              ),
-                              child: Stack(
-                                children: [
-                                  // Background
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.2),
-                                      borderRadius: BorderRadius.circular(3),
-                                    ),
-                                  ),
-                                  
-                                  // Progress fill
-                                  AnimatedContainer(
-                                    duration: const Duration(milliseconds: 300),
-                                    width: MediaQuery.of(context).size.width * (_preloadProgress / 100),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(3),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            
-                            const SizedBox(height: 12),
-                            
-                            // Progress percentage
-                            Text(
-                              '${_preloadProgress.toStringAsFixed(0)}%',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            
-                            const SizedBox(height: 20),
-                            
-                            // Loading indicator
-                            if (_isPreloading && !_preloadComplete)
-                              const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                ),
-                              ),
-                            
-                            // Success indicator
-                            if (_preloadComplete)
-                              const Icon(
-                                Icons.check_circle,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     );
                   },

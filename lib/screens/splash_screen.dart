@@ -145,69 +145,130 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Logo
-            AnimatedBuilder(
-              animation: _logoController,
-              builder: (context, child) {
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF1E3A8A), // Dark blue at top
+              Color(0xFF3B82F6), // Lighter blue at bottom
+            ],
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // DHA Logo - Extra Large and Prominent
+              AnimatedBuilder(
+                animation: _logoController,
+                builder: (context, child) {
                   return Transform.scale(
                     scale: _logoScale.value,
-                    child: CachedAssetImage(
-                      assetPath: 'assets/images/logo.png',
-                      width: 160,
-                      height: 160,
-                      fit: BoxFit.contain,
+                    child: Container(
+                      width: 280,
+                      height: 280,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(40),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.4),
+                            blurRadius: 40,
+                            offset: Offset(0, 20),
+                            spreadRadius: 8,
+                          ),
+                        ],
+                      ),
+                      padding: EdgeInsets.all(40),
+                      child: CachedAssetImage(
+                        assetPath: 'assets/images/dhalogo.png',
+                        width: 200,
+                        height: 200,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   );
-              },
-            ),
+                },
+              ),
 
-            const SizedBox(height: 8),
+              const SizedBox(height: 100),
 
-            // App Name
-            AnimatedBuilder(
-              animation: _textFade,
-              builder: (context, child) {
-                return FadeTransition(
-                  opacity: _textFade,
-                  child: Column(
-                    children: [
-                      Text(
-                        'Premium Property Solutions',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.grey[600],
+              // Enhanced Loading Indicator
+              AnimatedBuilder(
+                animation: _progressFade,
+                builder: (context, child) {
+                  return FadeTransition(
+                    opacity: _progressFade,
+                    child: Column(
+                      children: [
+                        Text(
+                          'Loading plot data...',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                        const SizedBox(height: 20),
+                        Container(
+                          width: 250,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(3),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: Stack(
+                            children: [
+                              Container(
+                                width: 250 * 0.5, // 50% progress
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.white,
+                                      Colors.white.withOpacity(0.8),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(3),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.white.withOpacity(0.5),
+                                      blurRadius: 8,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          '50%',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                            letterSpacing: 1.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
 
-            const SizedBox(height: 60),
-
-             // DHA Loading Indicator
-             AnimatedBuilder(
-               animation: _progressFade,
-               builder: (context, child) {
-                 return FadeTransition(
-                   opacity: _progressFade,
-                   child: DHALoadingWidget(
-                     size: 120,
-                     message: 'Loading...',
-                     showMessage: true,
-                   ),
-                 );
-               },
-             ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'property_details_form_screen.dart';
-import 'ms_otp_verification_screen.dart';
-import '../services/ms_verification_service.dart';
 import '../core/theme/app_theme.dart';
 
 class MSVerificationScreen extends StatefulWidget {
@@ -19,8 +17,8 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  final TextEditingController _msNumberController = TextEditingController();
-  bool _isVerifying = false;
+  String? _selectedPurpose; // 'sell' or 'rent'
+  bool _isProcessing = false;
 
   @override
   void initState() {
@@ -64,7 +62,6 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
   void dispose() {
     _fadeController.dispose();
     _slideController.dispose();
-    _msNumberController.dispose();
     super.dispose();
   }
 
@@ -100,7 +97,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
             ),
             const SizedBox(width: AppTheme.paddingMedium),
             Text(
-              'MS VERIFICATION',
+              'PROPERTY PURPOSE',
               style: AppTheme.titleLarge,
             ),
           ],
@@ -170,7 +167,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'MS Number Verification',
+                                    'Purpose',
                                     style: AppTheme.bodyMedium.copyWith(
                                       fontWeight: FontWeight.w600,
                                       color: Color(0xFF20B2AA),
@@ -194,16 +191,16 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                           Text(
-                            'Verify Your MS Number',
+                            'Choose Your Property Purpose',
                             style: AppTheme.headingMedium,
                           ),
                           
                           const SizedBox(height: 8),
                           
                           Text(
-                            'Enter your DHA membership number to verify property ownership',
+                            'Select whether you want to sell or rent your property',
                             style: AppTheme.bodyLarge,
-                    ),
+                          ),
                   ],
                 ),
                             ),
@@ -211,7 +208,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                           
                           const SizedBox(height: 32),
                           
-                          // Main Form Card
+                          // Purpose Selection Card
             SlideTransition(
               position: _slideAnimation,
               child: FadeTransition(
@@ -231,59 +228,165 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Input Label
+                                // Purpose Label
                                 Text(
-                                  'DHA Membership Number (MS)',
+                                  'Select Property Purpose',
                                   style: AppTheme.titleMedium,
                                 ),
                                 
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 20),
                                 
-                                // Input Field
-                                Container(
-                                  decoration: BoxDecoration(
-                          color: AppTheme.inputBackground,
-                                    borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                                    border: Border.all(
-                            color: AppTheme.borderGrey,
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child: TextField(
-                                    controller: _msNumberController,
-                                    keyboardType: TextInputType.number,
-                                    style: const TextStyle(
-                                      fontFamily: AppTheme.primaryFont,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppTheme.textPrimary,
-                                    ),
-                                    decoration: InputDecoration(
-                                      hintText: 'Enter Your MS Number',
-                                      hintStyle: const TextStyle(
-                                        fontFamily: AppTheme.primaryFont,
-                                        fontSize: 16,
-                                        color: AppTheme.textLight,
+                                // Sell Option
+                                GestureDetector(
+                                  onTap: () => setState(() => _selectedPurpose = 'sell'),
+                                  child: Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.all(20),
+                                    decoration: BoxDecoration(
+                                      color: _selectedPurpose == 'sell' 
+                                          ? const Color(0xFF1B5993).withValues(alpha: 0.1)
+                                          : AppTheme.inputBackground,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: _selectedPurpose == 'sell' 
+                                            ? const Color(0xFF1B5993)
+                                            : AppTheme.borderGrey,
+                                        width: _selectedPurpose == 'sell' ? 2 : 1,
                                       ),
-                                      border: InputBorder.none,
-                                      contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: AppTheme.paddingMedium,
-                                        vertical: AppTheme.paddingMedium,
-                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 50,
+                                          height: 50,
+                                          decoration: BoxDecoration(
+                                            color: _selectedPurpose == 'sell' 
+                                                ? const Color(0xFF1B5993)
+                                                : Colors.grey[300],
+                                            borderRadius: BorderRadius.circular(25),
+                                          ),
+                                          child: Icon(
+                                            Icons.sell,
+                                            color: _selectedPurpose == 'sell' 
+                                                ? Colors.white
+                                                : Colors.grey[600],
+                                            size: 24,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Sell Property',
+                                                style: TextStyle(
+                                                  fontFamily: 'Inter',
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: _selectedPurpose == 'sell' 
+                                                      ? const Color(0xFF1B5993)
+                                                      : AppTheme.textPrimary,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                'List your property for sale',
+                                                style: TextStyle(
+                                                  fontFamily: 'Inter',
+                                                  fontSize: 14,
+                                                  color: Colors.grey[600],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        if (_selectedPurpose == 'sell')
+                                          const Icon(
+                                            Icons.check_circle,
+                                            color: Color(0xFF1B5993),
+                                            size: 24,
+                                          ),
+                                      ],
                                     ),
                                   ),
                                 ),
                                 
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 16),
                                 
-                                // Purpose explanation
-                                Text(
-                                  'This number is used to verify your property ownership',
-                                  style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontSize: 14,
-                                    color: Colors.grey[500],
-                                    height: 1.3,
+                                // Rent Option
+                                GestureDetector(
+                                  onTap: () => setState(() => _selectedPurpose = 'rent'),
+                                  child: Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.all(20),
+                                    decoration: BoxDecoration(
+                                      color: _selectedPurpose == 'rent' 
+                                          ? const Color(0xFF1B5993).withValues(alpha: 0.1)
+                                          : AppTheme.inputBackground,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: _selectedPurpose == 'rent' 
+                                            ? const Color(0xFF1B5993)
+                                            : AppTheme.borderGrey,
+                                        width: _selectedPurpose == 'rent' ? 2 : 1,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 50,
+                                          height: 50,
+                                          decoration: BoxDecoration(
+                                            color: _selectedPurpose == 'rent' 
+                                                ? const Color(0xFF1B5993)
+                                                : Colors.grey[300],
+                                            borderRadius: BorderRadius.circular(25),
+                                          ),
+                                          child: Icon(
+                                            Icons.home_work,
+                                            color: _selectedPurpose == 'rent' 
+                                                ? Colors.white
+                                                : Colors.grey[600],
+                                            size: 24,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Rent Property',
+                                                style: TextStyle(
+                                                  fontFamily: 'Inter',
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: _selectedPurpose == 'rent' 
+                                                      ? const Color(0xFF1B5993)
+                                                      : AppTheme.textPrimary,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                'List your property for rent',
+                                                style: TextStyle(
+                                                  fontFamily: 'Inter',
+                                                  fontSize: 14,
+                                                  color: Colors.grey[600],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        if (_selectedPurpose == 'rent')
+                                          const Icon(
+                                            Icons.check_circle,
+                                            color: Color(0xFF1B5993),
+                                            size: 24,
+                                          ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                                 
@@ -337,45 +440,49 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                     
                                     const SizedBox(width: 12),
                                     
-                                    // Verify Button
+                                    // Continue Button
                                     Expanded(
                                       child: Container(
                                         height: 48,
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF1B5993), // Navy blue background
+                                          color: _selectedPurpose != null 
+                                              ? const Color(0xFF1B5993) // Navy blue background
+                                              : Colors.grey[400],
                                           borderRadius: BorderRadius.circular(12),
                                           border: Border.all(
-                                            color: const Color(0xFF1B5993), // Navy blue border
+                                            color: _selectedPurpose != null 
+                                                ? const Color(0xFF1B5993) // Navy blue border
+                                                : Colors.grey[400]!,
                                             width: 2,
                                           ),
                                         ),
                                         child: TextButton(
-                                          onPressed: _isVerifying ? null : _verifyMSNumber,
+                                          onPressed: _selectedPurpose != null && !_isProcessing ? _continueToNextStep : null,
                                           style: TextButton.styleFrom(
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(12),
                                             ),
                                           ),
-                                          child: _isVerifying
+                                          child: _isProcessing
                                               ? const SizedBox(
                                                   width: 20,
                                                   height: 20,
                                                   child: CircularProgressIndicator(
                                                     strokeWidth: 2,
-                                                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1B5993)),
+                                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                                   ),
                                                 )
                                               : Row(
                                                   mainAxisAlignment: MainAxisAlignment.center,
                                                   children: [
                                                     const Icon(
-                                                      Icons.verified_user,
+                                                      Icons.arrow_forward_ios,
                                                       color: Colors.white, // White color
                                                       size: 18,
                                                     ),
                                                     const SizedBox(width: 8),
                                                     const Text(
-                                                      'Verify MS',
+                                                      'Continue',
                                                       style: TextStyle(
                                                         fontFamily: 'Inter',
                                                         fontSize: 16,
@@ -444,7 +551,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        'Your MS number can be found on your DHA membership card or property documents. If you\'re having trouble finding it, please contact DHA support.',
+                                        'Choose "Sell" if you want to sell your property permanently, or "Rent" if you want to rent it out. You can change this later in your property settings.',
                                         style: TextStyle(
                                           fontFamily: 'Inter',
                                           fontSize: 14,
@@ -471,11 +578,11 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
   }
 
 
-  void _verifyMSNumber() async {
-    if (_msNumberController.text.trim().isEmpty) {
+  void _continueToNextStep() async {
+    if (_selectedPurpose == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Please enter your MS number'),
+          content: const Text('Please select a property purpose'),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -487,37 +594,11 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
     }
 
     setState(() {
-      _isVerifying = true;
+      _isProcessing = true;
     });
 
     try {
-      // Verify MS number with backend
-      final msService = MSVerificationService();
-      final response = await msService.verifyMSNumber(_msNumberController.text.trim());
-      
-      if (!response.isValid) {
-        setState(() {
-          _isVerifying = false;
-        });
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Invalid MS number. Please check and try again.'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        );
-        return;
-      }
-
-      setState(() {
-        _isVerifying = false;
-      });
-
-      // Show success message briefly then navigate automatically
+      // Show success message briefly then navigate
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
@@ -535,11 +616,11 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
                 ),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'MS Number verified successfully! Proceeding to OTP verification...',
-          style: TextStyle(
-            fontFamily: 'Inter',
+                  'Purpose selected! Proceeding to property details...',
+                  style: const TextStyle(
+                    fontFamily: 'Inter',
                     fontWeight: FontWeight.w600,
                     fontSize: 15,
                   ),
@@ -547,7 +628,7 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
               ),
             ],
           ),
-              backgroundColor: const Color(0xFF1B5993), // Navy blue background
+          backgroundColor: const Color(0xFF1B5993), // Navy blue background
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -557,18 +638,14 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
         ),
       );
 
-      // Navigate to MS OTP Verification Screen after brief delay
+      // Navigate to Property Details Form after brief delay
       await Future.delayed(const Duration(milliseconds: 1000));
       
       if (mounted) {
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => MSOtpVerificationScreen(
-              msNumber: _msNumberController.text.trim(),
-              email: response.email ?? 'member@dha.gov.pk',
-              phoneNumber: response.phoneNumber ?? '+92 300 1234567',
-            ),
+            pageBuilder: (context, animation, secondaryAnimation) => const PropertyDetailsFormScreen(),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               return SlideTransition(
                 position: Tween<Offset>(
@@ -582,17 +659,17 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
               );
             },
             transitionDuration: const Duration(milliseconds: 400),
-      ),
-    );
-  }
+          ),
+        );
+      }
     } catch (e) {
       setState(() {
-        _isVerifying = false;
+        _isProcessing = false;
       });
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Verification failed: ${e.toString()}'),
+          content: Text('Error: ${e.toString()}'),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(

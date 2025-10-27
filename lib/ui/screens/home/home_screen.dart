@@ -407,11 +407,7 @@ class _HomeScreenState extends State<HomeScreen>
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    color: Color(0xFF1B5993), // App theme color from second image
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(24),
                       topRight: Radius.circular(24),
@@ -513,11 +509,7 @@ class _HomeScreenState extends State<HomeScreen>
                             child: Container(
                               height: 48.h,
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                ),
+                                color: const Color(0xFF1B5993), // App theme color from second image
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
