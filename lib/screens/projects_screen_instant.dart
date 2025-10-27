@@ -1150,20 +1150,12 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                     ),
                     
                     // Right side - View type selector
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1B5993),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: IconButton(
-                        onPressed: _showViewTypeSelector,
-                        icon: const Icon(
-                          Icons.layers,
-                          color: Colors.white,
-                          size: 20,
-                        ),
+                    IconButton(
+                      onPressed: _showViewTypeSelector,
+                      icon: const Icon(
+                        Icons.layers,
+                        color: Color(0xFF1B5993),
+                        size: 24,
                       ),
                     ),
                   ],

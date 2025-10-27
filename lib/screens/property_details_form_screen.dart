@@ -309,7 +309,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                             fontFamily: 'Inter',
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
-                    color: AppTheme.navyBlue,
+                    color: Color(0xFF1B5993), // App theme color
                             letterSpacing: -0.5,
                   ),
                 ),
@@ -496,7 +496,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                   children: [
                                     Icon(
                                       Icons.arrow_back_ios,
-                                      color: AppTheme.navyBlue,
+                                      color: const Color(0xFF1B5993), // App theme color
                                       size: 16,
                                     ),
                                     const SizedBox(width: 6),
@@ -505,7 +505,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                                       style: TextStyle(
                                                 fontSize: 14,
                                         fontWeight: FontWeight.w600,
-                                                color: AppTheme.navyBlue,
+                                                color: const Color(0xFF1B5993), // App theme color
                                       ),
                                     ),
                                   ],
@@ -521,7 +521,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                             child: Container(
                               height: 48,
                               decoration: BoxDecoration(
-                                color: AppTheme.navyBlue,
+                                color: const Color(0xFF1B5993), // App theme color
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: TextButton(
@@ -668,7 +668,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: const Color(0xFF005289),
+            color: const Color(0xFF1B5993), // App theme color
             letterSpacing: 0.2,
           ),
         ),
@@ -730,7 +730,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: const Color(0xFF005289),
+            color: const Color(0xFF1B5993), // App theme color
             letterSpacing: 0.2,
           ),
         ),
