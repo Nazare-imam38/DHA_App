@@ -83,7 +83,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(
-                          Icons.home_work,
+                          Icons.work,
                           color: Colors.white,
                           size: 24,
                         ),
@@ -443,7 +443,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
       ),
       child: Column(
         children: [
-          _buildEnhancedAmountRow('Token Amount:', 'PKR 250,000', false, Icons.home),
+          _buildEnhancedAmountRow('Token Amount:', 'PKR 250,000', false, Icons.apartment),
           const SizedBox(height: 16),
           _buildEnhancedAmountRow('KuickPay Fee:', 'PKR 135', false, Icons.payment),
           const SizedBox(height: 20),

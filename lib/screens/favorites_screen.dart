@@ -319,7 +319,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: const Icon(
-                            Icons.home_work,
+                            Icons.work,
                             size: 60,
                             color: Colors.white,
                           ),
@@ -390,7 +390,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: const Icon(
-                            Icons.home_work,
+                            Icons.work,
                             size: 60,
                             color: Colors.white,
                           ),
@@ -496,7 +496,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: const Icon(
-                            Icons.home_work,
+                            Icons.work,
                             size: 50,
                             color: Colors.white,
                           ),
@@ -816,7 +816,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                           Row(
                             children: [
                               Icon(
-                                Icons.location_on,
+                                Icons.place,
                                 size: 16,
                                 color: const Color(0xFF20B2AA),
                               ),

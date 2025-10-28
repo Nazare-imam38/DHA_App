@@ -332,7 +332,7 @@ class _FAQContactScreenState extends State<FAQContactScreen>
                   const SizedBox(height: 16),
                   
                   _buildContactInfo(
-                    Icons.location_on,
+                    Icons.place,
                     'Address',
                     'DHA Islamabad-Rawalpindi\nPhase 1, Commercial Area\nIslamabad, Pakistan',
                   ),

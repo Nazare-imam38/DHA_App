@@ -101,7 +101,7 @@ class ComprehensiveStartupPreloader {
         phaseName: boundary.phaseName,
         polygons: boundary.polygons,
         color: Colors.blue, // Default color
-        icon: Icons.location_on, // Default icon
+        icon: Icons.place, // Default icon
       )
     ).toList();
     boundaries.addAll(unifiedBoundaries);
@@ -178,7 +178,7 @@ class ComprehensiveStartupPreloader {
         phaseName: phaseName,
         polygons: polygons,
         color: Color(phaseColors[phaseName] ?? 0xFF4CAF50),
-        icon: Icons.home_work,
+        icon: Icons.work,
       );
     } catch (e) {
       print('❌ Error parsing GeoJSON for $phaseName: $e');

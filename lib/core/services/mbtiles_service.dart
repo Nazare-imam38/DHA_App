@@ -24,7 +24,7 @@ class MBTilesService {
       ),
       attribution: 'Phase 1 Tiles © DHA Marketplace',
       color: Color(0xFF4CAF50),
-      icon: Icons.home,
+      icon: Icons.apartment,
     ),
     'phase2': DHAPhase(
       id: 'phase2',

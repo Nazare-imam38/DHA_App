@@ -29,6 +29,11 @@ class _LoginScreenState extends State<LoginScreen>
   String _captchaText = '';
   final Random _random = Random();
   
+  // Error message states for controlled display
+  String? _emailError;
+  String? _passwordError;
+  String? _captchaError;
+  
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
@@ -86,104 +91,136 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Future<void> _handleLogin() async {
-    if (_formKey.currentState!.validate()) {
-      // Validate captcha
-      if (_captchaText.isEmpty) {
-        _generateCaptcha();
-        setState(() {});
-      }
+    // Clear previous errors
+    setState(() {
+      _emailError = null;
+      _passwordError = null;
+      _captchaError = null;
+    });
+
+    // Validate email
+    if (_emailController.text.trim().isEmpty) {
+      setState(() {
+        _emailError = 'Please enter your email';
+      });
+      return;
+    }
+    if (!_emailController.text.trim().contains('@')) {
+      setState(() {
+        _emailError = 'Please enter a valid email';
+      });
+      return;
+    }
+
+    // Validate password
+    if (_passwordController.text.isEmpty) {
+      setState(() {
+        _passwordError = 'Please enter your password';
+      });
+      return;
+    }
+    if (_passwordController.text.length < 6) {
+      setState(() {
+        _passwordError = 'Password must be at least 6 characters';
+      });
+      return;
+    }
+
+    // Validate captcha
+    if (_captchaText.isEmpty) {
+      _generateCaptcha();
+      setState(() {});
+    }
+    
+    if (_captchaController.text.trim().isEmpty) {
+      setState(() {
+        _captchaError = 'Please enter the security code';
+      });
+      return;
+    }
+    
+    if (_captchaController.text.trim().toUpperCase() != _captchaText.toUpperCase()) {
+      setState(() {
+        _captchaError = 'Security code does not match';
+      });
+      _refreshCaptcha();
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+    
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.login(LoginRequest(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      ));
       
-      if (_captchaController.text.trim().toUpperCase() != _captchaText.toUpperCase()) {
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => MainWrapper(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(1.0, 0.0),
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+                child: child,
+              );
+            },
+            transitionDuration: const Duration(milliseconds: 600),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        String errorMessage = 'Login failed. Please try again.';
+        
+        // Handle specific error messages
+        if (e.toString().contains('Invalid credentials')) {
+          errorMessage = 'Invalid email or password. Please check and try again.';
+        } else if (e.toString().contains('User not found')) {
+          errorMessage = 'No account found with this email. Please sign up first.';
+        } else if (e.toString().contains('Account not verified')) {
+          errorMessage = 'Please verify your account first. Check your email for verification link.';
+        } else if (e.toString().contains('Network')) {
+          errorMessage = 'Network error. Please check your connection.';
+        } else if (e.toString().contains('Too many attempts')) {
+          errorMessage = 'Too many login attempts. Please try again later.';
+        }
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Please enter the correct captcha'),
+            content: Text(errorMessage),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 3),
+            duration: const Duration(seconds: 4),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
+            action: SnackBarAction(
+              label: 'Forgot Password?',
+              textColor: Colors.white,
+              onPressed: () => showDialog(
+                context: context,
+                builder: (context) => const ModernForgotPasswordDialog(),
+              ),
+            ),
           ),
         );
-        _refreshCaptcha();
-        return;
-      }
-
-      setState(() {
-        _isLoading = true;
-      });
-      
-      try {
-        final authProvider = Provider.of<AuthProvider>(context, listen: false);
-        await authProvider.login(LoginRequest(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-        ));
         
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => MainWrapper(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                return SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(1.0, 0.0),
-                    end: Offset.zero,
-                  ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
-                  child: child,
-                );
-              },
-              transitionDuration: const Duration(milliseconds: 600),
-            ),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          String errorMessage = 'Login failed. Please try again.';
-          
-          // Handle specific error messages
-          if (e.toString().contains('Invalid credentials')) {
-            errorMessage = 'Invalid email or password. Please check and try again.';
-          } else if (e.toString().contains('User not found')) {
-            errorMessage = 'No account found with this email. Please sign up first.';
-          } else if (e.toString().contains('Account not verified')) {
-            errorMessage = 'Please verify your account first. Check your email for verification link.';
-          } else if (e.toString().contains('Network')) {
-            errorMessage = 'Network error. Please check your connection.';
-          } else if (e.toString().contains('Too many attempts')) {
-            errorMessage = 'Too many login attempts. Please try again later.';
-          }
-          
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(errorMessage),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-              duration: const Duration(seconds: 4),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              action: SnackBarAction(
-                label: 'Forgot Password?',
-                textColor: Colors.white,
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (context) => const ModernForgotPasswordDialog(),
-                ),
-              ),
-            ),
-          );
-          
-          // Refresh captcha on authentication failure
-          _refreshCaptcha();
-        }
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
+        // Refresh captcha on authentication failure
+        _refreshCaptcha();
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
@@ -222,9 +259,7 @@ class _LoginScreenState extends State<LoginScreen>
               child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
+                  child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                   const SizedBox(height: 20),
@@ -281,18 +316,9 @@ class _LoginScreenState extends State<LoginScreen>
                       label: l10n.emailAddress,
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        if (!value.contains('@')) {
-                          return 'Please enter a valid email';
-                        }
-                        return null;
-                      },
+                      errorText: _emailError,
                     ),
                   ),
-                  const SizedBox(height: 4),
 
                   // Password Field
                   SlideTransition(
@@ -302,6 +328,7 @@ class _LoginScreenState extends State<LoginScreen>
                       label: l10n.password,
                       icon: Icons.lock_outlined,
                       obscureText: _obscurePassword,
+                      errorText: _passwordError,
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword ? Icons.visibility_off : Icons.visibility,
@@ -313,25 +340,14 @@ class _LoginScreenState extends State<LoginScreen>
                           });
                         },
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
-                        }
-                        if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
-                        }
-                        return null;
-                      },
                     ),
                   ),
-                  const SizedBox(height: 4),
 
                   // Captcha Field
                   SlideTransition(
                     position: _slideAnimation,
-                    child: _buildCaptchaField(),
+                    child: _buildCaptchaField(errorText: _captchaError),
                   ),
-                  const SizedBox(height: 2),
 
                   // Forgot Password
                   SlideTransition(
@@ -525,7 +541,6 @@ class _LoginScreenState extends State<LoginScreen>
                   ),
                 ),
               ),
-            ),
             ],
           ),
         ),
@@ -540,7 +555,7 @@ class _LoginScreenState extends State<LoginScreen>
     TextInputType? keyboardType,
     bool obscureText = false,
     Widget? suffixIcon,
-    String? Function(String?)? validator,
+    String? errorText,
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 0),
@@ -556,40 +571,40 @@ class _LoginScreenState extends State<LoginScreen>
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 1),
+          const SizedBox(height: 8),
           Container(
             height: 60,
-      decoration: BoxDecoration(
+            decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.95),
               borderRadius: BorderRadius.circular(16),
-        border: Border.all(
+              border: Border.all(
                 color: Colors.white.withOpacity(0.3),
                 width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
+              ),
+              boxShadow: [
+                BoxShadow(
                   color: Colors.black.withOpacity(0.08),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
-          ),
-          BoxShadow(
+                ),
+                BoxShadow(
                   color: Colors.white.withOpacity(0.4),
-            blurRadius: 15,
+                  blurRadius: 15,
                   offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        obscureText: obscureText,
-        style: TextStyle(
-          fontFamily: 'Inter',
-          color: const Color(0xFF1F2937),
+                ),
+              ],
+            ),
+            child: TextField(
+              controller: controller,
+              keyboardType: keyboardType,
+              obscureText: obscureText,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                color: const Color(0xFF1F2937),
                 fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
-        decoration: InputDecoration(
+                fontWeight: FontWeight.w500,
+              ),
+              decoration: InputDecoration(
                 prefixIcon: Container(
                   margin: const EdgeInsets.all(12),
                   padding: const EdgeInsets.all(8),
@@ -608,22 +623,31 @@ class _LoginScreenState extends State<LoginScreen>
                 fillColor: Colors.transparent,
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                errorStyle: TextStyle(
-            fontFamily: 'Inter',
-                  color: Colors.red[600],
-                  fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
               ),
-              validator: validator,
             ),
+          ),
+          // Reserved space for error messages - always present to prevent layout shifts
+          Container(
+            height: 24, // Fixed height for error message space
+            margin: const EdgeInsets.only(top: 4),
+            child: errorText != null
+                ? Text(
+                    errorText,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      color: Colors.red[600],
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  )
+                : const SizedBox.shrink(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCaptchaField() {
+  Widget _buildCaptchaField({String? errorText}) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 0),
       child: Column(
@@ -648,7 +672,7 @@ class _LoginScreenState extends State<LoginScreen>
               ),
             ],
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -719,7 +743,7 @@ class _LoginScreenState extends State<LoginScreen>
                         child: InkWell(
                           borderRadius: BorderRadius.circular(8),
                           onTap: _refreshCaptcha,
-            child: Icon(
+                          child: Icon(
                             Icons.refresh,
                             color: Colors.grey[700],
                             size: 20,
@@ -729,19 +753,19 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ],
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 8),
                 // Captcha Input Field
                 Container(
                   height: 50,
                   decoration: BoxDecoration(
-              color: Colors.white,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: Colors.grey[300]!,
                       width: 1,
                     ),
                   ),
-                  child: TextFormField(
+                  child: TextField(
                     controller: _captchaController,
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -759,29 +783,14 @@ class _LoginScreenState extends State<LoginScreen>
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                       ),
-          filled: true,
-          fillColor: Colors.transparent,
-          border: InputBorder.none,
+                      filled: true,
+                      fillColor: Colors.transparent,
+                      border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          errorStyle: TextStyle(
-            fontFamily: 'Inter',
-            color: Colors.red[600],
-                        fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the security code';
-                      }
-                      if (value.trim().toUpperCase() != _captchaText.toUpperCase()) {
-                        return 'Security code does not match';
-                      }
-                      return null;
-                    },
+                    ),
                   ),
                 ),
-                const SizedBox(height: 1),
+                const SizedBox(height: 8),
                 // Help Text
                 Row(
                   children: [
@@ -806,6 +815,22 @@ class _LoginScreenState extends State<LoginScreen>
                 ),
               ],
             ),
+          ),
+          // Reserved space for error messages - always present to prevent layout shifts
+          Container(
+            height: 24, // Fixed height for error message space
+            margin: const EdgeInsets.only(top: 4),
+            child: errorText != null
+                ? Text(
+                    errorText,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      color: Colors.red[600],
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  )
+                : const SizedBox.shrink(),
           ),
         ],
       ),

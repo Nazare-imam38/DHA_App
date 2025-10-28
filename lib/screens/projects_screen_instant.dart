@@ -1174,7 +1174,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 // Amenities Button
                 RectangularToggleButton(
                   text: 'Amenities',
-                  icon: Icons.location_on,
+                  icon: Icons.local_attraction,
                   isSelected: _showAmenities,
                   onPressed: () {
                     setState(() {
@@ -1400,7 +1400,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                             child: FloatingActionButton(
                               onPressed: _showAllPhases,
                               backgroundColor: const Color(0xFF20B2AA),
-                              child: const Icon(Icons.home_work, color: Colors.white),
+                              child: const Icon(Icons.work, color: Colors.white),
                               tooltip: 'Show All Phases',
                             ),
                           ),
@@ -1660,7 +1660,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                   ],
                 ),
                 child: Icon(
-                  Icons.home,
+                  Icons.apartment,
                   color: Colors.white,
                   size: 18,
                 ),
@@ -2030,13 +2030,13 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   IconData _getPlotIcon(PlotModel plot) {
     switch (plot.category.toLowerCase()) {
       case 'residential':
-        return Icons.home;
+        return Icons.apartment;
       case 'commercial':
         return Icons.business;
       case 'industrial':
         return Icons.factory;
       default:
-        return Icons.location_on;
+        return Icons.place;
     }
   }
 
@@ -3085,7 +3085,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                       // Legend items
                       _buildTownPlanLegendItem('Planned Area', const Color(0xFF20B2AA), Icons.location_city),
                       const SizedBox(height: 4),
-                      _buildTownPlanLegendItem('Development Zone', const Color(0xFF4CAF50), Icons.home_work),
+                      _buildTownPlanLegendItem('Development Zone', const Color(0xFF4CAF50), Icons.work),
                       const SizedBox(height: 4),
                       _buildTownPlanLegendItem('Infrastructure', const Color(0xFF2196F3), Icons.construction),
                     ],
@@ -3250,7 +3250,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        Icons.location_on,
+                        Icons.local_attraction,
                         color: _showAmenities ? const Color(0xFF20B2AA) : Colors.grey,
                         size: 18,
                       ),
@@ -3809,7 +3809,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: const Icon(
-                                Icons.home,
+                                Icons.apartment,
                                 color: Colors.white,
                                 size: 16,
                               ),
@@ -3911,7 +3911,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                       children: [
                         Expanded(
                           child: _buildDetailChipWithIcon(
-                            Icons.location_on,
+                            Icons.location_city,
                             'Sector ${plot.sector}',
                             backgroundColor: Colors.blue[50],
                             iconColor: Colors.blue[600],
@@ -3921,7 +3921,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                         const SizedBox(width: 8),
                         Expanded(
                           child: _buildDetailChipWithIcon(
-                            Icons.home,
+                            Icons.apartment,
                             'St. ${plot.streetNo}',
                             backgroundColor: Colors.green[50],
                             iconColor: Colors.green[600],

@@ -33,16 +33,16 @@ class GeoJsonBoundaryService {
   };
 
   static final Map<String, IconData> _phaseIcons = {
-    'Phase1': Icons.home_work,
-    'Phase2': Icons.home_work,
-    'Phase3': Icons.home_work,
-    'Phase4': Icons.home_work,
-    'Phase4_GV': Icons.home_work,
-    'Phase4_RVN': Icons.home_work,
-    'Phase4_RVS': Icons.home_work,
-    'Phase5': Icons.home_work,
-    'Phase6': Icons.home_work,
-    'Phase7': Icons.home_work,
+    'Phase1': Icons.work,
+    'Phase2': Icons.work,
+    'Phase3': Icons.work,
+    'Phase4': Icons.work,
+    'Phase4_GV': Icons.work,
+    'Phase4_RVN': Icons.work,
+    'Phase4_RVS': Icons.work,
+    'Phase5': Icons.work,
+    'Phase6': Icons.work,
+    'Phase7': Icons.work,
     // 'Amenities': Icons.location_city, // REMOVED: Amenities should be markers, not boundaries
   };
 
@@ -127,7 +127,7 @@ class GeoJsonBoundaryService {
         phaseName: phaseName,
         polygons: polygons,
         color: _phaseColors[phaseName] ?? const Color(0xFF9E9E9E),
-        icon: _phaseIcons[phaseName] ?? Icons.location_on,
+        icon: _phaseIcons[phaseName] ?? Icons.place,
       );
     } catch (e) {
       print('Error parsing GeoJSON for $phaseName: $e');
@@ -162,7 +162,7 @@ class GeoJsonBoundaryService {
 
   /// Get icon for a specific phase
   static IconData getPhaseIcon(String phaseName) {
-    return _phaseIcons[phaseName] ?? Icons.location_on;
+    return _phaseIcons[phaseName] ?? Icons.place;
   }
 
   /// Get all available phase names

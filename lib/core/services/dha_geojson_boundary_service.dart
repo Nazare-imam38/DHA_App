@@ -241,7 +241,7 @@ class DhaGeoJSONBoundaryService {
   static IconData _getPhaseIcon(String phase) {
     switch (phase.toLowerCase()) {
       case 'phase 1':
-        return Icons.home;
+        return Icons.apartment;
       case 'phase 2':
         return Icons.location_city;
       case 'phase 3':
@@ -253,7 +253,7 @@ class DhaGeoJSONBoundaryService {
       case 'phase 4_rvn':
         return Icons.house;
       case 'phase 4_rvs':
-        return Icons.home_work;
+        return Icons.work;
       case 'phase 5':
         return Icons.domain;
       case 'phase 6':
@@ -261,7 +261,7 @@ class DhaGeoJSONBoundaryService {
       case 'phase 7':
         return Icons.corporate_fare;
       default:
-        return Icons.location_on;
+        return Icons.place;
     }
   }
 }

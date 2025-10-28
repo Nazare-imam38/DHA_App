@@ -211,7 +211,7 @@ class PlotInfoCard extends StatelessWidget {
       children: [
           // Location details
           _buildDetailRow(
-            icon: Icons.location_on,
+            icon: Icons.place,
             label: 'Location',
             value: '${plot.sector}, ${plot.streetNo}',
           ),
@@ -476,6 +476,6 @@ class PlotInfoCard extends StatelessWidget {
   IconData _getCategoryIcon() {
     return plot.category.toLowerCase() == 'commercial' 
         ? Icons.business 
-        : Icons.home;
+        : Icons.apartment;
   }
 }

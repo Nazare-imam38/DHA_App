@@ -231,7 +231,7 @@ class _FiltersScreenState extends State<FiltersScreen> with TickerProviderStateM
                           ),
                           const SizedBox(height: 6),
                           _buildFilterRow(
-                            icon: Icons.home,
+                            icon: Icons.apartment,
                             title: 'Plot Type',
                             badge: _selectedPlotType != null ? '1' : null,
                             gradientColors: [const Color(0xFF1E3C90), const Color(0xFF20B2AA)],
@@ -239,7 +239,7 @@ class _FiltersScreenState extends State<FiltersScreen> with TickerProviderStateM
                           ),
                           const SizedBox(height: 6),
                           _buildFilterRow(
-                            icon: Icons.location_on,
+                            icon: Icons.location_city,
                             title: 'DHA Phase',
                             badge: _selectedDhaPhase != null ? 'RVS' : null,
                             gradientColors: [const Color(0xFFF44336), const Color(0xFFEF5350)],

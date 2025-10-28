@@ -221,7 +221,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                   SlideTransition(
                     position: _slideAnimation,
                   child: _buildEnhancedContactCard(
-                      icon: Icons.location_on,
+                      icon: Icons.place,
                       title: l10n.visitOurOffice,
                     gradient: const LinearGradient(
                       colors: [Color(0xFF667eea), Color(0xFF764ba2)],
@@ -338,7 +338,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                           ],
                                         ),
                                         child: const Icon(
-                                          Icons.location_on,
+                                          Icons.place,
                                           color: Colors.white,
                                           size: 30,
                                         ),

@@ -95,7 +95,7 @@ class RectangularToggleButton extends StatelessWidget {
 
   IconData _getDefaultIcon() {
     if (text.toLowerCase().contains('amenities')) {
-      return Icons.location_on;
+      return Icons.local_attraction;
     } else if (text.toLowerCase().contains('boundaries')) {
       return Icons.layers;
     }

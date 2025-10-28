@@ -124,7 +124,7 @@ class _SidebarScreenState extends State<SidebarScreen>
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const Icon(
-                              Icons.location_on,
+                              Icons.place,
                               color: Colors.white,
                               size: 16,
                             ),
@@ -150,7 +150,7 @@ class _SidebarScreenState extends State<SidebarScreen>
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     children: [
                       _buildMenuItem(
-                        icon: Icons.home,
+                        icon: Icons.apartment,
                         title: 'Home',
                         subtitle: 'Browse properties',
                         onTap: () {
@@ -159,7 +159,7 @@ class _SidebarScreenState extends State<SidebarScreen>
                         },
                       ),
                       _buildMenuItem(
-                        icon: Icons.home_work,
+                        icon: Icons.work,
                         title: 'Projects',
                         subtitle: 'View DHA projects',
                         onTap: () {

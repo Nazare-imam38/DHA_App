@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'property_details_form_screen.dart';
+import 'property_type_pricing_screen.dart';
 import '../core/theme/app_theme.dart';
 
 class MSVerificationScreen extends StatefulWidget {
@@ -638,14 +638,16 @@ class _MSVerificationScreenState extends State<MSVerificationScreen>
         ),
       );
 
-      // Navigate to Property Details Form after brief delay
+      // Navigate to Property Type & Pricing Screen after brief delay
       await Future.delayed(const Duration(milliseconds: 1000));
       
       if (mounted) {
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => const PropertyDetailsFormScreen(),
+            pageBuilder: (context, animation, secondaryAnimation) => PropertyTypePricingScreen(
+              selectedPurpose: _selectedPurpose!,
+            ),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               return SlideTransition(
                 position: Tween<Offset>(

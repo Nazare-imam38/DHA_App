@@ -4,6 +4,7 @@ import '../../providers/enhanced_biometric_auth_provider.dart';
 import '../../models/biometric_auth_state.dart';
 import 'enhanced_login_screen.dart';
 import '../home/home_screen.dart';
+import '../../screens/main_wrapper.dart';
 
 /// Enhanced biometric login screen with comprehensive error handling and fallback options
 class EnhancedBiometricLoginScreen extends StatefulWidget {
@@ -136,7 +137,7 @@ class _EnhancedBiometricLoginScreenState extends State<EnhancedBiometricLoginScr
   void _navigateToHome() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => const HomeScreen(),
+        builder: (context) => const MainWrapper(initialTabIndex: 0),
       ),
     );
   }

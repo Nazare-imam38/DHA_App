@@ -87,7 +87,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                 borderRadius: BorderRadius.circular(8.r),
               ),
               child: Icon(
-                Icons.home_work_rounded,
+                Icons.work_rounded,
                 color: Colors.white,
                 size: 20.sp,
               ),

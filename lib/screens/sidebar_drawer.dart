@@ -199,7 +199,7 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                               )
                             else
                               const Icon(
-                                Icons.location_on,
+                                Icons.place,
                                 color: Colors.white,
                                 size: 16,
                               ),
@@ -245,7 +245,7 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                           padding: const EdgeInsets.all(20),
                           children: [
                             _buildMenuItem(
-                              icon: Icons.home,
+                              icon: Icons.apartment,
                               title: l10n.home.toUpperCase(),
                               subtitle: l10n.browseProperties.toUpperCase(),
                               onTap: _navigateToHome,

@@ -1,10 +1,9 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:latlong2/latlong.dart';
 import 'property_review_screen.dart';
+import 'main_wrapper.dart';
 import '../core/theme/app_theme.dart';
-import '../core/services/geocoding_service.dart';
 import '../ui/widgets/location_map_widget.dart';
 
 class PropertyDetailsFormScreen extends StatefulWidget {
@@ -19,102 +18,36 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late AnimationController _scaleController;
+  late AnimationController _blinkController;
   
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _scaleAnimation;
+  late Animation<Color?> _blinkAnimation;
 
   // Form controllers
-  final TextEditingController _propertyTitleController = TextEditingController();
-  final TextEditingController _priceController = TextEditingController();
-  final TextEditingController _sizeController = TextEditingController();
+  final TextEditingController _plotNoController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _contactController = TextEditingController();
+  final TextEditingController _phaseSectorBlockZoneController = TextEditingController();
 
   // Form state
-  String _selectedPropertyType = 'House';
-  String _selectedPhase = 'Phase 1';
+  String _selectedPhaseSectorBlockZone = 'Phase 1';
 
-  // Map and geocoding state
+  // Map state
   LatLng? _propertyLocation;
-  bool _isGeocoding = false;
-  final GeocodingService _geocodingService = GeocodingService();
+  bool _isSatelliteView = false;
 
-  final List<String> _propertyTypes = ['House', 'Flat', 'Plot', 'Commercial'];
-  final List<String> _phases = ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'Phase 5', 'Phase 6', 'Phase 7'];
+  final List<String> _phaseSectorBlockZoneOptions = [
+    'Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'Phase 5', 'Phase 6', 'Phase 7',
+    'Sector A', 'Sector B', 'Sector C', 'Sector D', 'Sector E', 'Sector F',
+    'Block A', 'Block B', 'Block C', 'Block D', 'Block E', 'Block F',
+    'Zone 1', 'Zone 2', 'Zone 3', 'Zone 4', 'Zone 5'
+  ];
 
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
-    _setupAddressListener();
-  }
-
-  void _setupAddressListener() {
-    _addressController.addListener(() {
-      _debounceGeocoding();
-    });
-  }
-
-  Timer? _debounceTimer;
-
-  void _debounceGeocoding() {
-    // Cancel previous timer
-    _debounceTimer?.cancel();
-    
-    // Start new timer
-    _debounceTimer = Timer(const Duration(milliseconds: 1500), () {
-      if (_addressController.text.trim().isNotEmpty && !_isGeocoding) {
-        _geocodeAddress();
-      }
-    });
-  }
-
-  Future<void> _geocodeAddress() async {
-    if (_isGeocoding) return;
-    
-    final address = _addressController.text.trim();
-    if (address.isEmpty) {
-      setState(() {
-        _propertyLocation = null;
-      });
-      return;
-    }
-    
-    setState(() {
-      _isGeocoding = true;
-    });
-
-    try {
-      print('Attempting to geocode: $address');
-      final location = await _geocodingService.geocodeAddress(address);
-      
-      if (mounted) {
-        setState(() {
-          _propertyLocation = location;
-        });
-        
-        if (location != null) {
-          print('Geocoding successful: ${location.latitude}, ${location.longitude}');
-        } else {
-          print('Geocoding failed: No location found');
-        }
-      }
-    } catch (e) {
-      print('Geocoding error: $e');
-      if (mounted) {
-        // Even if geocoding fails, show a fallback location
-        setState(() {
-          _propertyLocation = const LatLng(33.6844, 73.0479); // Islamabad fallback
-        });
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isGeocoding = false;
-        });
-      }
-    }
   }
 
   void _initializeAnimations() {
@@ -128,6 +61,10 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     );
     _scaleController = AnimationController(
       duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _blinkController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
 
@@ -155,24 +92,32 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
       curve: Curves.elasticOut,
     ));
 
+    _blinkAnimation = ColorTween(
+      begin: Colors.grey[400],
+      end: const Color(0xFF20B2AA),
+    ).animate(CurvedAnimation(
+      parent: _blinkController,
+      curve: Curves.easeInOut,
+    ));
 
     // Start animations
     _fadeController.forward();
     _slideController.forward();
     _scaleController.forward();
+    
+    // Start blinking animation
+    _blinkController.repeat(reverse: true);
   }
 
   @override
   void dispose() {
-    _debounceTimer?.cancel();
     _fadeController.dispose();
     _slideController.dispose();
     _scaleController.dispose();
-    _propertyTitleController.dispose();
-    _priceController.dispose();
-    _sizeController.dispose();
+    _blinkController.dispose();
+    _plotNoController.dispose();
     _addressController.dispose();
-    _contactController.dispose();
+    _phaseSectorBlockZoneController.dispose();
     super.dispose();
   }
 
@@ -276,7 +221,7 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                            ),
                           child: const Center(
                             child: Text(
-                              '3',
+                              '4',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -348,71 +293,29 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Property Title
-                              _buildModernFormField(
-                        controller: _propertyTitleController,
-                        label: 'Property Title',
-                        hint: 'e.g., Beautiful 3 Bedroom House',
-                        icon: Icons.title,
+                      // Plot No
+                      _buildModernFormField(
+                        controller: _plotNoController,
+                        label: 'Plot No',
+                        hint: 'e.g., 123-A, Street 5',
+                        icon: Icons.home_work,
                       ),
                       
-                              const SizedBox(height: 16),
-                              
-                              // Property Type and Phase Row
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildModernDropdownField(
-                        label: 'Property Type',
-                        value: _selectedPropertyType,
-                        items: _propertyTypes,
-                        onChanged: (value) => setState(() => _selectedPropertyType = value!),
-                        icon: Icons.home,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: _buildModernDropdownField(
-                                      label: 'DHA Phase',
-                                      value: _selectedPhase,
-                                      items: _phases,
-                                      onChanged: (value) => setState(() => _selectedPhase = value!),
-                                      icon: Icons.location_on,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              
-                              const SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       
-                      // Price and Size Row
-                      Row(
-                        children: [
-                          Expanded(
-                                    child: _buildModernFormField(
-                              controller: _priceController,
-                              label: 'Price (PKR)',
-                                      hint: 'e.g., 5,000,000',
-                              icon: Icons.attach_money,
-                              keyboardType: TextInputType.number,
-                            ),
-                          ),
-                                  const SizedBox(width: 12),
-                          Expanded(
-                                    child: _buildModernFormField(
-                              controller: _sizeController,
-                              label: 'Size',
-                              hint: 'e.g., 3 Marla',
-                              icon: Icons.straighten,
-                            ),
-                          ),
-                        ],
+                      // Phase/Sector/Block/Zone
+                      _buildModernDropdownField(
+                        label: 'Phase/Sector/Block/Zone',
+                        value: _selectedPhaseSectorBlockZone,
+                        items: _phaseSectorBlockZoneOptions,
+                        onChanged: (value) => setState(() => _selectedPhaseSectorBlockZone = value!),
+                        icon: Icons.location_city,
                       ),
                       
-                              const SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       
                       // Address
-                              _buildModernFormField(
+                      _buildModernFormField(
                         controller: _addressController,
                         label: 'Address',
                         hint: 'Enter complete address',
@@ -423,48 +326,106 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                               const SizedBox(height: 16),
                       
                       // Location Map
-                      if (_addressController.text.trim().isNotEmpty) ...[
-                        Row(
-                          children: [
-                            Text(
-                              'Property Location',
-                              style: AppTheme.titleMedium.copyWith(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.textPrimary,
-                                letterSpacing: 0.3,
-                              ),
+                      Row(
+                        children: [
+                          Text(
+                            'Property Location',
+                            style: AppTheme.titleMedium.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.textPrimary,
+                              letterSpacing: 0.3,
                             ),
-                            if (_isGeocoding) ...[
-                              const SizedBox(width: 8),
-                              const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.tealAccent),
+                          ),
+                          const Spacer(),
+                          // Map/Satellite Toggle Button
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Colors.grey.withValues(alpha: 0.3),
+                                width: 1,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.05),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _buildMapToggleButton('Map', true),
+                                _buildMapToggleButton('Satellite', false),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppTheme.paddingSmall),
+                      Container(
+                        height: 300,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.grey.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: LocationMapWidget(
+                            location: _propertyLocation,
+                            address: _addressController.text.trim(),
+                            height: 300,
+                            showMarker: true,
+                            isSatelliteView: _isSatelliteView,
+                            onLocationChanged: (location) {
+                              setState(() {
+                                _propertyLocation = location;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 8),
+                      
+                      // Map Instructions
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE8F4FD),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: const Color(0xFF20B2AA).withValues(alpha: 0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              color: const Color(0xFF20B2AA),
+                              size: 16,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Tap on the map to place your property marker at the exact location',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 12,
+                                  color: const Color(0xFF20B2AA),
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
-                            ],
+                            ),
                           ],
                         ),
-                        const SizedBox(height: AppTheme.paddingSmall),
-                        LocationMapWidget(
-                          location: _propertyLocation,
-                          address: _addressController.text.trim(),
-                          height: 200,
-                          showMarker: true,
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                      
-                      // Contact Information
-                              _buildModernFormField(
-                        controller: _contactController,
-                        label: 'Contact Number',
-                        hint: 'e.g., +92-300-1234567',
-                        icon: Icons.phone,
-                        keyboardType: TextInputType.phone,
                       ),
                       
                               const SizedBox(height: 24),
@@ -562,81 +523,12 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
                 
                         const SizedBox(height: 20),
                 
-                        // Navigate to Home Button
-                Container(
-                  width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: const Color(0xFFE0E0E0),
-                              width: 1,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.05),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () => _navigateToHome(),
-                              borderRadius: BorderRadius.circular(16),
-                              child: Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF20B2AA),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                                      child: const Icon(
-                                        Icons.home_rounded,
-                                        color: Colors.white,
-                                        size: 24,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                                          Text(
-                                            'Navigate to Home',
-                            style: TextStyle(
-                                              fontFamily: 'Inter',
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w700,
-                                              color: Color(0xFF20B2AA),
-                                            ),
-                                          ),
-                                          SizedBox(height: 4),
-                                          Text(
-                                            'Return to the main dashboard',
-                                            style: TextStyle(
-                                              fontFamily: 'Inter',
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                                    ),
-                                    const Icon(
-                                      Icons.arrow_forward_ios,
-                                      color: Color(0xFF20B2AA),
-                                      size: 16,
-                                  ),
-                                ],
-                              ),
-                              ),
-                            ),
+                        // Animated Home Icon
+                        Center(
+                          child: GestureDetector(
+                            onTap: () => _navigateToHome(),
+                            onLongPress: () => _navigateToHomeSimple(), // Backup method
+                            child: _buildAnimatedHomeIcon(),
                           ),
                         ),
                 
@@ -780,11 +672,8 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
 
   void _handleContinue() {
     // Validate form
-    if (_propertyTitleController.text.trim().isEmpty ||
-        _priceController.text.trim().isEmpty ||
-        _sizeController.text.trim().isEmpty ||
-        _addressController.text.trim().isEmpty ||
-        _contactController.text.trim().isEmpty) {
+    if (_plotNoController.text.trim().isEmpty ||
+        _addressController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Please fill in all required fields'),
@@ -940,12 +829,120 @@ class _PropertyDetailsFormScreenState extends State<PropertyDetailsFormScreen>
     );
   }
 
-  void _navigateToHome() {
-    // Navigate to home screen
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      '/home', // Assuming you have a home route defined
-      (route) => false, // Remove all previous routes
+  Widget _buildMapToggleButton(String label, bool isMap) {
+    bool isSelected = isMap ? !_isSatelliteView : _isSatelliteView;
+    
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _isSatelliteView = !isMap;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF20B2AA) : Colors.transparent,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: isSelected ? Colors.white : Colors.grey[600],
+          ),
+        ),
+      ),
     );
+  }
+
+  Widget _buildAnimatedHomeIcon() {
+    return AnimatedBuilder(
+      animation: _blinkAnimation,
+      builder: (context, child) {
+        return GestureDetector(
+          onTapDown: (_) {
+            // Add a subtle scale effect on tap
+            _scaleController.reverse();
+          },
+          onTapUp: (_) {
+            _scaleController.forward();
+          },
+          onTapCancel: () {
+            _scaleController.forward();
+          },
+          child: ScaleTransition(
+            scale: _scaleAnimation,
+            child: Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: _blinkAnimation.value!.withValues(alpha: 0.3),
+                    blurRadius: 15,
+                    offset: const Offset(0, 6),
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.home_rounded,
+                  color: _blinkAnimation.value,
+                  size: 28,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _navigateToHome() {
+    try {
+      // Stop all animations before navigation
+      _fadeController.stop();
+      _slideController.stop();
+      _scaleController.stop();
+      _blinkController.stop();
+      
+      // Add a small delay to ensure animations are stopped
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted && context.mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const MainWrapper(initialTabIndex: 0),
+            ),
+          );
+        }
+      });
+    } catch (e) {
+      print('Navigation error: $e');
+      // Fallback navigation - just pop to root
+      if (mounted && context.mounted) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+    }
+  }
+
+  void _navigateToHomeSimple() {
+    // Simple navigation without animations
+    try {
+      if (mounted && context.mounted) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+    } catch (e) {
+      print('Simple navigation error: $e');
+    }
   }
 }

@@ -505,7 +505,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 controller: addressController,
                 decoration: InputDecoration(
                   labelText: 'Address',
-                  prefixIcon: Icon(Icons.location_on),
+                  prefixIcon: Icon(Icons.place),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -958,7 +958,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     )
                                   else
                                 const Icon(
-                                  Icons.location_on,
+                                  Icons.place,
                                   color: Color(0xFF20B2AA),
                                   size: 16,
                                 ),
@@ -1029,7 +1029,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               _buildUserInfoOption(
                                 'Address',
                                 userData.address!,
-                                Icons.location_on,
+                                Icons.place,
                               ),
                             ],
                             _buildModernMenuDivider(),

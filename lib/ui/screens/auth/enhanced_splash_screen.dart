@@ -5,6 +5,7 @@ import '../../../services/biometric_service.dart';
 import 'biometric_login_screen.dart';
 import 'enhanced_login_screen.dart';
 import '../home/home_screen.dart';
+import '../../../screens/main_wrapper.dart';
 
 /// Enhanced splash screen with comprehensive biometric authentication flow
 class EnhancedSplashScreen extends StatefulWidget {
@@ -122,7 +123,7 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
   void _navigateToHome() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => const HomeScreen(),
+        builder: (context) => const MainWrapper(initialTabIndex: 0),
       ),
     );
   }

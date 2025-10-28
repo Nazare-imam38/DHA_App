@@ -181,7 +181,7 @@ class EnhancedStartupPreloader {
         phaseName: phaseName,
         polygons: polygons,
         color: Color(phaseColors[phaseName] ?? 0xFF4CAF50),
-        icon: Icons.home_work,
+        icon: Icons.work,
       );
     } catch (e) {
       print('❌ Error parsing GeoJSON for $phaseName: $e');

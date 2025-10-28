@@ -477,7 +477,7 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
                 // Amenities Button
                 RectangularToggleButton(
                   text: 'Amenities',
-                  icon: Icons.location_on,
+                  icon: Icons.local_attraction,
                   isSelected: _showAmenities,
                   onPressed: () {
                     setState(() {
@@ -521,7 +521,7 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
                         _centerMapOnBoundaries();
                       },
                       backgroundColor: const Color(0xFF20B2AA),
-                      child: const Icon(Icons.home_work, color: Colors.white),
+                      child: const Icon(Icons.work, color: Colors.white),
                     ),
                   ),
                   // Zoom In Button

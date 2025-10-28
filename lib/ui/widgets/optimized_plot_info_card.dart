@@ -202,7 +202,7 @@ class _OptimizedPlotInfoCardState extends State<OptimizedPlotInfoCard>
                 child: _buildDetailItem(
                   'Phase',
                   widget.plot.phase,
-                  Icons.home_work,
+                  Icons.work,
                   const Color(0xFF1E3C90),
                 ),
               ),
@@ -211,7 +211,7 @@ class _OptimizedPlotInfoCardState extends State<OptimizedPlotInfoCard>
                 child: _buildDetailItem(
                   'Sector',
                   widget.plot.sector,
-                  Icons.location_on,
+                  Icons.location_city,
                   const Color(0xFF20B2AA),
                 ),
               ),

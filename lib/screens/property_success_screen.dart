@@ -489,7 +489,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         const Icon(
-                                          Icons.home,
+                                          Icons.apartment,
                                           color: Colors.white,
                                           size: 18,
                                         ),

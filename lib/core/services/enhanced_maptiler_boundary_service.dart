@@ -23,61 +23,61 @@ class EnhancedMapTilerBoundaryService {
     'Phase1': {
       'dataset_id': '0199c78c-7608-7c9c-9f37-829f6e855976',
       'color': 0xFF4CAF50,
-      'icon': Icons.home_work,
+      'icon': Icons.work,
       'priority': 1,
     },
     'Phase2': {
       'dataset_id': '0199c78d-17c1-72cc-938e-91055a6ac1c9',
       'color': 0xFF2196F3,
-      'icon': Icons.home_work,
+      'icon': Icons.work,
       'priority': 2,
     },
     'Phase3': {
       'dataset_id': '0199c790-7caa-797d-843c-38cfe260604b',
       'color': 0xFFFF9800,
-      'icon': Icons.home_work,
+      'icon': Icons.work,
       'priority': 3,
     },
     'Phase4': {
       'dataset_id': '0199c794-25e7-7ca4-8e88-1f5852f96b51',
       'color': 0xFF9C27B0,
-      'icon': Icons.home_work,
+      'icon': Icons.work,
       'priority': 4,
     },
     'Phase4_GV': {
       'dataset_id': '0199c794-9c99-7831-8b0e-4927de2c9b8a',
       'color': 0xFF9C27B0,
-      'icon': Icons.home_work,
+      'icon': Icons.work,
       'priority': 4,
     },
     'Phase4_RVN': {
       'dataset_id': '0199c794-ff1e-7c52-bd07-45305f747039',
       'color': 0xFF9C27B0,
-      'icon': Icons.home_work,
+      'icon': Icons.work,
       'priority': 4,
     },
     'Phase4_RVS': {
       'dataset_id': '0199c796-b04a-7204-9990-54d9bb65c30e',
       'color': 0xFF9C27B0,
-      'icon': Icons.home_work,
+      'icon': Icons.work,
       'priority': 4,
     },
     'Phase5': {
       'dataset_id': '0199c797-495f-7d85-9965-79977c5334c4',
       'color': 0xFFF44336,
-      'icon': Icons.home_work,
+      'icon': Icons.work,
       'priority': 5,
     },
     'Phase6': {
       'dataset_id': '0199c797-eafc-7dfc-b64e-cdfd0104b6cf',
       'color': 0xFF00BCD4,
-      'icon': Icons.home_work,
+      'icon': Icons.work,
       'priority': 6,
     },
     'Phase7': {
       'dataset_id': '0199c799-7326-79bf-aea5-4365b5559c18',
       'color': 0xFF795548,
-      'icon': Icons.home_work,
+      'icon': Icons.work,
       'priority': 7,
     },
   };
@@ -394,7 +394,7 @@ class EnhancedMapTilerBoundaryService {
     if (metadata != null) {
       return metadata['icon'] as IconData;
     }
-    return Icons.location_on;
+    return Icons.place;
   }
 
   /// Get all available phase names

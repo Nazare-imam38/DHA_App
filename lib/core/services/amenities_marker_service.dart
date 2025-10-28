@@ -244,7 +244,7 @@ class AmenitiesMarkerService {
     Color? iconColor,
     double iconSize = 24,
   }) {
-    final icon = _amenityIcons[amenityType] ?? Icons.location_on;
+    final icon = _amenityIcons[amenityType] ?? Icons.place;
     final color = iconColor ?? _amenityColors[amenityType] ?? Colors.grey;
     final bgColor = backgroundColor ?? Colors.white;
 

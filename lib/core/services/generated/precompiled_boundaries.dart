@@ -2269,7 +2269,7 @@ LatLng(33.548379673255056, 73.1096546365369)
 ]
       ],
       color: const Color(0xFF4CAF50),
-      icon: Icons.home_work,
+      icon: Icons.work,
     ),
     BoundaryPolygon(
       phaseName: 'Phase2',
@@ -5562,7 +5562,7 @@ LatLng(33.53199249700673, 73.13057393718026)
 ]
       ],
       color: const Color(0xFF2196F3),
-      icon: Icons.home_work,
+      icon: Icons.work,
     ),
     BoundaryPolygon(
       phaseName: 'Phase3',
@@ -8215,7 +8215,7 @@ LatLng(33.51692167869032, 73.15007590398659)
 ]
       ],
       color: const Color(0xFFFF9800),
-      icon: Icons.home_work,
+      icon: Icons.work,
     ),
     BoundaryPolygon(
       phaseName: 'Phase4',
@@ -8512,7 +8512,7 @@ LatLng(33.53182560486516, 73.08850046531052)
 ]
       ],
       color: const Color(0xFF9C27B0),
-      icon: Icons.home_work,
+      icon: Icons.work,
     ),
     BoundaryPolygon(
       phaseName: 'Phase4_GV',
@@ -8772,7 +8772,7 @@ LatLng(33.499526163600194, 73.04410664780868)
 ]
       ],
       color: const Color(0xFF9C27B0),
-      icon: Icons.home_work,
+      icon: Icons.work,
     ),
     BoundaryPolygon(
       phaseName: 'Phase4_RVN',
@@ -9930,7 +9930,7 @@ LatLng(33.49637821042575, 73.02147790248596)
 ]
       ],
       color: const Color(0xFF9C27B0),
-      icon: Icons.home_work,
+      icon: Icons.work,
     ),
     BoundaryPolygon(
       phaseName: 'Phase4_RVS',
@@ -10090,7 +10090,7 @@ LatLng(33.48744557275728, 73.00779238104474)
 ]
       ],
       color: const Color(0xFF9C27B0),
-      icon: Icons.home_work,
+      icon: Icons.work,
     ),
     BoundaryPolygon(
       phaseName: 'Phase5',
@@ -11128,7 +11128,7 @@ LatLng(33.543035842252436, 73.21813250052429)
 ]
       ],
       color: const Color(0xFFF44336),
-      icon: Icons.home_work,
+      icon: Icons.work,
     ),
     BoundaryPolygon(
       phaseName: 'Phase6',
@@ -11690,7 +11690,7 @@ LatLng(33.537218897315554, 73.23018555394248)
 ]
       ],
       color: const Color(0xFF00BCD4),
-      icon: Icons.home_work,
+      icon: Icons.work,
     ),
     BoundaryPolygon(
       phaseName: 'Phase7',
@@ -13144,7 +13144,7 @@ LatLng(33.53878185068754, 73.339102038648)
 ]
       ],
       color: const Color(0xFF795548),
-      icon: Icons.home_work,
+      icon: Icons.work,
     )
   ];
   

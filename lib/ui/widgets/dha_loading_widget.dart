@@ -162,7 +162,7 @@ class _DHALoadingWidgetState extends State<DHALoadingWidget>
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
-                                Icons.home,
+                                Icons.apartment,
                                 color: Colors.white,
                                 size: 20,
                               ),

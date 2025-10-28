@@ -73,7 +73,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen>
                             ),
                             child: const Center(
                               child: Icon(
-                                Icons.home,
+                                Icons.apartment,
                                 size: 100,
                                 color: Colors.white,
                               ),
@@ -135,7 +135,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen>
                       Row(
                         children: [
                           Icon(
-                            Icons.location_on,
+                            Icons.place,
                             color: const Color(0xFF2ECC71),
                             size: 20,
                           ),

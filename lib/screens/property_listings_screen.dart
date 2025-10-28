@@ -467,7 +467,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                         ),
                         child: const Center(
                           child: Icon(
-                            Icons.home_work,
+                            Icons.work,
                             color: Color(0xFF20B2AA),
                             size: 50,
                           ),
@@ -575,7 +575,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                 Row(
                   children: [
                     Icon(
-                      Icons.location_on,
+                      Icons.place,
                       size: 14,
                       color: Colors.grey[600],
                     ),
@@ -888,7 +888,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                     // Property Type Filter
                     _buildFilterSection(
                       'Property Type',
-                      Icons.home,
+                      Icons.apartment,
                       [
                         'All', 'Houses', 'Flats', 'Plots', 'Commercial'
                       ],
@@ -910,7 +910,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                     // Location Filter
                     _buildFilterSection(
                       'Location',
-                      Icons.location_on,
+                      Icons.place,
                       [
                         'Any', 'Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'Phase 5', 'Phase 6', 'Phase 7'
                       ],

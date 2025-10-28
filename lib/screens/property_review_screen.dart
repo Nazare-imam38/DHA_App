@@ -329,7 +329,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen>
                                       child: _buildReviewSection(
                                         'Type',
                                         _propertyData['type'],
-                                        Icons.home,
+                                        Icons.apartment,
                                       ),
                                     ),
                                     const SizedBox(width: 16),
@@ -360,7 +360,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen>
                                       child: _buildReviewSection(
                                         'Phase',
                                         _propertyData['phase'],
-                                        Icons.location_on,
+                                        Icons.location_city,
                                       ),
                                     ),
                                   ],

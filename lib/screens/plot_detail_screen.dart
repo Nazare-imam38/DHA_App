@@ -98,7 +98,7 @@ class _PlotDetailScreenState extends State<PlotDetailScreen>
                       ),
                       child: const Center(
                         child: Icon(
-                          Icons.home_work,
+                          Icons.work,
                           size: 80,
                           color: Colors.white,
                         ),
@@ -531,7 +531,7 @@ class _PlotDetailScreenState extends State<PlotDetailScreen>
           _buildLocationCard(
             'Address',
             'St. ${widget.plot.streetNo}, Sector ${widget.plot.sector}',
-            Icons.location_on,
+            Icons.place,
             const Color(0xFF2ECC71),
           ),
           

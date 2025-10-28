@@ -862,7 +862,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       l10n.residentialProperties,
                                       stats['residential'].toString(),
                                       l10n.propertiesCount,
-                                      Icons.home,
+                                      Icons.apartment,
                                       const Color(0xFF20B2AA),
                                       animation: _residentialCounterAnimation,
                                     ),
@@ -1418,7 +1418,7 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                         child: Center(
                           child: Icon(
-                            Icons.home_work,
+                            Icons.work,
                             color: const Color(0xFF1B5993),
                             size: 40.sp,
                           ),

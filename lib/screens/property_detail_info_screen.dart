@@ -111,7 +111,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                         Row(
                           children: [
                             Icon(
-                              Icons.location_on,
+                              Icons.place,
                               color: Colors.white,
                               size: 16.sp,
                             ),
@@ -186,7 +186,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.home, size: 18.sp),
+                              Icon(Icons.apartment, size: 18.sp),
                               SizedBox(width: 8.w),
                               Text(AppLocalizations.of(context)!.features, style: TextStyle(fontSize: 14.sp)),
                             ],
@@ -196,7 +196,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.location_on, size: 18.sp),
+                              Icon(Icons.place, size: 18.sp),
                               SizedBox(width: 8.w),
                               Text(AppLocalizations.of(context)!.location, style: TextStyle(fontSize: 14.sp)),
                             ],
@@ -287,7 +287,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
           
           _buildFeatureSection(
             AppLocalizations.of(context)!.nearbyFacilities,
-            Icons.location_on,
+            Icons.local_attraction,
             [
               AppLocalizations.of(context)!.nearbyHospitals,
               AppLocalizations.of(context)!.nearbyPublicTransportService,
@@ -490,7 +490,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                             ],
                           ),
                           child: Icon(
-                            Icons.home,
+                            Icons.apartment,
                             color: Colors.white,
                             size: 28.sp,
                           ),
