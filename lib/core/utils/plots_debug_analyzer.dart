@@ -8,7 +8,7 @@ import 'enhanced_geojson_parser.dart';
 
 /// Comprehensive debug analyzer for plots API and polygon parsing
 class PlotsDebugAnalyzer {
-  static const String baseUrl = 'https://backend-apis.dhamarketplace.com/api';
+  static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
   
   /// Step 1: Test API response structure
   static Future<void> analyzeApiResponse() async {

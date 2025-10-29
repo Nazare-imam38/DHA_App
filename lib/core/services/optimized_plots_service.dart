@@ -5,7 +5,7 @@ import 'plots_cache_service_enhanced.dart';
 
 /// Optimized plots service with instant loading and smart caching
 class OptimizedPlotsService {
-  static const String baseUrl = 'https://backend-apis.dhamarketplace.com/api';
+  static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
   static const Duration _cacheValidity = Duration(hours: 6);
   static const int _maxRetries = 3;
   static const Duration _timeout = Duration(seconds: 30);

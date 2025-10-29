@@ -229,7 +229,7 @@ class ComprehensiveStartupPreloader {
   static Future<List<PlotModel>> _loadAllPlotsFromApi() async {
     try {
       final response = await http.get(
-        Uri.parse('https://backend-apis.dhamarketplace.com/api/plots'),
+        Uri.parse('https://testingbackend.dhamarketplace.com/api/plots'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -445,7 +445,7 @@ class ComprehensiveStartupPreloader {
       for (final endpoint in endpoints) {
         try {
           final response = await http.get(
-            Uri.parse('https://backend-apis.dhamarketplace.com/api/$endpoint'),
+            Uri.parse('https://testingbackend.dhamarketplace.com/api/$endpoint'),
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',

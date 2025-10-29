@@ -825,14 +825,29 @@ class _PropertyTypePricingScreenState extends State<PropertyTypePricingScreen>
   }
 
   bool _canContinue() {
-    if (_selectedPropertyType == null || _selectedListingDuration == null) {
+    print('Debug - Validation Check:');
+    print('  selectedPropertyType: $_selectedPropertyType');
+    print('  selectedListingDuration: $_selectedListingDuration');
+    print('  selectedPurpose: ${widget.selectedPurpose}');
+    print('  minPrice: ${_minPriceController.text}');
+    print('  maxPrice: ${_maxPriceController.text}');
+    print('  rentAmount: ${_rentAmountController.text}');
+    
+    if (_selectedPropertyType == null) {
+      print('  Validation failed: No property type selected');
       return false;
     }
     
+    // For sell properties, listing duration is optional
     if (widget.selectedPurpose == 'sell') {
-      return _minPriceController.text.isNotEmpty && _maxPriceController.text.isNotEmpty;
+      final isValid = _minPriceController.text.isNotEmpty && _maxPriceController.text.isNotEmpty;
+      print('  Sell validation result: $isValid');
+      return isValid;
     } else {
-      return _rentAmountController.text.isNotEmpty;
+      // For rent properties, listing duration is required
+      final isValid = _selectedListingDuration != null && _rentAmountController.text.isNotEmpty;
+      print('  Rent validation result: $isValid');
+      return isValid;
     }
   }
 

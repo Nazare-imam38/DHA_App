@@ -1,0 +1,2805 @@
+{
+	"info": {
+		"_postman_id": "b8c5e445-068d-494c-8e4e-e55e3a9afca1",
+		"name": "D-PROPERTY LISTING",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31256659",
+		"_collection_link": "https://dev-team-6434.postman.co/workspace/DEV-TEAM-Workspace~80ac50d1-e3fb-411f-968e-cbe41b55e504/collection/43361684-b8c5e445-068d-494c-8e4e-e55e3a9afca1?action=share&source=collection_link&creator=31256659"
+	},
+	"item": [
+		{
+			"name": "AMENITIES LIST",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{customer_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{local_url}}amenities",
+					"host": [
+						"{{local_url}}amenities"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "New Request",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{local_url}}amenities",
+							"host": [
+								"{{local_url}}amenities"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 21 Aug 2025 08:39:42 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) OpenSSL/3.0.15 PHP/8.3.16"
+						},
+						{
+							"key": "Vary",
+							"value": "Authorization"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.16"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5, max=100"
+						},
+						{
+							"key": "Connection",
+							"value": "Keep-Alive"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "{\n    \"success\": true,\n    \"message\": \"Amenities retrieved successfully\",\n    \"data\": {\n        \"Basic Utilities\": [\n            {\n                \"id\": 1,\n                \"amenity_name\": \"Electricity\",\n                \"amenity_order\": 1,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Basic Utilities\"\n            },\n            {\n                \"id\": 2,\n                \"amenity_name\": \"Gas\",\n                \"amenity_order\": 2,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Basic Utilities\"\n            },\n            {\n                \"id\": 3,\n                \"amenity_name\": \"Water Supply\",\n                \"amenity_order\": 3,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Basic Utilities\"\n            },\n            {\n                \"id\": 4,\n                \"amenity_name\": \"Sewerage\",\n                \"amenity_order\": 4,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Basic Utilities\"\n            },\n            {\n                \"id\": 5,\n                \"amenity_name\": \"Internet/Broadband\",\n                \"amenity_order\": 5,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Basic Utilities\"\n            },\n            {\n                \"id\": 6,\n                \"amenity_name\": \"Cable TV\",\n                \"amenity_order\": 6,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Basic Utilities\"\n            }\n        ],\n        \"Security & Safety\": [\n            {\n                \"id\": 7,\n                \"amenity_name\": \"24/7 Security\",\n                \"amenity_order\": 7,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Security & Safety\"\n            },\n            {\n                \"id\": 8,\n                \"amenity_name\": \"CCTV Surveillance\",\n                \"amenity_order\": 8,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Security & Safety\"\n            },\n            {\n                \"id\": 9,\n                \"amenity_name\": \"Gated Community\",\n                \"amenity_order\": 9,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Security & Safety\"\n            },\n            {\n                \"id\": 10,\n                \"amenity_name\": \"Security Guards\",\n                \"amenity_order\": 10,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Security & Safety\"\n            },\n            {\n                \"id\": 11,\n                \"amenity_name\": \"Intercom System\",\n                \"amenity_order\": 11,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Security & Safety\"\n            },\n            {\n                \"id\": 12,\n                \"amenity_name\": \"Fire Safety System\",\n                \"amenity_order\": 18,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Security & Safety\"\n            }\n        ],\n        \"Parking & Transportation\": [\n            {\n                \"id\": 13,\n                \"amenity_name\": \"Car Parking\",\n                \"amenity_order\": 12,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Parking & Transportation\"\n            },\n            {\n                \"id\": 14,\n                \"amenity_name\": \"Covered Parking\",\n                \"amenity_order\": 13,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Parking & Transportation\"\n            },\n            {\n                \"id\": 15,\n                \"amenity_name\": \"Visitor Parking\",\n                \"amenity_order\": 14,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Parking & Transportation\"\n            },\n            {\n                \"id\": 16,\n                \"amenity_name\": \"Public Transport Access\",\n                \"amenity_order\": 15,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Parking & Transportation\"\n            }\n        ],\n        \"Building Infrastructure\": [\n            {\n                \"id\": 17,\n                \"amenity_name\": \"Elevator\",\n                \"amenity_order\": 16,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Building Infrastructure\"\n            },\n            {\n                \"id\": 18,\n                \"amenity_name\": \"Generator/UPS\",\n                \"amenity_order\": 17,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Building Infrastructure\"\n            },\n            {\n                \"id\": 19,\n                \"amenity_name\": \"Waste Disposal\",\n                \"amenity_order\": 19,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Building Infrastructure\"\n            },\n            {\n                \"id\": 20,\n                \"amenity_name\": \"Maintenance Staff\",\n                \"amenity_order\": 20,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Building Infrastructure\"\n            }\n        ],\n        \"Recreational Facilities\": [\n            {\n                \"id\": 21,\n                \"amenity_name\": \"Swimming Pool\",\n                \"amenity_order\": 21,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Recreational Facilities\"\n            },\n            {\n                \"id\": 22,\n                \"amenity_name\": \"Gym/Fitness Center\",\n                \"amenity_order\": 22,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Recreational Facilities\"\n            },\n            {\n                \"id\": 23,\n                \"amenity_name\": \"Community Park\",\n                \"amenity_order\": 23,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Recreational Facilities\"\n            },\n            {\n                \"id\": 24,\n                \"amenity_name\": \"Playground\",\n                \"amenity_order\": 24,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Recreational Facilities\"\n            },\n            {\n                \"id\": 25,\n                \"amenity_name\": \"Jogging Track\",\n                \"amenity_order\": 25,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Recreational Facilities\"\n            },\n            {\n                \"id\": 26,\n                \"amenity_name\": \"Tennis Court\",\n                \"amenity_order\": 26,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Recreational Facilities\"\n            },\n            {\n                \"id\": 27,\n                \"amenity_name\": \"Basketball Court\",\n                \"amenity_order\": 27,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Recreational Facilities\"\n            },\n            {\n                \"id\": 28,\n                \"amenity_name\": \"Badminton Court\",\n                \"amenity_order\": 28,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Recreational Facilities\"\n            },\n            {\n                \"id\": 29,\n                \"amenity_name\": \"Clubhouse\",\n                \"amenity_order\": 29,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Recreational Facilities\"\n            },\n            {\n                \"id\": 30,\n                \"amenity_name\": \"Community Center\",\n                \"amenity_order\": 30,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Recreational Facilities\"\n            }\n        ],\n        \"Nearby Facilities\": [\n            {\n                \"id\": 31,\n                \"amenity_name\": \"Nearby Schools\",\n                \"amenity_order\": 31,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Nearby Facilities\"\n            },\n            {\n                \"id\": 32,\n                \"amenity_name\": \"Nearby Hospitals\",\n                \"amenity_order\": 32,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Nearby Facilities\"\n            },\n            {\n                \"id\": 33,\n                \"amenity_name\": \"Nearby Shopping Centers\",\n                \"amenity_order\": 33,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Nearby Facilities\"\n            },\n            {\n                \"id\": 34,\n                \"amenity_name\": \"Nearby Mosque\",\n                \"amenity_order\": 34,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Nearby Facilities\"\n            },\n            {\n                \"id\": 35,\n                \"amenity_name\": \"Nearby Parks\",\n                \"amenity_order\": 35,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Nearby Facilities\"\n            },\n            {\n                \"id\": 36,\n                \"amenity_name\": \"Nearby Restaurants\",\n                \"amenity_order\": 36,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Nearby Facilities\"\n            }\n        ],\n        \"Property Features\": [\n            {\n                \"id\": 37,\n                \"amenity_name\": \"Balcony\",\n                \"amenity_order\": 37,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Property Features\"\n            },\n            {\n                \"id\": 38,\n                \"amenity_name\": \"Garden\",\n                \"amenity_order\": 38,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Property Features\"\n            },\n            {\n                \"id\": 39,\n                \"amenity_name\": \"Terrace\",\n                \"amenity_order\": 39,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Property Features\"\n            },\n            {\n                \"id\": 40,\n                \"amenity_name\": \"Rooftop\",\n                \"amenity_order\": 40,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Property Features\"\n            },\n            {\n                \"id\": 41,\n                \"amenity_name\": \"Servant Quarter\",\n                \"amenity_order\": 41,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Property Features\"\n            },\n            {\n                \"id\": 42,\n                \"amenity_name\": \"Study Room\",\n                \"amenity_order\": 42,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Property Features\"\n            },\n            {\n                \"id\": 43,\n                \"amenity_name\": \"Store Room\",\n                \"amenity_order\": 43,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Property Features\"\n            },\n            {\n                \"id\": 44,\n                \"amenity_name\": \"Laundry Room\",\n                \"amenity_order\": 44,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Property Features\"\n            }\n        ],\n        \"Climate Control & Modern Features\": [\n            {\n                \"id\": 45,\n                \"amenity_name\": \"Central Air Conditioning\",\n                \"amenity_order\": 45,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Climate Control & Modern Features\"\n            },\n            {\n                \"id\": 46,\n                \"amenity_name\": \"Central Heating\",\n                \"amenity_order\": 46,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Climate Control & Modern Features\"\n            },\n            {\n                \"id\": 47,\n                \"amenity_name\": \"Smart Home Features\",\n                \"amenity_order\": 47,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Climate Control & Modern Features\"\n            },\n            {\n                \"id\": 48,\n                \"amenity_name\": \"Home Theater\",\n                \"amenity_order\": 48,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Climate Control & Modern Features\"\n            }\n        ],\n        \"Luxury Amenities\": [\n            {\n                \"id\": 49,\n                \"amenity_name\": \"Jacuzzi\",\n                \"amenity_order\": 49,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Luxury Amenities\"\n            },\n            {\n                \"id\": 50,\n                \"amenity_name\": \"Sauna\",\n                \"amenity_order\": 50,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Luxury Amenities\"\n            }\n        ],\n        \"Commercial & Business\": [\n            {\n                \"id\": 51,\n                \"amenity_name\": \"Conference Room\",\n                \"amenity_order\": 51,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Commercial & Business\"\n            },\n            {\n                \"id\": 52,\n                \"amenity_name\": \"Reception Area\",\n                \"amenity_order\": 52,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Commercial & Business\"\n            },\n            {\n                \"id\": 53,\n                \"amenity_name\": \"Cafeteria\",\n                \"amenity_order\": 53,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Commercial & Business\"\n            },\n            {\n                \"id\": 54,\n                \"amenity_name\": \"Business Center\",\n                \"amenity_order\": 54,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Commercial & Business\"\n            },\n            {\n                \"id\": 55,\n                \"amenity_name\": \"ATM\",\n                \"amenity_order\": 55,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Commercial & Business\"\n            }\n        ],\n        \"Environmental & Sustainability\": [\n            {\n                \"id\": 56,\n                \"amenity_name\": \"Solar Panels\",\n                \"amenity_order\": 56,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Environmental & Sustainability\"\n            },\n            {\n                \"id\": 57,\n                \"amenity_name\": \"Rainwater Harvesting\",\n                \"amenity_order\": 57,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Environmental & Sustainability\"\n            },\n            {\n                \"id\": 58,\n                \"amenity_name\": \"Water Filtration System\",\n                \"amenity_order\": 58,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Environmental & Sustainability\"\n            },\n            {\n                \"id\": 59,\n                \"amenity_name\": \"Sewage Treatment Plant\",\n                \"amenity_order\": 59,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Environmental & Sustainability\"\n            },\n            {\n                \"id\": 60,\n                \"amenity_name\": \"Green Building\",\n                \"amenity_order\": 60,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Environmental & Sustainability\"\n            }\n        ],\n        \"Accessibility & Special Features\": [\n            {\n                \"id\": 61,\n                \"amenity_name\": \"Pet Friendly\",\n                \"amenity_order\": 61,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Accessibility & Special Features\"\n            },\n            {\n                \"id\": 62,\n                \"amenity_name\": \"Wheelchair Accessible\",\n                \"amenity_order\": 62,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Accessibility & Special Features\"\n            }\n        ],\n        \"Flooring & Finishes\": [\n            {\n                \"id\": 63,\n                \"amenity_name\": \"Double Glazed Windows\",\n                \"amenity_order\": 63,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Flooring & Finishes\"\n            },\n            {\n                \"id\": 64,\n                \"amenity_name\": \"Marble Flooring\",\n                \"amenity_order\": 64,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Flooring & Finishes\"\n            },\n            {\n                \"id\": 65,\n                \"amenity_name\": \"Tiled Flooring\",\n                \"amenity_order\": 65,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Flooring & Finishes\"\n            }\n        ]\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "AMENITIES BY PROPERTY TYPE",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{customer_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{local_url}}amenities/by-property-type?property_type_id=1",
+					"host": [
+						"{{local_url}}amenities"
+					],
+					"path": [
+						"by-property-type"
+					],
+					"query": [
+						{
+							"key": "property_type_id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "New Request",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{local_url}}amenities/by-property-type?property_type_id=1",
+							"host": [
+								"{{local_url}}amenities"
+							],
+							"path": [
+								"by-property-type"
+							],
+							"query": [
+								{
+									"key": "property_type_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 21 Aug 2025 08:48:49 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) OpenSSL/3.0.15 PHP/8.3.16"
+						},
+						{
+							"key": "Vary",
+							"value": "Authorization"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.16"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5, max=98"
+						},
+						{
+							"key": "Connection",
+							"value": "Keep-Alive"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"success\": true,\n    \"message\": \"Amenities by property type retrieved successfully\",\n    \"data\": {\n        \"Basic Utilities\": [\n            {\n                \"id\": 1,\n                \"amenity_name\": \"Electricity\",\n                \"amenity_order\": 1,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Basic Utilities\"\n            },\n            {\n                \"id\": 2,\n                \"amenity_name\": \"Gas\",\n                \"amenity_order\": 2,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Basic Utilities\"\n            },\n            {\n                \"id\": 3,\n                \"amenity_name\": \"Water Supply\",\n                \"amenity_order\": 3,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Basic Utilities\"\n            },\n            {\n                \"id\": 4,\n                \"amenity_name\": \"Sewerage\",\n                \"amenity_order\": 4,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Basic Utilities\"\n            },\n            {\n                \"id\": 5,\n                \"amenity_name\": \"Internet/Broadband\",\n                \"amenity_order\": 5,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Basic Utilities\"\n            },\n            {\n                \"id\": 6,\n                \"amenity_name\": \"Cable TV\",\n                \"amenity_order\": 6,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Basic Utilities\"\n            }\n        ],\n        \"Security & Safety\": [\n            {\n                \"id\": 7,\n                \"amenity_name\": \"24/7 Security\",\n                \"amenity_order\": 7,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Security & Safety\"\n            },\n            {\n                \"id\": 8,\n                \"amenity_name\": \"CCTV Surveillance\",\n                \"amenity_order\": 8,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Security & Safety\"\n            },\n            {\n                \"id\": 9,\n                \"amenity_name\": \"Gated Community\",\n                \"amenity_order\": 9,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Security & Safety\"\n            }\n        ],\n        \"Parking & Transportation\": [\n            {\n                \"id\": 13,\n                \"amenity_name\": \"Car Parking\",\n                \"amenity_order\": 12,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Parking & Transportation\"\n            },\n            {\n                \"id\": 14,\n                \"amenity_name\": \"Covered Parking\",\n                \"amenity_order\": 13,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Parking & Transportation\"\n            }\n        ],\n        \"Building Infrastructure\": [\n            {\n                \"id\": 17,\n                \"amenity_name\": \"Elevator\",\n                \"amenity_order\": 16,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Building Infrastructure\"\n            },\n            {\n                \"id\": 18,\n                \"amenity_name\": \"Generator/UPS\",\n                \"amenity_order\": 17,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Building Infrastructure\"\n            }\n        ],\n        \"Recreational Facilities\": [\n            {\n                \"id\": 21,\n                \"amenity_name\": \"Swimming Pool\",\n                \"amenity_order\": 21,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Recreational Facilities\"\n            },\n            {\n                \"id\": 22,\n                \"amenity_name\": \"Gym/Fitness Center\",\n                \"amenity_order\": 22,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Recreational Facilities\"\n            },\n            {\n                \"id\": 23,\n                \"amenity_name\": \"Community Park\",\n                \"amenity_order\": 23,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Recreational Facilities\"\n            },\n            {\n                \"id\": 24,\n                \"amenity_name\": \"Playground\",\n                \"amenity_order\": 24,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Recreational Facilities\"\n            },\n            {\n                \"id\": 25,\n                \"amenity_name\": \"Jogging Track\",\n                \"amenity_order\": 25,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Recreational Facilities\"\n            },\n            {\n                \"id\": 29,\n                \"amenity_name\": \"Clubhouse\",\n                \"amenity_order\": 29,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Recreational Facilities\"\n            }\n        ],\n        \"Nearby Facilities\": [\n            {\n                \"id\": 31,\n                \"amenity_name\": \"Nearby Schools\",\n                \"amenity_order\": 31,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Nearby Facilities\"\n            },\n            {\n                \"id\": 32,\n                \"amenity_name\": \"Nearby Hospitals\",\n                \"amenity_order\": 32,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Nearby Facilities\"\n            },\n            {\n                \"id\": 33,\n                \"amenity_name\": \"Nearby Shopping Centers\",\n                \"amenity_order\": 33,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Nearby Facilities\"\n            },\n            {\n                \"id\": 34,\n                \"amenity_name\": \"Nearby Mosque\",\n                \"amenity_order\": 34,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Nearby Facilities\"\n            }\n        ],\n        \"Property Features\": [\n            {\n                \"id\": 37,\n                \"amenity_name\": \"Balcony\",\n                \"amenity_order\": 37,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Property Features\"\n            },\n            {\n                \"id\": 38,\n                \"amenity_name\": \"Garden\",\n                \"amenity_order\": 38,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Property Features\"\n            },\n            {\n                \"id\": 39,\n                \"amenity_name\": \"Terrace\",\n                \"amenity_order\": 39,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Property Features\"\n            },\n            {\n                \"id\": 41,\n                \"amenity_name\": \"Servant Quarter\",\n                \"amenity_order\": 41,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Property Features\"\n            },\n            {\n                \"id\": 42,\n                \"amenity_name\": \"Study Room\",\n                \"amenity_order\": 42,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Property Features\"\n            },\n            {\n                \"id\": 43,\n                \"amenity_name\": \"Store Room\",\n                \"amenity_order\": 43,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Property Features\"\n            },\n            {\n                \"id\": 44,\n                \"amenity_name\": \"Laundry Room\",\n                \"amenity_order\": 44,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Property Features\"\n            }\n        ],\n        \"Climate Control & Modern Features\": [\n            {\n                \"id\": 45,\n                \"amenity_name\": \"Central Air Conditioning\",\n                \"amenity_order\": 45,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Climate Control & Modern Features\"\n            }\n        ],\n        \"Accessibility & Special Features\": [\n            {\n                \"id\": 61,\n                \"amenity_name\": \"Pet Friendly\",\n                \"amenity_order\": 61,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Accessibility & Special Features\"\n            }\n        ],\n        \"Flooring & Finishes\": [\n            {\n                \"id\": 63,\n                \"amenity_name\": \"Double Glazed Windows\",\n                \"amenity_order\": 63,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Flooring & Finishes\"\n            },\n            {\n                \"id\": 64,\n                \"amenity_name\": \"Marble Flooring\",\n                \"amenity_order\": 64,\n                \"is_active\": true,\n                \"created_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"updated_at\": \"2025-08-21T08:35:33.000000Z\",\n                \"amenity_type\": \"Flooring & Finishes\"\n            }\n        ]\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "Property Eums / Lookup",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{local_url}}property/enums",
+					"host": [
+						"{{local_url}}property"
+					],
+					"path": [
+						"enums"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Property Eums / Lookup",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{local_url}}property/enums",
+							"host": [
+								"{{local_url}}property"
+							],
+							"path": [
+								"enums"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 21 Aug 2025 09:21:05 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) OpenSSL/3.0.15 PHP/8.3.16"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.16"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5, max=100"
+						},
+						{
+							"key": "Connection",
+							"value": "Keep-Alive"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"success\": true,\n    \"units\": [\n        \"Marla\",\n        \"Kanal\",\n        \"Sqft\",\n        \"Sqyd\"\n    ],\n    \"categories\": [\n        \"Residential\",\n        \"Commercial\",\n        \"Apartment\"\n    ],\n    \"status\": [\n        \"Sold\",\n        \"Unsold\",\n        \"Fraud\",\n        \"Verified\",\n        \"Rejected\"\n    ],\n    \"phases\": [\n        \"Phase 1\",\n        \"Phase 2\",\n        \"Phase 3\",\n        \"Phase 4\",\n        \"Phase 5\",\n        \"Phase 6\",\n        \"Phase 7\"\n    ],\n    \"payment_methods\": [\n        \"KuickPay\",\n        \"Credit-Debit\",\n        \"Other\"\n    ]\n}"
+				}
+			]
+		},
+		{
+			"name": "CREATE PROPERTY (CUSTOMER)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{customer_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "purpose",
+							"value": "Sell",
+							"description": "required (Rent,Sell)",
+							"type": "text"
+						},
+						{
+							"key": "property_type_id",
+							"value": "6",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "title",
+							"value": "Ducky",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "everythin u need",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "area",
+							"value": "7",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "area_unit",
+							"value": "Kanal",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "category",
+							"value": "Residential",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "unit_no",
+							"value": "200",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "price",
+							"value": "70000",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "latitude",
+							"value": "24.720001",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "longitude",
+							"value": "73.059998",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "location",
+							"value": "Fast Islamabad",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "sector",
+							"value": "AA",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "phase",
+							"value": "Phase 2",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "payment_method",
+							"value": "KuickPay",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "images[]",
+							"description": "option, 1mb size",
+							"type": "file",
+							"src": "/C:/Users/amabd/OneDrive/Desktop/1_UjfpcPx0p410o13vpB7mlQ.png"
+						},
+						{
+							"key": "videos[]",
+							"type": "file",
+							"src": "/C:/Users/amabd/OneDrive/Desktop/meet.mp4",
+							"disabled": true
+						},
+						{
+							"key": "videos[]",
+							"type": "file",
+							"src": "/C:/Users/amabd/OneDrive/Desktop/bit-bucket.mp4",
+							"disabled": true
+						},
+						{
+							"key": "amenities[1][1]",
+							"value": "3",
+							"description": "amenties[property_type_id][amenity_id] optional",
+							"type": "text"
+						},
+						{
+							"key": "amenities[1][2]",
+							"value": "2",
+							"description": "amenties[property_type_id][amenity_id] optional",
+							"type": "text"
+						},
+						{
+							"key": "property_duration",
+							"value": "15 days",
+							"description": "15 days, 30 days, 60 days",
+							"type": "text"
+						},
+						{
+							"key": "rent_price",
+							"value": "120000",
+							"type": "text"
+						},
+						{
+							"key": "price",
+							"value": "10",
+							"type": "text"
+						},
+						{
+							"key": "block",
+							"value": "1",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "street_no",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "floor",
+							"value": "32",
+							"type": "text"
+						},
+						{
+							"key": "building",
+							"value": "34",
+							"type": "text"
+						},
+						{
+							"key": "on_behalf",
+							"value": "1",
+							"description": "0 and 1 if on_behalf value 1 then add owner information",
+							"type": "text"
+						},
+						{
+							"key": "cnic",
+							"value": "3840392735407",
+							"type": "text"
+						},
+						{
+							"key": "name",
+							"value": "Abdul",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "phone",
+							"value": "+923035523964",
+							"description": "required follow the format",
+							"type": "text"
+						},
+						{
+							"key": "address",
+							"value": "kjkjkjgjkgjdf",
+							"description": "required max 1000",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "test@gmail.com",
+							"description": "optional",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{local_url}}create/property",
+					"host": [
+						"{{local_url}}create"
+					],
+					"path": [
+						"property"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "CREATE PROPERTY (CUSTOMER)",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "--",
+									"value": "1",
+									"description": "required",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "property_type_id",
+									"value": "1",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "title",
+									"value": "Beautiful Hous",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "A lovely house with all amenities",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "area",
+									"value": "10",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "area_unit",
+									"value": "Kanal",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "Apartment",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "plot_no",
+									"value": "1334",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "10000",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "latitude",
+									"value": "33.720001",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "longitude",
+									"value": "73.059998",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "location",
+									"value": "Nust Islamabad",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "phase",
+									"value": "Phase 2",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "payment_method",
+									"value": "Credit-Debit",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "images[]",
+									"description": "option, 1mb size",
+									"type": "file",
+									"src": "/C:/Users/amabd/OneDrive/Desktop/1_UjfpcPx0p410o13vpB7mlQ.png"
+								},
+								{
+									"key": "videos[]",
+									"type": "file",
+									"src": "/C:/Users/amabd/OneDrive/Desktop/meet.mp4"
+								},
+								{
+									"key": "videos[]",
+									"type": "file",
+									"src": "/C:/Users/amabd/OneDrive/Desktop/bit-bucket.mp4"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{local_url}}create/property",
+							"host": [
+								"{{local_url}}create"
+							],
+							"path": [
+								"property"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 21 Aug 2025 09:01:26 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) OpenSSL/3.0.15 PHP/8.3.16"
+						},
+						{
+							"key": "Vary",
+							"value": "Authorization"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.16"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5, max=100"
+						},
+						{
+							"key": "Connection",
+							"value": "Keep-Alive"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"Property added successfully.\",\n    \"data\": {\n        \"id\": 28,\n        \"psid\": \"254015678068338267\",\n        \"property_fee\": \"8000\",\n        \"challan_due_date\": \"2025-08-26 14:01:26\",\n        \"challan_expiry_time\": \"2025-08-26 14:01:26\"\n    }\n}"
+				},
+				{
+					"name": "CREATE PROPERTY (CUSTOMER)",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "--",
+									"value": "1",
+									"description": "required",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "property_type_id",
+									"value": "1",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "title",
+									"value": "Beautiful Hous",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "A lovely house with all amenities",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "area",
+									"value": "10",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "area_unit",
+									"value": "Kanal",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "Apartment",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "plot_no",
+									"value": "1334",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "10000",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "latitude",
+									"value": "33.720001",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "longitude",
+									"value": "73.059998",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "location",
+									"value": "Nust Islamabad",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "phase",
+									"value": "Phase 4",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "payment_method",
+									"value": "Credit-Debit",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "images[]",
+									"description": "option, 1mb size",
+									"type": "file",
+									"src": "/C:/Users/amabd/OneDrive/Desktop/1_UjfpcPx0p410o13vpB7mlQ.png"
+								},
+								{
+									"key": "videos[]",
+									"type": "file",
+									"src": "/C:/Users/amabd/OneDrive/Desktop/meet.mp4"
+								},
+								{
+									"key": "videos[]",
+									"type": "file",
+									"src": "/C:/Users/amabd/OneDrive/Desktop/bit-bucket.mp4"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{local_url}}create/property",
+							"host": [
+								"{{local_url}}create"
+							],
+							"path": [
+								"property"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 21 Aug 2025 09:02:50 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) OpenSSL/3.0.15 PHP/8.3.16"
+						},
+						{
+							"key": "Vary",
+							"value": "Authorization"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.16"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5, max=100"
+						},
+						{
+							"key": "Connection",
+							"value": "Keep-Alive"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"Property added successfully.\",\n    \"data\": {\n        \"id\": 30,\n        \"psid\": \"254015678021928223\",\n        \"property_fee\": \"8000\",\n        \"challan_due_date\": \"2025-08-26 14:02:51\",\n        \"challan_expiry_time\": \"2025-08-26 14:02:51\",\n        \"redirect_url\": \"https://portal.kuickpay.com/payNow/?cn=254015678021928223\"\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "UPDATE PROPERTY (CUSTOMER)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{customer_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "purpose",
+							"value": "Sell",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "property_type_id",
+							"value": "13",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "title",
+							"value": "Houseyyyy",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "A lovely house",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "area",
+							"value": "12",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "area_unit",
+							"value": "Kanal",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "category",
+							"value": "Residential",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "unit_no",
+							"value": "223",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "price",
+							"value": "10000",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "latitude",
+							"value": "33.720001",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "longitude",
+							"value": "73.059998",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "location",
+							"value": "FAST Islamabad",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "sector",
+							"value": "BB",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "phase",
+							"value": "Phase 2",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "street",
+							"value": "12",
+							"description": "optional",
+							"type": "text"
+						},
+						{
+							"key": "payment_method",
+							"value": "KuickPay",
+							"description": "required",
+							"type": "text"
+						},
+						{
+							"key": "images[]",
+							"description": "option, 1mb size",
+							"type": "file",
+							"src": "/C:/Users/amabd/OneDrive/Desktop/1_UjfpcPx0p410o13vpB7mlQ.png"
+						},
+						{
+							"key": "videos[]",
+							"type": "file",
+							"src": "/C:/Users/amabd/OneDrive/Desktop/meet.mp4"
+						},
+						{
+							"key": "videos[]",
+							"type": "file",
+							"src": "/C:/Users/amabd/OneDrive/Desktop/bit-bucket.mp4"
+						},
+						{
+							"key": "videos[]",
+							"type": "file",
+							"src": "/C:/Users/amabd/OneDrive/Desktop/bit-bucket.mp4"
+						},
+						{
+							"key": "amenities[1][1]",
+							"value": "3",
+							"description": "amenties[property_type_id][amenity_id] optional",
+							"type": "text"
+						},
+						{
+							"key": "amenities[1][2]",
+							"value": "2",
+							"description": "amenties[property_type_id][amenity_id] optional",
+							"type": "text"
+						},
+						{
+							"key": "property_duration",
+							"value": "15 days",
+							"description": "15 days, 30 days, 60 days",
+							"type": "text"
+						},
+						{
+							"key": "rent_price",
+							"value": "120000",
+							"type": "text"
+						},
+						{
+							"key": "price",
+							"value": "10",
+							"type": "text"
+						},
+						{
+							"key": "on_behalf",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "cnic",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "name",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "phone",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "address",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{local_url}}update/property/6",
+					"host": [
+						"{{local_url}}update"
+					],
+					"path": [
+						"property",
+						"6"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "CREATE PROPERTY (CUSTOMER)",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "--",
+									"value": "1",
+									"description": "required",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "property_type_id",
+									"value": "1",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "title",
+									"value": "Beautiful Hous",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "A lovely house with all amenities",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "area",
+									"value": "10",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "area_unit",
+									"value": "Kanal",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "Apartment",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "plot_no",
+									"value": "1334",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "10000",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "latitude",
+									"value": "33.720001",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "longitude",
+									"value": "73.059998",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "location",
+									"value": "Nust Islamabad",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "phase",
+									"value": "Phase 2",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "payment_method",
+									"value": "Credit-Debit",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "images[]",
+									"description": "option, 1mb size",
+									"type": "file",
+									"src": "/C:/Users/amabd/OneDrive/Desktop/1_UjfpcPx0p410o13vpB7mlQ.png"
+								},
+								{
+									"key": "videos[]",
+									"type": "file",
+									"src": "/C:/Users/amabd/OneDrive/Desktop/meet.mp4"
+								},
+								{
+									"key": "videos[]",
+									"type": "file",
+									"src": "/C:/Users/amabd/OneDrive/Desktop/bit-bucket.mp4"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{local_url}}create/property",
+							"host": [
+								"{{local_url}}create"
+							],
+							"path": [
+								"property"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 21 Aug 2025 09:01:26 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) OpenSSL/3.0.15 PHP/8.3.16"
+						},
+						{
+							"key": "Vary",
+							"value": "Authorization"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.16"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5, max=100"
+						},
+						{
+							"key": "Connection",
+							"value": "Keep-Alive"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"Property added successfully.\",\n    \"data\": {\n        \"id\": 28,\n        \"psid\": \"254015678068338267\",\n        \"property_fee\": \"8000\",\n        \"challan_due_date\": \"2025-08-26 14:01:26\",\n        \"challan_expiry_time\": \"2025-08-26 14:01:26\"\n    }\n}"
+				},
+				{
+					"name": "CREATE PROPERTY (CUSTOMER)",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "--",
+									"value": "1",
+									"description": "required",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "property_type_id",
+									"value": "1",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "title",
+									"value": "Beautiful Hous",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "A lovely house with all amenities",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "area",
+									"value": "10",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "area_unit",
+									"value": "Kanal",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "Apartment",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "plot_no",
+									"value": "1334",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "10000",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "latitude",
+									"value": "33.720001",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "longitude",
+									"value": "73.059998",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "location",
+									"value": "Nust Islamabad",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "phase",
+									"value": "Phase 4",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "payment_method",
+									"value": "Credit-Debit",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "images[]",
+									"description": "option, 1mb size",
+									"type": "file",
+									"src": "/C:/Users/amabd/OneDrive/Desktop/1_UjfpcPx0p410o13vpB7mlQ.png"
+								},
+								{
+									"key": "videos[]",
+									"type": "file",
+									"src": "/C:/Users/amabd/OneDrive/Desktop/meet.mp4"
+								},
+								{
+									"key": "videos[]",
+									"type": "file",
+									"src": "/C:/Users/amabd/OneDrive/Desktop/bit-bucket.mp4"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{local_url}}create/property",
+							"host": [
+								"{{local_url}}create"
+							],
+							"path": [
+								"property"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 21 Aug 2025 09:02:50 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) OpenSSL/3.0.15 PHP/8.3.16"
+						},
+						{
+							"key": "Vary",
+							"value": "Authorization"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.16"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5, max=100"
+						},
+						{
+							"key": "Connection",
+							"value": "Keep-Alive"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"Property added successfully.\",\n    \"data\": {\n        \"id\": 30,\n        \"psid\": \"254015678021928223\",\n        \"property_fee\": \"8000\",\n        \"challan_due_date\": \"2025-08-26 14:02:51\",\n        \"challan_expiry_time\": \"2025-08-26 14:02:51\",\n        \"redirect_url\": \"https://portal.kuickpay.com/payNow/?cn=254015678021928223\"\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "DELETETE PROPERTY (CUSTOMER)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{customer_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{local_url}}delete/property/6",
+					"host": [
+						"{{local_url}}delete"
+					],
+					"path": [
+						"property",
+						"6"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "CREATE PROPERTY (CUSTOMER)",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "--",
+									"value": "1",
+									"description": "required",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "property_type_id",
+									"value": "1",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "title",
+									"value": "Beautiful Hous",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "A lovely house with all amenities",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "area",
+									"value": "10",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "area_unit",
+									"value": "Kanal",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "Apartment",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "plot_no",
+									"value": "1334",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "10000",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "latitude",
+									"value": "33.720001",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "longitude",
+									"value": "73.059998",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "location",
+									"value": "Nust Islamabad",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "phase",
+									"value": "Phase 2",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "payment_method",
+									"value": "Credit-Debit",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "images[]",
+									"description": "option, 1mb size",
+									"type": "file",
+									"src": "/C:/Users/amabd/OneDrive/Desktop/1_UjfpcPx0p410o13vpB7mlQ.png"
+								},
+								{
+									"key": "videos[]",
+									"type": "file",
+									"src": "/C:/Users/amabd/OneDrive/Desktop/meet.mp4"
+								},
+								{
+									"key": "videos[]",
+									"type": "file",
+									"src": "/C:/Users/amabd/OneDrive/Desktop/bit-bucket.mp4"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{local_url}}create/property",
+							"host": [
+								"{{local_url}}create"
+							],
+							"path": [
+								"property"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 21 Aug 2025 09:01:26 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) OpenSSL/3.0.15 PHP/8.3.16"
+						},
+						{
+							"key": "Vary",
+							"value": "Authorization"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.16"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5, max=100"
+						},
+						{
+							"key": "Connection",
+							"value": "Keep-Alive"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"Property added successfully.\",\n    \"data\": {\n        \"id\": 28,\n        \"psid\": \"254015678068338267\",\n        \"property_fee\": \"8000\",\n        \"challan_due_date\": \"2025-08-26 14:01:26\",\n        \"challan_expiry_time\": \"2025-08-26 14:01:26\"\n    }\n}"
+				},
+				{
+					"name": "CREATE PROPERTY (CUSTOMER)",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "--",
+									"value": "1",
+									"description": "required",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "property_type_id",
+									"value": "1",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "title",
+									"value": "Beautiful Hous",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "A lovely house with all amenities",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "area",
+									"value": "10",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "area_unit",
+									"value": "Kanal",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "Apartment",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "plot_no",
+									"value": "1334",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "10000",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "latitude",
+									"value": "33.720001",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "longitude",
+									"value": "73.059998",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "location",
+									"value": "Nust Islamabad",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "phase",
+									"value": "Phase 4",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "payment_method",
+									"value": "Credit-Debit",
+									"description": "required",
+									"type": "text"
+								},
+								{
+									"key": "images[]",
+									"description": "option, 1mb size",
+									"type": "file",
+									"src": "/C:/Users/amabd/OneDrive/Desktop/1_UjfpcPx0p410o13vpB7mlQ.png"
+								},
+								{
+									"key": "videos[]",
+									"type": "file",
+									"src": "/C:/Users/amabd/OneDrive/Desktop/meet.mp4"
+								},
+								{
+									"key": "videos[]",
+									"type": "file",
+									"src": "/C:/Users/amabd/OneDrive/Desktop/bit-bucket.mp4"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{local_url}}create/property",
+							"host": [
+								"{{local_url}}create"
+							],
+							"path": [
+								"property"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 21 Aug 2025 09:02:50 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) OpenSSL/3.0.15 PHP/8.3.16"
+						},
+						{
+							"key": "Vary",
+							"value": "Authorization"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.16"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5, max=100"
+						},
+						{
+							"key": "Connection",
+							"value": "Keep-Alive"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"Property added successfully.\",\n    \"data\": {\n        \"id\": 30,\n        \"psid\": \"254015678021928223\",\n        \"property_fee\": \"8000\",\n        \"challan_due_date\": \"2025-08-26 14:02:51\",\n        \"challan_expiry_time\": \"2025-08-26 14:02:51\",\n        \"redirect_url\": \"https://portal.kuickpay.com/payNow/?cn=254015678021928223\"\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "GET ALL PROPERTIES (PUBLIC)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{customer_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{local_url}}properties?purpose=Rent&per_page=9&page=1\n",
+					"host": [
+						"{{local_url}}properties"
+					],
+					"query": [
+						{
+							"key": "purpose",
+							"value": "Rent"
+						},
+						{
+							"key": "category",
+							"value": "Commercial",
+							"disabled": true
+						},
+						{
+							"key": "status",
+							"value": "Inprogress",
+							"disabled": true
+						},
+						{
+							"key": "price_min",
+							"value": "1000",
+							"disabled": true
+						},
+						{
+							"key": "price_max",
+							"value": "5000000",
+							"disabled": true
+						},
+						{
+							"key": "area_min",
+							"value": "5",
+							"disabled": true
+						},
+						{
+							"key": "area_max",
+							"value": "10",
+							"disabled": true
+						},
+						{
+							"key": "sort_by",
+							"value": "price_high_low",
+							"disabled": true
+						},
+						{
+							"key": "city",
+							"value": "Lahore",
+							"disabled": true
+						},
+						{
+							"key": "per_page",
+							"value": "9"
+						},
+						{
+							"key": "page",
+							"value": "1\n"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "GET ALL PROPERTIES (PUBLIC)",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{local_url}}property-list?purpose=Sell&category=Commercial&status=Pending&area_min=5&area_max=10&sort_by=price_high_low&city=Lahore&per_page=2&page=1",
+							"host": [
+								"{{local_url}}property-list"
+							],
+							"query": [
+								{
+									"key": "purpose",
+									"value": "Sell"
+								},
+								{
+									"key": "category",
+									"value": "Commercial"
+								},
+								{
+									"key": "status",
+									"value": "Pending"
+								},
+								{
+									"key": "price_min",
+									"value": "1000",
+									"disabled": true
+								},
+								{
+									"key": "price_max",
+									"value": "5000000",
+									"disabled": true
+								},
+								{
+									"key": "area_min",
+									"value": "5"
+								},
+								{
+									"key": "area_max",
+									"value": "10"
+								},
+								{
+									"key": "sort_by",
+									"value": "price_high_low"
+								},
+								{
+									"key": "city",
+									"value": "Lahore"
+								},
+								{
+									"key": "per_page",
+									"value": "2"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 04 Sep 2025 06:56:00 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) OpenSSL/3.0.15 PHP/8.3.16"
+						},
+						{
+							"key": "Vary",
+							"value": "Authorization"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.16"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5, max=100"
+						},
+						{
+							"key": "Connection",
+							"value": "Keep-Alive"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"id\": 2,\n            \"property_type_id\": 11,\n            \"user_id\": 2,\n            \"title\": \"Ducky\",\n            \"description\": \"everythin u need\",\n            \"phase\": \"Phase 2\",\n            \"sector\": \"AA\",\n            \"category\": \"Residential\",\n            \"building\": null,\n            \"floor\": null,\n            \"size\": null,\n            \"unit_no\": \"200\",\n            \"street_no\": \"3\",\n            \"block\": \"1\",\n            \"city\": null,\n            \"purpose\": \"Sell\",\n            \"location\": \"Fast Islamabad\",\n            \"latitude\": \"24.72\",\n            \"longitude\": \"73.06\",\n            \"price\": 10,\n            \"rent_price\": 0,\n            \"geom\": \"0101000020E610000059164CFC51B83840D3F4D901D7435240\",\n            \"property_type\": {\n                \"id\": 11,\n                \"parent_id\": null,\n                \"name\": \"Warehouse\"\n            },\n            \"media\": [\n                {\n                    \"media_type\": \"Image\",\n                    \"media_link\": null\n                }\n            ],\n            \"amenities\": [\n                {\n                    \"id\": 1,\n                    \"amenity_name\": \"Electricity\",\n                    \"amenity_type\": \"Basic Utilities\",\n                    \"amenity_order\": 1,\n                    \"is_active\": true,\n                    \"created_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"updated_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"pivot\": {\n                        \"property_id\": 2,\n                        \"amenity_id\": 1\n                    }\n                },\n                {\n                    \"id\": 2,\n                    \"amenity_name\": \"Gas\",\n                    \"amenity_type\": \"Basic Utilities\",\n                    \"amenity_order\": 2,\n                    \"is_active\": true,\n                    \"created_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"updated_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"pivot\": {\n                        \"property_id\": 2,\n                        \"amenity_id\": 2\n                    }\n                }\n            ],\n            \"user\": {\n                \"id\": 2,\n                \"name\": \"Abdul Manan\",\n                \"phone\": \"+923035523964\"\n            }\n        }\n    ],\n    \"count\": 1\n}"
+				}
+			]
+		},
+		{
+			"name": "PROPERTIES FOR ADMIN",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{local_url}}admin/properties?property_status&payment_status&user_id&phase&category&page=1",
+					"host": [
+						"{{local_url}}admin"
+					],
+					"path": [
+						"properties"
+					],
+					"query": [
+						{
+							"key": "is_verified",
+							"value": "1",
+							"description": "0 and 1 option",
+							"disabled": true
+						},
+						{
+							"key": "property_status",
+							"value": null
+						},
+						{
+							"key": "payment_status",
+							"value": null
+						},
+						{
+							"key": "user_id",
+							"value": null
+						},
+						{
+							"key": "phase",
+							"value": null
+						},
+						{
+							"key": "category",
+							"value": null
+						},
+						{
+							"key": "page",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "PROPERTIES FOR ADMIN",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{local_url}}admin/properties?property_status&payment_status&user_id&phase&category&page=1",
+							"host": [
+								"{{local_url}}admin"
+							],
+							"path": [
+								"properties"
+							],
+							"query": [
+								{
+									"key": "is_verified",
+									"value": "1",
+									"description": "0 and 1 option",
+									"disabled": true
+								},
+								{
+									"key": "property_status",
+									"value": null
+								},
+								{
+									"key": "payment_status",
+									"value": null
+								},
+								{
+									"key": "user_id",
+									"value": null
+								},
+								{
+									"key": "phase",
+									"value": null
+								},
+								{
+									"key": "category",
+									"value": null
+								},
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 04 Sep 2025 07:18:16 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) OpenSSL/3.0.15 PHP/8.3.16"
+						},
+						{
+							"key": "Vary",
+							"value": "Authorization"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.16"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5, max=100"
+						},
+						{
+							"key": "Connection",
+							"value": "Keep-Alive"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"id\": 14,\n            \"property_type_id\": 11,\n            \"user_id\": 2,\n            \"title\": \"Ducky\",\n            \"description\": \"everythin u need\",\n            \"phase\": \"Phase 2\",\n            \"sector\": \"AA\",\n            \"category\": \"Residential\",\n            \"building\": null,\n            \"floor\": null,\n            \"size\": \"7 Kanal\",\n            \"unit_no\": \"200\",\n            \"street_no\": \"3\",\n            \"block\": \"1\",\n            \"city\": null,\n            \"purpose\": \"Sell\",\n            \"location\": \"Fast Islamabad\",\n            \"latitude\": \"24.72\",\n            \"longitude\": \"73.06\",\n            \"price\": 10,\n            \"rent_price\": 0,\n            \"geom\": \"0101000020E610000059164CFC51B83840D3F4D901D7435240\",\n            \"is_verified\": \"0\",\n            \"status\": \"Inprogress\",\n            \"property_status\": \"Unverified\",\n            \"duration_days\": 15,\n            \"notes\": null,\n            \"rejected_notes\": null,\n            \"property_type\": {\n                \"id\": 11,\n                \"parent_id\": null,\n                \"name\": \"Warehouse\"\n            },\n            \"media\": [],\n            \"amenities\": [\n                {\n                    \"id\": 1,\n                    \"amenity_name\": \"Electricity\",\n                    \"amenity_type\": \"Basic Utilities\",\n                    \"amenity_order\": 1,\n                    \"is_active\": true,\n                    \"created_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"updated_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"pivot\": {\n                        \"property_id\": 14,\n                        \"amenity_id\": 1\n                    }\n                },\n                {\n                    \"id\": 2,\n                    \"amenity_name\": \"Gas\",\n                    \"amenity_type\": \"Basic Utilities\",\n                    \"amenity_order\": 2,\n                    \"is_active\": true,\n                    \"created_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"updated_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"pivot\": {\n                        \"property_id\": 14,\n                        \"amenity_id\": 2\n                    }\n                }\n            ],\n            \"user\": {\n                \"id\": 2,\n                \"name\": \"Abdul Manan\",\n                \"phone\": \"+923035523964\"\n            },\n            \"challans\": [\n                {\n                    \"id\": 27,\n                    \"model_type\": \"App\\\\Models\\\\Property\",\n                    \"model_id\": 14,\n                    \"challan_no\": \"254011234633299634\",\n                    \"challan_type\": \"KuickPay\",\n                    \"challan_date\": \"2025-09-03T10:09:08.000000Z\",\n                    \"challan_due_date\": \"2025-09-08T10:09:08.000000Z\",\n                    \"challan_expiry_time\": \"2025-09-08T10:09:08.000000Z\",\n                    \"total_amount\": \"5000\",\n                    \"kuickpay_fee\": \"22\",\n                    \"amount_within_duedate\": \"5022.00\",\n                    \"amount_after_duedate\": \"5022.00\",\n                    \"payment_date\": null,\n                    \"received_date\": null,\n                    \"received_time\": null,\n                    \"received_amount\": \"0.00\",\n                    \"bank_type\": null,\n                    \"bank_name\": null,\n                    \"cheque_no\": null,\n                    \"cheque_date\": null,\n                    \"bank_mnemonic\": null,\n                    \"tran_auth_id\": null,\n                    \"reserved\": null,\n                    \"created_at\": \"2025-09-03T10:09:08.000000Z\",\n                    \"updated_at\": \"2025-09-03T10:09:08.000000Z\",\n                    \"user_id\": 2,\n                    \"challan_status\": \"Pending\"\n                }\n            ]\n        },\n        {\n            \"id\": 13,\n            \"property_type_id\": 11,\n            \"user_id\": 2,\n            \"title\": \"Ducky\",\n            \"description\": \"everythin u need\",\n            \"phase\": \"Phase 2\",\n            \"sector\": \"AA\",\n            \"category\": \"Residential\",\n            \"building\": null,\n            \"floor\": null,\n            \"size\": \"7 Kanal\",\n            \"unit_no\": \"200\",\n            \"street_no\": \"3\",\n            \"block\": \"1\",\n            \"city\": null,\n            \"purpose\": \"Sell\",\n            \"location\": \"Fast Islamabad\",\n            \"latitude\": \"24.72\",\n            \"longitude\": \"73.06\",\n            \"price\": 10,\n            \"rent_price\": 0,\n            \"geom\": \"0101000020E610000059164CFC51B83840D3F4D901D7435240\",\n            \"is_verified\": \"0\",\n            \"status\": \"Inprogress\",\n            \"property_status\": \"Unverified\",\n            \"duration_days\": 15,\n            \"notes\": null,\n            \"rejected_notes\": null,\n            \"property_type\": {\n                \"id\": 11,\n                \"parent_id\": null,\n                \"name\": \"Warehouse\"\n            },\n            \"media\": [],\n            \"amenities\": [\n                {\n                    \"id\": 1,\n                    \"amenity_name\": \"Electricity\",\n                    \"amenity_type\": \"Basic Utilities\",\n                    \"amenity_order\": 1,\n                    \"is_active\": true,\n                    \"created_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"updated_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"pivot\": {\n                        \"property_id\": 13,\n                        \"amenity_id\": 1\n                    }\n                },\n                {\n                    \"id\": 2,\n                    \"amenity_name\": \"Gas\",\n                    \"amenity_type\": \"Basic Utilities\",\n                    \"amenity_order\": 2,\n                    \"is_active\": true,\n                    \"created_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"updated_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"pivot\": {\n                        \"property_id\": 13,\n                        \"amenity_id\": 2\n                    }\n                }\n            ],\n            \"user\": {\n                \"id\": 2,\n                \"name\": \"Abdul Manan\",\n                \"phone\": \"+923035523964\"\n            },\n            \"challans\": [\n                {\n                    \"id\": 26,\n                    \"model_type\": \"App\\\\Models\\\\Property\",\n                    \"model_id\": 13,\n                    \"challan_no\": \"254011234762491114\",\n                    \"challan_type\": \"KuickPay\",\n                    \"challan_date\": \"2025-09-03T09:30:39.000000Z\",\n                    \"challan_due_date\": \"2025-09-08T09:30:39.000000Z\",\n                    \"challan_expiry_time\": \"2025-09-08T09:30:39.000000Z\",\n                    \"total_amount\": \"5000\",\n                    \"kuickpay_fee\": \"22\",\n                    \"amount_within_duedate\": \"5022.00\",\n                    \"amount_after_duedate\": \"5022.00\",\n                    \"payment_date\": \"2025-09-02T19:00:00.000000Z\",\n                    \"received_date\": \"2025-09-02T19:00:00.000000Z\",\n                    \"received_time\": \"05:00:00\",\n                    \"received_amount\": \"450135.00\",\n                    \"bank_type\": null,\n                    \"bank_name\": null,\n                    \"cheque_no\": null,\n                    \"cheque_date\": null,\n                    \"bank_mnemonic\": \"KPY\",\n                    \"tran_auth_id\": \"123456\",\n                    \"reserved\": \"something, special, string, can, be, send, into, it.\",\n                    \"created_at\": \"2025-09-03T09:30:39.000000Z\",\n                    \"updated_at\": \"2025-09-03T09:33:32.000000Z\",\n                    \"user_id\": 2,\n                    \"challan_status\": \"Inprogress\"\n                }\n            ]\n        },\n        {\n            \"id\": 12,\n            \"property_type_id\": 11,\n            \"user_id\": 2,\n            \"title\": \"Ducky\",\n            \"description\": \"everythin u need\",\n            \"phase\": \"Phase 2\",\n            \"sector\": \"AA\",\n            \"category\": \"Residential\",\n            \"building\": null,\n            \"floor\": null,\n            \"size\": \"7 Kanal\",\n            \"unit_no\": \"200\",\n            \"street_no\": \"3\",\n            \"block\": \"1\",\n            \"city\": null,\n            \"purpose\": \"Sell\",\n            \"location\": \"Fast Islamabad\",\n            \"latitude\": \"24.72\",\n            \"longitude\": \"73.06\",\n            \"price\": 10,\n            \"rent_price\": 0,\n            \"geom\": \"0101000020E610000059164CFC51B83840D3F4D901D7435240\",\n            \"is_verified\": \"0\",\n            \"status\": \"Inprogress\",\n            \"property_status\": \"Unverified\",\n            \"duration_days\": 15,\n            \"notes\": null,\n            \"rejected_notes\": null,\n            \"property_type\": {\n                \"id\": 11,\n                \"parent_id\": null,\n                \"name\": \"Warehouse\"\n            },\n            \"media\": [],\n            \"amenities\": [\n                {\n                    \"id\": 1,\n                    \"amenity_name\": \"Electricity\",\n                    \"amenity_type\": \"Basic Utilities\",\n                    \"amenity_order\": 1,\n                    \"is_active\": true,\n                    \"created_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"updated_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"pivot\": {\n                        \"property_id\": 12,\n                        \"amenity_id\": 1\n                    }\n                },\n                {\n                    \"id\": 2,\n                    \"amenity_name\": \"Gas\",\n                    \"amenity_type\": \"Basic Utilities\",\n                    \"amenity_order\": 2,\n                    \"is_active\": true,\n                    \"created_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"updated_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"pivot\": {\n                        \"property_id\": 12,\n                        \"amenity_id\": 2\n                    }\n                }\n            ],\n            \"user\": {\n                \"id\": 2,\n                \"name\": \"Abdul Manan\",\n                \"phone\": \"+923035523964\"\n            },\n            \"challans\": [\n                {\n                    \"id\": 25,\n                    \"model_type\": \"App\\\\Models\\\\Property\",\n                    \"model_id\": 12,\n                    \"challan_no\": \"254011234122225423\",\n                    \"challan_type\": \"KuickPay\",\n                    \"challan_date\": \"2025-09-03T09:23:14.000000Z\",\n                    \"challan_due_date\": \"2025-09-08T09:23:14.000000Z\",\n                    \"challan_expiry_time\": \"2025-09-08T09:23:14.000000Z\",\n                    \"total_amount\": \"5000\",\n                    \"kuickpay_fee\": \"22\",\n                    \"amount_within_duedate\": \"5022.00\",\n                    \"amount_after_duedate\": \"5022.00\",\n                    \"payment_date\": \"2025-09-02T19:00:00.000000Z\",\n                    \"received_date\": \"2025-09-02T19:00:00.000000Z\",\n                    \"received_time\": \"05:00:00\",\n                    \"received_amount\": \"450135.00\",\n                    \"bank_type\": null,\n                    \"bank_name\": null,\n                    \"cheque_no\": null,\n                    \"cheque_date\": null,\n                    \"bank_mnemonic\": \"KPY\",\n                    \"tran_auth_id\": \"123456\",\n                    \"reserved\": \"something, special, string, can, be, send, into, it.\",\n                    \"created_at\": \"2025-09-03T09:23:14.000000Z\",\n                    \"updated_at\": \"2025-09-03T09:28:25.000000Z\",\n                    \"user_id\": 2,\n                    \"challan_status\": \"Inprogress\"\n                }\n            ]\n        },\n        {\n            \"id\": 9,\n            \"property_type_id\": 11,\n            \"user_id\": 2,\n            \"title\": \"Ducky\",\n            \"description\": \"everythin u need\",\n            \"phase\": \"Phase 2\",\n            \"sector\": \"AA\",\n            \"category\": \"Residential\",\n            \"building\": null,\n            \"floor\": null,\n            \"size\": \"7 Kanal\",\n            \"unit_no\": \"200\",\n            \"street_no\": \"3\",\n            \"block\": \"1\",\n            \"city\": null,\n            \"purpose\": \"Sell\",\n            \"location\": \"Fast Islamabad\",\n            \"latitude\": \"24.72\",\n            \"longitude\": \"73.06\",\n            \"price\": 10,\n            \"rent_price\": 0,\n            \"geom\": \"0101000020E610000059164CFC51B83840D3F4D901D7435240\",\n            \"is_verified\": \"0\",\n            \"status\": \"Inprogress\",\n            \"property_status\": \"Unverified\",\n            \"duration_days\": 15,\n            \"notes\": null,\n            \"rejected_notes\": null,\n            \"property_type\": {\n                \"id\": 11,\n                \"parent_id\": null,\n                \"name\": \"Warehouse\"\n            },\n            \"media\": [],\n            \"amenities\": [\n                {\n                    \"id\": 1,\n                    \"amenity_name\": \"Electricity\",\n                    \"amenity_type\": \"Basic Utilities\",\n                    \"amenity_order\": 1,\n                    \"is_active\": true,\n                    \"created_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"updated_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"pivot\": {\n                        \"property_id\": 9,\n                        \"amenity_id\": 1\n                    }\n                },\n                {\n                    \"id\": 2,\n                    \"amenity_name\": \"Gas\",\n                    \"amenity_type\": \"Basic Utilities\",\n                    \"amenity_order\": 2,\n                    \"is_active\": true,\n                    \"created_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"updated_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"pivot\": {\n                        \"property_id\": 9,\n                        \"amenity_id\": 2\n                    }\n                }\n            ],\n            \"user\": {\n                \"id\": 2,\n                \"name\": \"Abdul Manan\",\n                \"phone\": \"+923035523964\"\n            },\n            \"challans\": [\n                {\n                    \"id\": 24,\n                    \"model_type\": \"App\\\\Models\\\\Property\",\n                    \"model_id\": 9,\n                    \"challan_no\": \"254011234405464600\",\n                    \"challan_type\": \"KuickPay\",\n                    \"challan_date\": \"2025-09-03T09:20:17.000000Z\",\n                    \"challan_due_date\": \"2025-09-08T09:20:17.000000Z\",\n                    \"challan_expiry_time\": \"2025-09-08T09:20:17.000000Z\",\n                    \"total_amount\": \"5000\",\n                    \"kuickpay_fee\": \"22\",\n                    \"amount_within_duedate\": \"5022.00\",\n                    \"amount_after_duedate\": \"5022.00\",\n                    \"payment_date\": null,\n                    \"received_date\": null,\n                    \"received_time\": null,\n                    \"received_amount\": \"0.00\",\n                    \"bank_type\": null,\n                    \"bank_name\": null,\n                    \"cheque_no\": null,\n                    \"cheque_date\": null,\n                    \"bank_mnemonic\": null,\n                    \"tran_auth_id\": null,\n                    \"reserved\": null,\n                    \"created_at\": \"2025-09-03T09:20:17.000000Z\",\n                    \"updated_at\": \"2025-09-03T09:20:17.000000Z\",\n                    \"user_id\": 2,\n                    \"challan_status\": null\n                }\n            ]\n        },\n        {\n            \"id\": 8,\n            \"property_type_id\": 11,\n            \"user_id\": 2,\n            \"title\": \"Ducky\",\n            \"description\": \"everythin u need\",\n            \"phase\": \"Phase 2\",\n            \"sector\": \"AA\",\n            \"category\": \"Residential\",\n            \"building\": null,\n            \"floor\": null,\n            \"size\": \"7 Kanal\",\n            \"unit_no\": \"200\",\n            \"street_no\": \"3\",\n            \"block\": \"1\",\n            \"city\": null,\n            \"purpose\": \"Sell\",\n            \"location\": \"Fast Islamabad\",\n            \"latitude\": \"24.72\",\n            \"longitude\": \"73.06\",\n            \"price\": 10,\n            \"rent_price\": 0,\n            \"geom\": \"0101000020E610000059164CFC51B83840D3F4D901D7435240\",\n            \"is_verified\": \"0\",\n            \"status\": \"Inprogress\",\n            \"property_status\": \"Unverified\",\n            \"duration_days\": 15,\n            \"notes\": null,\n            \"rejected_notes\": null,\n            \"property_type\": {\n                \"id\": 11,\n                \"parent_id\": null,\n                \"name\": \"Warehouse\"\n            },\n            \"media\": [],\n            \"amenities\": [\n                {\n                    \"id\": 1,\n                    \"amenity_name\": \"Electricity\",\n                    \"amenity_type\": \"Basic Utilities\",\n                    \"amenity_order\": 1,\n                    \"is_active\": true,\n                    \"created_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"updated_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"pivot\": {\n                        \"property_id\": 8,\n                        \"amenity_id\": 1\n                    }\n                },\n                {\n                    \"id\": 2,\n                    \"amenity_name\": \"Gas\",\n                    \"amenity_type\": \"Basic Utilities\",\n                    \"amenity_order\": 2,\n                    \"is_active\": true,\n                    \"created_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"updated_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"pivot\": {\n                        \"property_id\": 8,\n                        \"amenity_id\": 2\n                    }\n                }\n            ],\n            \"user\": {\n                \"id\": 2,\n                \"name\": \"Abdul Manan\",\n                \"phone\": \"+923035523964\"\n            },\n            \"challans\": []\n        },\n        {\n            \"id\": 7,\n            \"property_type_id\": 11,\n            \"user_id\": 2,\n            \"title\": \"Ducky\",\n            \"description\": \"everythin u need\",\n            \"phase\": \"Phase 2\",\n            \"sector\": \"AA\",\n            \"category\": \"Residential\",\n            \"building\": null,\n            \"floor\": null,\n            \"size\": \"7 Kanal\",\n            \"unit_no\": \"200\",\n            \"street_no\": \"3\",\n            \"block\": \"1\",\n            \"city\": null,\n            \"purpose\": \"Sell\",\n            \"location\": \"Fast Islamabad\",\n            \"latitude\": \"24.72\",\n            \"longitude\": \"73.06\",\n            \"price\": 10,\n            \"rent_price\": 0,\n            \"geom\": \"0101000020E610000059164CFC51B83840D3F4D901D7435240\",\n            \"is_verified\": \"0\",\n            \"status\": \"Inprogress\",\n            \"property_status\": \"Unverified\",\n            \"duration_days\": 15,\n            \"notes\": null,\n            \"rejected_notes\": null,\n            \"property_type\": {\n                \"id\": 11,\n                \"parent_id\": null,\n                \"name\": \"Warehouse\"\n            },\n            \"media\": [],\n            \"amenities\": [\n                {\n                    \"id\": 1,\n                    \"amenity_name\": \"Electricity\",\n                    \"amenity_type\": \"Basic Utilities\",\n                    \"amenity_order\": 1,\n                    \"is_active\": true,\n                    \"created_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"updated_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"pivot\": {\n                        \"property_id\": 7,\n                        \"amenity_id\": 1\n                    }\n                },\n                {\n                    \"id\": 2,\n                    \"amenity_name\": \"Gas\",\n                    \"amenity_type\": \"Basic Utilities\",\n                    \"amenity_order\": 2,\n                    \"is_active\": true,\n                    \"created_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"updated_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"pivot\": {\n                        \"property_id\": 7,\n                        \"amenity_id\": 2\n                    }\n                }\n            ],\n            \"user\": {\n                \"id\": 2,\n                \"name\": \"Abdul Manan\",\n                \"phone\": \"+923035523964\"\n            },\n            \"challans\": []\n        },\n        {\n            \"id\": 6,\n            \"property_type_id\": 11,\n            \"user_id\": 2,\n            \"title\": \"Ducky\",\n            \"description\": \"everythin u need\",\n            \"phase\": \"Phase 2\",\n            \"sector\": \"AA\",\n            \"category\": \"Residential\",\n            \"building\": null,\n            \"floor\": null,\n            \"size\": \"7 Kanal\",\n            \"unit_no\": \"200\",\n            \"street_no\": \"3\",\n            \"block\": \"1\",\n            \"city\": null,\n            \"purpose\": \"Sell\",\n            \"location\": \"Fast Islamabad\",\n            \"latitude\": \"24.72\",\n            \"longitude\": \"73.06\",\n            \"price\": 10,\n            \"rent_price\": 0,\n            \"geom\": \"0101000020E610000059164CFC51B83840D3F4D901D7435240\",\n            \"is_verified\": \"0\",\n            \"status\": \"Inprogress\",\n            \"property_status\": \"Unverified\",\n            \"duration_days\": 15,\n            \"notes\": null,\n            \"rejected_notes\": null,\n            \"property_type\": {\n                \"id\": 11,\n                \"parent_id\": null,\n                \"name\": \"Warehouse\"\n            },\n            \"media\": [],\n            \"amenities\": [\n                {\n                    \"id\": 1,\n                    \"amenity_name\": \"Electricity\",\n                    \"amenity_type\": \"Basic Utilities\",\n                    \"amenity_order\": 1,\n                    \"is_active\": true,\n                    \"created_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"updated_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"pivot\": {\n                        \"property_id\": 6,\n                        \"amenity_id\": 1\n                    }\n                },\n                {\n                    \"id\": 2,\n                    \"amenity_name\": \"Gas\",\n                    \"amenity_type\": \"Basic Utilities\",\n                    \"amenity_order\": 2,\n                    \"is_active\": true,\n                    \"created_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"updated_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"pivot\": {\n                        \"property_id\": 6,\n                        \"amenity_id\": 2\n                    }\n                }\n            ],\n            \"user\": {\n                \"id\": 2,\n                \"name\": \"Abdul Manan\",\n                \"phone\": \"+923035523964\"\n            },\n            \"challans\": []\n        },\n        {\n            \"id\": 5,\n            \"property_type_id\": 11,\n            \"user_id\": 2,\n            \"title\": \"Ducky\",\n            \"description\": \"everythin u need\",\n            \"phase\": \"Phase 2\",\n            \"sector\": \"AA\",\n            \"category\": \"Residential\",\n            \"building\": null,\n            \"floor\": null,\n            \"size\": \"7 Kanal\",\n            \"unit_no\": \"200\",\n            \"street_no\": \"3\",\n            \"block\": \"1\",\n            \"city\": null,\n            \"purpose\": \"Sell\",\n            \"location\": \"Fast Islamabad\",\n            \"latitude\": \"24.72\",\n            \"longitude\": \"73.06\",\n            \"price\": 10,\n            \"rent_price\": 0,\n            \"geom\": \"0101000020E610000059164CFC51B83840D3F4D901D7435240\",\n            \"is_verified\": \"0\",\n            \"status\": \"Inprogress\",\n            \"property_status\": \"Unverified\",\n            \"duration_days\": 15,\n            \"notes\": null,\n            \"rejected_notes\": null,\n            \"property_type\": {\n                \"id\": 11,\n                \"parent_id\": null,\n                \"name\": \"Warehouse\"\n            },\n            \"media\": [],\n            \"amenities\": [\n                {\n                    \"id\": 1,\n                    \"amenity_name\": \"Electricity\",\n                    \"amenity_type\": \"Basic Utilities\",\n                    \"amenity_order\": 1,\n                    \"is_active\": true,\n                    \"created_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"updated_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"pivot\": {\n                        \"property_id\": 5,\n                        \"amenity_id\": 1\n                    }\n                },\n                {\n                    \"id\": 2,\n                    \"amenity_name\": \"Gas\",\n                    \"amenity_type\": \"Basic Utilities\",\n                    \"amenity_order\": 2,\n                    \"is_active\": true,\n                    \"created_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"updated_at\": \"2025-08-27T09:00:34.000000Z\",\n                    \"pivot\": {\n                        \"property_id\": 5,\n                        \"amenity_id\": 2\n                    }\n                }\n            ],\n            \"user\": {\n                \"id\": 2,\n                \"name\": \"Abdul Manan\",\n                \"phone\": \"+923035523964\"\n            },\n            \"challans\": []\n        }\n    ],\n    \"pagination\": {\n        \"current_page\": 1,\n        \"last_page\": 1,\n        \"per_page\": 15,\n        \"total\": 8,\n        \"from\": 1,\n        \"to\": 8\n    },\n    \"filters_applied\": {\n        \"property_status\": null,\n        \"payment_status\": null,\n        \"user_id\": null,\n        \"phase\": null,\n        \"category\": null\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "Customer Properties (Login Customer)",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{customer_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{local_url}}customer-properties",
+					"host": [
+						"{{local_url}}customer-properties"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET PROPERTY TYPES",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{local_url}}property/types",
+					"host": [
+						"{{local_url}}property"
+					],
+					"path": [
+						"types"
+					],
+					"query": [
+						{
+							"key": "purpose",
+							"value": "Sell",
+							"description": "Optional",
+							"disabled": true
+						},
+						{
+							"key": "category",
+							"value": "Commercial",
+							"description": "Optional",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "GET PROPERTY TYPES",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{local_url}}property/types",
+							"host": [
+								"{{local_url}}property"
+							],
+							"path": [
+								"types"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 05 Aug 2025 07:05:01 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) OpenSSL/3.0.15 PHP/8.3.16"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.16"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5, max=100"
+						},
+						{
+							"key": "Connection",
+							"value": "Keep-Alive"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"id\": 1,\n            \"name\": \"Residential\"\n        },\n        {\n            \"id\": 2,\n            \"name\": \"Plots\"\n        },\n        {\n            \"id\": 3,\n            \"name\": \"Commercial\"\n        }\n    ]\n}"
+				}
+			]
+		},
+		{
+			"name": "GET PROPERTY SUB TYPES",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "parent_id[]",
+							"value": "8",
+							"type": "text"
+						},
+						{
+							"key": "parent_id[]",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "{{local_url}}property/sub-types",
+					"host": [
+						"{{local_url}}property"
+					],
+					"path": [
+						"sub-types"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "GET PROPERTY SUB TYPES",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "parent_id[]",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "parent_id[]",
+									"value": "2",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{local_url}}property/sub-types",
+							"host": [
+								"{{local_url}}property"
+							],
+							"path": [
+								"sub-types"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 05 Aug 2025 07:05:28 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) OpenSSL/3.0.15 PHP/8.3.16"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.16"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5, max=100"
+						},
+						{
+							"key": "Connection",
+							"value": "Keep-Alive"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"id\": 4,\n            \"name\": \"R-House\",\n            \"parent_id\": 1\n        },\n        {\n            \"id\": 5,\n            \"name\": \"R-Flat\",\n            \"parent_id\": 1\n        },\n        {\n            \"id\": 6,\n            \"name\": \"R-Upper Portion\",\n            \"parent_id\": 1\n        },\n        {\n            \"id\": 7,\n            \"name\": \"R-Lower Portion\",\n            \"parent_id\": 1\n        },\n        {\n            \"id\": 8,\n            \"name\": \"R-Form House\",\n            \"parent_id\": 1\n        },\n        {\n            \"id\": 9,\n            \"name\": \"R-Room\",\n            \"parent_id\": 1\n        },\n        {\n            \"id\": 10,\n            \"name\": \"R-Penthouse\",\n            \"parent_id\": 1\n        }\n    ]\n}"
+				}
+			]
+		},
+		{
+			"name": "ADD FAVORITE PROPERTY",
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "property_id",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{local_url}}add/favorite/property",
+					"host": [
+						"{{local_url}}add"
+					],
+					"path": [
+						"favorite",
+						"property"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ADD PROPERTY REVIEW AND RATING",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{customer_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"rating\": 4,\n    \"review\": \"Niceeeeeee office! Recommended.\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{local_url}}property/11/review-rating",
+					"host": [
+						"{{local_url}}property"
+					],
+					"path": [
+						"11",
+						"review-rating"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PROPERTY APPROVAL (ROLE-> 7,8,9,10)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{building_control}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "property_id",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "status",
+							"value": "",
+							"description": "Approved,Rejected",
+							"type": "text"
+						},
+						{
+							"key": "notes",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{local_url}}property/user-approval",
+					"host": [
+						"{{local_url}}property"
+					],
+					"path": [
+						"user-approval"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CHANGE PROPERTY PAYMENT STATUS",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{staging_url}}property/6/status?status=Pending",
+					"host": [
+						"{{staging_url}}property"
+					],
+					"path": [
+						"6",
+						"status"
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "Pending"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PROPERTY APPROVAL LIST (7,8,9,10)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{director}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{staging_url}}property-approval-list",
+					"host": [
+						"{{staging_url}}property-approval-list"
+					],
+					"query": [
+						{
+							"key": "property_id",
+							"value": "13",
+							"description": "nullable",
+							"disabled": true
+						},
+						{
+							"key": "status",
+							"value": "Approved",
+							"description": "nullable or (Pending,Approved,Rejected)",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "PROPERTY APPROVAL STATS",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{local_url}}property-approval-list?property_id",
+							"host": [
+								"{{local_url}}property-approval-list"
+							],
+							"query": [
+								{
+									"key": "property_id",
+									"value": null,
+									"description": "nullable"
+								},
+								{
+									"key": "status",
+									"value": "Approved",
+									"description": "nullable or (Pending,Approved,Rejected)",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 04 Sep 2025 09:08:58 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) OpenSSL/3.0.15 PHP/8.3.16"
+						},
+						{
+							"key": "Vary",
+							"value": "Authorization"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.16"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5, max=100"
+						},
+						{
+							"key": "Connection",
+							"value": "Keep-Alive"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"success\": true,\n    \"message\": \"Property approvals retrieved successfully.\",\n    \"data\": [\n        {\n            \"id\": 36,\n            \"property_id\": 13,\n            \"status\": \"Approved\",\n            \"notes\": null,\n            \"approved_at\": null,\n            \"rejected_at\": null,\n            \"role_id\": 10,\n            \"approved_user_name\": \"Building And Control Director\",\n            \"approved_user_email\": \"bc@gmail.com\",\n            \"approved_user_phone\": \"30073006003\",\n            \"title\": \"Ducky\",\n            \"description\": \"everythin u need\",\n            \"category\": \"Residential\",\n            \"building\": null,\n            \"floor\": null,\n            \"size\": \"7 Kanal\",\n            \"area\": \"7.00\",\n            \"area_unit\": \"Kanal\",\n            \"unit_no\": \"200\",\n            \"street_no\": \"3\",\n            \"block\": \"1\",\n            \"sector\": \"AA\",\n            \"city\": null,\n            \"purpose\": \"Sell\",\n            \"price\": \"10\",\n            \"rent_price\": \"0\",\n            \"location\": \"Fast Islamabad\",\n            \"property_city\": null,\n            \"property_phase\": \"Phase 2\",\n            \"property_sector\": \"AA\",\n            \"property_status\": \"Unverified\",\n            \"payment_status\": \"Inprogress\",\n            \"is_verified\": \"0\",\n            \"user_name\": \"Abdul Manan\",\n            \"user_email\": \"am.abdulmanan92@gmail.com\",\n            \"user_phone\": \"+923035523964\",\n            \"challan_id\": 26,\n            \"challan_no\": \"254011234762491114\",\n            \"challan_type\": \"KuickPay\",\n            \"challan_date\": \"2025-09-03 14:30:39\",\n            \"challan_due_date\": \"2025-09-08 14:30:39\",\n            \"challan_status\": \"Inprogress\",\n            \"total_amount\": \"5000\",\n            \"kuickpay_fee\": \"22\",\n            \"amount_within_duedate\": \"5022\",\n            \"amount_after_duedate\": \"5022\",\n            \"received_amount\": \"450135\",\n            \"payment_date\": \"2025-09-03 00:00:00\",\n            \"received_date\": \"2025-09-03 00:00:00\"\n        }\n    ],\n    \"total_count\": 1,\n    \"filters_applied\": {\n        \"user_id\": 17,\n        \"role_id\": 10,\n        \"property_id\": null,\n        \"status\": [\n            \"Approved\"\n        ]\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "OWNER BY CNIC",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{customer_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{local_url}}owner-by-cnic?cnic=3840392735407",
+					"host": [
+						"{{local_url}}owner-by-cnic"
+					],
+					"query": [
+						{
+							"key": "cnic",
+							"value": "3840392735407"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "New Request",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{local_url}}owner-by-cnic?cnic=3840392735407",
+							"host": [
+								"{{local_url}}owner-by-cnic"
+							],
+							"query": [
+								{
+									"key": "cnic",
+									"value": "3840392735407"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 18 Sep 2025 10:10:28 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) OpenSSL/3.0.15 PHP/8.3.16"
+						},
+						{
+							"key": "Vary",
+							"value": "Authorization"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.16"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5, max=100"
+						},
+						{
+							"key": "Connection",
+							"value": "Keep-Alive"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"success\": true,\n    \"message\": \"Owner retrieved successfully\",\n    \"data\": {\n        \"id\": 1,\n        \"name\": \"Abdul\",\n        \"cnic\": \"3840392735407\",\n        \"email\": \"test@gmail.com\",\n        \"phone\": \"+923035523964\",\n        \"address\": \"kjkjkjgjkgjdf\",\n        \"created_at\": \"2025-09-18T09:54:52.000000Z\",\n        \"updated_at\": \"2025-09-18T09:54:52.000000Z\"\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "PROPERTY STATS COUNT",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{customer_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{local_url}}property-counts",
+					"host": [
+						"{{local_url}}property-counts"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Property Counts",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{local_url}}property-counts",
+							"host": [
+								"{{local_url}}property-counts"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Fri, 19 Sep 2025 09:12:31 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) OpenSSL/3.0.15 PHP/8.3.16"
+						},
+						{
+							"key": "Vary",
+							"value": "Authorization"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.16"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5, max=100"
+						},
+						{
+							"key": "Connection",
+							"value": "Keep-Alive"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"success\": true,\n    \"data\": {\n        \"verified_properties\": 0,\n        \"verified_properties_for_sale\": 0,\n        \"verified_properties_for_rent\": 0\n    }\n}"
+				}
+			]
+		}
+	]
+}

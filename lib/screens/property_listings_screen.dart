@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../services/language_service.dart';
 import '../services/whatsapp_service.dart';
+import '../services/call_service.dart';
 import '../ui/widgets/cached_asset_image.dart';
 import 'sidebar_drawer.dart';
 import 'property_detail_info_screen.dart';
@@ -537,7 +538,9 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                         _launchWhatsAppForProperty(property);
                       }),
                       const SizedBox(width: 8),
-                      _buildActionButton(Icons.phone, () {}),
+                      _buildActionButton(Icons.phone, () {
+                        CallService.showCallBottomSheet(context, '+92-51-111-555-400');
+                      }),
                     ],
                   ),
                 ),

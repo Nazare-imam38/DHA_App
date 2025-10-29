@@ -6,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../l10n/app_localizations.dart';
 import '../services/language_service.dart';
+import '../services/call_service.dart';
 import 'sidebar_drawer.dart';
 
 class ContactUsScreen extends StatefulWidget {
@@ -469,7 +470,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                               ),
                               const SizedBox(height: 16),
                                 GestureDetector(
-                                  onTap: () => _launchPhone('+92-51-111-555-400'),
+                                  onTap: () => CallService.showCallBottomSheet(context, '+92-51-111-555-400'),
                                 child: Container(
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
@@ -1011,7 +1012,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
 
   Widget _buildEnhancedPhoneRow(String label, String phoneNumber, Color color) {
     return GestureDetector(
-      onTap: () => _launchPhone(phoneNumber),
+      onTap: () => CallService.showCallBottomSheet(context, phoneNumber),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(

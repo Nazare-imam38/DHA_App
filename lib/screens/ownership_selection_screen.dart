@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'ms_verification_screen.dart';
+import 'property_posting/property_posting_flow.dart';
+import 'property_posting/models/property_form_data.dart';
+import 'property_posting/steps/purpose_selection_step.dart';
 
 class OwnershipSelectionScreen extends StatefulWidget {
   const OwnershipSelectionScreen({super.key});
@@ -470,25 +474,32 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
       _isLoading = false;
     });
     
-    // Navigate to next step
+    // Create form data with ownership selection
+    final formData = PropertyFormData();
+    formData.updateOwnership(_selectedOption == 'own' ? 0 : 1);
+    
+    // Navigate directly to purpose selection step
     if (mounted) {
-              Navigator.push(
-                context,
-                PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) => const MSVerificationScreen(),
-                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                    return SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(1.0, 0.0),
-                        end: Offset.zero,
-                      ).animate(CurvedAnimation(
-                        parent: animation,
-                        curve: Curves.easeInOutCubic,
-                      )),
-                      child: child,
-                    );
-                  },
-                  transitionDuration: const Duration(milliseconds: 400),
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => ChangeNotifierProvider.value(
+            value: formData,
+            child: PurposeSelectionStep(),
+          ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOutCubic,
+              )),
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 400),
         ),
       );
     }

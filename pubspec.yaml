@@ -41,6 +41,11 @@ dependencies:
   # Responsive design
   flutter_screenutil: ^5.9.0
   
+  # File picker for media upload
+  file_picker: ^8.0.0+1
+  path: ^1.8.3
+  path_provider: ^2.1.1
+  
   # Mapbox Maps SDK for 3D globe - REMOVED (not used)
   # mapbox_maps_flutter: ^1.0.0
 

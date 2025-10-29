@@ -8,7 +8,7 @@ import '../../data/models/plot_model.dart';
 /// Enterprise-grade API manager for production app
 /// Handles thousands of users with optimized performance
 class EnterpriseAPIManager {
-  static const String baseUrl = 'https://backend-apis.dhamarketplace.com/api';
+  static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
   static const Duration _timeout = Duration(seconds: 30);
   static const int _maxRetries = 3;
   

@@ -13,7 +13,7 @@ class DuplicateBookingException implements Exception {
 
 /// Service for handling KuickPay fee calculations and payments
 class KuickPayService {
-  static const String baseUrl = 'https://backend-apis.dhamarketplace.com/api';
+  static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
   final AuthService _authService = AuthService();
 
   /// Calculate KuickPay fee for a given token amount

@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../l10n/app_localizations.dart';
 import '../services/whatsapp_service.dart';
+import '../services/call_service.dart';
 import '../services/facility_service.dart';
 import '../models/nearby_facility.dart';
 import 'main_wrapper.dart';
@@ -138,7 +139,9 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                           _launchWhatsAppForProperty();
                         }),
                         SizedBox(width: 12.w),
-                        _buildActionIcon(Icons.phone, () {}),
+                        _buildActionIcon(Icons.phone, () {
+                          CallService.showCallBottomSheet(context, '+92-51-111-555-400');
+                        }),
                       ],
                     ),
                   ),
@@ -874,7 +877,9 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                         borderRadius: BorderRadius.circular(8.r),
                       ),
                       child: TextButton.icon(
-                        onPressed: () {},
+                        onPressed: () {
+                          CallService.showCallBottomSheet(context, '+92-51-111-555-400');
+                        },
                         icon: Icon(Icons.phone, color: Colors.white, size: 14.sp),
                         label: Text(
                           AppLocalizations.of(context)!.call,
