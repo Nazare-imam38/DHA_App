@@ -16,7 +16,7 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
   final _emailController = TextEditingController();
-
+  
   @override
   void initState() {
     super.initState();
@@ -40,47 +40,47 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
+        return Scaffold(
+          backgroundColor: const Color(0xFFF8F9FA),
+          appBar: AppBar(
         backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
+            elevation: 0,
+            leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF1B5993)),
-          onPressed: () => Navigator.pop(context),
-        ),
+              onPressed: () => Navigator.pop(context),
+            ),
         title: const Text(
           'Owner Details',
-          style: TextStyle(
-            fontFamily: 'Inter',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
             fontSize: 20,
-            fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w700,
             color: Color(0xFF1B5993),
           ),
         ),
         centerTitle: true,
-      ),
-      body: SingleChildScrollView(
+          ),
+          body: SingleChildScrollView(
         padding: EdgeInsets.all(24.w),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
               // Header
-              Container(
+                  Container(
                 padding: EdgeInsets.all(20.w),
-                decoration: BoxDecoration(
-                  color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
                   borderRadius: BorderRadius.circular(16.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
                       offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -94,8 +94,8 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
                         SizedBox(width: 12.w),
                         Text(
                           'Step 7. Owner Information',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
                             fontSize: 18.sp,
                             fontWeight: FontWeight.w700,
                             color: const Color(0xFF1B5993),
@@ -112,96 +112,96 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
                         fontWeight: FontWeight.w500,
                         color: const Color(0xFF616161),
                       ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
               ),
 
               SizedBox(height: 24.h),
 
-              // CNIC Field
+                        // CNIC Field
               _buildTextField(
-                controller: _cnicController,
+                          controller: _cnicController,
                 label: 'CNIC Number',
                 hint: 'Enter CNIC (e.g., 12345-1234567-1)',
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'CNIC is required';
-                  }
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'CNIC is required';
+                            }
                   if (value.length < 13) {
                     return 'Please enter a valid CNIC';
-                  }
-                  return null;
-                },
+                            }
+                            return null;
+                          },
                 keyboardType: TextInputType.number,
-              ),
-
+                        ),
+                        
               SizedBox(height: 16.h),
-
-              // Name Field
+                        
+                        // Name Field
               _buildTextField(
-                controller: _nameController,
+                          controller: _nameController,
                 label: 'Full Name',
-                hint: 'Enter owner\'s full name',
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Name is required';
-                  }
-                  return null;
-                },
-              ),
-
+                          hint: 'Enter owner\'s full name',
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Name is required';
+                            }
+                            return null;
+                          },
+                        ),
+                        
               SizedBox(height: 16.h),
-
-              // Phone Field
+                        
+                        // Phone Field
               _buildTextField(
-                controller: _phoneController,
+                          controller: _phoneController,
                 label: 'Phone Number',
                 hint: 'Enter phone number (e.g., +92 300 1234567)',
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Phone number is required';
-                  }
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Phone number is required';
+                            }
                   if (value.length < 10) {
                     return 'Please enter a valid phone number';
-                  }
-                  return null;
-                },
+                            }
+                            return null;
+                          },
                 keyboardType: TextInputType.phone,
-              ),
-
+                        ),
+                        
               SizedBox(height: 16.h),
-
-              // Address Field
+                        
+                        // Address Field
               _buildTextField(
-                controller: _addressController,
+                          controller: _addressController,
                 label: 'Address',
                 hint: 'Enter complete address',
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Address is required';
-                  }
-                  return null;
-                },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Address is required';
+                            }
+                            return null;
+                          },
                 maxLines: 3,
-              ),
-
+                        ),
+                        
               SizedBox(height: 16.h),
-
+                        
               // Email Field
               _buildTextField(
-                controller: _emailController,
+                          controller: _emailController,
                 label: 'Email Address',
                 hint: 'Enter email address (optional)',
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value != null && value.isNotEmpty) {
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                      return 'Please enter a valid email address';
-                    }
-                  }
-                  return null;
-                },
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value != null && value.isNotEmpty) {
+                              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                                return 'Please enter a valid email address';
+                              }
+                            }
+                            return null;
+                          },
               ),
 
               SizedBox(height: 32.h),
@@ -221,13 +221,13 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
                       ),
                       child: const Text(
                         'Back',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 16,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF1B5993),
+                            color: Color(0xFF1B5993),
+                          ),
                         ),
-                      ),
                     ),
                   ),
                   SizedBox(width: 16.w),
@@ -244,24 +244,24 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
                       ),
                       child: const Text(
                         'Continue',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),
                       ),
-                    ),
+                          ),
+                        ),
+                      ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
     );
   }
-
+  
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -284,14 +284,14 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
             style: TextStyle(
-              fontFamily: 'Inter',
+            fontFamily: 'Inter',
               fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w600,
               color: const Color(0xFF1B5993),
             ),
           ),
@@ -327,10 +327,10 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 16.w,
                 vertical: 16.h,
-              ),
             ),
           ),
-        ],
+        ),
+      ],
       ),
     );
   }

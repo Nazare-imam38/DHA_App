@@ -325,7 +325,7 @@ class _ReviewConfirmationStepState extends State<ReviewConfirmationStep> {
             Icon(Icons.check_circle, color: Colors.green, size: 28.sp),
             SizedBox(width: 12.w),
             const Text(
-              'Success!',
+              'Application Submitted',
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontSize: 20,
@@ -336,7 +336,7 @@ class _ReviewConfirmationStepState extends State<ReviewConfirmationStep> {
           ],
         ),
         content: const Text(
-          'Your property has been submitted successfully! You will be notified once it\'s approved.',
+          'Your property listing application is under process. You can check its status from your Profile page.',
           style: TextStyle(
             fontFamily: 'Inter',
             fontSize: 16,
@@ -345,17 +345,25 @@ class _ReviewConfirmationStepState extends State<ReviewConfirmationStep> {
           ),
         ),
         actions: [
-          ElevatedButton(
+          TextButton(
             onPressed: () {
               Navigator.of(context).pop(); // Close dialog
-              Navigator.of(context).pop(); // Go back to previous screen
+              Navigator.of(context).pop(); // Back to previous
+            },
+            child: const Text('Back'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+              Navigator.of(context).pushNamed('/profile');
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1B5993),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
             ),
             child: const Text(
-              'Done',
+              'Go to Profile',
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontSize: 16,

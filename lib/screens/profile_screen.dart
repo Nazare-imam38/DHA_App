@@ -8,6 +8,7 @@ import '../providers/auth_provider.dart';
 import '../core/services/location_service.dart';
 import '../models/auth_models.dart';
 import '../ui/screens/auth/login_screen.dart';
+import 'property_listing_status_screen.dart';
 import 'contact_us_screen.dart';
 import 'sidebar_drawer.dart';
 
@@ -1084,6 +1085,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             () => Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => const ContactUsScreen()),
+                            ),
+                          ),
+                          _buildModernMenuDivider(),
+                          _buildModernMenuOption(
+                            'Property Listing Status',
+                            Icons.domain_verification,
+                            'Check approval status and notes',
+                            () => Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const PropertyListingStatusScreen()),
                             ),
                           ),
                           _buildModernMenuDivider(),
