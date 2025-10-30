@@ -9,6 +9,7 @@ import '../core/services/location_service.dart';
 import '../models/auth_models.dart';
 import '../ui/screens/auth/login_screen.dart';
 import 'property_listing_status_screen.dart';
+import 'my_listings_screen.dart';
 import 'contact_us_screen.dart';
 import 'sidebar_drawer.dart';
 
@@ -1085,6 +1086,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             () => Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => const ContactUsScreen()),
+                            ),
+                          ),
+                          _buildModernMenuDivider(),
+                          _buildModernMenuOption(
+                            'My Listings',
+                            Icons.home_work,
+                            'View all your posted properties',
+                            () => Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const MyListingsScreen()),
                             ),
                           ),
                           _buildModernMenuDivider(),

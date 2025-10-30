@@ -5,6 +5,7 @@ import 'ms_verification_screen.dart';
 import 'property_posting/property_posting_flow.dart';
 import 'property_posting/models/property_form_data.dart';
 import 'property_posting/steps/purpose_selection_step.dart';
+import '../core/theme/app_theme.dart';
 
 class OwnershipSelectionScreen extends StatefulWidget {
   const OwnershipSelectionScreen({super.key});
@@ -70,15 +71,15 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppTheme.backgroundGrey,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.cardWhite,
               elevation: 0,
               leading: IconButton(
                   icon: const Icon(
                     Icons.arrow_back_ios_new,
-            color: Color(0xFF1B5993), // Navy blue color
-            size: 16, // Smaller size
+            color: AppTheme.primaryBlue,
+            size: 16,
                   ),
                   onPressed: () => Navigator.pop(context),
               ),
@@ -87,8 +88,8 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
             Container(
               padding: EdgeInsets.all(8.w),
               decoration: BoxDecoration(
-                color: const Color(0xFF1B5993), // Navy blue color
-                borderRadius: BorderRadius.circular(8.r),
+                color: AppTheme.primaryBlue,
+                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
               ),
               child: Icon(
                 Icons.work_rounded,
@@ -99,11 +100,8 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
             SizedBox(width: 12.w),
             Text(
                         'OWNERSHIP SELECTION',
-                        style: TextStyle(
-                fontFamily: 'Inter',
+                        style: AppTheme.titleLarge.copyWith(
                           fontSize: 18.sp,
-                          fontWeight: FontWeight.w700,
-                color: const Color(0xFF1B5993), // Navy blue color
                 letterSpacing: 0.5,
                               ),
             ),
@@ -121,7 +119,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
           child: Container(
             height: 2.0.h,
             decoration: BoxDecoration(
-              color: const Color(0xFF1B5993), // Navy blue border
+              color: AppTheme.primaryBlue,
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(20.r),
                 bottomRight: Radius.circular(20.r),
@@ -145,10 +143,10 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE8F4FD),
+                  color: AppTheme.lightBlue,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: const Color(0xFF20B2AA).withValues(alpha: 0.3),
+                    color: AppTheme.tealAccent.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
@@ -158,7 +156,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                       width: 24,
                       height: 24,
                       decoration: const BoxDecoration(
-                        color: Color(0xFF20B2AA),
+                        color: AppTheme.tealAccent,
                         shape: BoxShape.circle,
                       ),
                       child: const Center(
@@ -173,13 +171,11 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Text(
+                    Text(
                       'Ownership Selection',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
+                        style: AppTheme.titleMedium.copyWith(
                           fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF20B2AA),
+                          color: AppTheme.tealAccent,
                         ),
                     ),
                   ],
@@ -203,7 +199,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                         fontFamily: 'Inter',
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
-                                color: Color(0xFF1B5993), // Navy blue color
+                                color: AppTheme.primaryBlue,
                         height: 1.2,
                               ),
                             ),
@@ -215,29 +211,17 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                       width: double.infinity,
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
+                        color: AppTheme.cardWhite,
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                                 border: Border.all(
-                          color: const Color(0xFFE0E0E0),
+                          color: AppTheme.borderGrey,
                                   width: 1,
                                 ),
-                        boxShadow: [
-                                  BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                                  ),
-                                ],
+                        boxShadow: AppTheme.lightShadow,
                               ),
-                              child: const Text(
+                              child: Text(
                                 'Please select whether you are listing your own property or listing on behalf of someone else.',
-                                style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF616161),
-                                  height: 1.5,
-                                ),
+                                style: AppTheme.bodyLarge,
                               ),
                             ),
                           ],
@@ -292,13 +276,13 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _handleContinue,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFF20B2AA),
+                        backgroundColor: AppTheme.cardWhite,
+                        foregroundColor: AppTheme.tealAccent,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                           side: BorderSide(
-                            color: const Color(0xFF20B2AA),
+                            color: AppTheme.tealAccent,
                             width: 2,
                           ),
                         ),
@@ -319,18 +303,15 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                                 const Icon(
                                   Icons.check_circle_rounded,
                                   size: 20,
-                                  color: Color(0xFF20B2AA),
+                                  color: AppTheme.tealAccent,
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
                                   _selectedOption == 'own' 
                                       ? 'PROCEED with your own property'
                                       : 'PROCEED on behalf of someone else',
-                                  style: const TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF20B2AA),
+                                  style: AppTheme.titleMedium.copyWith(
+                                    color: AppTheme.tealAccent,
                                   ),
                                 ),
                               ],
@@ -362,16 +343,16 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-            color: Colors.white, // Always white background
-          borderRadius: BorderRadius.circular(12),
+            color: AppTheme.cardWhite,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           border: Border.all(
-            color: isSelected ? const Color(0xFF20B2AA) : const Color(0xFFE0E0E0), // Teal border when selected
+            color: isSelected ? AppTheme.tealAccent : AppTheme.borderGrey,
             width: 2,
           ),
           boxShadow: [
                   BoxShadow(
               color: isSelected 
-                  ? const Color(0xFF20B2AA).withValues(alpha: 0.3)
+                  ? AppTheme.tealAccent.withValues(alpha: 0.3)
                   : Colors.black.withValues(alpha: 0.05),
               blurRadius: isSelected ? 12 : 8,
               offset: const Offset(0, 4),
@@ -385,12 +366,12 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF20B2AA).withValues(alpha: 0.1) : const Color(0xFF1B5993).withValues(alpha: 0.1), // Teal background when selected, navy blue when not
-                borderRadius: BorderRadius.circular(12),
+                  color: isSelected ? AppTheme.tealAccent.withValues(alpha: 0.1) : AppTheme.primaryBlue.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
               ),
               child: Icon(
                 icon,
-                color: isSelected ? const Color(0xFF20B2AA) : const Color(0xFF1B5993), // Teal when selected, navy blue when not
+                color: isSelected ? AppTheme.tealAccent : AppTheme.primaryBlue,
                 size: 28,
               ),
             ),
@@ -404,21 +385,14 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: isSelected ? const Color(0xFF20B2AA) : const Color(0xFF1B5993), // Teal when selected, navy blue when not
+                    style: AppTheme.titleLarge.copyWith(
+                      color: isSelected ? AppTheme.tealAccent : AppTheme.primaryBlue,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFF616161), // Gray for both selected and unselected
+                    style: AppTheme.bodyMedium.copyWith(
                       height: 1.3,
                     ),
                   ),
@@ -431,17 +405,17 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: isSelected ? Colors.white : Colors.transparent,
+                color: isSelected ? AppTheme.cardWhite : Colors.transparent,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected ? Colors.white : const Color(0xFFBDBDBD),
+                  color: isSelected ? AppTheme.cardWhite : AppTheme.textLight,
                   width: 2,
                 ),
               ),
               child: isSelected
                   ? const Icon(
                       Icons.check_rounded,
-                      color: Color(0xFF20B2AA),
+                      color: AppTheme.tealAccent,
                       size: 16,
                     )
                   : null,

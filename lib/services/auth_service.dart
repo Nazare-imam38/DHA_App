@@ -49,6 +49,14 @@ class AuthService {
     await prefs.setBool(_isLoggedInKey, false);
   }
 
+  // Set test token for development/testing
+  Future<void> setTestToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_tokenKey, token);
+    await prefs.setBool(_isLoggedInKey, true);
+    print('🔑 Test token set for API testing');
+  }
+
   // Helper method to get headers
   Future<Map<String, String>> _getHeaders({bool includeAuth = false}) async {
     final headers = {

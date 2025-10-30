@@ -18,6 +18,10 @@ class MediaUploadService {
       print('🚀 MEDIA UPLOAD SERVICE: Starting upload process');
       print('📊 Images to upload: ${images.length}');
       print('📊 Videos to upload: ${videos.length}');
+      print('📋 Property data being sent:');
+      propertyData.forEach((key, value) {
+        print('   $key: $value (${value.runtimeType})');
+      });
       
       // Get authentication token
       final token = await _authService.getToken();
@@ -40,7 +44,14 @@ class MediaUploadService {
       // Add property data as form fields
       propertyData.forEach((key, value) {
         if (value != null) {
-          request.fields[key] = value.toString();
+          if (key == 'amenities' && value is List) {
+            // Handle amenities array specially
+            for (int i = 0; i < value.length; i++) {
+              request.fields['amenities[$i]'] = value[i].toString();
+            }
+          } else {
+            request.fields[key] = value.toString();
+          }
         }
       });
 

@@ -1,0 +1,727 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../services/customer_properties_service.dart';
+import '../models/customer_property.dart';
+import '../core/theme/app_theme.dart';
+
+class MyListingsScreen extends StatefulWidget {
+  const MyListingsScreen({super.key});
+
+  @override
+  State<MyListingsScreen> createState() => _MyListingsScreenState();
+}
+
+class _MyListingsScreenState extends State<MyListingsScreen> {
+  final CustomerPropertiesService _service = CustomerPropertiesService();
+  List<CustomerProperty> _properties = [];
+  List<CustomerProperty> _filteredProperties = [];
+  bool _isLoading = true;
+  String? _error;
+  
+  // Filter options
+  String _selectedFilter = 'All';
+  final List<String> _filterOptions = ['All', 'Pending', 'Approved', 'Rejected'];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProperties();
+  }
+
+  Future<void> _loadProperties() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final result = await _service.getCustomerProperties();
+      
+      if (result['success']) {
+        final data = result['data'];
+        List<CustomerProperty> properties = [];
+        
+        // Parse properties from API response
+        if (data['properties'] != null) {
+          final propertiesList = data['properties'] as List;
+          properties = propertiesList.map((json) => CustomerProperty.fromJson(json)).toList();
+        } else if (data is List) {
+          properties = data.map((json) => CustomerProperty.fromJson(json)).toList();
+        }
+        
+        // Load approval status for each property
+        for (var property in properties) {
+          _loadApprovalStatus(property);
+        }
+        
+        setState(() {
+          _properties = properties;
+          _filteredProperties = properties;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _error = result['message'] ?? 'Failed to load properties';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _error = 'Error loading properties: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _loadApprovalStatus(CustomerProperty property) async {
+    property.isApprovalLoading = true;
+    
+    try {
+      final result = await _service.getPropertyApprovalStatus(property.id);
+      
+      if (result['success']) {
+        final data = result['data'];
+        property.approvalStatus = data['status']?.toString() ?? 'pending';
+        property.approvalNotes = data['notes']?.toString();
+      } else {
+        property.approvalStatus = 'unknown';
+        property.approvalNotes = 'Could not fetch status';
+      }
+    } catch (e) {
+      property.approvalStatus = 'error';
+      property.approvalNotes = 'Error fetching status';
+    } finally {
+      property.isApprovalLoading = false;
+      if (mounted) setState(() {});
+    }
+  }
+
+  void _applyFilter(String filter) {
+    setState(() {
+      _selectedFilter = filter;
+      
+      if (filter == 'All') {
+        _filteredProperties = _properties;
+      } else {
+        _filteredProperties = _properties.where((property) {
+          switch (filter) {
+            case 'Pending':
+              return property.isPending;
+            case 'Approved':
+              return property.isApproved;
+            case 'Rejected':
+              return property.isRejected;
+            default:
+              return true;
+          }
+        }).toList();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppTheme.backgroundGrey,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppTheme.primaryBlue,
+            size: 16,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(8.w),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryBlue,
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+              child: Icon(
+                Icons.home_work_rounded,
+                color: Colors.white,
+                size: 20.sp,
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Text(
+              'MY LISTINGS',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.primaryBlue,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
+        centerTitle: false,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(20.r),
+            bottomRight: Radius.circular(20.r),
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(2.0.h),
+          child: Container(
+            height: 2.0.h,
+            decoration: BoxDecoration(
+              color: AppTheme.primaryBlue,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20.r),
+                bottomRight: Radius.circular(20.r),
+              ),
+            ),
+          ),
+        ),
+      ),
+      body: Column(
+        children: [
+          // Filter Section
+          Container(
+            padding: EdgeInsets.all(16.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Filter by Status',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.primaryBlue,
+                  ),
+                ),
+                SizedBox(height: 12.h),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: _filterOptions.map((filter) {
+                      final isSelected = _selectedFilter == filter;
+                      return Padding(
+                        padding: EdgeInsets.only(right: 8.w),
+                        child: FilterChip(
+                          label: Text(filter),
+                          selected: isSelected,
+                          onSelected: (selected) => _applyFilter(filter),
+                          backgroundColor: Colors.white,
+                          selectedColor: AppTheme.tealAccent.withValues(alpha: 0.2),
+                          labelStyle: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
+                            color: isSelected ? AppTheme.tealAccent : AppTheme.textSecondary,
+                          ),
+                          side: BorderSide(
+                            color: isSelected ? AppTheme.tealAccent : AppTheme.borderGrey,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // Content
+          Expanded(
+            child: _buildContent(),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.pushNamed(context, '/ownership-selection'),
+        backgroundColor: AppTheme.primaryBlue,
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: Text(
+          'Add Property',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(
+          color: AppTheme.primaryBlue,
+        ),
+      );
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 64.sp,
+              color: Colors.red,
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'Error',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w700,
+                color: Colors.red,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32.w),
+              child: Text(
+                _error!,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 14.sp,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+            ),
+            SizedBox(height: 24.h),
+            ElevatedButton(
+              onPressed: _loadProperties,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryBlue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+              ),
+              child: Text(
+                'Retry',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_filteredProperties.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.home_work_outlined,
+              size: 64.sp,
+              color: AppTheme.textSecondary,
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              _selectedFilter == 'All' ? 'No Properties Found' : 'No ${_selectedFilter} Properties',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              _selectedFilter == 'All' 
+                  ? 'You haven\'t posted any properties yet.'
+                  : 'No properties match the selected filter.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14.sp,
+                color: AppTheme.textSecondary,
+              ),
+            ),
+            if (_selectedFilter == 'All') ...[
+              SizedBox(height: 24.h),
+              ElevatedButton.icon(
+                onPressed: () => Navigator.pushNamed(context, '/ownership-selection'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryBlue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+                ),
+                icon: const Icon(Icons.add, color: Colors.white),
+                label: Text(
+                  'Post Your First Property',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadProperties,
+      color: AppTheme.primaryBlue,
+      child: ListView.builder(
+        padding: EdgeInsets.all(16.w),
+        itemCount: _filteredProperties.length,
+        itemBuilder: (context, index) {
+          return _buildPropertyCard(_filteredProperties[index]);
+        },
+      ),
+    );
+  }
+
+  Widget _buildPropertyCard(CustomerProperty property) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 16.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Property Image or Placeholder
+          Container(
+            height: 200.h,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16.r),
+                topRight: Radius.circular(16.r),
+              ),
+              color: AppTheme.lightBlue,
+            ),
+            child: property.images.isNotEmpty
+                ? ClipRRect(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16.r),
+                      topRight: Radius.circular(16.r),
+                    ),
+                    child: Image.network(
+                      property.images.first,
+                      width: double.infinity,
+                      height: 200.h,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => _buildPlaceholderImage(),
+                    ),
+                  )
+                : _buildPlaceholderImage(),
+          ),
+          
+          // Property Details
+          Padding(
+            padding: EdgeInsets.all(16.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title and Status
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        property.title,
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textPrimary,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    _buildStatusChip(property),
+                  ],
+                ),
+                
+                SizedBox(height: 8.h),
+                
+                // Purpose and Category
+                Row(
+                  children: [
+                    _buildInfoChip(property.purpose, Icons.sell),
+                    SizedBox(width: 8.w),
+                    _buildInfoChip(property.category, Icons.category),
+                  ],
+                ),
+                
+                SizedBox(height: 12.h),
+                
+                // Price
+                Text(
+                  '${property.priceLabel}: PKR ${property.displayPrice}',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.tealAccent,
+                  ),
+                ),
+                
+                SizedBox(height: 8.h),
+                
+                // Location
+                if (property.fullLocation.isNotEmpty) ...[
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.location_on,
+                        size: 16.sp,
+                        color: AppTheme.textSecondary,
+                      ),
+                      SizedBox(width: 4.w),
+                      Expanded(
+                        child: Text(
+                          property.fullLocation,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14.sp,
+                            color: AppTheme.textSecondary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8.h),
+                ],
+                
+                // Property Details
+                if (property.propertyDetails.isNotEmpty) ...[
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.straighten,
+                        size: 16.sp,
+                        color: AppTheme.textSecondary,
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        property.propertyDetails,
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 14.sp,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8.h),
+                ],
+                
+                // Approval Notes
+                if (property.approvalNotes != null && property.approvalNotes!.isNotEmpty) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(12.w),
+                    decoration: BoxDecoration(
+                      color: property.statusColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8.r),
+                      border: Border.all(
+                        color: property.statusColor.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Notes:',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w600,
+                            color: property.statusColor,
+                          ),
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          property.approvalNotes!,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 12.sp,
+                            color: property.statusColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                ],
+                
+                // Created Date
+                if (property.createdAt != null) ...[
+                  Text(
+                    'Posted: ${_formatDate(property.createdAt!)}',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 12.sp,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlaceholderImage() {
+    return Container(
+      width: double.infinity,
+      height: 200.h,
+      decoration: BoxDecoration(
+        color: AppTheme.lightBlue,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(16.r),
+          topRight: Radius.circular(16.r),
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.home_work_outlined,
+            size: 48.sp,
+            color: AppTheme.textSecondary,
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            'No Image',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 14.sp,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusChip(CustomerProperty property) {
+    if (property.isApprovalLoading == true) {
+      return Container(
+        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+        decoration: BoxDecoration(
+          color: Colors.grey.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 12.sp,
+              height: 12.sp,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.textSecondary),
+              ),
+            ),
+            SizedBox(width: 4.w),
+            Text(
+              'Loading...',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 10.sp,
+                fontWeight: FontWeight.w500,
+                color: AppTheme.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+      decoration: BoxDecoration(
+        color: property.statusColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: property.statusColor.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Text(
+        property.statusText,
+        style: TextStyle(
+          fontFamily: 'Inter',
+          fontSize: 10.sp,
+          fontWeight: FontWeight.w600,
+          color: property.statusColor,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoChip(String text, IconData icon) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+      decoration: BoxDecoration(
+        color: AppTheme.lightBlue,
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 12.sp,
+            color: AppTheme.primaryBlue,
+          ),
+          SizedBox(width: 4.w),
+          Text(
+            text,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 10.sp,
+              fontWeight: FontWeight.w500,
+              color: AppTheme.primaryBlue,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(String dateString) {
+    try {
+      final date = DateTime.parse(dateString);
+      return '${date.day}/${date.month}/${date.year}';
+    } catch (e) {
+      return dateString;
+    }
+  }
+}

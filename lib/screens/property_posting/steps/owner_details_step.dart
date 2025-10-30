@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../models/property_form_data.dart';
 import 'review_confirmation_step.dart';
+import '../../../core/theme/app_theme.dart';
 
 class OwnerDetailsStep extends StatefulWidget {
   @override
@@ -41,12 +42,12 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
   @override
   Widget build(BuildContext context) {
         return Scaffold(
-          backgroundColor: const Color(0xFFF8F9FA),
+          backgroundColor: AppTheme.backgroundGrey,
           appBar: AppBar(
         backgroundColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF1B5993)),
+          icon: const Icon(Icons.arrow_back_ios, color: AppTheme.primaryBlue),
               onPressed: () => Navigator.pop(context),
             ),
         title: const Text(
@@ -55,7 +56,7 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
                     fontFamily: 'Inter',
             fontSize: 20,
                     fontWeight: FontWeight.w700,
-            color: Color(0xFF1B5993),
+            color: AppTheme.primaryBlue,
           ),
         ),
         centerTitle: true,
@@ -71,61 +72,10 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
                   Container(
                 padding: EdgeInsets.all(20.w),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppTheme.cardWhite,
                   borderRadius: BorderRadius.circular(16.r),
                       boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 10,
-                      offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.person_outline,
-                          color: const Color(0xFF1B5993),
-                          size: 24.sp,
-                        ),
-                        SizedBox(width: 12.w),
-                        Text(
-                          'Step 7. Owner Information',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF1B5993),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      'Please provide the property owner\'s details.',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFF616161),
-                      ),
-                        ),
-                      ],
-                    ),
-              ),
-
-              SizedBox(height: 24.h),
-
-                        // CNIC Field
-              _buildTextField(
-                          controller: _cnicController,
-                label: 'CNIC Number',
-                hint: 'Enter CNIC (e.g., 12345-1234567-1)',
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
+                        BoxShadow(color: AppTheme.primaryBlue.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 4)) {
                               return 'CNIC is required';
                             }
                   if (value.length < 13) {
@@ -214,7 +164,7 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
                         padding: EdgeInsets.symmetric(vertical: 16.h),
-                        side: const BorderSide(color: Color(0xFF1B5993), width: 2),
+                        side: BorderSide(color: AppTheme.primaryBlue, width: 2),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.r),
                         ),
@@ -225,7 +175,7 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
                             fontFamily: 'Inter',
                             fontSize: 16,
                           fontWeight: FontWeight.w600,
-                            color: Color(0xFF1B5993),
+                            color: AppTheme.primaryBlue,
                           ),
                         ),
                     ),
@@ -235,7 +185,7 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
                     child: ElevatedButton(
                       onPressed: _nextStep,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1B5993),
+                        backgroundColor: AppTheme.primaryBlue,
                         padding: EdgeInsets.symmetric(vertical: 16.h),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.r),
@@ -248,7 +198,7 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
                             fontFamily: 'Inter',
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: AppTheme.cardWhite,
                         ),
                       ),
                           ),
@@ -273,66 +223,10 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
     return Container(
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardWhite,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-            style: TextStyle(
-            fontFamily: 'Inter',
-              fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-              color: const Color(0xFF1B5993),
-            ),
-          ),
-          SizedBox(height: 8.h),
-          TextFormField(
-            controller: controller,
-            validator: validator,
-            keyboardType: keyboardType,
-            maxLines: maxLines,
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 14.sp,
-                color: const Color(0xFF9E9E9E),
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.r),
-                borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.r),
-                borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.r),
-                borderSide: const BorderSide(color: Color(0xFF1B5993), width: 2),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.r),
-                borderSide: const BorderSide(color: Colors.red),
-              ),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 16.w,
-                vertical: 16.h,
-            ),
-          ),
-        ),
-      ],
-      ),
-    );
+          BoxShadow(color: AppTheme.primaryBlue.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 4));
   }
 
   void _nextStep() {

@@ -39,7 +39,7 @@ class PropertyFormData extends ChangeNotifier {
   String? streetNumber;
   
   // Step 6: Location Details
-  String? location;
+  String? location; // Complete address for geocoding
   String? sector;
   String? phase;
   double? latitude;
@@ -62,12 +62,15 @@ class PropertyFormData extends ChangeNotifier {
   // Step 5: Amenities
   List<String> amenities = []; // List of selected amenity IDs
   
+  // Submission tracking
+  String? submittedPropertyId; // Store property ID after successful submission
+  
   // Helper methods
   bool get isOwnProperty => onBehalf == 0;
   bool get isRent => purpose == "Rent";
   bool get hasOwnerDetails => onBehalf == 1;
   
-  // Updated validation for new step order
+  // Updated validation for simplified flow (removed unit details and payment method)
   bool isStepValid(int stepNumber) {
     switch (stepNumber) {
       case 1: return onBehalf != null;
@@ -75,21 +78,17 @@ class PropertyFormData extends ChangeNotifier {
                (cnic != null && name != null && phone != null && address != null);
       case 3: return purpose != null;
       case 4: return category != null && propertyTypeId != null && 
-               title != null && description != null && listingDuration != null &&
-               (
-                 isRent 
-                   ? (rentPrice != null)
-                   : (price != null)
-               );
+               title != null && description != null && 
+               (listingDuration != null || propertyDuration != null) &&
+               (isRent ? (rentPrice != null) : (price != null));
       case 5: return buildingName != null && floorNumber != null && apartmentNumber != null &&
                area != null && areaUnit != null && phase != null && 
-               sector != null && streetNumber != null;
-      case 6: return location != null && sector != null && 
-               phase != null && latitude != null && longitude != null;
-      case 7: return unitNo != null;
-      case 8: return paymentMethod != null;
-      case 9: return true; // Optional step
-      case 10: return true; // Optional step
+               sector != null && streetNumber != null &&
+               location != null && latitude != null && longitude != null;
+      case 6: return true; // Amenities optional
+      case 7: return true; // Media upload optional
+      case 8: return !hasOwnerDetails || 
+               (cnic != null && name != null && phone != null && address != null); // Owner details if needed
       default: return false;
     }
   }
@@ -226,6 +225,11 @@ class PropertyFormData extends ChangeNotifier {
     } else {
       amenities.add(amenityId);
     }
+    notifyListeners();
+  }
+  
+  void updateSubmittedPropertyId(String? propertyId) {
+    submittedPropertyId = propertyId;
     notifyListeners();
   }
 }

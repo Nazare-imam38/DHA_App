@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'models/property_form_data.dart';
-import 'steps/owner_details_step.dart';
+
 import 'steps/purpose_selection_step.dart';
 import 'steps/type_pricing_step.dart';
 import 'steps/property_details_step.dart';
-import 'steps/location_details_step.dart';
-import 'steps/unit_details_step.dart';
-import 'steps/payment_method_step.dart';
-import 'steps/media_upload_step.dart';
 import 'steps/amenities_selection_step.dart';
+import 'steps/media_upload_step.dart';
+import 'steps/review_confirmation_step.dart';
 import '../../services/property_service.dart';
 import '../../widgets/step_progress_indicator.dart';
 import '../ownership_selection_screen.dart';
@@ -23,29 +21,24 @@ class _PropertyPostingFlowState extends State<PropertyPostingFlow> {
   int currentStep = 1;
   final PageController pageController = PageController();
   
-  // UPDATED STEP ORDER - Owner Details moved to Step 2
+  // 7-STEP PROPERTY POSTING FLOW
   final List<Widget> steps = [
-    OwnerDetailsStep(), // MOVED TO STEP 2
-    PurposeSelectionStep(),
-    TypePricingStep(),
-    PropertyDetailsStep(),
-    LocationDetailsStep(),
-    UnitDetailsStep(),
-    PaymentMethodStep(),
-    MediaUploadStep(),
-    AmenitiesSelectionStep(),
+    // Step 1: Ownership Selection (handled by OwnershipSelectionScreen)
+    PurposeSelectionStep(),        // Step 2: Purpose Selection
+    TypePricingStep(),             // Step 3: Property Type & Listing
+    PropertyDetailsStep(),         // Step 4: Property Details
+    AmenitiesSelectionStep(),      // Step 5: Amenities Selection
+    MediaUploadStep(),             // Step 6: Media Upload
+    ReviewConfirmationStep(),      // Step 7: Review Details
   ];
   
   final List<String> stepNames = [
-    'Owner Details', // MOVED TO STEP 2
-    'Purpose',
-    'Type & Pricing',
-    'Details',
-    'Location',
-    'Unit',
-    'Payment',
-    'Media',
-    'Amenities',
+    'Purpose Selection',           // Step 2
+    'Property Type & Listing',     // Step 3
+    'Property Details',            // Step 4
+    'Amenities Selection',         // Step 5
+    'Media Upload',                // Step 6
+    'Review Details',              // Step 7
   ];
   
   @override

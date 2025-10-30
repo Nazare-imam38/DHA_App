@@ -7,8 +7,9 @@ import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import '../models/property_form_data.dart';
 import '../../../services/media_upload_service.dart';
-import 'owner_details_step.dart';
+
 import 'review_confirmation_step.dart';
+import '../../../core/theme/app_theme.dart';
 
 class MediaUploadStep extends StatefulWidget {
   @override
@@ -28,12 +29,12 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppTheme.backgroundGrey,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF1B5993)),
+          icon: const Icon(Icons.arrow_back_ios, color: AppTheme.primaryBlue),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -42,7 +43,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
             fontFamily: 'Inter',
             fontSize: 20,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1B5993),
+            color: AppTheme.primaryBlue,
           ),
         ),
         centerTitle: true,
@@ -87,17 +88,11 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
   Widget _buildHeaderSection() {
     return Container(
       padding: EdgeInsets.all(24.w),
-              decoration: BoxDecoration(
-                color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-                boxShadow: [
-                  BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
+      decoration: BoxDecoration(
+        color: AppTheme.cardWhite,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        boxShadow: AppTheme.cardShadow,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -106,12 +101,12 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
               Container(
                 padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1B5993).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12.r),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                 ),
                 child: const Icon(
                   Icons.photo_library,
-                  color: Color(0xFF1B5993),
+                  color: AppTheme.primaryBlue,
                   size: 24,
                 ),
               ),
@@ -120,140 +115,87 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-            Text(
+                    Text(
                       'Step 6: Media Upload',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF1B5993),
+                      style: AppTheme.titleLarge.copyWith(
+                        fontSize: 18.sp,
                       ),
                     ),
                     SizedBox(height: 4.h),
                     Text(
                       'Add photos and videos of your property',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFF616161),
-              ),
-            ),
-          ],
-        ),
+                      style: AppTheme.bodyMedium,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
-          
           SizedBox(height: 16.h),
-          
           Container(
             padding: EdgeInsets.all(16.w),
-                    decoration: BoxDecoration(
-              color: const Color(0xFFE3F2FD),
-              borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(
-                color: const Color(0xFF1B5993).withValues(alpha: 0.2),
+            decoration: BoxDecoration(
+              color: AppTheme.lightBlue,
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+              border: Border.all(
+                color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                 width: 1,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
+              ),
+            ),
+            child: Row(
+              children: [
                 Icon(
                   Icons.info_outline,
-                  color: const Color(0xFF1B5993),
+                  color: AppTheme.primaryBlue,
                   size: 20.sp,
                 ),
                 SizedBox(width: 12.w),
                 Expanded(
-                            child: Text(
+                  child: Text(
                     'Upload high-quality photos and videos to showcase your property effectively.',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFF1B5993),
+                    style: AppTheme.bodyMedium.copyWith(
+                      color: AppTheme.primaryBlue,
                     ),
-                          ),
-                        ),
-                      ],
+                  ),
+                ),
+              ],
             ),
           ),
-          
-          SizedBox(height: 16.h),
-          
-          // Test API Connection Button
-          OutlinedButton.icon(
-            onPressed: _testApiConnection,
-            icon: Icon(
-              Icons.api,
-              color: const Color(0xFF1B5993),
-              size: 18.sp,
-            ),
-            label: Text(
-              'Test API Connection',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF1B5993),
-              ),
-            ),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Color(0xFF1B5993), width: 1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-            ),
-                      ),
-                    ],
-                  ),
+        ],
+      ),
     );
   }
 
   Widget _buildPhotosSection() {
     return Container(
       padding: EdgeInsets.all(24.w),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-            offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+      decoration: BoxDecoration(
+        color: AppTheme.cardWhite,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        boxShadow: AppTheme.cardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Row(
             children: [
               Icon(
                 Icons.photo,
-                color: const Color(0xFF1B5993),
+                color: AppTheme.primaryBlue,
                 size: 24.sp,
               ),
               SizedBox(width: 12.w),
               Text(
                 'Property Photos',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
+                style: AppTheme.titleLarge.copyWith(
                   fontSize: 18.sp,
-                          fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1B5993),
                 ),
               ),
               const Spacer(),
               Text(
                 '${_selectedImages.length}/20',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 14.sp,
+                style: AppTheme.bodyMedium.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF616161),
                 ),
               ),
             ],
@@ -263,11 +205,8 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
           
           Text(
             'Upload up to 20 photos (max 3MB each)',
-            style: TextStyle(
-              fontFamily: 'Inter',
+            style: AppTheme.bodySmall.copyWith(
               fontSize: 13.sp,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFF616161),
             ),
           ),
           
@@ -291,10 +230,10 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
       child: Container(
         height: 120.h,
                   decoration: BoxDecoration(
-          color: const Color(0xFFF8F9FA),
+          color: AppTheme.backgroundGrey,
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
-            color: const Color(0xFF1B5993).withValues(alpha: 0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 2,
             style: BorderStyle.solid,
           ),
@@ -304,7 +243,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                     children: [
             Icon(
               Icons.cloud_upload_outlined,
-              color: const Color(0xFF1B5993),
+              color: AppTheme.primaryBlue,
               size: 32.sp,
             ),
             SizedBox(height: 8.h),
@@ -314,7 +253,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                           fontFamily: 'Inter',
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF1B5993),
+                color: AppTheme.primaryBlue,
               ),
             ),
             SizedBox(height: 4.h),
@@ -324,7 +263,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                 fontFamily: 'Inter',
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w500,
-                color: const Color(0xFF616161),
+                color: AppTheme.textSecondary,
               ),
                         ),
                     ],
@@ -351,7 +290,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                   decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.r),
                     border: Border.all(
-                  color: Colors.grey.withValues(alpha: 0.2),
+                  color: AppTheme.textLight.withValues(alpha: 0.2),
                   width: 1,
                 ),
               ),
@@ -371,12 +310,12 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                 child: Container(
                   padding: EdgeInsets.all(4.w),
                   decoration: BoxDecoration(
-                    color: Colors.red,
+                    color: AppTheme.error,
                     borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: Icon(
                     Icons.close,
-                    color: Colors.white,
+                    color: AppTheme.cardWhite,
                     size: 16.sp,
                   ),
                 ),
@@ -391,59 +330,44 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
   Widget _buildVideosSection() {
     return Container(
       padding: EdgeInsets.all(24.w),
-        decoration: BoxDecoration(
-          color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-          boxShadow: [
-            BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-            offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      decoration: BoxDecoration(
+        color: AppTheme.cardWhite,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        boxShadow: AppTheme.cardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Row(
             children: [
               Icon(
                 Icons.videocam,
-                    color: const Color(0xFF1B5993),
+                color: AppTheme.primaryBlue,
                 size: 24.sp,
               ),
               SizedBox(width: 12.w),
               Text(
-                        'Property Videos',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
+                'Property Videos',
+                style: AppTheme.titleLarge.copyWith(
                   fontSize: 18.sp,
-                          fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1B5993),
                 ),
               ),
               const Spacer(),
               Text(
                 '${_selectedVideos.length}/5',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 14.sp,
+                style: AppTheme.bodyMedium.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF616161),
                 ),
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
           
           SizedBox(height: 8.h),
           
           Text(
             'Upload up to 5 videos (max 50MB each)',
-            style: TextStyle(
-              fontFamily: 'Inter',
+            style: AppTheme.bodySmall.copyWith(
               fontSize: 13.sp,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFF616161),
             ),
           ),
           
@@ -467,10 +391,10 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
       child: Container(
         height: 100.h,
         decoration: BoxDecoration(
-          color: const Color(0xFFF8F9FA),
+          color: AppTheme.backgroundGrey,
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
-            color: const Color(0xFF1B5993).withValues(alpha: 0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 2,
             style: BorderStyle.solid,
           ),
@@ -480,7 +404,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
           children: [
             Icon(
               Icons.video_library_outlined,
-              color: const Color(0xFF1B5993),
+              color: AppTheme.primaryBlue,
               size: 28.sp,
             ),
             SizedBox(height: 8.h),
@@ -490,7 +414,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                 fontFamily: 'Inter',
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF1B5993),
+                color: AppTheme.primaryBlue,
               ),
             ),
             SizedBox(height: 4.h),
@@ -500,7 +424,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                 fontFamily: 'Inter',
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w500,
-                color: const Color(0xFF616161),
+                color: AppTheme.textSecondary,
               ),
                         ),
                     ],
@@ -518,10 +442,10 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
           margin: EdgeInsets.only(bottom: 12.h),
           padding: EdgeInsets.all(16.w),
           decoration: BoxDecoration(
-            color: const Color(0xFFF8F9FA),
+            color: AppTheme.backgroundGrey,
             borderRadius: BorderRadius.circular(12.r),
             border: Border.all(
-              color: Colors.grey.withValues(alpha: 0.2),
+              color: AppTheme.textLight.withValues(alpha: 0.2),
               width: 1,
           ),
         ),
@@ -530,12 +454,12 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
             Container(
                 padding: EdgeInsets.all(8.w),
               decoration: BoxDecoration(
-                      color: const Color(0xFF1B5993).withValues(alpha: 0.1),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8.r),
               ),
               child: Icon(
                   Icons.play_circle_outline,
-                  color: const Color(0xFF1B5993),
+                  color: AppTheme.primaryBlue,
                   size: 24.sp,
                 ),
               ),
@@ -551,7 +475,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                       fontFamily: 'Inter',
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF1B5993),
+                          color: AppTheme.primaryBlue,
                         ),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
@@ -564,7 +488,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                       fontFamily: 'Inter',
                         fontSize: 12.sp,
                       fontWeight: FontWeight.w500,
-                        color: const Color(0xFF616161),
+                        color: AppTheme.textSecondary,
                     ),
                   ),
                 ],
@@ -575,12 +499,12 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                 child: Container(
                   padding: EdgeInsets.all(8.w),
                   decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.1),
+                    color: AppTheme.error.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Icon(
                     Icons.delete_outline,
-                    color: Colors.red,
+                    color: AppTheme.error,
                     size: 20.sp,
                   ),
                   ),
@@ -599,7 +523,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
         color: const Color(0xFFE3F2FD),
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: const Color(0xFF1B5993).withValues(alpha: 0.3),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -613,7 +537,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
                   value: _uploadProgress > 0 ? _uploadProgress : null,
-                  valueColor: AlwaysStoppedAnimation<Color>(const Color(0xFF1B5993)),
+                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
                 ),
               ),
               SizedBox(width: 16.w),
@@ -624,7 +548,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
               fontFamily: 'Inter',
                     fontSize: 14.sp,
               fontWeight: FontWeight.w600,
-                    color: const Color(0xFF1B5993),
+                    color: AppTheme.primaryBlue,
                   ),
                 ),
               ),
@@ -634,8 +558,8 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
             SizedBox(height: 12.h),
             LinearProgressIndicator(
               value: _uploadProgress,
-              backgroundColor: Colors.grey.withValues(alpha: 0.3),
-              valueColor: AlwaysStoppedAnimation<Color>(const Color(0xFF1B5993)),
+              backgroundColor: AppTheme.textLight.withValues(alpha: 0.3),
+              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
             ),
             SizedBox(height: 8.h),
           Text(
@@ -644,7 +568,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
               fontFamily: 'Inter',
                 fontSize: 12.sp,
               fontWeight: FontWeight.w500,
-                color: const Color(0xFF616161),
+                color: AppTheme.textSecondary,
             ),
           ),
           ],
@@ -654,14 +578,56 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
   }
   
   Widget _buildActionButtons(BuildContext context, PropertyFormData formData) {
-    return Row(
+    final hasMedia = _selectedImages.isNotEmpty || _selectedVideos.isNotEmpty;
+    
+    return Column(
+      children: [
+        // Optional Message
+        if (!hasMedia)
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(16.w),
+            margin: EdgeInsets.only(bottom: 16.h),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12.r),
+              border: Border.all(
+                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_rounded,
+                  color: AppTheme.primaryBlue,
+                  size: 20.sp,
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Text(
+                    'You can skip media upload for now and add photos/videos later. However, properties with media get more attention from buyers.',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.primaryBlue,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        
+        // Action Buttons Row
+        Row(
           children: [
         Expanded(
           child: OutlinedButton(
               onPressed: () => Navigator.pop(context),
             style: OutlinedButton.styleFrom(
               padding: EdgeInsets.symmetric(vertical: 16.h),
-              side: const BorderSide(color: Color(0xFF1B5993), width: 2),
+              side: const BorderSide(color: AppTheme.primaryBlue, width: 2),
                 shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12.r),
               ),
@@ -672,7 +638,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                 fontFamily: 'Inter',
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
-                    color: const Color(0xFF1B5993),
+                    color: AppTheme.primaryBlue,
               ),
             ),
           ),
@@ -680,9 +646,9 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
         SizedBox(width: 16.w),
         Expanded(
           child: ElevatedButton(
-            onPressed: () => _nextStep(context, formData),
+            onPressed: () => _nextStep(context, formData), // Always enabled
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1B5993),
+              backgroundColor: AppTheme.primaryBlue, // Always blue
               padding: EdgeInsets.symmetric(vertical: 16.h),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12.r),
@@ -694,7 +660,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
               children: [
                 const Icon(
                   Icons.arrow_forward,
-                  color: Colors.white,
+                  color: AppTheme.cardWhite,
                   size: 20,
                 ),
                 SizedBox(width: 8.w),
@@ -704,12 +670,14 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                     fontFamily: 'Inter',
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: AppTheme.cardWhite,
                   ),
                 ),
               ],
             ),
           ),
+        ),
+          ],
         ),
       ],
     );
@@ -866,7 +834,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
             children: [
               Icon(
                 result['success'] == true ? Icons.check_circle : Icons.error,
-                color: result['success'] == true ? Colors.green : Colors.red,
+                color: result['success'] == true ? AppTheme.success : AppTheme.error,
                 size: 28.sp,
               ),
               SizedBox(width: 12.w),
@@ -875,7 +843,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                   style: const TextStyle(
                     fontFamily: 'Inter',
                   fontWeight: FontWeight.w700,
-                    color: Color(0xFF1B5993),
+                    color: AppTheme.primaryBlue,
                   ),
                 ),
             ],
@@ -902,7 +870,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                     fontFamily: 'Inter',
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w600,
-                color: const Color(0xFF616161),
+                color: AppTheme.textSecondary,
                   ),
                 ),
               ],
@@ -914,7 +882,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                     fontFamily: 'Inter',
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w500,
-                    color: const Color(0xFF616161),
+                    color: AppTheme.textSecondary,
                   ),
                 ),
               ],
@@ -928,7 +896,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF1B5993),
+                  color: AppTheme.primaryBlue,
                 ),
               ),
               ),
@@ -954,7 +922,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
           style: TextStyle(
             fontFamily: 'Inter',
             fontWeight: FontWeight.w700,
-              color: Color(0xFF1B5993),
+              color: AppTheme.primaryBlue,
           ),
         ),
         content: Text(
@@ -972,7 +940,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF1B5993),
+                color: AppTheme.primaryBlue,
               ),
             ),
           ),
@@ -1036,7 +1004,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
         MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider.value(
             value: formData,
-            child: OwnerDetailsStep(),
+            child: ReviewConfirmationStep(),
           ),
         ),
       );
@@ -1119,7 +1087,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
           children: [
             Icon(
               Icons.check_circle,
-              color: Colors.green,
+              color: AppTheme.success,
               size: 28.sp,
             ),
             SizedBox(width: 12.w),
@@ -1128,7 +1096,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF1B5993),
+                color: AppTheme.primaryBlue,
               ),
             ),
           ],
@@ -1153,7 +1121,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                   fontFamily: 'Inter',
                   fontSize: 12.sp,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF616161),
+                  color: AppTheme.textSecondary,
                 ),
               ),
             ],
@@ -1166,7 +1134,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
               Navigator.popUntil(context, (route) => route.isFirst); // Go to home
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1B5993),
+              backgroundColor: AppTheme.primaryBlue,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.r),
               ),
@@ -1176,7 +1144,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: AppTheme.cardWhite,
               ),
             ),
           ),

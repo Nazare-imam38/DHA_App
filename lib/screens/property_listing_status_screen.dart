@@ -3,7 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../services/property_approval_service.dart';
 
 class PropertyListingStatusScreen extends StatefulWidget {
-  const PropertyListingStatusScreen({super.key});
+  final String? propertyId;
+  
+  const PropertyListingStatusScreen({super.key, this.propertyId});
 
   @override
   State<PropertyListingStatusScreen> createState() => _PropertyListingStatusScreenState();
@@ -16,6 +18,18 @@ class _PropertyListingStatusScreenState extends State<PropertyListingStatusScree
   String? _status;
   String? _notes;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto-populate and check status if property ID is provided
+    if (widget.propertyId != null) {
+      _controller.text = widget.propertyId!;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _checkStatus();
+      });
+    }
+  }
 
   @override
   void dispose() {
