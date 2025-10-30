@@ -194,7 +194,7 @@ class PurposeSelectionStep extends StatelessWidget {
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
               style: AppTheme.outlineButtonStyle.copyWith(
-                padding: WidgetStateProperty.all(
+                padding: MaterialStateProperty.all(
                   const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 ),
               ),
@@ -205,10 +205,10 @@ class PurposeSelectionStep extends StatelessWidget {
                 return ElevatedButton(
                   onPressed: formData.purpose != null ? () => _nextStep(context, formData) : null,
                   style: AppTheme.primaryButtonStyle.copyWith(
-                    backgroundColor: WidgetStateProperty.all(
+                    backgroundColor: MaterialStateProperty.all(
                       formData.purpose != null ? AppTheme.primaryBlue : AppTheme.textLight,
                     ),
-                    padding: WidgetStateProperty.all(
+                    padding: MaterialStateProperty.all(
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                     ),
                   ),

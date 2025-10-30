@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../my_listings_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -74,13 +75,77 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                 if (_isUploading) _buildUploadProgress(),
                 
                 SizedBox(height: 32.h),
-                
-                // Action Buttons
-                _buildActionButtons(context, formData),
+          
               ],
             ),
           );
         },
+      ),
+      bottomNavigationBar: Container(
+        padding: EdgeInsets.all(24.w),
+        decoration: BoxDecoration(
+          color: AppTheme.cardWhite,
+          boxShadow: AppTheme.lightShadow,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => Navigator.pop(context),
+                style: OutlinedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 16.h),
+                  side: const BorderSide(color: AppTheme.primaryBlue, width: 2),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                ),
+                child: Text(
+                  'Back to Amenities',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.primaryBlue,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 16.w),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () => _nextStep(context, context.read<PropertyFormData>()),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryBlue,
+                  padding: EdgeInsets.symmetric(vertical: 16.h),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  elevation: 0,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.arrow_forward,
+                      color: AppTheme.cardWhite,
+                      size: 20,
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      'Continue',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.cardWhite,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1131,7 +1196,11 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context); // Close dialog
-              Navigator.popUntil(context, (route) => route.isFirst); // Go to home
+              // Navigate to My Listings so user can see the newly posted item under Pending
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const MyListingsScreen()),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryBlue,

@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../models/property_form_data.dart';
 import 'property_details_step.dart';
 import '../../../services/property_type_service.dart';
-import '../../../core/theme/app_theme.dart';
 
 class TypePricingStep extends StatefulWidget {
   @override
@@ -168,14 +167,14 @@ class _TypePricingStepState extends State<TypePricingStep> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundGrey,
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        backgroundColor: AppTheme.cardWhite,
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new,
-            color: AppTheme.primaryBlue,
+            color: Color(0xFF1B5993),
             size: 16,
           ),
           onPressed: () => Navigator.pop(context),
@@ -185,21 +184,30 @@ class _TypePricingStepState extends State<TypePricingStep> {
             Container(
               padding: EdgeInsets.all(8.w),
               decoration: BoxDecoration(
-                color: AppTheme.cardWhite,
-                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                boxShadow: AppTheme.lightShadow,
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Icon(
                 Icons.home_work_rounded,
-                color: AppTheme.primaryBlue,
+                color: const Color(0xFF1B5993),
                 size: 20.sp,
               ),
             ),
             SizedBox(width: 12.w),
             Text(
               'PROPERTY TYPE & LISTING',
-              style: AppTheme.titleLarge.copyWith(
+              style: TextStyle(
+                fontFamily: 'Inter',
                 fontSize: 18.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1B5993),
                 letterSpacing: 0.5,
               ),
             ),
@@ -217,7 +225,7 @@ class _TypePricingStepState extends State<TypePricingStep> {
           child: Container(
             height: 2.0.h,
             decoration: BoxDecoration(
-              color: AppTheme.primaryBlue,
+              color: const Color(0xFF1B5993),
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(20.r),
                 bottomRight: Radius.circular(20.r),
@@ -243,10 +251,10 @@ class _TypePricingStepState extends State<TypePricingStep> {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: AppTheme.lightBlue,
+                      color: const Color(0xFFE8F4FD),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: AppTheme.tealAccent.withValues(alpha: 0.3),
+                        color: const Color(0xFF20B2AA).withValues(alpha: 0.3),
                       ),
                     ),
                     child: Row(
@@ -256,14 +264,14 @@ class _TypePricingStepState extends State<TypePricingStep> {
                           width: 24,
                           height: 24,
                           decoration: const BoxDecoration(
-                            color: AppTheme.tealAccent,
+                            color: Color(0xFF20B2AA),
                             shape: BoxShape.circle,
                           ),
                           child: const Center(
                             child: Text(
                               '3',
                               style: TextStyle(
-                                color: AppTheme.cardWhite,
+                                color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
                               ),
@@ -277,7 +285,7 @@ class _TypePricingStepState extends State<TypePricingStep> {
                             fontFamily: 'Inter',
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.tealAccent,
+                            color: Color(0xFF20B2AA),
                           ),
                         ),
                       ],
@@ -288,16 +296,28 @@ class _TypePricingStepState extends State<TypePricingStep> {
                 const SizedBox(height: 32),
                 
                 // Main Question
-                Text(
+                const Text(
                   'Select Property Type & Add Details',
-                  style: AppTheme.headingMedium,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 28,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1B5993),
+                    height: 1.2,
+                  ),
                 ),
                 
                 const SizedBox(height: 8),
                 
-                Text(
+                const Text(
                   'Choose your property type and provide basic listing information.',
-                  style: AppTheme.bodyLarge,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF616161),
+                      height: 1.5,
+                  ),
                 ),
                 
                 const SizedBox(height: 40),
@@ -324,18 +344,32 @@ class _TypePricingStepState extends State<TypePricingStep> {
       bottomNavigationBar: Container(
         padding: EdgeInsets.all(24.0.w),
         decoration: BoxDecoration(
-          color: AppTheme.cardWhite,
-          boxShadow: AppTheme.lightShadow,
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
-              style: AppTheme.outlineButtonStyle.copyWith(
-                padding: WidgetStateProperty.all(
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: const Color(0xFF1B5993),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(
+                    color: const Color(0xFF1B5993),
+                    width: 2,
+                  ),
                 ),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               ),
               child: const Text('Back'),
             ),
@@ -362,13 +396,14 @@ class _TypePricingStepState extends State<TypePricingStep> {
                 
                 return ElevatedButton(
                   onPressed: isValid ? () => _nextStep(context, formData) : null,
-              style: AppTheme.primaryButtonStyle.copyWith(
-                backgroundColor: WidgetStateProperty.all(
-                  isValid ? AppTheme.primaryBlue : AppTheme.textLight,
+              style: ElevatedButton.styleFrom(
+                    backgroundColor: isValid ? const Color(0xFF1B5993) : Colors.grey,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                padding: WidgetStateProperty.all(
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               ),
               child: const Text('Continue'),
                 );
@@ -384,9 +419,15 @@ class _TypePricingStepState extends State<TypePricingStep> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppTheme.cardWhite,
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        boxShadow: AppTheme.cardShadow,
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -397,19 +438,24 @@ class _TypePricingStepState extends State<TypePricingStep> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+                  color: const Color(0xFF8E24AA).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
                   Icons.category_rounded,
-                  color: AppTheme.primaryBlue,
+                  color: Color(0xFF8E24AA),
                   size: 20,
                 ),
               ),
               const SizedBox(width: 12),
-              Text(
+              const Text(
                 'Property Type Selection',
-                style: AppTheme.titleLarge,
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1B5993),
+                ),
               ),
             ],
           ),
@@ -509,36 +555,47 @@ class _TypePricingStepState extends State<TypePricingStep> {
   Widget _buildBasicListingSection(PropertyFormData formData) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppTheme.cardWhite,
+        decoration: BoxDecoration(
+          color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: AppTheme.cardShadow,
-      ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+            ),
+          ],
+        ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header with icon
           Row(
-            children: [
-              Container(
+          children: [
+            Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryBlue.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
+              decoration: BoxDecoration(
+                  color: const Color(0xFF1B5993).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
                 child: const Icon(
                   Icons.description_rounded,
-                  color: AppTheme.primaryBlue,
+                  color: Color(0xFF1B5993),
                   size: 20,
                 ),
               ),
               const SizedBox(width: 12),
-              Text(
+              const Text(
                 'Basic Listing Information',
-                style: AppTheme.titleLarge,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                  fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                  color: Color(0xFF1B5993),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
           
           const SizedBox(height: 24),
           
@@ -582,46 +639,6 @@ class _TypePricingStepState extends State<TypePricingStep> {
                 title: formData.title,
                 description: formData.description,
                 listingDuration: value,
-              );
-              // Also update propertyDuration for API compatibility
-              formData.updateTypePricing(
-                propertyDuration: value,
-                propertyTypeId: formData.propertyTypeId,
-                category: formData.category,
-                price: formData.price,
-                rentPrice: formData.rentPrice,
-              );
-            },
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // Listing Duration Dropdown
-          _buildDropdownField(
-            label: 'Listing Duration *',
-            value: _selectedListingDuration,
-            items: _listingDurations,
-            onChanged: (value) {
-              setState(() {
-                _selectedListingDuration = value;
-              });
-              formData.updatePropertyTypeAndListing(
-                category: formData.category,
-                propertyTypeId: formData.propertyTypeId,
-                propertyTypeName: formData.propertyTypeName,
-                propertySubtypeId: formData.propertySubtypeId,
-                propertySubtypeName: formData.propertySubtypeName,
-                title: formData.title,
-                description: formData.description,
-                listingDuration: value,
-              );
-              // Also update propertyDuration for API compatibility
-              formData.updateTypePricing(
-                propertyDuration: value,
-                propertyTypeId: formData.propertyTypeId,
-                category: formData.category,
-                price: formData.price,
-                rentPrice: formData.rentPrice,
               );
             },
           ),
@@ -701,17 +718,17 @@ class _TypePricingStepState extends State<TypePricingStep> {
             fontFamily: 'Inter',
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppTheme.primaryBlue,
+            color: Color(0xFF1B5993),
             letterSpacing: 0.2,
           ),
         ),
         const SizedBox(height: 8),
             Container(
               decoration: BoxDecoration(
-            color: AppTheme.cardWhite,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-              color: AppTheme.textLight.withValues(alpha: 0.3),
+              color: Colors.grey.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -722,7 +739,7 @@ class _TypePricingStepState extends State<TypePricingStep> {
               hintStyle: const TextStyle(
                 fontFamily: 'Inter',
                 fontSize: 16,
-                color: AppTheme.textLight,
+                color: Colors.grey,
                 fontWeight: FontWeight.w400,
               ),
               border: InputBorder.none,
@@ -744,7 +761,7 @@ class _TypePricingStepState extends State<TypePricingStep> {
                   )
                 : const Icon(
                     Icons.keyboard_arrow_down,
-                    color: AppTheme.primaryBlue,
+                    color: Color(0xFF1B5993),
                     size: 20,
                   ),
             ),
@@ -782,18 +799,21 @@ class _TypePricingStepState extends State<TypePricingStep> {
       children: [
         Text(
           label,
-          style: AppTheme.titleMedium.copyWith(
+          style: const TextStyle(
+            fontFamily: 'Inter',
             fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1B5993),
             letterSpacing: 0.2,
           ),
         ),
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: AppTheme.cardWhite,
-            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.borderGrey,
+              color: Colors.grey.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -801,13 +821,19 @@ class _TypePricingStepState extends State<TypePricingStep> {
             controller: controller,
             maxLines: maxLines,
             onChanged: onChanged,
-            style: AppTheme.bodyMedium.copyWith(
-              color: AppTheme.textPrimary,
+            style: const TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.black,
             ),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: AppTheme.bodyMedium.copyWith(
-                color: AppTheme.textLight,
+              hintStyle: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 16,
+                color: Colors.grey,
+                fontWeight: FontWeight.w400,
               ),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
@@ -816,7 +842,7 @@ class _TypePricingStepState extends State<TypePricingStep> {
               ),
               prefixIcon: Icon(
                 icon,
-                color: AppTheme.primaryBlue,
+                color: const Color(0xFF1B5993),
                 size: 20,
               ),
             ),

@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../services/customer_properties_service.dart';
 import '../models/customer_property.dart';
 import '../core/theme/app_theme.dart';
+import 'listing_detail_screen.dart';
 
 class MyListingsScreen extends StatefulWidget {
   const MyListingsScreen({super.key});
@@ -35,18 +36,23 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     });
 
     try {
+      // If you want to test with a provided token, you can temporarily pass it here.
+      // final result = await _service.getCustomerProperties(overrideToken: 'YOUR_TEST_TOKEN');
       final result = await _service.getCustomerProperties();
       
-      if (result['success']) {
+      if (result['success'] == true) {
         final data = result['data'];
         List<CustomerProperty> properties = [];
         
         // Parse properties from API response
-        if (data['properties'] != null) {
+        if (data is Map && data['properties'] is List) {
           final propertiesList = data['properties'] as List;
           properties = propertiesList.map((json) => CustomerProperty.fromJson(json)).toList();
         } else if (data is List) {
           properties = data.map((json) => CustomerProperty.fromJson(json)).toList();
+        } else if (data is Map && data['data'] is List) {
+          final propertiesList = data['data'] as List;
+          properties = propertiesList.map((json) => CustomerProperty.fromJson(json)).toList();
         }
         
         // Load approval status for each property
@@ -56,9 +62,10 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         
         setState(() {
           _properties = properties;
-          _filteredProperties = properties;
           _isLoading = false;
         });
+        // Apply current filter (defaults to Pending)
+        _applyFilter(_selectedFilter);
       } else {
         setState(() {
           _error = result['message'] ?? 'Failed to load properties';
@@ -394,7 +401,14 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
   }
 
   Widget _buildPropertyCard(CustomerProperty property) {
-    return Container(
+    return InkWell(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ListingDetailScreen(property: property),
+        ),
+      ),
+      child: Container(
       margin: EdgeInsets.only(bottom: 16.h),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -410,7 +424,9 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Property Image or Placeholder
+            // Property Image with Status Overlay
+            Stack(
+              children: [
           Container(
             height: 200.h,
             decoration: BoxDecoration(
@@ -435,6 +451,13 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                     ),
                   )
                 : _buildPlaceholderImage(),
+                ),
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: _buildStatusPill(property),
+                ),
+              ],
           ),
           
           // Property Details
@@ -466,12 +489,16 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                 
                 SizedBox(height: 8.h),
                 
-                // Purpose and Category
-                Row(
+                  // Quick Facts row (area, type, purpose)
+                  Wrap(
+                    spacing: 8.w,
+                    runSpacing: 8.h,
                   children: [
+                      if (property.area != null && property.area!.isNotEmpty)
+                        _buildInfoChip('${property.area} ${property.areaUnit ?? ''}'.trim(), Icons.straighten),
+                      if (property.propertyType != null && property.propertyType!.isNotEmpty)
+                        _buildInfoChip(property.propertyType!, Icons.house),
                     _buildInfoChip(property.purpose, Icons.sell),
-                    SizedBox(width: 8.w),
-                    _buildInfoChip(property.category, Icons.category),
                   ],
                 ),
                 
@@ -578,6 +605,21 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                   ),
                   SizedBox(height: 8.h),
                 ],
+
+                  // Short Description
+                  if (property.description.isNotEmpty) ...[
+                    Text(
+                      property.description,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 12.sp,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                  ],
                 
                 // Created Date
                 if (property.createdAt != null) ...[
@@ -594,6 +636,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
             ),
           ),
         ],
+        ),
       ),
     );
   }
@@ -709,6 +752,45 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
               fontSize: 10.sp,
               fontWeight: FontWeight.w500,
               color: AppTheme.primaryBlue,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Top-right status pill overlay (e.g., Available/Pending/Rejected)
+  Widget _buildStatusPill(CustomerProperty property) {
+    final bg = property.statusColor.withValues(alpha: 0.12);
+    final fg = property.statusColor;
+    final text = property.isApproved ? 'Available' : property.statusText;
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: fg.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            property.isApproved
+                ? Icons.check_circle
+                : property.isRejected
+                    ? Icons.cancel
+                    : Icons.hourglass_top,
+            size: 14.sp,
+            color: fg,
+          ),
+          SizedBox(width: 6.w),
+          Text(
+            text,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w700,
+              color: fg,
             ),
           ),
         ],

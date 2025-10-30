@@ -18,6 +18,9 @@ class CustomerProperty {
   final String? building;
   final String? floor;
   final String? apartmentNumber;
+  final double? latitude;
+  final double? longitude;
+  final String? paymentMethod;
   final List<String> images;
   final List<String> videos;
   final List<String> amenities;
@@ -46,6 +49,9 @@ class CustomerProperty {
     this.building,
     this.floor,
     this.apartmentNumber,
+    this.latitude,
+    this.longitude,
+    this.paymentMethod,
     this.images = const [],
     this.videos = const [],
     this.amenities = const [],
@@ -74,12 +80,24 @@ class CustomerProperty {
       building: json['building']?.toString(),
       floor: json['floor']?.toString(),
       apartmentNumber: json['apartment_number']?.toString(),
+      latitude: _toDouble(json['latitude']),
+      longitude: _toDouble(json['longitude']),
+      paymentMethod: json['payment_method']?.toString(),
       images: _parseStringList(json['images']),
       videos: _parseStringList(json['videos']),
       amenities: _parseStringList(json['amenities']),
       createdAt: json['created_at']?.toString(),
       updatedAt: json['updated_at']?.toString(),
     );
+  }
+
+  static double? _toDouble(dynamic v) {
+    if (v == null) return null;
+    if (v is num) return v.toDouble();
+    if (v is String) {
+      return double.tryParse(v);
+    }
+    return null;
   }
 
   static List<String> _parseStringList(dynamic value) {
@@ -118,6 +136,9 @@ class CustomerProperty {
       'building': building,
       'floor': floor,
       'apartment_number': apartmentNumber,
+      'latitude': latitude,
+      'longitude': longitude,
+      'payment_method': paymentMethod,
       'images': images,
       'videos': videos,
       'amenities': amenities,
