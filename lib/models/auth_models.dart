@@ -206,6 +206,8 @@ class RegisterRequest {
   final String cnic;
   final String password;
   final String passwordConfirmation;
+  final String? isOverseas; // Optional: "0" or "1"
+  final String? isSeller; // Optional: "0" or "1"
 
   RegisterRequest({
     required this.name,
@@ -214,10 +216,12 @@ class RegisterRequest {
     required this.cnic,
     required this.password,
     required this.passwordConfirmation,
+    this.isOverseas,
+    this.isSeller,
   });
 
   Map<String, String> toFormData() {
-    return {
+    final data = {
       'name': name,
       'email': email,
       'phone': phone,
@@ -225,6 +229,16 @@ class RegisterRequest {
       'password': password,
       'password_confirmation': passwordConfirmation,
     };
+    
+    // Add optional fields if provided
+    if (isOverseas != null && isOverseas!.isNotEmpty) {
+      data['is_overseas'] = isOverseas!;
+    }
+    if (isSeller != null && isSeller!.isNotEmpty) {
+      data['is_seller'] = isSeller!;
+    }
+    
+    return data;
   }
 }
 

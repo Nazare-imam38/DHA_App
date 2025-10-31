@@ -8,6 +8,7 @@ class CustomerProperty {
   final String purpose; // Sell or Rent
   final String category; // Residential or Commercial
   final String? propertyType;
+  final int? propertyTypeId; // Property type ID from API
   final String? price;
   final String? rentPrice;
   final String? location;
@@ -24,6 +25,7 @@ class CustomerProperty {
   final List<String> images;
   final List<String> videos;
   final List<String> amenities;
+  final Map<String, dynamic>? amenitiesByCategory; // Store amenities grouped by category
   final String? createdAt;
   final String? updatedAt;
   
@@ -39,6 +41,7 @@ class CustomerProperty {
     required this.purpose,
     required this.category,
     this.propertyType,
+    this.propertyTypeId,
     this.price,
     this.rentPrice,
     this.location,
@@ -55,6 +58,7 @@ class CustomerProperty {
     this.images = const [],
     this.videos = const [],
     this.amenities = const [],
+    this.amenitiesByCategory,
     this.createdAt,
     this.updatedAt,
     this.approvalStatus,
@@ -63,29 +67,50 @@ class CustomerProperty {
   });
 
   factory CustomerProperty.fromJson(Map<String, dynamic> json) {
+    final propertyId = json['id']?.toString() ?? '';
+    final amenitiesData = json['amenities'];
+    final parsedAmenities = _parseAmenitiesList(amenitiesData);
+    final parsedAmenitiesByCategory = _parseAmenitiesByCategory(amenitiesData, json['amenities_by_category']);
+    final mediaData = json['images'] ?? json['media'];
+    final parsedImages = _parseMediaList(mediaData);
+    
+    print('🏠 Parsing property $propertyId');
+    print('   📸 Media/Images: ${parsedImages.length} items');
+    print('   🎯 Amenities: ${parsedAmenities.length} items, Categories: ${parsedAmenitiesByCategory?.keys.length ?? 0}');
+    if (parsedAmenitiesByCategory != null) {
+      parsedAmenitiesByCategory.forEach((cat, items) {
+        print('   📁 Category "$cat": ${items.length} amenities');
+      });
+    }
+    
     return CustomerProperty(
       id: json['id']?.toString() ?? '',
       title: json['title']?.toString() ?? '',
       description: json['description']?.toString() ?? '',
       purpose: json['purpose']?.toString() ?? '',
-      category: json['category']?.toString() ?? '',
-      propertyType: json['property_type']?.toString(),
+      category: _stringOrName(json['category']) ?? '',
+      propertyType: _stringOrName(json['property_type']),
+      propertyTypeId: json['property_type_id'] is int 
+          ? json['property_type_id'] as int
+          : (json['property_type_id'] != null ? int.tryParse(json['property_type_id'].toString()) : null) ??
+            (json['property_type'] is Map ? (json['property_type'] as Map)['id'] as int? : null),
       price: json['price']?.toString(),
       rentPrice: json['rent_price']?.toString(),
-      location: json['location']?.toString(),
-      phase: json['phase']?.toString(),
-      sector: json['sector']?.toString(),
-      area: json['area']?.toString(),
+      location: _stringOrName(json['location']),
+      phase: _stringOrName(json['phase']),
+      sector: _stringOrName(json['sector']),
+      area: json['area']?.toString() ?? json['size']?.toString(), // API uses 'size' field
       areaUnit: json['area_unit']?.toString(),
       building: json['building']?.toString(),
       floor: json['floor']?.toString(),
-      apartmentNumber: json['apartment_number']?.toString(),
+      apartmentNumber: json['apartment_number']?.toString() ?? json['unit_no']?.toString(), // API uses 'unit_no'
       latitude: _toDouble(json['latitude']),
       longitude: _toDouble(json['longitude']),
       paymentMethod: json['payment_method']?.toString(),
-      images: _parseStringList(json['images']),
+      images: parsedImages,
       videos: _parseStringList(json['videos']),
-      amenities: _parseStringList(json['amenities']),
+      amenities: parsedAmenities,
+      amenitiesByCategory: parsedAmenitiesByCategory,
       createdAt: json['created_at']?.toString(),
       updatedAt: json['updated_at']?.toString(),
     );
@@ -103,19 +128,163 @@ class CustomerProperty {
   static List<String> _parseStringList(dynamic value) {
     if (value == null) return [];
     if (value is List) {
-      return value.map((e) => e.toString()).toList();
+      // Support list of strings or list of maps with url-like fields
+      return value.map((e) {
+        if (e is Map) {
+          final v = e['url'] ?? e['image_url'] ?? e['full_url'] ?? e['src'] ?? e['path'] ?? e['file'] ?? e['image'];
+          return v?.toString() ?? e.toString();
+        }
+        return e.toString();
+      }).toList();
     }
     if (value is String) {
       try {
         // Try to parse as JSON array
         final List<dynamic> parsed = json.decode(value);
-        return parsed.map((e) => e.toString()).toList();
+        return parsed.map((e) {
+          if (e is Map) {
+            final v = e['url'] ?? e['image_url'] ?? e['full_url'] ?? e['src'] ?? e['path'] ?? e['file'] ?? e['image'];
+            return v?.toString() ?? e.toString();
+          }
+          return e.toString();
+        }).toList();
       } catch (e) {
         // If not JSON, split by comma
         return value.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
       }
     }
     return [];
+  }
+
+  static List<String> _parseMediaList(dynamic value) {
+    if (value == null) return [];
+    if (value is List) {
+      print('📸 Parsing media list with ${value.length} items');
+      final images = value.where((e) {
+        // Only include images (not videos)
+        if (e is Map) {
+          final mediaType = e['media_type']?.toString() ?? e['type']?.toString() ?? '';
+          final typeLower = mediaType.toLowerCase();
+          print('   📷 Media item type: "$mediaType"');
+          // Check for video types - skip them
+          if (typeLower == 'video' || typeLower == 'videos') {
+            print('   ⏭️ Skipping video');
+            return false;
+          }
+          // Include if it's "Image" (case-insensitive) or if no type specified (assume image)
+          if (typeLower == 'image' || mediaType.isEmpty) {
+            print('   ✅ Including image');
+            return true;
+          }
+          // If type is something else, skip it
+          print('   ❓ Unknown type, skipping');
+          return false;
+        }
+        // Non-map items are included (strings, etc.)
+        return true;
+      }).map((e) {
+        if (e is Map) {
+          // API uses 'media_link' field
+          final v = e['media_link'] ?? 
+                   e['url'] ?? 
+                   e['image_url'] ?? 
+                   e['full_url'] ?? 
+                   e['src'] ?? 
+                   e['path'] ?? 
+                   e['file'] ?? 
+                   e['image'] ?? 
+                   e['media_url'];
+          final url = v?.toString();
+          if (url != null) {
+            print('   ✅ Extracted image URL: ${url.substring(0, url.length > 50 ? 50 : url.length)}...');
+          } else {
+            print('   ❌ No URL found in media item: $e');
+          }
+          return url;
+        }
+        return e?.toString();
+      }).whereType<String>().toList();
+      print('📸 Final parsed images: ${images.length}');
+      return images;
+    }
+    print('📸 Media is not a list, using fallback parser');
+    return _parseStringList(value);
+  }
+
+  static String? _stringOrName(dynamic v) {
+    if (v == null) return null;
+    if (v is String) return v;
+    if (v is Map) {
+      final candidate = v['name'] ?? v['title'] ?? v['label'];
+      return candidate?.toString();
+    }
+    return v.toString();
+  }
+
+  static List<String> _parseAmenitiesList(dynamic value) {
+    if (value == null) return [];
+    if (value is List) {
+      return value.map((e) {
+        if (e is Map) {
+          // Extract amenity name from the object
+          return e['amenity_name']?.toString() ?? e['name']?.toString() ?? e.toString();
+        }
+        // If it's a number (ID), we'll need to resolve it later - return empty for now
+        // The actual name will be resolved in the UI layer
+        if (e is num) {
+          return ''; // Will be resolved later using AmenitiesService
+        }
+        return e.toString();
+      }).where((name) => name.isNotEmpty).toList();
+    }
+    return _parseStringList(value);
+  }
+
+  static Map<String, dynamic>? _parseAmenitiesByCategory(dynamic amenities, dynamic amenitiesByCategory) {
+    // If API provides amenities_by_category, use it
+    if (amenitiesByCategory is Map) {
+      return Map<String, dynamic>.from(amenitiesByCategory);
+    }
+    // Parse from amenities array - group by amenity_type (category)
+    if (amenities is List && amenities.isNotEmpty) {
+      Map<String, List<Map<String, dynamic>>> grouped = {};
+      for (var item in amenities) {
+        if (item is Map) {
+          // Use amenity_type as the category (e.g., "Basic Utilities", "Security & Safety")
+          final category = item['amenity_type']?.toString() ?? 
+                          item['category']?.toString() ?? 
+                          item['category_name']?.toString() ?? 
+                          'Other';
+          
+          if (!grouped.containsKey(category)) {
+            grouped[category] = [];
+          }
+          
+          // Store the full amenity object or at least the name
+          grouped[category]!.add({
+            'id': item['id'],
+            'name': item['amenity_name'] ?? item['name'],
+            'description': item['description'],
+            'amenity_type': category,
+          });
+        } else if (item is num) {
+          // Handle case where amenities come back as just IDs (numbers)
+          // Store with ID only, name will be resolved later
+          // We'll group them under 'Other' temporarily, they'll be properly categorized when resolved
+          if (!grouped.containsKey('Other')) {
+            grouped['Other'] = [];
+          }
+          grouped['Other']!.add({
+            'id': item.toInt(),
+            'name': null, // Will be resolved later
+            'description': null,
+            'amenity_type': 'Other',
+          });
+        }
+      }
+      return grouped.isNotEmpty ? grouped : null;
+    }
+    return null;
   }
 
   Map<String, dynamic> toJson() {

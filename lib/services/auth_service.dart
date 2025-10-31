@@ -87,15 +87,29 @@ class AuthService {
   // 1. User Registration
   Future<RegisterResponse> register(RegisterRequest request) async {
     try {
+      final formData = request.toFormData();
+      
+      // Encode form data properly for application/x-www-form-urlencoded
+      final body = formData.entries
+          .map((e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+          .join('&');
+      
+      print('📤 Registration request data: $formData');
+      print('📤 Encoded body: $body');
+      
       final response = await http.post(
         Uri.parse('$baseUrl/register'),
         headers: await _getHeaders(),
-        body: request.toFormData(),
+        body: body,
       );
+
+      print('📥 Registration response status: ${response.statusCode}');
+      print('📥 Registration response body: ${response.body}');
 
       final data = _handleResponse(response);
       return RegisterResponse.fromJson(data);
     } catch (e) {
+      print('❌ Registration error: $e');
       throw Exception('Registration failed: $e');
     }
   }

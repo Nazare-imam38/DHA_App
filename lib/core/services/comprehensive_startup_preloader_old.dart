@@ -95,8 +95,8 @@ class ComprehensiveStartupPreloader {
     final results = await Future.wait(futures);
     
     // Filter out null results and convert to UnifiedMemoryCache BoundaryPolygon
-    final validBoundaries = results.where((boundary) => boundary != null).cast<BoundaryPolygon>();
-    final unifiedBoundaries = validBoundaries.map((boundary) => 
+    final validBoundaries = results.where((boundary) => boundary != null).cast<cache.BoundaryPolygon?>();
+    final unifiedBoundaries = validBoundaries.whereType<cache.BoundaryPolygon>().map((boundary) => 
       cache.BoundaryPolygon(
         phaseName: boundary.phaseName,
         polygons: boundary.polygons,
@@ -114,7 +114,7 @@ class ComprehensiveStartupPreloader {
   }
   
   /// Load a single boundary file
-  static Future<BoundaryPolygon?> _loadBoundaryFile(String filePath) async {
+  static Future<cache.BoundaryPolygon?> _loadBoundaryFile(String filePath) async {
     try {
       final jsonString = await rootBundle.loadString(filePath);
       final jsonData = jsonDecode(jsonString);
@@ -130,7 +130,7 @@ class ComprehensiveStartupPreloader {
   }
   
   /// Parse GeoJSON boundary data
-  static BoundaryPolygon? _parseGeoJsonBoundary(Map<String, dynamic> geoJson, String phaseName) {
+  static cache.BoundaryPolygon? _parseGeoJsonBoundary(Map<String, dynamic> geoJson, String phaseName) {
     try {
       if (geoJson['type'] != 'FeatureCollection') return null;
       
@@ -174,7 +174,7 @@ class ComprehensiveStartupPreloader {
         'Phase7': 0xFF795548,
       };
       
-      return BoundaryPolygon(
+      return cache.BoundaryPolygon(
         phaseName: phaseName,
         polygons: polygons,
         color: Color(phaseColors[phaseName] ?? 0xFF4CAF50),

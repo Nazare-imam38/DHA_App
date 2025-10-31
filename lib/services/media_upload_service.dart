@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'auth_service.dart';
+import 'package:image/image.dart' as img;
 
 class MediaUploadService {
   static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
@@ -45,28 +46,52 @@ class MediaUploadService {
       propertyData.forEach((key, value) {
         if (value != null) {
           if (key == 'amenities' && value is List) {
-            // Handle amenities array specially
-            for (int i = 0; i < value.length; i++) {
-              request.fields['amenities[$i]'] = value[i].toString();
+            // Handle amenities array specially - Laravel expects indexed array format
+            print('🏠 Adding ${value.length} amenities to request');
+            print('🏠 Amenities list: $value');
+            if (value.isEmpty) {
+              print('⚠️ WARNING: Amenities list is EMPTY!');
+            } else {
+              for (int i = 0; i < value.length; i++) {
+                final amenityId = value[i].toString().trim();
+                if (amenityId.isNotEmpty) {
+                  print('   ✅ Adding amenities[$i]: $amenityId');
+                  // Use indexed format for Laravel array parsing
+                  request.fields['amenities[$i]'] = amenityId;
+                } else {
+                  print('   ⚠️ Skipping empty amenity at index $i');
+                }
+              }
+              print('🏠 Total amenities fields added: ${value.length}');
             }
           } else {
             request.fields[key] = value.toString();
           }
         }
       });
+      
+      // Debug: Print all amenities fields being sent
+      print('🔍 Final request fields for amenities:');
+      int amenitiesCount = 0;
+      request.fields.forEach((k, v) {
+        if (k.startsWith('amenities')) {
+          print('   $k = $v');
+          amenitiesCount++;
+        }
+      });
+      print('🔍 Total amenities fields in request: $amenitiesCount');
+      
+      // Also print all fields for debugging
+      print('📋 All request fields:');
+      request.fields.forEach((k, v) {
+        print('   $k = $v');
+      });
 
-      // Add images to the request
+      // Add images to the request (with compression to avoid 413 errors)
       for (int i = 0; i < images.length; i++) {
         final imageFile = images[i];
         final fileName = path.basename(imageFile.path);
         final fileExtension = path.extension(fileName).toLowerCase();
-        
-        // Validate file size (3MB limit for images)
-        final fileSize = await imageFile.length();
-        if (fileSize > 3 * 1024 * 1024) {
-          print('⚠️ Image $fileName is too large (${(fileSize / (1024 * 1024)).toStringAsFixed(1)}MB). Skipping...');
-          continue;
-        }
 
         // Validate file type
         if (!['.jpg', '.jpeg', '.png', '.gif', '.webp'].contains(fileExtension)) {
@@ -74,13 +99,38 @@ class MediaUploadService {
           continue;
         }
 
-        print('📸 Adding image $fileName to request');
+        // Read and compress to ~0.9MB max to satisfy nginx small body limits
+        final originalBytes = await imageFile.readAsBytes();
+        img.Image? decoded;
+        try {
+          decoded = img.decodeImage(originalBytes);
+        } catch (_) {}
+
+        if (decoded == null) {
+          print('⚠️ Could not decode image $fileName, sending as-is');
+          request.files.add(
+            await http.MultipartFile.fromPath('images[]', imageFile.path, filename: fileName),
+          );
+          continue;
+        }
+
+        // Resize if very large
+        const maxSide = 1920; // keep quality but reduce extremes
+        if (decoded.width > maxSide || decoded.height > maxSide) {
+          decoded = img.copyResize(decoded, width: decoded.width > decoded.height ? maxSide : null, height: decoded.height >= decoded.width ? maxSide : null);
+        }
+
+        // Iteratively lower quality to keep under 900KB
+        int quality = 85;
+        List<int> encoded = img.encodeJpg(decoded, quality: quality);
+        while (encoded.length > 900 * 1024 && quality > 50) {
+          quality -= 5;
+          encoded = img.encodeJpg(decoded, quality: quality);
+        }
+
+        print('📸 Adding compressed image $fileName (${(encoded.length/1024).round()}KB, q=$quality)');
         request.files.add(
-          await http.MultipartFile.fromPath(
-            'images[]', // API expects images[] array
-            imageFile.path,
-            filename: fileName,
-          ),
+          http.MultipartFile.fromBytes('images[]', encoded, filename: path.setExtension(fileName, '.jpg')),
         );
       }
 

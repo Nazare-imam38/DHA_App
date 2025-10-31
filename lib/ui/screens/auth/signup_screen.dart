@@ -31,6 +31,8 @@ class _SignupScreenState extends State<SignupScreen>
   bool _obscureConfirmPassword = true;
   bool _isLoading = false;
   bool _agreeToTerms = false;
+  bool _isOverseas = false; // Default to false (0)
+  bool _isSeller = false; // Default to false (0)
   String _captchaText = '';
   final Random _random = Random();
   
@@ -131,6 +133,8 @@ class _SignupScreenState extends State<SignupScreen>
           cnic: _cnicController.text.trim(),
           password: _passwordController.text,
           passwordConfirmation: _confirmPasswordController.text,
+          isOverseas: _isOverseas ? '1' : '0',
+          isSeller: _isSeller ? '1' : '0',
         ));
         
         if (mounted) {
@@ -372,6 +376,10 @@ class _SignupScreenState extends State<SignupScreen>
                         if (value == null || value.isEmpty) {
                           return 'Please enter your phone number';
                         }
+                        // Check if phone starts with + (country code required)
+                        if (!value.startsWith('+')) {
+                          return 'Phone number must include country code (e.g., +92...)';
+                        }
                         if (value.length < 10) {
                           return 'Please enter a valid phone number';
                         }
@@ -465,6 +473,70 @@ class _SignupScreenState extends State<SignupScreen>
                         }
                         return null;
                       },
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+
+                  // Is Overseas Checkbox
+                  SlideTransition(
+                    position: _slideAnimation,
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          value: _isOverseas,
+                          onChanged: (value) {
+                            setState(() {
+                              _isOverseas = value ?? false;
+                            });
+                          },
+                          activeColor: const Color(0xFF20B2AA),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            'I am an overseas user',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 14,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+
+                  // Is Seller Checkbox
+                  SlideTransition(
+                    position: _slideAnimation,
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          value: _isSeller,
+                          onChanged: (value) {
+                            setState(() {
+                              _isSeller = value ?? false;
+                            });
+                          },
+                          activeColor: const Color(0xFF20B2AA),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            'I am a seller',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 14,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 4),

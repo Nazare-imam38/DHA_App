@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../my_listings_screen.dart';
+import 'owner_details_step.dart';
+import 'review_confirmation_step.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -1059,29 +1062,16 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
       }
     }
 
-    // Branching: if user is posting on behalf and owner details missing -> ask now; else show review
+    // Branching after upload: Step 7 Owner Details if posting on behalf, otherwise go to review
     final isOnBehalf = formData.onBehalf == 1;
-    final ownerDetailsMissing = formData.onBehalf == 1 && (formData.name == null || formData.phone == null || formData.cnic == null || formData.address == null);
-
-    if (isOnBehalf && ownerDetailsMissing) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ChangeNotifierProvider.value(
-            value: formData,
-            child: ReviewConfirmationStep(),
-          ),
-        ),
-      );
-      return;
-    }
+    final needsOwner = isOnBehalf && (formData.name == null || formData.phone == null || formData.cnic == null || formData.address == null);
 
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ChangeNotifierProvider.value(
           value: formData,
-          child: ReviewConfirmationStep(),
+          child: needsOwner ? OwnerDetailsStep() : ReviewConfirmationStep(),
         ),
       ),
     );

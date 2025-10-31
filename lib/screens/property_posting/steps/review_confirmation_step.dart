@@ -289,10 +289,16 @@ class _ReviewConfirmationStepState extends State<ReviewConfirmationStep> {
     // Prepare amenities as array - ensure it's always an array
     List<String> amenitiesArray = [];
     if (formData.amenities.isNotEmpty) {
-      amenitiesArray = formData.amenities.map((e) => e.toString()).toList();
+      amenitiesArray = formData.amenities.map((e) => e.toString().trim()).where((e) => e.isNotEmpty).toList();
+      print('🏠 FormData amenities count: ${formData.amenities.length}');
+      print('🏠 FormData amenities: ${formData.amenities}');
+    } else {
+      print('⚠️ WARNING: No amenities found in formData!');
+      print('🏠 FormData amenities field: ${formData.amenities}');
     }
     
     print('🏠 Amenities being sent: $amenitiesArray');
+    print('🏠 Amenities count: ${amenitiesArray.length}');
     print('🏠 Amenities type: ${amenitiesArray.runtimeType}');
     print('🏠 Purpose: ${formData.purpose}, isRent: ${formData.isRent}');
     print('🏠 Price: ${formData.price}, RentPrice: ${formData.rentPrice}');

@@ -60,7 +60,7 @@ class PropertyFormData extends ChangeNotifier {
   List<File> videos = [];
   
   // Step 10: Amenities
-  List<String> amenities = []; // List of selected amenity IDs
+  List<String> amenities = []; // List of selected amenity names
   
   // Helper methods
   bool get isOwnProperty => onBehalf == 0;
@@ -86,10 +86,11 @@ class PropertyFormData extends ChangeNotifier {
                sector != null && streetNumber != null;
       case 6: return location != null && sector != null && 
                phase != null && latitude != null && longitude != null;
-      case 7: return unitNo != null;
-      case 8: return paymentMethod != null;
-      case 9: return true; // Optional step
-      case 10: return true; // Optional step
+      // Step 7 (Owner Details): valid automatically if own property, else require fields
+      case 7: return isOwnProperty || (cnic != null && name != null && phone != null && address != null);
+      case 8: return true; // Review
+      case 9: return true; // Optional
+      case 10: return true; // Optional
       default: return false;
     }
   }

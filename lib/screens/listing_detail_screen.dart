@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../models/customer_property.dart';
 import '../core/theme/app_theme.dart';
+import '../core/services/geocoding_service.dart';
 
 class ListingDetailScreen extends StatefulWidget {
   final CustomerProperty property;
@@ -14,6 +15,46 @@ class ListingDetailScreen extends StatefulWidget {
 }
 
 class _ListingDetailScreenState extends State<ListingDetailScreen> {
+  final GeocodingService _geocodingService = GeocodingService();
+  String? _geocodedAddress;
+  bool _isGeocoding = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _geocodeLocation();
+    // Amenities should already be parsed from the customer-properties API response
+    // with categories grouped by amenity_type field
+  }
+
+  Future<void> _geocodeLocation() async {
+    final property = widget.property;
+    if (property.latitude == null || property.longitude == null) return;
+    
+    setState(() {
+      _isGeocoding = true;
+    });
+    
+    try {
+      final address = await _geocodingService.reverseGeocode(
+        LatLng(property.latitude!, property.longitude!),
+      );
+      if (mounted) {
+        setState(() {
+          _geocodedAddress = address;
+          _isGeocoding = false;
+        });
+      }
+    } catch (e) {
+      print('Geocoding error: $e');
+      if (mounted) {
+        setState(() {
+          _isGeocoding = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final p = widget.property;
@@ -188,14 +229,27 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
   }
 
   Widget _buildFeatures(CustomerProperty p) {
-    final amenities = p.amenities;
+    final amenitiesByCategory = p.amenitiesByCategory;
+    final flatAmenities = p.amenities;
+    
+    // Debug logging
+    print('🔍 Features tab - Property ${p.id}');
+    print('   Flat amenities: ${flatAmenities.length}');
+    print('   Categories: ${amenitiesByCategory?.keys.length ?? 0}');
+    if (amenitiesByCategory != null) {
+      amenitiesByCategory.forEach((cat, items) {
+        print('   📁 "$cat": ${items.length} items');
+      });
+    }
+    
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Property Details Section
           Text(
-            'Plot Features',
+            'Property Details',
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: 16.sp,
@@ -204,24 +258,322 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
             ),
           ),
           SizedBox(height: 12.h),
-          if (amenities.isEmpty)
-            const Text('No features provided')
-          else
-            ...amenities.map((name) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
+          
+          // Property Type
+          if (p.propertyType != null && p.propertyType!.isNotEmpty)
+            Padding(
+              padding: EdgeInsets.only(bottom: 16.h),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(8.w),
+                    decoration: BoxDecoration(
+                      color: AppTheme.lightBlue,
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Icon(Icons.home, color: AppTheme.primaryBlue, size: 22.sp),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Property Type',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          p.propertyType!,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          
+          // Purpose
+          Padding(
+            padding: EdgeInsets.only(bottom: 16.h),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8.w),
+                  decoration: BoxDecoration(
+                    color: AppTheme.lightBlue,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Icon(Icons.sell, color: AppTheme.primaryBlue, size: 22.sp),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Purpose',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
+                      Text(
+                        p.purpose,
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // Location
+          if (p.fullLocation.isNotEmpty || (p.latitude != null && p.longitude != null))
+            Padding(
+              padding: EdgeInsets.only(bottom: 16.h),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(8.w),
+                    decoration: BoxDecoration(
+                      color: AppTheme.lightBlue,
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Icon(Icons.location_on, color: AppTheme.primaryBlue, size: 22.sp),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Location',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          p.fullLocation.isNotEmpty 
+                              ? p.fullLocation 
+                              : (p.latitude != null && p.longitude != null 
+                                  ? '${p.latitude}, ${p.longitude}' 
+                                  : 'Location not specified'),
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          
+          // Description
+          if (p.description.isNotEmpty)
+            Padding(
+              padding: EdgeInsets.only(bottom: 16.h),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(8.w),
+                    decoration: BoxDecoration(
+                      color: AppTheme.lightBlue,
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Icon(Icons.description, color: AppTheme.primaryBlue, size: 22.sp),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Description',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          p.description,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w400,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          
+          SizedBox(height: 24.h),
+          
+          // Amenities/Features Section
+          Text(
+            'Amenities & Features',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.primaryBlue,
+            ),
+          ),
+          SizedBox(height: 12.h),
+          
+          if (amenitiesByCategory != null && amenitiesByCategory.isNotEmpty) ...[
+            // Display amenities grouped by category
+            ...amenitiesByCategory.entries.map((entry) {
+              final categoryName = entry.key;
+              final amenities = entry.value;
+              
+              if (amenities == null) return const SizedBox.shrink();
+              
+              List<dynamic> amenityList = [];
+              if (amenities is List) {
+                amenityList = amenities;
+              } else if (amenities is String) {
+                amenityList = [amenities];
+              }
+              
+              if (amenityList.isEmpty) return const SizedBox.shrink();
+              
+              return Padding(
+                padding: EdgeInsets.only(bottom: 24.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      categoryName,
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.primaryBlue,
+                      ),
+                    ),
+                    SizedBox(height: 12.h),
+                    ...amenityList.map((amenity) {
+                      String name;
+                      if (amenity is Map) {
+                        name = amenity['name']?.toString() ?? 
+                               amenity['amenity_name']?.toString() ?? 
+                               amenity.toString();
+                      } else {
+                        name = amenity.toString();
+                      }
+                      return Padding(
+                        padding: EdgeInsets.symmetric(vertical: 6.h),
+                        child: Row(
+                          children: [
+                            Icon(Icons.check_circle, color: const Color(0xFF4CAF50), size: 18.sp),
+                            SizedBox(width: 8.w),
+                            Expanded(
+                              child: Text(
+                                name,
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 14.sp,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ],
+                ),
+              );
+            }).toList(),
+          ] else if (flatAmenities.isNotEmpty) ...[
+            // Fallback: display flat list if no category info
+            Text(
+              'Plot Features',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.primaryBlue,
+              ),
+            ),
+            SizedBox(height: 12.h),
+            ...flatAmenities.map((name) => Padding(
+                  padding: EdgeInsets.symmetric(vertical: 6.h),
                   child: Row(
                     children: [
-                      const Icon(Icons.check_circle, color: Color(0xFF4CAF50), size: 18),
-                      const SizedBox(width: 8),
+                      Icon(Icons.check_circle, color: const Color(0xFF4CAF50), size: 18.sp),
+                      SizedBox(width: 8.w),
                       Expanded(
                         child: Text(
                           name,
-                          style: const TextStyle(fontFamily: 'Inter'),
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14.sp,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 )),
+          ] else ...[
+            Text(
+              'Plot Features',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.primaryBlue,
+              ),
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              'No features provided',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14.sp,
+                color: AppTheme.textSecondary,
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -245,6 +597,72 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
             ),
           ),
           SizedBox(height: 12.h),
+          // Show geocoded address if available
+          if (lat != null && lng != null) ...[
+            if (_isGeocoding)
+              Padding(
+                padding: EdgeInsets.only(bottom: 12.h),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 16.w,
+                      height: 16.h,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      'Getting address...',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 14.sp,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else if (_geocodedAddress != null)
+              Padding(
+                padding: EdgeInsets.only(bottom: 12.h),
+                child: Row(
+                  children: [
+                    Icon(Icons.location_on, size: 18.sp, color: AppTheme.primaryBlue),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        _geocodedAddress!,
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 14.sp,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else if (p.fullLocation.isNotEmpty)
+              Padding(
+                padding: EdgeInsets.only(bottom: 12.h),
+                child: Row(
+                  children: [
+                    Icon(Icons.location_on, size: 18.sp, color: AppTheme.primaryBlue),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        '${p.fullLocation} (${lat}, ${lng})',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 14.sp,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            SizedBox(height: 12.h),
+          ],
           Container(
             height: 220.h,
             decoration: BoxDecoration(

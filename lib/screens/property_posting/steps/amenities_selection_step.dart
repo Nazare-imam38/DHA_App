@@ -110,25 +110,35 @@ class _AmenitiesSelectionStepState extends State<AmenitiesSelectionStep> {
 
   void _toggleAmenity(Map<String, dynamic> amenity) {
     final formData = context.read<PropertyFormData>();
-    final amenityId = amenity['id'].toString();
+    // Store amenity name instead of ID
+    final amenityName = amenity['name']?.toString() ?? amenity['amenity_name']?.toString() ?? '';
+    
+    if (amenityName.isEmpty) {
+      print('⚠️ Warning: Amenity has no name, skipping');
+      return;
+    }
     
     List<String> currentAmenities = List.from(formData.amenities);
     
-    if (currentAmenities.contains(amenityId)) {
-      currentAmenities.remove(amenityId);
+    if (currentAmenities.contains(amenityName)) {
+      currentAmenities.remove(amenityName);
     } else {
-      currentAmenities.add(amenityId);
+      currentAmenities.add(amenityName);
     }
     
     formData.updateAmenities(currentAmenities);
-    print('🔄 Updated amenities: $currentAmenities');
+    print('🔄 Updated amenities (names): $currentAmenities');
   }
 
   void _selectAll() {
     final formData = context.read<PropertyFormData>();
-    final allAmenityIds = _allAmenities.map((a) => a['id'].toString()).toList();
-    formData.updateAmenities(allAmenityIds);
-    print('✅ Selected all amenities: $allAmenityIds');
+    // Store amenity names instead of IDs
+    final allAmenityNames = _allAmenities
+        .map((a) => a['name']?.toString() ?? a['amenity_name']?.toString() ?? '')
+        .where((name) => name.isNotEmpty)
+        .toList();
+    formData.updateAmenities(allAmenityNames);
+    print('✅ Selected all amenities (names): $allAmenityNames');
   }
 
   void _clearAll() {

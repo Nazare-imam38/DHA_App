@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../models/property_form_data.dart';
+import '../../../services/auth_service.dart';
 import 'review_confirmation_step.dart';
-import '../../../core/theme/app_theme.dart';
 
 class OwnerDetailsStep extends StatefulWidget {
+  const OwnerDetailsStep({super.key});
+
   @override
-  _OwnerDetailsStepState createState() => _OwnerDetailsStepState();
+  State<OwnerDetailsStep> createState() => _OwnerDetailsStepState();
 }
 
 class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
@@ -17,7 +19,8 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
   final _emailController = TextEditingController();
-  
+  bool _loadingUser = false;
+
   @override
   void initState() {
     super.initState();
@@ -27,6 +30,38 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
     _phoneController.text = formData.phone ?? '';
     _addressController.text = formData.address ?? '';
     _emailController.text = formData.email ?? '';
+    if (formData.isOwnProperty) {
+      _prefillFromUser();
+    }
+  }
+
+  Future<void> _prefillFromUser() async {
+    setState(() => _loadingUser = true);
+    try {
+      final auth = AuthService();
+      final userInfo = await auth.getUserInfo();
+      final user = userInfo.data.user;
+      if (!mounted) return;
+      setState(() {
+        _nameController.text = user.name ?? '';
+        _cnicController.text = user.cnic ?? '';
+        _addressController.text = user.address ?? '';
+        _emailController.text = user.email ?? '';
+        _phoneController.text = user.phone ?? '';
+      });
+      final form = context.read<PropertyFormData>();
+      form.updateOwnerDetails(
+        cnic: _cnicController.text.trim(),
+        name: _nameController.text.trim(),
+        phone: _phoneController.text.trim(),
+        address: _addressController.text.trim(),
+        email: _emailController.text.trim(),
+      );
+    } catch (_) {
+      // ignore errors, allow manual fill
+    } finally {
+      if (mounted) setState(() => _loadingUser = false);
+    }
   }
 
   @override
@@ -41,217 +76,153 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
 
   @override
   Widget build(BuildContext context) {
-        return Scaffold(
-          backgroundColor: AppTheme.backgroundGrey,
-          appBar: AppBar(
-        backgroundColor: Colors.transparent,
-            elevation: 0,
-            leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppTheme.primaryBlue),
-              onPressed: () => Navigator.pop(context),
-            ),
-        title: const Text(
-          'Owner Details',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-            fontSize: 20,
-                    fontWeight: FontWeight.w700,
-            color: AppTheme.primaryBlue,
+    final formData = context.watch<PropertyFormData>();
+    final isOwn = formData.isOwnProperty;
+    final title = isOwn ? 'Owner Details (Your Info)' : 'Owner Details (On Behalf)';
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF1B5993), size: 16),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF1B5993),
           ),
         ),
-        centerTitle: true,
-          ),
-          body: SingleChildScrollView(
-        padding: EdgeInsets.all(24.w),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-              // Header
-                  Container(
-                padding: EdgeInsets.all(20.w),
-                    decoration: BoxDecoration(
-                      color: AppTheme.cardWhite,
-                  borderRadius: BorderRadius.circular(16.r),
-                      boxShadow: [
-                        BoxShadow(color: AppTheme.primaryBlue.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 4)) {
-                              return 'CNIC is required';
-                            }
-                  if (value.length < 13) {
-                    return 'Please enter a valid CNIC';
-                            }
-                            return null;
-                          },
-                keyboardType: TextInputType.number,
-                        ),
-                        
-              SizedBox(height: 16.h),
-                        
-                        // Name Field
-              _buildTextField(
-                          controller: _nameController,
-                label: 'Full Name',
-                          hint: 'Enter owner\'s full name',
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Name is required';
-                            }
-                            return null;
-                          },
-                        ),
-                        
-              SizedBox(height: 16.h),
-                        
-                        // Phone Field
-              _buildTextField(
-                          controller: _phoneController,
-                label: 'Phone Number',
-                hint: 'Enter phone number (e.g., +92 300 1234567)',
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Phone number is required';
-                            }
-                  if (value.length < 10) {
-                    return 'Please enter a valid phone number';
-                            }
-                            return null;
-                          },
-                keyboardType: TextInputType.phone,
-                        ),
-                        
-              SizedBox(height: 16.h),
-                        
-                        // Address Field
-              _buildTextField(
-                          controller: _addressController,
-                label: 'Address',
-                hint: 'Enter complete address',
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Address is required';
-                            }
-                            return null;
-                          },
-                maxLines: 3,
-                        ),
-                        
-              SizedBox(height: 16.h),
-                        
-              // Email Field
-              _buildTextField(
-                          controller: _emailController,
-                label: 'Email Address',
-                hint: 'Enter email address (optional)',
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (value) {
-                            if (value != null && value.isNotEmpty) {
-                              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                                return 'Please enter a valid email address';
-                              }
-                            }
-                            return null;
-                          },
-              ),
-
-              SizedBox(height: 32.h),
-
-              // Buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 16.h),
-                        side: BorderSide(color: AppTheme.primaryBlue, width: 2),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                      ),
-                      child: const Text(
-                        'Back',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                            color: AppTheme.primaryBlue,
-                          ),
-                        ),
+        centerTitle: false,
+      ),
+      body: _loadingUser
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: EdgeInsets.all(24.w),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildField(
+                      label: 'CNIC',
+                      controller: _cnicController,
+                      readOnly: isOwn,
+                      keyboardType: TextInputType.number,
+                      validator: (v) => v == null || v.trim().length != 13 ? 'Enter 13-digit CNIC' : null,
                     ),
-                  ),
-                  SizedBox(width: 16.w),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _nextStep,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryBlue,
-                        padding: EdgeInsets.symmetric(vertical: 16.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Continue',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.cardWhite,
-                        ),
-                      ),
-                          ),
-                        ),
-                      ],
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    _buildField(
+                      label: 'Name',
+                      controller: _nameController,
+                      readOnly: isOwn,
+                      validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildField(
+                      label: 'Phone',
+                      controller: _phoneController,
+                      readOnly: isOwn,
+                      keyboardType: TextInputType.phone,
+                      validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildField(
+                      label: 'Address',
+                      controller: _addressController,
+                      readOnly: isOwn,
+                      maxLines: 3,
+                      validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildField(
+                      label: 'Email (optional)',
+                      controller: _emailController,
+                      readOnly: isOwn,
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
+      bottomNavigationBar: Container(
+        padding: EdgeInsets.all(24.w),
+        color: Colors.white,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                if (isOwn || _formKey.currentState?.validate() == true) {
+                  final form = context.read<PropertyFormData>();
+                  form.updateOwnerDetails(
+                    cnic: _cnicController.text.trim(),
+                    name: _nameController.text.trim(),
+                    phone: _phoneController.text.trim(),
+                    address: _addressController.text.trim(),
+                    email: _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ReviewConfirmationStep(),
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1B5993),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              ),
+              child: const Text('Continue to Review'),
+            ),
+          ],
+        ),
+      ),
     );
   }
-  
-  Widget _buildTextField({
-    required TextEditingController controller,
+
+  Widget _buildField({
     required String label,
-    required String hint,
-    String? Function(String?)? validator,
+    required TextEditingController controller,
+    bool readOnly = false,
     TextInputType? keyboardType,
+    String? Function(String?)? validator,
     int maxLines = 1,
   }) {
-    return Container(
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: AppTheme.cardWhite,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(color: AppTheme.primaryBlue.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 4));
-  }
-
-  void _nextStep() {
-    if (_formKey.currentState!.validate()) {
-      final formData = context.read<PropertyFormData>();
-      
-      // Update form data with owner details
-      formData.updateOwnerDetails(
-        cnic: _cnicController.text.trim(),
-        name: _nameController.text.trim(),
-        phone: _phoneController.text.trim(),
-        address: _addressController.text.trim(),
-        email: _emailController.text.trim().isNotEmpty ? _emailController.text.trim() : null,
-      );
-
-      // Navigate to review confirmation
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ChangeNotifierProvider.value(
-            value: formData,
-            child: ReviewConfirmationStep(),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1B5993),
           ),
         ),
-      );
-    }
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          readOnly: readOnly,
+          keyboardType: keyboardType,
+          validator: validator,
+          maxLines: maxLines,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            fillColor: Colors.white,
+            filled: true,
+          ),
+        ),
+      ],
+    );
   }
 }

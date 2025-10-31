@@ -4,6 +4,10 @@ import '../services/customer_properties_service.dart';
 import '../models/customer_property.dart';
 import '../core/theme/app_theme.dart';
 import 'listing_detail_screen.dart';
+import '../core/services/geocoding_service.dart';
+import 'package:latlong2/latlong.dart';
+import 'update_property_screen.dart';
+import '../services/amenities_service.dart';
 
 class MyListingsScreen extends StatefulWidget {
   const MyListingsScreen({super.key});
@@ -14,10 +18,14 @@ class MyListingsScreen extends StatefulWidget {
 
 class _MyListingsScreenState extends State<MyListingsScreen> {
   final CustomerPropertiesService _service = CustomerPropertiesService();
+  final GeocodingService _geocodingService = GeocodingService();
+  final AmenitiesService _amenitiesService = AmenitiesService();
   List<CustomerProperty> _properties = [];
   List<CustomerProperty> _filteredProperties = [];
   bool _isLoading = true;
   String? _error;
+  final Map<String, String?> _geocodedAddresses = {}; // Cache geocoded addresses
+  final Map<int, Map<int, String>> _amenityIdToNameCache = {}; // propertyTypeId -> {amenityId -> name}
   
   // Filter options
   String _selectedFilter = 'All';
@@ -27,6 +35,38 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
   void initState() {
     super.initState();
     _loadProperties();
+  }
+
+  Future<void> _geocodeProperty(CustomerProperty property) async {
+    if (property.latitude == null || property.longitude == null) return;
+    
+    final cacheKey = '${property.latitude},${property.longitude}';
+    if (_geocodedAddresses.containsKey(cacheKey)) return;
+    
+    try {
+      final address = await _geocodingService.reverseGeocode(
+        LatLng(property.latitude!, property.longitude!),
+      );
+      if (mounted) {
+        setState(() {
+          _geocodedAddresses[cacheKey] = address;
+        });
+      }
+    } catch (e) {
+      print('Geocoding error for property ${property.id}: $e');
+    }
+  }
+
+  void _navigateToUpdateProperty(CustomerProperty property) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UpdatePropertyScreen(property: property),
+      ),
+    ).then((_) {
+      // Refresh properties after update
+      _loadProperties();
+    });
   }
 
   Future<void> _loadProperties() async {
@@ -55,10 +95,14 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           properties = propertiesList.map((json) => CustomerProperty.fromJson(json)).toList();
         }
         
-        // Load approval status for each property
+        // Load approval status for each property and geocode addresses
         for (var property in properties) {
           _loadApprovalStatus(property);
+          _geocodeProperty(property);
         }
+        
+        // Resolve amenity IDs to names
+        await _resolveAmenityNames(properties);
         
         setState(() {
           _properties = properties;
@@ -77,6 +121,106 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         _error = 'Error loading properties: $e';
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _resolveAmenityNames(List<CustomerProperty> properties) async {
+    // Collect all unique property type IDs
+    final propertyTypeIds = properties
+        .where((p) => p.propertyTypeId != null)
+        .map((p) => p.propertyTypeId!)
+        .toSet();
+    
+    // Fetch amenities for each property type and cache them
+    for (final propertyTypeId in propertyTypeIds) {
+      if (_amenityIdToNameCache.containsKey(propertyTypeId)) {
+        continue; // Already cached
+      }
+      
+      try {
+        final amenitiesByCategory = await _amenitiesService.fetchAmenitiesByPropertyType(
+          propertyTypeId: propertyTypeId,
+        );
+        
+        // Create ID to name and category mapping
+        final Map<int, String> idToName = {};
+        final Map<int, String> idToCategory = {}; // Also map IDs to their categories
+        for (final entry in amenitiesByCategory.entries) {
+          final categoryName = entry.key;
+          for (final amenity in entry.value) {
+            final id = amenity['id'] as int?;
+            final name = amenity['name'] as String?;
+            if (id != null && name != null) {
+              idToName[id] = name;
+              idToCategory[id] = categoryName;
+            }
+          }
+        }
+        
+        _amenityIdToNameCache[propertyTypeId] = idToName;
+        
+        // Resolve amenity names in properties
+        for (var property in properties) {
+          if (property.propertyTypeId == propertyTypeId && property.amenitiesByCategory != null) {
+            _resolvePropertyAmenities(property, idToName, idToCategory);
+          }
+        }
+      } catch (e) {
+        print('Error fetching amenities for property type $propertyTypeId: $e');
+      }
+    }
+  }
+  
+  void _resolvePropertyAmenities(CustomerProperty property, Map<int, String> idToName, Map<int, String> idToCategory) {
+    if (property.amenitiesByCategory == null) return;
+    
+    // First, collect all amenities that need to be re-categorized
+    final Map<String, List<Map<String, dynamic>>> recategorized = {};
+    
+    // Resolve amenity names and re-categorize if needed
+    property.amenitiesByCategory!.forEach((category, amenities) {
+      if (amenities is List) {
+        for (var amenity in amenities) {
+          if (amenity is Map<String, dynamic>) {
+            // Create a copy to avoid modifying the original
+            final amenityCopy = Map<String, dynamic>.from(amenity);
+            final id = amenityCopy['id'];
+            final name = amenityCopy['name'];
+            
+            // If name is null or empty, try to resolve from ID
+            if ((name == null || (name is String && name.isEmpty)) && id != null) {
+              final amenityId = id is int ? id : (id is num ? id.toInt() : int.tryParse(id.toString()));
+              if (amenityId != null && idToName.containsKey(amenityId)) {
+                amenityCopy['name'] = idToName[amenityId];
+                
+                // Re-categorize if we have category info and it's currently in "Other"
+                if (category == 'Other' && idToCategory.containsKey(amenityId)) {
+                  final correctCategory = idToCategory[amenityId]!;
+                  if (!recategorized.containsKey(correctCategory)) {
+                    recategorized[correctCategory] = <Map<String, dynamic>>[];
+                  }
+                  recategorized[correctCategory]!.add(amenityCopy);
+                  continue; // Skip adding to current category
+                }
+              }
+            }
+            
+            // Keep in current category if not re-categorized
+            final targetCategory = category;
+            if (!recategorized.containsKey(targetCategory)) {
+              recategorized[targetCategory] = <Map<String, dynamic>>[];
+            }
+            recategorized[targetCategory]!.add(amenityCopy);
+          }
+        }
+      }
+    });
+    
+    // Update amenitiesByCategory with resolved and properly categorized amenities
+    // We can modify the map contents since the map reference is final, not the contents
+    if (recategorized.isNotEmpty) {
+      property.amenitiesByCategory!.clear();
+      property.amenitiesByCategory!.addAll(recategorized);
     }
   }
 
@@ -339,7 +483,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
             ),
             SizedBox(height: 16.h),
             Text(
-              _selectedFilter == 'All' ? 'No Properties Found' : 'No ${_selectedFilter} Properties',
+              _selectedFilter == 'All' ? 'No Properties Found' : 'No $_selectedFilter Properties',
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontSize: 20.sp,
@@ -401,6 +545,12 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
   }
 
   Widget _buildPropertyCard(CustomerProperty property) {
+    // Debug: Check property images
+    print('🎴 Building card for property ${property.id} - Images: ${property.images.length}');
+    if (property.images.isNotEmpty) {
+      print('   📷 First image URL: ${property.images.first.substring(0, property.images.first.length > 80 ? 80 : property.images.first.length)}...');
+    }
+    
     return InkWell(
       onTap: () => Navigator.push(
         context,
@@ -436,18 +586,72 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
               ),
               color: AppTheme.lightBlue,
             ),
-            child: property.images.isNotEmpty
+            child: (property.images.isNotEmpty)
                 ? ClipRRect(
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(16.r),
                       topRight: Radius.circular(16.r),
                     ),
-                    child: Image.network(
-                      property.images.first,
-                      width: double.infinity,
-                      height: 200.h,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => _buildPlaceholderImage(),
+                    child: Stack(
+                      children: [
+                        PageView.builder(
+                          itemCount: property.images.length,
+                          itemBuilder: (context, idx) {
+                            final raw = property.images[idx];
+                            print('🖼️ Loading image ${idx + 1}/${property.images.length}: ${raw.substring(0, raw.length > 60 ? 60 : raw.length)}...');
+                            final url = raw.startsWith('http')
+                                ? raw
+                                : 'https://testingbackend.dhamarketplace.com${raw.startsWith('/') ? '' : '/'}$raw';
+                            return Image.network(
+                              url,
+                              width: double.infinity,
+                              height: 200.h,
+                              fit: BoxFit.cover,
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
+                                  height: 200.h,
+                                  color: AppTheme.lightBlue,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      value: loadingProgress.expectedTotalBytes != null
+                                          ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                          : null,
+                                    ),
+                                  ),
+                                );
+                              },
+                              errorBuilder: (context, error, stackTrace) {
+                                print('❌ Image load error: $error');
+                                return _buildPlaceholderImage();
+                              },
+                            );
+                          },
+                        ),
+                        // Simple dots indicator
+                        Positioned(
+                          bottom: 8,
+                          left: 0,
+                          right: 0,
+                          child: Center(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: List.generate(
+                                property.images.length,
+                                (index) => Container(
+                                  width: 6,
+                                  height: 6,
+                                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.8),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   )
                 : _buildPlaceholderImage(),
@@ -466,7 +670,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title and Status
+                // Title and Status with Edit Button
                 Row(
                   children: [
                     Expanded(
@@ -484,25 +688,37 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                     ),
                     SizedBox(width: 8.w),
                     _buildStatusChip(property),
+                    SizedBox(width: 8.w),
+                    // Edit Button
+                    IconButton(
+                      icon: Icon(
+                        Icons.edit_outlined,
+                        color: AppTheme.primaryBlue,
+                        size: 20.sp,
+                      ),
+                      onPressed: () => _navigateToUpdateProperty(property),
+                      tooltip: 'Edit Property',
+                      padding: EdgeInsets.zero,
+                      constraints: BoxConstraints(),
+                    ),
                   ],
                 ),
                 
                 SizedBox(height: 8.h),
                 
-                  // Quick Facts row (area, type, purpose)
-                  Wrap(
-                    spacing: 8.w,
-                    runSpacing: 8.h,
-                  children: [
-                      if (property.area != null && property.area!.isNotEmpty)
-                        _buildInfoChip('${property.area} ${property.areaUnit ?? ''}'.trim(), Icons.straighten),
-                      if (property.propertyType != null && property.propertyType!.isNotEmpty)
-                        _buildInfoChip(property.propertyType!, Icons.house),
-                    _buildInfoChip(property.purpose, Icons.sell),
-                  ],
-                ),
+                // Property Size
+                if (property.area != null && property.area!.isNotEmpty)
+                  Text(
+                    '${property.area} ${property.areaUnit ?? ''}'.trim(),
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
                 
-                SizedBox(height: 12.h),
+                SizedBox(height: 8.h),
                 
                 // Price
                 Text(
@@ -515,122 +731,13 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                   ),
                 ),
                 
-                SizedBox(height: 8.h),
-                
-                // Location
-                if (property.fullLocation.isNotEmpty) ...[
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.location_on,
-                        size: 16.sp,
-                        color: AppTheme.textSecondary,
-                      ),
-                      SizedBox(width: 4.w),
-                      Expanded(
-                        child: Text(
-                          property.fullLocation,
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 14.sp,
-                            color: AppTheme.textSecondary,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 8.h),
-                ],
-                
-                // Property Details
-                if (property.propertyDetails.isNotEmpty) ...[
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.straighten,
-                        size: 16.sp,
-                        color: AppTheme.textSecondary,
-                      ),
-                      SizedBox(width: 4.w),
-                      Text(
-                        property.propertyDetails,
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 14.sp,
-                          color: AppTheme.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 8.h),
-                ],
-                
-                // Approval Notes
-                if (property.approvalNotes != null && property.approvalNotes!.isNotEmpty) ...[
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(12.w),
-                    decoration: BoxDecoration(
-                      color: property.statusColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8.r),
-                      border: Border.all(
-                        color: property.statusColor.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Notes:',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w600,
-                            color: property.statusColor,
-                          ),
-                        ),
-                        SizedBox(height: 4.h),
-                        Text(
-                          property.approvalNotes!,
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 12.sp,
-                            color: property.statusColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                ],
-
-                  // Short Description
-                  if (property.description.isNotEmpty) ...[
-                    Text(
-                      property.description,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 12.sp,
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                  ],
-                
-                // Created Date
-                if (property.createdAt != null) ...[
-                  Text(
-                    'Posted: ${_formatDate(property.createdAt!)}',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 12.sp,
-                      color: AppTheme.textSecondary,
-                    ),
-                  ),
+                // Amenities
+                if (property.amenitiesByCategory != null && property.amenitiesByCategory!.isNotEmpty) ...[
+                  SizedBox(height: 12.h),
+                  _buildAmenitiesSection(property),
+                ] else if (property.amenities.isNotEmpty) ...[
+                  SizedBox(height: 12.h),
+                  _buildAmenitiesSection(property),
                 ],
               ],
             ),
@@ -638,6 +745,76 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         ],
         ),
       ),
+    );
+  }
+
+  Widget _buildAmenitiesSection(CustomerProperty property) {
+    // Get all amenity names to display
+    final List<String> amenityNames = [];
+    
+    if (property.amenitiesByCategory != null && property.amenitiesByCategory!.isNotEmpty) {
+      // Extract names from amenitiesByCategory
+      for (final category in property.amenitiesByCategory!.values) {
+        if (category is List) {
+          for (var amenity in category) {
+            if (amenity is Map) {
+              final name = amenity['name']?.toString();
+              if (name != null && name.isNotEmpty) {
+                amenityNames.add(name);
+              }
+            }
+          }
+        }
+      }
+    } else if (property.amenities.isNotEmpty) {
+      // Use flat amenities list
+      amenityNames.addAll(property.amenities.where((a) => a.isNotEmpty));
+    }
+    
+    if (amenityNames.isEmpty) return const SizedBox.shrink();
+    
+    // Show up to 3 amenities, with "and X more" if there are more
+    final displayAmenities = amenityNames.take(3).toList();
+    final remainingCount = amenityNames.length - displayAmenities.length;
+    
+    return Wrap(
+      spacing: 6.w,
+      runSpacing: 6.h,
+      children: [
+        ...displayAmenities.map((name) => Container(
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            color: AppTheme.lightBlue,
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Text(
+            name,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 11.sp,
+              fontWeight: FontWeight.w500,
+              color: AppTheme.primaryBlue,
+            ),
+          ),
+        )),
+        if (remainingCount > 0)
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+            decoration: BoxDecoration(
+              color: AppTheme.lightBlue,
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: Text(
+              '+$remainingCount more',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 11.sp,
+                fontWeight: FontWeight.w500,
+                color: AppTheme.textSecondary,
+              ),
+            ),
+          ),
+      ],
     );
   }
 

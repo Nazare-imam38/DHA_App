@@ -38,6 +38,13 @@ class CustomerPropertiesService {
           final map = Map<String, dynamic>.from(decoded);
           final dynamic inner = map['data'];
           if (inner is List) {
+            print('📦 Parsed ${inner.length} properties from customer-properties API');
+            // Debug: Check first property's amenities
+            if (inner.isNotEmpty && inner[0] is Map) {
+              final firstProp = inner[0] as Map;
+              final amenities = firstProp['amenities'];
+              print('🔍 First property amenities: $amenities (type: ${amenities.runtimeType})');
+            }
             return {'success': true, 'data': {'properties': inner}};
           }
           if (inner is Map<String, dynamic>) {
@@ -76,6 +83,52 @@ class CustomerPropertiesService {
       }
     } catch (e) {
       print('❌ Error fetching customer properties: $e');
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
+
+  // Get property details by ID (includes amenities)
+  Future<Map<String, dynamic>> getPropertyDetails(String propertyId) async {
+    try {
+      final token = await _authService.getToken();
+      if (token == null) {
+        return {
+          'success': false,
+          'message': 'Authentication token missing.',
+        };
+      }
+
+      print('🔍 Fetching property details for: $propertyId');
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/property/$propertyId'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('📊 Property Details Response Status: ${response.statusCode}');
+      print('📄 Property Details Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        return {
+          'success': true,
+          'data': data,
+        };
+      } else {
+        return {
+          'success': false,
+          'message': 'Failed to get property details. Status: ${response.statusCode}',
+          'body': response.body,
+        };
+      }
+    } catch (e) {
+      print('❌ Error getting property details: $e');
       return {
         'success': false,
         'message': 'Network error: $e',
