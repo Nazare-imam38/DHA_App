@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../models/customer_property.dart';
 import '../core/theme/app_theme.dart';
 import '../core/services/geocoding_service.dart';
+import '../services/amenities_service.dart';
 
 class ListingDetailScreen extends StatefulWidget {
   final CustomerProperty property;
@@ -16,15 +17,153 @@ class ListingDetailScreen extends StatefulWidget {
 
 class _ListingDetailScreenState extends State<ListingDetailScreen> {
   final GeocodingService _geocodingService = GeocodingService();
+  final AmenitiesService _amenitiesService = AmenitiesService();
   String? _geocodedAddress;
   bool _isGeocoding = false;
+  Map<String, List<Map<String, dynamic>>>? _resolvedAmenitiesByCategory;
+  bool _isLoadingAmenities = false;
 
   @override
   void initState() {
     super.initState();
     _geocodeLocation();
-    // Amenities should already be parsed from the customer-properties API response
-    // with categories grouped by amenity_type field
+    _loadAmenitiesByIds();
+  }
+
+  /// Load amenities by their IDs - fetch all amenities for property type and resolve IDs
+  Future<void> _loadAmenitiesByIds() async {
+    final property = widget.property;
+    
+    // Check if we have a property type ID
+    if (property.propertyTypeId == null) {
+      print('⚠️ No property type ID, cannot fetch amenities');
+      return;
+    }
+
+    // Extract amenity IDs from the property
+    final amenityIds = _extractAmenityIds(property);
+    if (amenityIds.isEmpty) {
+      print('ℹ️ No amenity IDs found in property');
+      return;
+    }
+
+    print('🔍 Found ${amenityIds.length} amenity IDs: $amenityIds');
+    
+    setState(() {
+      _isLoadingAmenities = true;
+    });
+
+    try {
+      // Fetch all amenities for this property type
+      final amenitiesByCategory = await _amenitiesService.fetchAmenitiesByPropertyType(
+        propertyTypeId: property.propertyTypeId!,
+      );
+
+      // Create mappings: ID -> name, ID -> category
+      final Map<int, String> idToName = {};
+      final Map<int, String> idToCategory = {};
+      
+      for (final entry in amenitiesByCategory.entries) {
+        final categoryName = entry.key;
+        for (final amenity in entry.value) {
+          final id = amenity['id'] as int?;
+          final name = amenity['name'] as String?;
+          if (id != null && name != null) {
+            idToName[id] = name;
+            idToCategory[id] = categoryName;
+          }
+        }
+      }
+
+      // Resolve amenity IDs and group by category
+      final Map<String, List<Map<String, dynamic>>> resolvedAmenities = {};
+      
+      for (final amenityId in amenityIds) {
+        final id = amenityId is int ? amenityId : int.tryParse(amenityId.toString());
+        if (id == null) continue;
+        
+        if (idToName.containsKey(id) && idToCategory.containsKey(id)) {
+          final category = idToCategory[id]!;
+          final name = idToName[id]!;
+          
+          if (!resolvedAmenities.containsKey(category)) {
+            resolvedAmenities[category] = [];
+          }
+          
+          resolvedAmenities[category]!.add({
+            'id': id,
+            'name': name,
+          });
+        } else {
+          // If ID not found, add to "Other" category
+          if (!resolvedAmenities.containsKey('Other')) {
+            resolvedAmenities['Other'] = [];
+          }
+          resolvedAmenities['Other']!.add({
+            'id': id,
+            'name': 'Amenity ID: $id',
+          });
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _resolvedAmenitiesByCategory = resolvedAmenities.isNotEmpty ? resolvedAmenities : null;
+          _isLoadingAmenities = false;
+        });
+        
+        print('✅ Resolved ${amenityIds.length} amenities into ${resolvedAmenities.length} categories');
+      }
+    } catch (e) {
+      print('❌ Error loading amenities: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingAmenities = false;
+        });
+      }
+    }
+  }
+
+  /// Extract amenity IDs from property (from amenities list or amenitiesByCategory)
+  List<dynamic> _extractAmenityIds(CustomerProperty property) {
+    final List<dynamic> ids = [];
+    
+    // First try to get IDs from amenitiesByCategory
+    if (property.amenitiesByCategory != null) {
+      property.amenitiesByCategory!.forEach((category, amenities) {
+        if (amenities is List) {
+          for (var amenity in amenities) {
+            if (amenity is Map) {
+              final id = amenity['id'];
+              if (id != null) {
+                ids.add(id);
+              }
+            } else if (amenity is num) {
+              ids.add(amenity);
+            }
+          }
+        }
+      });
+    }
+    
+    // If no IDs found in categories, check if amenities list contains IDs
+    // The amenities list might contain IDs as numbers or strings
+    if (ids.isEmpty && property.amenities.isNotEmpty) {
+      // Try to parse the amenities list - it might be IDs or names
+      // If they're all numbers or numeric strings, treat as IDs
+      for (var item in property.amenities) {
+        if (item is num) {
+          ids.add(item);
+        } else if (item is String) {
+          final id = int.tryParse(item);
+          if (id != null) {
+            ids.add(id);
+          }
+        }
+      }
+    }
+    
+    return ids;
   }
 
   Future<void> _geocodeLocation() async {
@@ -229,18 +368,9 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
   }
 
   Widget _buildFeatures(CustomerProperty p) {
-    final amenitiesByCategory = p.amenitiesByCategory;
+    // Use resolved amenities if available, otherwise fallback to property data
+    final amenitiesByCategory = _resolvedAmenitiesByCategory ?? p.amenitiesByCategory;
     final flatAmenities = p.amenities;
-    
-    // Debug logging
-    print('🔍 Features tab - Property ${p.id}');
-    print('   Flat amenities: ${flatAmenities.length}');
-    print('   Categories: ${amenitiesByCategory?.keys.length ?? 0}');
-    if (amenitiesByCategory != null) {
-      amenitiesByCategory.forEach((cat, items) {
-        print('   📁 "$cat": ${items.length} items');
-      });
-    }
     
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
@@ -460,7 +590,31 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
           ),
           SizedBox(height: 12.h),
           
-          if (amenitiesByCategory != null && amenitiesByCategory.isNotEmpty) ...[
+          if (_isLoadingAmenities) ...[
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 24.h),
+              child: Center(
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: 24.w,
+                      height: 24.h,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(height: 12.h),
+                    Text(
+                      'Loading amenities...',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 14.sp,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ] else if (amenitiesByCategory != null && amenitiesByCategory.isNotEmpty) ...[
             // Display amenities grouped by category
             ...amenitiesByCategory.entries.map((entry) {
               final categoryName = entry.key;
