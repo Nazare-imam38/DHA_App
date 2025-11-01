@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../models/property_form_data.dart';
 import '../../../services/media_upload_service.dart';
+import '../../../services/local_amenities_cache.dart';
 import '../../property_listing_status_screen.dart';
 import '../../main_wrapper.dart';
 import '../../../core/theme/app_theme.dart';
@@ -96,7 +97,7 @@ class _ReviewConfirmationStepState extends State<ReviewConfirmationStep> {
             _section(
               title: 'Amenities',
               rows: [
-                _row('Selected', formData.amenities.isEmpty ? 'None' : formData.amenities.join(', ')),
+                _row('Selected', formData.amenities.isEmpty ? 'None' : '${formData.amenities.length} amenities selected'),
               ],
             ),
 
@@ -268,6 +269,29 @@ class _ReviewConfirmationStepState extends State<ReviewConfirmationStep> {
         final propertyId = result['data']?['id']?.toString();
         if (propertyId != null) {
           formData.updateSubmittedPropertyId(propertyId);
+          
+          // Store the exact amenities selected by the user for this specific property
+          if (formData.amenities.isNotEmpty) {
+            await LocalAmenitiesCache.storePropertyAmenities(propertyId, formData.amenities);
+            print('💾 Stored ${formData.amenities.length} selected amenity IDs for property $propertyId: ${formData.amenities}');
+          }
+          
+          // Store the complete amenity details (names, descriptions) for display
+          if (formData.selectedAmenityDetails.isNotEmpty) {
+            final propertyAmenityDetails = <String, Map<String, dynamic>>{};
+            for (final amenity in formData.selectedAmenityDetails) {
+              final id = amenity['id'].toString();
+              propertyAmenityDetails[id] = {
+                'name': amenity['amenity_name']?.toString() ?? 'Unknown',
+                'description': amenity['description']?.toString() ?? '',
+                'amenity_type': amenity['amenity_type']?.toString() ?? 'Other',
+              };
+            }
+            
+            // Store property-specific amenity details
+            await LocalAmenitiesCache.storePropertyAmenityDetails(propertyId, propertyAmenityDetails);
+            print('💾 Stored complete amenity details for property $propertyId: ${propertyAmenityDetails.keys.toList()}');
+          }
         }
         _showSuccessDialog(result['data']);
       } else {
@@ -286,20 +310,32 @@ class _ReviewConfirmationStepState extends State<ReviewConfirmationStep> {
   }
 
   Map<String, dynamic> _preparePropertyData(PropertyFormData formData) {
-    // Prepare amenities as array - ensure it's always an array
-    List<String> amenitiesArray = [];
-    if (formData.amenities.isNotEmpty) {
-      amenitiesArray = formData.amenities.map((e) => e.toString().trim()).where((e) => e.isNotEmpty).toList();
-      print('🏠 FormData amenities count: ${formData.amenities.length}');
-      print('🏠 FormData amenities: ${formData.amenities}');
+    print('🔍 DEBUG: Preparing property data...');
+    print('🔍 FormData amenities: ${formData.amenities}');
+    print('🔍 FormData selectedAmenityDetails: ${formData.selectedAmenityDetails.length} items');
+    
+    // Prepare amenities with complete details
+    List<Map<String, dynamic>> amenitiesArray = [];
+    
+    if (formData.selectedAmenityDetails.isNotEmpty) {
+      // Use complete amenity details if available
+      amenitiesArray = formData.selectedAmenityDetails;
+      print('🏠 Using complete amenity details: ${amenitiesArray.length} items');
+      
+      for (int i = 0; i < amenitiesArray.length; i++) {
+        final amenity = amenitiesArray[i];
+        print('   Amenity $i: ID=${amenity['id']}, Name=${amenity['amenity_name']}, Type=${amenity['amenity_type']}');
+      }
+    } else if (formData.amenities.isNotEmpty) {
+      // Fallback to IDs only (for backward compatibility)
+      final amenityIds = formData.amenities.map((e) => e.toString().trim()).where((e) => e.isNotEmpty).toList();
+      amenitiesArray = amenityIds.map((id) => {'id': int.tryParse(id) ?? 0}).toList();
+      print('🏠 Using amenity IDs only: ${amenityIds}');
     } else {
       print('⚠️ WARNING: No amenities found in formData!');
-      print('🏠 FormData amenities field: ${formData.amenities}');
     }
     
-    print('🏠 Amenities being sent: $amenitiesArray');
-    print('🏠 Amenities count: ${amenitiesArray.length}');
-    print('🏠 Amenities type: ${amenitiesArray.runtimeType}');
+    print('🏠 Final amenities being sent: ${amenitiesArray.length} items');
     print('🏠 Purpose: ${formData.purpose}, isRent: ${formData.isRent}');
     print('🏠 Price: ${formData.price}, RentPrice: ${formData.rentPrice}');
     

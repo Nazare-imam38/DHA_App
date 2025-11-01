@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../models/property_form_data.dart';
-import 'amenities_step.dart';
+import 'amenities_selection_step.dart';
 import '../../../core/services/dha_geojson_boundary_service.dart' as dha;
 
 class PropertyDetailsStep extends StatefulWidget {
@@ -1014,7 +1014,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep> {
       MaterialPageRoute(
         builder: (context) => ChangeNotifierProvider.value(
           value: formData,
-          child: AmenitiesStep(),
+          child: AmenitiesSelectionStep(),
         ),
       ),
     );

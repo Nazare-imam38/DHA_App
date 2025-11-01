@@ -60,7 +60,9 @@ class PropertyFormData extends ChangeNotifier {
   List<File> videos = [];
   
   // Step 10: Amenities
-  List<String> amenities = []; // List of selected amenity names
+  List<String> amenities = []; // List of selected amenity IDs
+  Map<String, String> amenityNames = {}; // Map of amenity ID to name for display
+  List<Map<String, dynamic>> selectedAmenityDetails = []; // Complete amenity details
   
   // Helper methods
   bool get isOwnProperty => onBehalf == 0;
@@ -216,8 +218,14 @@ class PropertyFormData extends ChangeNotifier {
     notifyListeners();
   }
   
-  void updateAmenities(List<String> amenities) {
+  void updateAmenities(List<String> amenities, {Map<String, String>? amenityNames, List<Map<String, dynamic>>? amenityDetails}) {
     this.amenities = amenities;
+    if (amenityNames != null) {
+      this.amenityNames = amenityNames;
+    }
+    if (amenityDetails != null) {
+      this.selectedAmenityDetails = amenityDetails;
+    }
     notifyListeners();
   }
   

@@ -24,8 +24,8 @@ class CustomerProperty {
   final String? paymentMethod;
   final List<String> images;
   final List<String> videos;
-  final List<String> amenities;
-  final Map<String, dynamic>? amenitiesByCategory; // Store amenities grouped by category
+  List<String> amenities;
+  Map<String, dynamic>? amenitiesByCategory; // Store amenities grouped by category
   final String? createdAt;
   final String? updatedAt;
   
@@ -55,16 +55,18 @@ class CustomerProperty {
     this.latitude,
     this.longitude,
     this.paymentMethod,
-    this.images = const [],
-    this.videos = const [],
-    this.amenities = const [],
+    List<String>? images,
+    List<String>? videos,
+    List<String>? amenities,
     this.amenitiesByCategory,
     this.createdAt,
     this.updatedAt,
     this.approvalStatus,
     this.approvalNotes,
     this.isApprovalLoading = false,
-  });
+  }) : images = images ?? [],
+       videos = videos ?? [],
+       amenities = amenities ?? [];
 
   factory CustomerProperty.fromJson(Map<String, dynamic> json) {
     final propertyId = json['id']?.toString() ?? '';
@@ -229,10 +231,9 @@ class CustomerProperty {
           // Extract amenity name from the object
           return e['amenity_name']?.toString() ?? e['name']?.toString() ?? e.toString();
         }
-        // If it's a number (ID), we'll need to resolve it later - return empty for now
-        // The actual name will be resolved in the UI layer
+        // If it's a number (ID), store it as string to be resolved later
         if (e is num) {
-          return ''; // Will be resolved later using AmenitiesService
+          return e.toString(); // Store ID as string for later resolution
         }
         return e.toString();
       }).where((name) => name.isNotEmpty).toList();
@@ -270,15 +271,15 @@ class CustomerProperty {
         } else if (item is num) {
           // Handle case where amenities come back as just IDs (numbers)
           // Store with ID only, name will be resolved later
-          // We'll group them under 'Other' temporarily, they'll be properly categorized when resolved
-          if (!grouped.containsKey('Other')) {
-            grouped['Other'] = [];
+          // We'll group them under 'Unresolved' temporarily, they'll be properly categorized when resolved
+          if (!grouped.containsKey('Unresolved')) {
+            grouped['Unresolved'] = [];
           }
-          grouped['Other']!.add({
+          grouped['Unresolved']!.add({
             'id': item.toInt(),
-            'name': null, // Will be resolved later
+            'name': item.toString(), // Store ID as name temporarily
             'description': null,
-            'amenity_type': 'Other',
+            'amenity_type': 'Unresolved',
           });
         }
       }

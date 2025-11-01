@@ -46,23 +46,34 @@ class MediaUploadService {
       propertyData.forEach((key, value) {
         if (value != null) {
           if (key == 'amenities' && value is List) {
-            // Handle amenities array specially - Laravel expects indexed array format
+            // Handle amenities array - extract IDs only (backend expects only IDs)
             print('🏠 Adding ${value.length} amenities to request');
             print('🏠 Amenities list: $value');
             if (value.isEmpty) {
               print('⚠️ WARNING: Amenities list is EMPTY!');
             } else {
               for (int i = 0; i < value.length; i++) {
-                final amenityId = value[i].toString().trim();
+                final amenity = value[i];
+                String amenityId = '';
+                
+                if (amenity is Map<String, dynamic>) {
+                  // Extract ID from complete amenity object
+                  amenityId = amenity['id'].toString();
+                  print('   ✅ Extracting ID from amenity object $i: ${amenity['amenity_name']} (ID: $amenityId)');
+                } else {
+                  // Simple ID
+                  amenityId = amenity.toString().trim();
+                  print('   ✅ Using amenity ID $i: $amenityId');
+                }
+                
                 if (amenityId.isNotEmpty) {
-                  print('   ✅ Adding amenities[$i]: $amenityId');
-                  // Use indexed format for Laravel array parsing
+                  // Backend expects only the ID in indexed array format
                   request.fields['amenities[$i]'] = amenityId;
                 } else {
                   print('   ⚠️ Skipping empty amenity at index $i');
                 }
               }
-              print('🏠 Total amenities fields added: ${value.length}');
+              print('🏠 Total amenity IDs sent: ${value.length}');
             }
           } else {
             request.fields[key] = value.toString();

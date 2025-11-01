@@ -7,7 +7,6 @@ import 'listing_detail_screen.dart';
 import '../core/services/geocoding_service.dart';
 import 'package:latlong2/latlong.dart';
 import 'update_property_screen.dart';
-import '../services/amenities_service.dart';
 
 class MyListingsScreen extends StatefulWidget {
   const MyListingsScreen({super.key});
@@ -19,13 +18,11 @@ class MyListingsScreen extends StatefulWidget {
 class _MyListingsScreenState extends State<MyListingsScreen> {
   final CustomerPropertiesService _service = CustomerPropertiesService();
   final GeocodingService _geocodingService = GeocodingService();
-  final AmenitiesService _amenitiesService = AmenitiesService();
   List<CustomerProperty> _properties = [];
   List<CustomerProperty> _filteredProperties = [];
   bool _isLoading = true;
   String? _error;
   final Map<String, String?> _geocodedAddresses = {}; // Cache geocoded addresses
-  final Map<int, Map<int, String>> _amenityIdToNameCache = {}; // propertyTypeId -> {amenityId -> name}
   
   // Filter options
   String _selectedFilter = 'All';
@@ -101,8 +98,8 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           _geocodeProperty(property);
         }
         
-        // Resolve amenity IDs to names
-        await _resolveAmenityNames(properties);
+        // Amenities are now included in the API response - no need for separate resolution
+        print('✅ Properties loaded with amenities from API');
         
         setState(() {
           _properties = properties;
@@ -124,105 +121,11 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     }
   }
 
-  Future<void> _resolveAmenityNames(List<CustomerProperty> properties) async {
-    // Collect all unique property type IDs
-    final propertyTypeIds = properties
-        .where((p) => p.propertyTypeId != null)
-        .map((p) => p.propertyTypeId!)
-        .toSet();
-    
-    // Fetch amenities for each property type and cache them
-    for (final propertyTypeId in propertyTypeIds) {
-      if (_amenityIdToNameCache.containsKey(propertyTypeId)) {
-        continue; // Already cached
-      }
-      
-      try {
-        final amenitiesByCategory = await _amenitiesService.fetchAmenitiesByPropertyType(
-          propertyTypeId: propertyTypeId,
-        );
-        
-        // Create ID to name and category mapping
-        final Map<int, String> idToName = {};
-        final Map<int, String> idToCategory = {}; // Also map IDs to their categories
-        for (final entry in amenitiesByCategory.entries) {
-          final categoryName = entry.key;
-          for (final amenity in entry.value) {
-            final id = amenity['id'] as int?;
-            final name = amenity['name'] as String?;
-            if (id != null && name != null) {
-              idToName[id] = name;
-              idToCategory[id] = categoryName;
-            }
-          }
-        }
-        
-        _amenityIdToNameCache[propertyTypeId] = idToName;
-        
-        // Resolve amenity names in properties
-        for (var property in properties) {
-          if (property.propertyTypeId == propertyTypeId && property.amenitiesByCategory != null) {
-            _resolvePropertyAmenities(property, idToName, idToCategory);
-          }
-        }
-      } catch (e) {
-        print('Error fetching amenities for property type $propertyTypeId: $e');
-      }
-    }
-  }
+
+
+
   
-  void _resolvePropertyAmenities(CustomerProperty property, Map<int, String> idToName, Map<int, String> idToCategory) {
-    if (property.amenitiesByCategory == null) return;
-    
-    // First, collect all amenities that need to be re-categorized
-    final Map<String, List<Map<String, dynamic>>> recategorized = {};
-    
-    // Resolve amenity names and re-categorize if needed
-    property.amenitiesByCategory!.forEach((category, amenities) {
-      if (amenities is List) {
-        for (var amenity in amenities) {
-          if (amenity is Map<String, dynamic>) {
-            // Create a copy to avoid modifying the original
-            final amenityCopy = Map<String, dynamic>.from(amenity);
-            final id = amenityCopy['id'];
-            final name = amenityCopy['name'];
-            
-            // If name is null or empty, try to resolve from ID
-            if ((name == null || (name is String && name.isEmpty)) && id != null) {
-              final amenityId = id is int ? id : (id is num ? id.toInt() : int.tryParse(id.toString()));
-              if (amenityId != null && idToName.containsKey(amenityId)) {
-                amenityCopy['name'] = idToName[amenityId];
-                
-                // Re-categorize if we have category info and it's currently in "Other"
-                if (category == 'Other' && idToCategory.containsKey(amenityId)) {
-                  final correctCategory = idToCategory[amenityId]!;
-                  if (!recategorized.containsKey(correctCategory)) {
-                    recategorized[correctCategory] = <Map<String, dynamic>>[];
-                  }
-                  recategorized[correctCategory]!.add(amenityCopy);
-                  continue; // Skip adding to current category
-                }
-              }
-            }
-            
-            // Keep in current category if not re-categorized
-            final targetCategory = category;
-            if (!recategorized.containsKey(targetCategory)) {
-              recategorized[targetCategory] = <Map<String, dynamic>>[];
-            }
-            recategorized[targetCategory]!.add(amenityCopy);
-          }
-        }
-      }
-    });
-    
-    // Update amenitiesByCategory with resolved and properly categorized amenities
-    // We can modify the map contents since the map reference is final, not the contents
-    if (recategorized.isNotEmpty) {
-      property.amenitiesByCategory!.clear();
-      property.amenitiesByCategory!.addAll(recategorized);
-    }
-  }
+
 
   Future<void> _loadApprovalStatus(CustomerProperty property) async {
     property.isApprovalLoading = true;
@@ -246,6 +149,8 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
       if (mounted) setState(() {});
     }
   }
+
+
 
   void _applyFilter(String filter) {
     setState(() {
@@ -749,6 +654,10 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
   }
 
   Widget _buildAmenitiesSection(CustomerProperty property) {
+    print('🎯 Building amenities section for property ${property.id}');
+    print('   📋 amenitiesByCategory: ${property.amenitiesByCategory}');
+    print('   📋 flat amenities: ${property.amenities}');
+    
     // Get all amenity names to display
     final List<String> amenityNames = [];
     
@@ -760,15 +669,50 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
             if (amenity is Map) {
               final name = amenity['name']?.toString();
               if (name != null && name.isNotEmpty) {
-                amenityNames.add(name);
+                // Skip if it's still just an ID (numeric string)
+                if (!RegExp(r'^\d+$').hasMatch(name)) {
+                  amenityNames.add(name);
+                }
               }
             }
           }
         }
       }
     } else if (property.amenities.isNotEmpty) {
-      // Use flat amenities list
-      amenityNames.addAll(property.amenities.where((a) => a.isNotEmpty));
+      // Use flat amenities list, but skip numeric IDs
+      for (final amenity in property.amenities) {
+        if (amenity.isNotEmpty && !RegExp(r'^\d+$').hasMatch(amenity)) {
+          amenityNames.add(amenity);
+        }
+      }
+    }
+    
+    // If no resolved names but we have amenities, show count
+    if (amenityNames.isEmpty && 
+        ((property.amenitiesByCategory != null && property.amenitiesByCategory!.isNotEmpty) || 
+         property.amenities.isNotEmpty)) {
+      final totalCount = property.amenitiesByCategory?.values
+          .expand((list) => list is List ? list : [])
+          .length ?? property.amenities.length;
+      
+      if (totalCount > 0) {
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            color: AppTheme.lightBlue,
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Text(
+            '$totalCount amenities',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 11.sp,
+              fontWeight: FontWeight.w500,
+              color: AppTheme.primaryBlue,
+            ),
+          ),
+        );
+      }
     }
     
     if (amenityNames.isEmpty) return const SizedBox.shrink();

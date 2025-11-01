@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'auth_service.dart';
+import 'local_amenities_cache.dart';
 
 class AmenitiesService {
   static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
@@ -40,6 +41,7 @@ class AmenitiesService {
 
     final data = jsonBody['data'] as Map<String, dynamic>;
     final Map<String, List<Map<String, dynamic>>> grouped = {};
+    final Map<String, String> idToNameMap = {};
 
     data.forEach((category, items) {
       if (items is List) {
@@ -51,8 +53,23 @@ class AmenitiesService {
                   'description': e['description'],
                 })
             .toList();
+        
+        // Build ID to name mapping for caching
+        for (final item in items.whereType<Map<String, dynamic>>()) {
+          final id = item['id']?.toString();
+          final name = item['amenity_name']?.toString();
+          if (id != null && name != null) {
+            idToNameMap[id] = name;
+          }
+        }
       }
     });
+
+    // Cache the amenity names locally
+    if (idToNameMap.isNotEmpty) {
+      await LocalAmenitiesCache.storeAmenityNames(idToNameMap);
+      print('💾 Cached ${idToNameMap.length} amenity names for property type $propertyTypeId');
+    }
 
     return grouped;
   }
