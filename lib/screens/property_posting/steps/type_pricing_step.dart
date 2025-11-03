@@ -198,6 +198,7 @@ class _TypePricingStepState extends State<TypePricingStep> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               padding: EdgeInsets.all(8.w),
@@ -220,7 +221,7 @@ class _TypePricingStepState extends State<TypePricingStep> {
             ),
             SizedBox(width: 12.w),
             Text(
-              'PROPERTY TYPE & LISTING',
+              'PROPERTY TYPE',
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontSize: 18.sp,
@@ -231,7 +232,7 @@ class _TypePricingStepState extends State<TypePricingStep> {
             ),
           ],
         ),
-        centerTitle: false,
+        centerTitle: true,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(20.r),
@@ -298,7 +299,7 @@ class _TypePricingStepState extends State<TypePricingStep> {
                         ),
                         const SizedBox(width: 8),
                         const Text(
-                          'Property Type & Listing',
+                          'Property Type',
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontSize: 14,

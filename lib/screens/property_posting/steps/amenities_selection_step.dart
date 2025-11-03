@@ -324,50 +324,56 @@ class _AmenitiesSelectionStepState extends State<AmenitiesSelectionStep> {
               
               // Header Section with Status and Actions
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
                 color: Colors.white,
                 child: Row(
                   children: [
                     Icon(
                       Icons.star_rounded,
                       color: const Color(0xFF1B5993),
-                      size: 24.w,
+                      size: 22.w,
                     ),
-                    SizedBox(width: 12.w),
-                    Text(
-                      'Available Amenities',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1B5993),
-                        letterSpacing: 0.2,
-                      ),
-                    ),
-                    const Spacer(),
-                    // Status Badge
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE8F4FD),
-                        borderRadius: BorderRadius.circular(20.r),
-                      ),
+                    SizedBox(width: 8.w),
+                    Flexible(
                       child: Text(
-                        '${formData.amenities.length} of ${_allAmenities.length} selected',
+                        'Available Amenities',
                         style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Inter',
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w700,
                           color: const Color(0xFF1B5993),
+                          letterSpacing: 0.2,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    // Status Badge
+                    Flexible(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE8F4FD),
+                          borderRadius: BorderRadius.circular(20.r),
+                        ),
+                        child: Text(
+                          '${formData.amenities.length}/${_allAmenities.length}',
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF1B5993),
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
-                    SizedBox(width: 12.w),
+                    SizedBox(width: 8.w),
                     // Select All Button
                     GestureDetector(
                       onTap: _selectAll,
                       child: Container(
-                        width: 40.w,
-                        height: 40.w,
+                        width: 36.w,
+                        height: 36.w,
                         decoration: BoxDecoration(
                           color: const Color(0xFF1B5993),
                           shape: BoxShape.circle,
@@ -375,17 +381,17 @@ class _AmenitiesSelectionStepState extends State<AmenitiesSelectionStep> {
                         child: Icon(
                           Icons.check,
                           color: Colors.white,
-                          size: 20.w,
+                          size: 18.w,
                         ),
                       ),
                     ),
-                    SizedBox(width: 8.w),
+                    SizedBox(width: 6.w),
                     // Clear All Button
                     GestureDetector(
                       onTap: _clearAll,
                       child: Container(
-                        width: 40.w,
-                        height: 40.w,
+                        width: 36.w,
+                        height: 36.w,
                         decoration: BoxDecoration(
                           color: const Color(0xFF9CA3AF),
                           shape: BoxShape.circle,
@@ -393,7 +399,7 @@ class _AmenitiesSelectionStepState extends State<AmenitiesSelectionStep> {
                         child: Icon(
                           Icons.close,
                           color: Colors.white,
-                          size: 20.w,
+                          size: 18.w,
                         ),
                       ),
                     ),
@@ -474,7 +480,7 @@ class _AmenitiesSelectionStepState extends State<AmenitiesSelectionStep> {
                             ],
                           ),
                         ),
-                  ),
+              ),
             ],
           ),
           bottomNavigationBar: Container(

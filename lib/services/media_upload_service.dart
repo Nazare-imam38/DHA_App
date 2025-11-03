@@ -199,6 +199,36 @@ class MediaUploadService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = json.decode(response.body);
         print('✅ Media upload successful!');
+        
+        // Verify media URLs are in the response
+        if (responseData is Map) {
+          final media = responseData['data']?['media'] ?? responseData['media'];
+          if (media != null && media is List) {
+            print('📸 API Response contains ${media.length} media items');
+            for (int i = 0; i < media.length; i++) {
+              final item = media[i];
+              if (item is Map) {
+                final mediaLink = item['media_link']?.toString() ?? item['url']?.toString();
+                final mediaType = item['media_type']?.toString() ?? 'Unknown';
+                if (mediaLink != null) {
+                  print('   ✅ Media $i: Type=$mediaType, URL=${mediaLink.substring(0, mediaLink.length > 60 ? 60 : mediaLink.length)}...');
+                  if (mediaLink.contains('amazonaws.com') || mediaLink.contains('s3')) {
+                    print('   ✅ Confirmed S3 URL');
+                  }
+                } else {
+                  print('   ⚠️ Media $i: No media_link found');
+                }
+              }
+            }
+          } else {
+            print('⚠️ No media array found in API response');
+            print('   Response keys: ${responseData.keys.toList()}');
+            if (responseData['data'] != null && responseData['data'] is Map) {
+              print('   Data keys: ${(responseData['data'] as Map).keys.toList()}');
+            }
+          }
+        }
+        
         return {
           'success': true,
           'data': responseData,

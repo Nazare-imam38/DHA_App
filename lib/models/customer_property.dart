@@ -159,7 +159,10 @@ class CustomerProperty {
   }
 
   static List<String> _parseMediaList(dynamic value) {
-    if (value == null) return [];
+    if (value == null) {
+      print('📸 Media data is null');
+      return [];
+    }
     if (value is List) {
       print('📸 Parsing media list with ${value.length} items');
       final images = value.where((e) {
@@ -167,7 +170,7 @@ class CustomerProperty {
         if (e is Map) {
           final mediaType = e['media_type']?.toString() ?? e['type']?.toString() ?? '';
           final typeLower = mediaType.toLowerCase();
-          print('   📷 Media item type: "$mediaType"');
+          print('   📷 Media item type: "$mediaType" (lowercase: "$typeLower")');
           // Check for video types - skip them
           if (typeLower == 'video' || typeLower == 'videos') {
             print('   ⏭️ Skipping video');
@@ -183,12 +186,22 @@ class CustomerProperty {
           return false;
         }
         // Non-map items are included (strings, etc.)
+        print('   ✅ Including non-map item (string)');
         return true;
       }).map((e) {
         if (e is Map) {
-          // API uses 'media_link' field
-          final v = e['media_link'] ?? 
-                   e['url'] ?? 
+          // API uses 'media_link' field - prioritize this
+          final mediaLink = e['media_link'];
+          if (mediaLink != null) {
+            final url = mediaLink.toString().trim();
+            if (url.isNotEmpty) {
+              print('   ✅ Extracted image URL from media_link: ${url.substring(0, url.length > 60 ? 60 : url.length)}...');
+              return url;
+            }
+          }
+          
+          // Fallback to other possible field names
+          final v = e['url'] ?? 
                    e['image_url'] ?? 
                    e['full_url'] ?? 
                    e['src'] ?? 
@@ -196,20 +209,30 @@ class CustomerProperty {
                    e['file'] ?? 
                    e['image'] ?? 
                    e['media_url'];
-          final url = v?.toString();
-          if (url != null) {
-            print('   ✅ Extracted image URL: ${url.substring(0, url.length > 50 ? 50 : url.length)}...');
+          final url = v?.toString()?.trim();
+          if (url != null && url.isNotEmpty) {
+            print('   ✅ Extracted image URL from fallback: ${url.substring(0, url.length > 60 ? 60 : url.length)}...');
+            return url;
           } else {
-            print('   ❌ No URL found in media item: $e');
+            print('   ❌ No URL found in media item. Available keys: ${e.keys.toList()}');
           }
-          return url;
+          return null;
         }
-        return e?.toString();
-      }).whereType<String>().toList();
+        // Handle string values directly
+        final strValue = e?.toString()?.trim();
+        if (strValue != null && strValue.isNotEmpty) {
+          print('   ✅ Using string value directly: ${strValue.substring(0, strValue.length > 60 ? 60 : strValue.length)}...');
+          return strValue;
+        }
+        return null;
+      }).whereType<String>().where((url) => url.isNotEmpty).toList();
       print('📸 Final parsed images: ${images.length}');
+      if (images.isNotEmpty) {
+        print('   📷 First image URL: ${images.first.substring(0, images.first.length > 80 ? 80 : images.first.length)}...');
+      }
       return images;
     }
-    print('📸 Media is not a list, using fallback parser');
+    print('📸 Media is not a list, using fallback parser. Type: ${value.runtimeType}');
     return _parseStringList(value);
   }
 

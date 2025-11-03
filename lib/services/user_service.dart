@@ -42,7 +42,21 @@ class UserService {
       print('📥 User API Response Body: ${response.body}');
       
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        Map<String, dynamic>? data;
+        try {
+          final decoded = json.decode(response.body);
+          if (decoded is Map) {
+            data = Map<String, dynamic>.from(decoded);
+          }
+        } catch (e) {
+          print('❌ Error decoding JSON: $e');
+          return null;
+        }
+        
+        if (data == null) {
+          print('❌ Decoded data is null or not a Map');
+          return null;
+        }
         
         print('📊 Parsed response data type: ${data.runtimeType}');
         print('📊 Response data: $data');
@@ -85,13 +99,44 @@ class UserService {
   
   // Extract owner details from user data for property creation
   Map<String, dynamic> extractOwnerDetails(Map<String, dynamic> userData) {
-    return {
-      'cnic': userData['cnic'] ?? userData['id_number'] ?? '',
-      'name': userData['name'] ?? userData['full_name'] ?? '',
-      'phone': userData['phone'] ?? userData['mobile'] ?? userData['phone_number'] ?? '',
-      'address': userData['address'] ?? userData['full_address'] ?? '',
-      'email': userData['email'] ?? userData['email_address'] ?? '',
+    print('🔍 Extracting owner details from userData:');
+    print('   Available keys: ${userData.keys.toList()}');
+    
+    // Helper function to get value from multiple possible keys
+    String? getValue(List<String> keys) {
+      for (var key in keys) {
+        final value = userData[key];
+        if (value != null && value.toString().trim().isNotEmpty) {
+          print('   ✓ Found "${key}": ${value.toString()}');
+          return value.toString().trim();
+        }
+      }
+      print('   ✗ No value found for keys: $keys');
+      return '';
+    }
+    
+    final cnic = getValue(['cnic', 'id_number', 'idNumber', 'cnic_number', 'CNIC']);
+    final name = getValue(['name', 'full_name', 'fullName', 'user_name', 'userName']);
+    final phone = getValue(['phone', 'mobile', 'phone_number', 'phoneNumber', 'mobile_number', 'contact']);
+    final address = getValue(['address', 'full_address', 'fullAddress', 'location', 'residential_address']);
+    final email = getValue(['email', 'email_address', 'emailAddress', 'user_email']);
+    
+    final result = {
+      'cnic': cnic ?? '',
+      'name': name ?? '',
+      'phone': phone ?? '',
+      'address': address ?? '',
+      'email': email ?? '',
     };
+    
+    print('📋 Extracted owner details:');
+    print('   CNIC: "${result['cnic']}"');
+    print('   Name: "${result['name']}"');
+    print('   Phone: "${result['phone']}"');
+    print('   Address: "${result['address']}"');
+    print('   Email: "${result['email']}"');
+    
+    return result;
   }
   
   // Get complete owner details for property posting

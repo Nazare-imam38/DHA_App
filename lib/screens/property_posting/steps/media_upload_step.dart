@@ -33,54 +33,155 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundGrey,
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppTheme.primaryBlue),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Color(0xFF1B5993),
+            size: 16,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Media Upload',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: AppTheme.primaryBlue,
-          ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: EdgeInsets.all(8.w),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.photo_library_rounded,
+                color: const Color(0xFF1B5993),
+                size: 20.sp,
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Text(
+              'MEDIA UPLOAD',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1B5993),
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
         ),
         centerTitle: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(20.r),
+            bottomRight: Radius.circular(20.r),
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(2.0.h),
+          child: Container(
+            height: 2.0.h,
+            decoration: BoxDecoration(
+              color: const Color(0xFF1B5993),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20.r),
+                bottomRight: Radius.circular(20.r),
+              ),
+            ),
+          ),
+        ),
       ),
       body: Consumer<PropertyFormData>(
         builder: (context, formData, child) {
-          return SingleChildScrollView(
-            padding: EdgeInsets.all(24.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-                // Header Section
-                _buildHeaderSection(),
-                
-                SizedBox(height: 32.h),
-                
-                // Photos Section
-                _buildPhotosSection(),
-                
-                SizedBox(height: 32.h),
-                
-                // Videos Section
-                _buildVideosSection(),
-                
-                SizedBox(height: 32.h),
-                
-                // Upload Progress
-                if (_isUploading) _buildUploadProgress(),
-                
-                SizedBox(height: 32.h),
-          
-              ],
-            ),
+          return Column(
+            children: [
+              // Process Indicator
+              Container(
+                padding: EdgeInsets.all(16.w),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8F4FD),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: const Color(0xFF20B2AA).withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF20B2AA),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Center(
+                            child: Text(
+                              '6',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Media Upload',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF20B2AA),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              
+              // Main Content
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(24.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Photos Section
+                      _buildPhotosSection(),
+                      
+                      SizedBox(height: 24.h),
+                      
+                      // Videos Section
+                      _buildVideosSection(),
+                      
+                      SizedBox(height: 24.h),
+                      
+                      // Upload Progress
+                      if (_isUploading) _buildUploadProgress(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           );
         },
       ),
@@ -236,34 +337,61 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
 
   Widget _buildPhotosSection() {
     return Container(
-      padding: EdgeInsets.all(24.w),
+      padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: AppTheme.cardWhite,
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        boxShadow: AppTheme.cardShadow,
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(
-                Icons.photo,
-                color: AppTheme.primaryBlue,
-                size: 24.sp,
-              ),
-              SizedBox(width: 12.w),
-              Text(
-                'Property Photos',
-                style: AppTheme.titleLarge.copyWith(
-                  fontSize: 18.sp,
+              Container(
+                padding: EdgeInsets.all(10.w),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1B5993).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                child: Icon(
+                  Icons.image_rounded,
+                  color: const Color(0xFF1B5993),
+                  size: 24.w,
                 ),
               ),
-              const Spacer(),
-              Text(
-                '${_selectedImages.length}/20',
-                style: AppTheme.bodyMedium.copyWith(
-                  fontWeight: FontWeight.w600,
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Text(
+                  'Property Photos',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF1B5993),
+                  ),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F4FD),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Text(
+                  '${_selectedImages.length}/20',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF1B5993),
+                  ),
                 ),
               ),
             ],
@@ -273,8 +401,11 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
           
           Text(
             'Upload up to 20 photos (max 3MB each)',
-            style: AppTheme.bodySmall.copyWith(
+            style: TextStyle(
+              fontFamily: 'Inter',
               fontSize: 13.sp,
+              fontWeight: FontWeight.w400,
+              color: const Color(0xFF6B7280),
             ),
           ),
           
@@ -296,47 +427,54 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
     return GestureDetector(
       onTap: _pickImages,
       child: Container(
-        height: 120.h,
-                  decoration: BoxDecoration(
-          color: AppTheme.backgroundGrey,
+        height: 200.h,
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8F9FA),
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(
-            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
-            width: 2,
-            style: BorderStyle.solid,
-          ),
-                  ),
-                  child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-            Icon(
-              Icons.cloud_upload_outlined,
-              color: AppTheme.primaryBlue,
-              size: 32.sp,
+        ),
+        child: Stack(
+          children: [
+            // Dashed border effect using custom painter
+            CustomPaint(
+              size: Size(double.infinity, 200.h),
+              painter: _DashedBorderPainter(),
             ),
-            SizedBox(height: 8.h),
-            Text(
-              'Tap to select photos',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.primaryBlue,
+            // Content
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.arrow_upward_rounded,
+                    color: const Color(0xFF4B5563),
+                    size: 56.w,
+                  ),
+                  SizedBox(height: 20.h),
+                  Text(
+                    'Click to upload photos',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF1F2937),
+                    ),
+                  ),
+                  SizedBox(height: 12.h),
+                  Text(
+                    '${_selectedImages.length}/20 photos uploaded',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w400,
+                      color: const Color(0xFF6B7280),
+                    ),
+                  ),
+                ],
               ),
             ),
-            SizedBox(height: 4.h),
-            Text(
-              'or drag and drop files here',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w500,
-                color: AppTheme.textSecondary,
-              ),
-                        ),
-                    ],
-                  ),
-                ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -397,34 +535,61 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
 
   Widget _buildVideosSection() {
     return Container(
-      padding: EdgeInsets.all(24.w),
+      padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: AppTheme.cardWhite,
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        boxShadow: AppTheme.cardShadow,
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(
-                Icons.videocam,
-                color: AppTheme.primaryBlue,
-                size: 24.sp,
-              ),
-              SizedBox(width: 12.w),
-              Text(
-                'Property Videos',
-                style: AppTheme.titleLarge.copyWith(
-                  fontSize: 18.sp,
+              Container(
+                padding: EdgeInsets.all(10.w),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1B5993).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                child: Icon(
+                  Icons.videocam_rounded,
+                  color: const Color(0xFF1B5993),
+                  size: 24.w,
                 ),
               ),
-              const Spacer(),
-              Text(
-                '${_selectedVideos.length}/5',
-                style: AppTheme.bodyMedium.copyWith(
-                  fontWeight: FontWeight.w600,
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Text(
+                  'Property Videos',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF1B5993),
+                  ),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F4FD),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Text(
+                  '${_selectedVideos.length}/5',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF1B5993),
+                  ),
                 ),
               ),
             ],
@@ -434,8 +599,11 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
           
           Text(
             'Upload up to 5 videos (max 50MB each)',
-            style: AppTheme.bodySmall.copyWith(
+            style: TextStyle(
+              fontFamily: 'Inter',
               fontSize: 13.sp,
+              fontWeight: FontWeight.w400,
+              color: const Color(0xFF6B7280),
             ),
           ),
           
@@ -457,47 +625,54 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
     return GestureDetector(
       onTap: _pickVideos,
       child: Container(
-        height: 100.h,
+        height: 200.h,
         decoration: BoxDecoration(
-          color: AppTheme.backgroundGrey,
+          color: const Color(0xFFF8F9FA),
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(
-            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
-            width: 2,
-            style: BorderStyle.solid,
-          ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
           children: [
-            Icon(
-              Icons.video_library_outlined,
-              color: AppTheme.primaryBlue,
-              size: 28.sp,
+            // Dashed border effect using custom painter
+            CustomPaint(
+              size: Size(double.infinity, 200.h),
+              painter: _DashedBorderPainter(),
             ),
-            SizedBox(height: 8.h),
-            Text(
-              'Tap to select videos',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.primaryBlue,
-              ),
-            ),
-            SizedBox(height: 4.h),
-            Text(
-              'MP4, MOV, AVI formats supported',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w500,
-                color: AppTheme.textSecondary,
-              ),
-                        ),
-                    ],
+            // Content
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.movie_filter_rounded,
+                    color: const Color(0xFF4B5563),
+                    size: 56.w,
                   ),
-                ),
+                  SizedBox(height: 20.h),
+                  Text(
+                    'Click to upload videos',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF1F2937),
+                    ),
+                  ),
+                  SizedBox(height: 12.h),
+                  Text(
+                    '${_selectedVideos.length} video(s) uploaded',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w400,
+                      color: const Color(0xFF6B7280),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -1210,4 +1385,49 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
       ),
     );
   }
+}
+
+// Custom Painter for Dashed Border with rounded corners
+class _DashedBorderPainter extends CustomPainter {
+  final double radius = 12.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFFD1D5DB)
+      ..strokeWidth = 2.0
+      ..style = PaintingStyle.stroke;
+
+    const dashWidth = 8.0;
+    const dashSpace = 4.0;
+
+    // Draw dashed lines for each side (accounting for rounded corners)
+    final path = Path()
+      ..addRRect(RRect.fromRectAndRadius(
+        Rect.fromLTWH(1, 1, size.width - 2, size.height - 2),
+        Radius.circular(radius),
+      ));
+
+    // Draw dashed path manually
+    final metrics = path.computeMetrics();
+    for (var metric in metrics) {
+      double distance = 0;
+      while (distance < metric.length) {
+        final pathSegment = Path();
+        final start = metric.getTangentForOffset(distance);
+        final end = metric.getTangentForOffset(
+          (distance + dashWidth).clamp(0.0, metric.length),
+        );
+        if (start != null && end != null) {
+          pathSegment.moveTo(start.position.dx, start.position.dy);
+          pathSegment.lineTo(end.position.dx, end.position.dy);
+          canvas.drawPath(pathSegment, paint);
+        }
+        distance += dashWidth + dashSpace;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

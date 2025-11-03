@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../services/customer_properties_service.dart';
 import '../models/customer_property.dart';
 import '../core/theme/app_theme.dart';
@@ -192,6 +193,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               padding: EdgeInsets.all(8.w),
@@ -218,7 +220,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
             ),
           ],
         ),
-        centerTitle: false,
+        centerTitle: true,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(20.r),
@@ -448,8 +450,9 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         },
       ),
     );
-  }  
-Widget _buildPropertyCard(CustomerProperty property) {
+  }
+
+  Widget _buildPropertyCard(CustomerProperty property) {
     // Debug: Check property images
     print('🎴 Building card for property ${property.id} - Images: ${property.images.length}');
     if (property.images.isNotEmpty) {
@@ -503,10 +506,19 @@ Widget _buildPropertyCard(CustomerProperty property) {
                                 itemCount: property.images.length,
                                 itemBuilder: (context, idx) {
                                   final raw = property.images[idx];
-                                  print('🖼️ Loading image ${idx + 1}/${property.images.length}: ${raw.substring(0, raw.length > 60 ? 60 : raw.length)}...');
-                                  final url = raw.startsWith('http')
-                                      ? raw
-                                      : 'https://testingbackend.dhamarketplace.com${raw.startsWith('/') ? '' : '/'}$raw';
+                                  print('🖼️ Loading image ${idx + 1}/${property.images.length}');
+                                  print('   Raw URL: ${raw.substring(0, raw.length > 80 ? 80 : raw.length)}...');
+                                  
+                                  // The URL from API is already a complete S3 pre-signed URL
+                                  // Use it directly without modification
+                                  final url = raw.trim();
+                                  
+                                  if (url.isEmpty) {
+                                    print('   ❌ Empty URL, showing placeholder');
+                                    return _buildPlaceholderImage();
+                                  }
+                                  
+                                  print('   ✅ Using URL: ${url.substring(0, url.length > 80 ? 80 : url.length)}...');
                                   return _buildRobustImage(url, idx);
                                 },
                               ),
@@ -546,81 +558,81 @@ Widget _buildPropertyCard(CustomerProperty property) {
                 ),
               ],
             ),
-          
-          // Property Details
-          Padding(
-            padding: EdgeInsets.all(16.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title and Status with Edit Button
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        property.title,
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textPrimary,
+            // Property Details
+            Padding(
+              padding: EdgeInsets.all(16.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title and Status with Edit Button
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          property.title,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textPrimary,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(width: 8.w),
+                      _buildStatusChip(property),
+                    ],
+                  ),
+                  
+                  SizedBox(height: 8.h),
+                  
+                  // Property Size
+                  if (property.area != null && property.area!.isNotEmpty)
+                    Text(
+                      '${property.area} ${property.areaUnit ?? ''}'.trim(),
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: AppTheme.textSecondary,
                       ),
                     ),
-                    SizedBox(width: 8.w),
-                    _buildStatusChip(property),
-                  ],
-                ),
-                
-                SizedBox(height: 8.h),
-                
-                // Property Size
-                if (property.area != null && property.area!.isNotEmpty)
+                  
+                  SizedBox(height: 8.h),
+                  
+                  // Price
                   Text(
-                    '${property.area} ${property.areaUnit ?? ''}'.trim(),
+                    '${property.priceLabel}: PKR ${property.displayPrice}',
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                      color: AppTheme.textSecondary,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.tealAccent,
                     ),
                   ),
-                
-                SizedBox(height: 8.h),
-                
-                // Price
-                Text(
-                  '${property.priceLabel}: PKR ${property.displayPrice}',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.tealAccent,
-                  ),
-                ),
-                
-                // Amenities
-                if (property.amenitiesByCategory != null && property.amenitiesByCategory!.isNotEmpty) ...[
-                  SizedBox(height: 12.h),
-                  _buildAmenitiesSection(property),
-                ] else if (property.amenities.isNotEmpty) ...[
-                  SizedBox(height: 12.h),
-                  _buildAmenitiesSection(property),
-                ],
-                
-                SizedBox(height: 16.h),
-                
-                // Action Buttons
-                _buildActionButtons(property),
+                  
+                  // Amenities
+                  if (property.amenitiesByCategory != null && property.amenitiesByCategory!.isNotEmpty) ...[
+                    SizedBox(height: 12.h),
+                    _buildAmenitiesSection(property),
+                  ] else if (property.amenities.isNotEmpty) ...[
+                    SizedBox(height: 12.h),
+                    _buildAmenitiesSection(property),
+                  ],
+                  
+                  SizedBox(height: 16.h),
+                  
+                  // Action Buttons
+                  _buildActionButtons(property),
               ],
             ),
           ),
         ],
       ),
     ),
-  );
+    );
+  }
 
   Widget _buildActionButtons(CustomerProperty property) {
     return Row(
@@ -850,29 +862,19 @@ Widget _buildPropertyCard(CustomerProperty property) {
       final validatedUrl = _validateAndFixS3Url(url);
       print('🔍 Validated URL for image $imageIndex: ${validatedUrl.substring(0, validatedUrl.length > 80 ? 80 : validatedUrl.length)}...');
       
-      // Try to load the image with proper configuration for S3
-      final image = Image.network(
-        validatedUrl,
+      // Use CachedNetworkImage for better CORS handling and error management
+      return Container(
         width: double.infinity,
         height: 200.h,
-        fit: BoxFit.cover,
-        headers: {
-          'Accept': 'image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-          'Accept-Encoding': 'gzip, deflate, br',
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-        },
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) {
-            print('✅ Image $imageIndex loaded successfully');
-            return child;
-          }
-          final progress = loadingProgress.expectedTotalBytes != null
-              ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-              : null;
-          print('📥 Loading image $imageIndex: ${progress != null ? (progress * 100).toStringAsFixed(1) : '?'}%');
-          return Container(
+        child: CachedNetworkImage(
+          imageUrl: validatedUrl,
+          width: double.infinity,
+          height: 200.h,
+          fit: BoxFit.cover,
+          httpHeaders: {
+            'Accept': 'image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+          },
+          placeholder: (context, url) => Container(
             height: 200.h,
             color: AppTheme.lightBlue,
             child: Center(
@@ -880,15 +882,12 @@ Widget _buildPropertyCard(CustomerProperty property) {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircularProgressIndicator(
-                    value: progress,
                     color: AppTheme.primaryBlue,
-                    strokeWidth: 3,
+                    strokeWidth: 2,
                   ),
                   SizedBox(height: 8.h),
                   Text(
-                    progress != null 
-                        ? '${(progress * 100).toStringAsFixed(0)}%'
-                        : 'Loading...',
+                    'Loading image...',
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 12.sp,
@@ -898,17 +897,16 @@ Widget _buildPropertyCard(CustomerProperty property) {
                 ],
               ),
             ),
-          );
-        },
-        errorBuilder: (context, error, stackTrace) {
-          print('❌ Image load error for image $imageIndex: $error');
-          print('❌ Failed URL: $validatedUrl');
-          print('❌ Stack trace: $stackTrace');
-          return _buildPlaceholderImage();
-        },
+          ),
+          errorWidget: (context, url, error) {
+            print('❌ Image load error for image $imageIndex: $error');
+            print('❌ Failed URL: $validatedUrl');
+            return _buildPlaceholderImage();
+          },
+          fadeInDuration: const Duration(milliseconds: 300),
+          fadeOutDuration: const Duration(milliseconds: 100),
+        ),
       );
-      
-      return image;
     } catch (e, stackTrace) {
       print('❌ Exception loading image $imageIndex: $e');
       print('❌ Stack trace: $stackTrace');

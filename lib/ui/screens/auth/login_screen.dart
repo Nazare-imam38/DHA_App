@@ -275,7 +275,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 height: 140,
                                 fit: BoxFit.contain,
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 0),
                               Text(
                                 l10n.welcomeBack,
                                 style: TextStyle(
@@ -306,7 +306,7 @@ class _LoginScreenState extends State<LoginScreen>
                             ],
                           ),
                         ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 8),
 
                   // Email Field
                   SlideTransition(
@@ -319,6 +319,8 @@ class _LoginScreenState extends State<LoginScreen>
                       errorText: _emailError,
                     ),
                   ),
+
+                  const SizedBox(height: 10),
 
                   // Password Field
                   SlideTransition(
@@ -343,11 +345,15 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ),
 
+                  const SizedBox(height: 10),
+
                   // Captcha Field
                   SlideTransition(
                     position: _slideAnimation,
                     child: _buildCaptchaField(errorText: _captchaError),
                   ),
+
+                  const SizedBox(height: 8),
 
                   // Forgot Password
                   SlideTransition(
@@ -373,7 +379,7 @@ class _LoginScreenState extends State<LoginScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 24),
 
                   // Login Button
                   SlideTransition(
@@ -571,7 +577,7 @@ class _LoginScreenState extends State<LoginScreen>
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Container(
             height: 60,
             decoration: BoxDecoration(
@@ -672,7 +678,7 @@ class _LoginScreenState extends State<LoginScreen>
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -753,7 +759,7 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 // Captcha Input Field
                 Container(
                   height: 50,
@@ -790,7 +796,7 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 // Help Text
                 Row(
                   children: [

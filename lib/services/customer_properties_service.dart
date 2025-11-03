@@ -39,9 +39,27 @@ class CustomerPropertiesService {
           final dynamic inner = map['data'];
           if (inner is List) {
             print('📦 Parsed ${inner.length} properties from customer-properties API');
-            // Debug: Check first property's amenities
+            // Debug: Check first property's media and amenities
             if (inner.isNotEmpty && inner[0] is Map) {
               final firstProp = inner[0] as Map;
+              
+              // Check media
+              final media = firstProp['media'];
+              if (media != null && media is List) {
+                print('📸 First property has ${media.length} media items');
+                for (int i = 0; i < media.length; i++) {
+                  final item = media[i];
+                  if (item is Map) {
+                    final mediaLink = item['media_link']?.toString();
+                    final mediaType = item['media_type']?.toString();
+                    print('   📷 Media $i: type=$mediaType, link=${mediaLink != null ? mediaLink.substring(0, mediaLink.length > 60 ? 60 : mediaLink.length) : "null"}...');
+                  }
+                }
+              } else {
+                print('⚠️ First property has no media or media is not a list');
+              }
+              
+              // Check amenities
               final amenities = firstProp['amenities'];
               print('🔍 First property amenities: $amenities (type: ${amenities.runtimeType})');
             }

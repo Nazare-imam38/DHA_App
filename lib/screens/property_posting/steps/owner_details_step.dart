@@ -68,25 +68,35 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
       if (ownerDetails != null && ownerDetails.isNotEmpty) {
         print('✅ Owner details found, updating form fields...');
         
-        final name = ownerDetails['name']?.toString() ?? '';
-        final cnic = ownerDetails['cnic']?.toString() ?? '';
-        final address = ownerDetails['address']?.toString() ?? '';
-        final email = ownerDetails['email']?.toString() ?? '';
-        final phone = ownerDetails['phone']?.toString() ?? '';
+        // Get values and trim whitespace
+        final name = (ownerDetails['name']?.toString() ?? '').trim();
+        final cnic = (ownerDetails['cnic']?.toString() ?? '').trim();
+        final address = (ownerDetails['address']?.toString() ?? '').trim();
+        final email = (ownerDetails['email']?.toString() ?? '').trim();
+        final phone = (ownerDetails['phone']?.toString() ?? '').trim();
         
-        print('   Name: "$name"');
-        print('   CNIC: "$cnic"');
-        print('   Phone: "$phone"');
-        print('   Address: "$address"');
-        print('   Email: "$email"');
+        print('   Name: "$name" (length: ${name.length})');
+        print('   CNIC: "$cnic" (length: ${cnic.length})');
+        print('   Phone: "$phone" (length: ${phone.length})');
+        print('   Address: "$address" (length: ${address.length})');
+        print('   Email: "$email" (length: ${email.length})');
         
-        setState(() {
-          _nameController.text = name;
-          _cnicController.text = cnic;
-          _addressController.text = address;
-          _emailController.text = email;
-          _phoneController.text = phone;
-        });
+        // Only update if we have at least some meaningful data
+        final hasData = name.isNotEmpty || cnic.isNotEmpty || phone.isNotEmpty || address.isNotEmpty;
+        
+        if (hasData) {
+          setState(() {
+            if (name.isNotEmpty) _nameController.text = name;
+            if (cnic.isNotEmpty) _cnicController.text = cnic;
+            if (address.isNotEmpty) _addressController.text = address;
+            if (email.isNotEmpty) _emailController.text = email;
+            if (phone.isNotEmpty) _phoneController.text = phone;
+          });
+          
+          print('✅ Form fields updated with fetched data');
+        } else {
+          print('⚠️ All owner details are empty - not updating form fields');
+        }
         
         final form = context.read<PropertyFormData>();
         form.updateOwnerDetails(
@@ -144,6 +154,7 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               padding: EdgeInsets.all(8.w),
@@ -177,7 +188,7 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
             ),
           ],
         ),
-        centerTitle: false,
+        centerTitle: true,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(20.r),
@@ -422,10 +433,16 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
                     address: _addressController.text.trim(),
                     email: _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
                   );
+                  // Get the PropertyFormData instance before navigation
+                  final formDataInstance = context.read<PropertyFormData>();
+                  
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ReviewConfirmationStep(),
+                      builder: (context) => ChangeNotifierProvider.value(
+                        value: formDataInstance,
+                        child: ReviewConfirmationStep(),
+                      ),
                     ),
                   );
                 }
