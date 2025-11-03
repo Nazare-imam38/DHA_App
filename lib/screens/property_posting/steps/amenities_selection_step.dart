@@ -173,19 +173,41 @@ class _AmenitiesSelectionStepState extends State<AmenitiesSelectionStep> {
     return 'Other';
   }
 
+  // Icon mapping for amenities
+  IconData _getAmenityIcon(String amenityName) {
+    final name = amenityName.toLowerCase();
+    if (name.contains('water')) return Icons.water_drop;
+    if (name.contains('sewerage') || name.contains('drainage')) return Icons.water;
+    if (name.contains('gas')) return Icons.local_gas_station;
+    if (name.contains('electricity') || name.contains('power')) {
+      if (name.contains('backup')) return Icons.battery_charging_full;
+      return Icons.bolt;
+    }
+    if (name.contains('broadband') || name.contains('cable') || name.contains('wifi') || name.contains('wi-fi')) return Icons.wifi;
+    if (name.contains('elevator')) return Icons.elevator;
+    if (name.contains('fire') || name.contains('safety')) return Icons.shield;
+    if (name.contains('waste') || name.contains('disposal') || name.contains('trash')) return Icons.delete_outline;
+    if (name.contains('parking')) return Icons.local_parking;
+    if (name.contains('security')) return Icons.security;
+    if (name.contains('servant') || name.contains('quarter')) return Icons.home;
+    if (name.contains('storage') || name.contains('utility')) return Icons.inventory_2;
+    if (name.contains('reception')) return Icons.desk;
+    return Icons.star_outline;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<PropertyFormData>(
       builder: (context, formData, child) {
         return Scaffold(
-          backgroundColor: AppTheme.backgroundGrey,
+          backgroundColor: const Color(0xFFF8F9FA),
           appBar: AppBar(
-            backgroundColor: AppTheme.cardWhite,
+            backgroundColor: Colors.white,
             elevation: 0,
             leading: IconButton(
               icon: const Icon(
                 Icons.arrow_back_ios_new,
-                color: AppTheme.primaryBlue,
+                color: Color(0xFF1B5993),
                 size: 16,
               ),
               onPressed: () => Navigator.pop(context),
@@ -195,112 +217,266 @@ class _AmenitiesSelectionStepState extends State<AmenitiesSelectionStep> {
                 Container(
                   padding: EdgeInsets.all(8.w),
                   decoration: BoxDecoration(
-                    color: AppTheme.cardWhite,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(8.r),
-                    boxShadow: AppTheme.lightShadow,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Icon(
-                    Icons.home_work,
-                    color: AppTheme.primaryBlue,
-                    size: 20.w,
+                    Icons.star_rounded,
+                    color: const Color(0xFF1B5993),
+                    size: 20.sp,
                   ),
                 ),
                 SizedBox(width: 12.w),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Select Amenities',
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.textPrimary,
+                Text(
+                  'SELECT AMENITIES',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF1B5993),
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+            centerTitle: false,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20.r),
+                bottomRight: Radius.circular(20.r),
+              ),
+            ),
+            bottom: PreferredSize(
+              preferredSize: Size.fromHeight(2.0.h),
+              child: Container(
+                height: 2.0.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1B5993),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(20.r),
+                    bottomRight: Radius.circular(20.r),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          body: Column(
+            children: [
+              // Process Indicator
+              Container(
+                padding: EdgeInsets.all(16.w),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8F4FD),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: const Color(0xFF20B2AA).withValues(alpha: 0.3),
                       ),
                     ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF20B2AA),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Center(
+                            child: Text(
+                              '5',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Amenities Selection',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF20B2AA),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              
+              // Header Section with Status and Actions
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+                color: Colors.white,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.star_rounded,
+                      color: const Color(0xFF1B5993),
+                      size: 24.w,
+                    ),
+                    SizedBox(width: 12.w),
                     Text(
-                      '${formData.amenities.length} amenities selected',
+                      'Available Amenities',
                       style: TextStyle(
-                        fontSize: 12.sp,
-                        color: AppTheme.primaryBlue,
+                        fontFamily: 'Inter',
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF1B5993),
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                    const Spacer(),
+                    // Status Badge
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F4FD),
+                        borderRadius: BorderRadius.circular(20.r),
+                      ),
+                      child: Text(
+                        '${formData.amenities.length} of ${_allAmenities.length} selected',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF1B5993),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    // Select All Button
+                    GestureDetector(
+                      onTap: _selectAll,
+                      child: Container(
+                        width: 40.w,
+                        height: 40.w,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1B5993),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 20.w,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    // Clear All Button
+                    GestureDetector(
+                      onTap: _clearAll,
+                      child: Container(
+                        width: 40.w,
+                        height: 40.w,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF9CA3AF),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 20.w,
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          body: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
-                  padding: EdgeInsets.all(24.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Selection Status and Controls
-                      Container(
-                        padding: EdgeInsets.all(20.w),
-                        decoration: BoxDecoration(
-                          color: AppTheme.cardWhite,
-                          borderRadius: BorderRadius.circular(16.r),
-                          boxShadow: AppTheme.lightShadow,
-                        ),
-                        child: Row(
+              ),
+              
+              // Main Content
+              Expanded(
+                child: _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
+                        padding: EdgeInsets.all(24.w),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              '${formData.amenities.length} of ${_allAmenities.length} selected',
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.textPrimary,
-                              ),
-                            ),
-                            const Spacer(),
-                            ElevatedButton.icon(
-                              onPressed: _selectAll,
-                              icon: const Icon(Icons.check, size: 16),
-                              label: const Text('Select All'),
-                              style: AppTheme.outlineButtonStyle.copyWith(
-                                padding: MaterialStateProperty.all(
-                                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            // Pro Tip Section
+                            Container(
+                              padding: EdgeInsets.all(16.w),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE8F5E9),
+                                borderRadius: BorderRadius.circular(12.r),
+                                border: Border.all(
+                                  color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
+                                  width: 1,
                                 ),
                               ),
-                            ),
-                            SizedBox(width: 8.w),
-                            ElevatedButton.icon(
-                              onPressed: _clearAll,
-                              icon: const Icon(Icons.clear, size: 16),
-                              label: const Text('Clear All'),
-                              style: AppTheme.outlineButtonStyle.copyWith(
-                                padding: MaterialStateProperty.all(
-                                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.lightbulb_outline,
+                                    color: const Color(0xFF4CAF50),
+                                    size: 24.w,
+                                  ),
+                                  SizedBox(width: 12.w),
+                                  Expanded(
+                                    child: Text(
+                                      'Pro Tip: Select all amenities that are currently available at your property to attract the right buyers',
+                                      style: TextStyle(
+                                        fontFamily: 'Inter',
+                                        fontSize: 13.sp,
+                                        fontWeight: FontWeight.w400,
+                                        color: const Color(0xFF6B7280),
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
+                            
+                            SizedBox(height: 24.h),
+                            
+                            // Amenities List - Flat List (All Amenities)
+                            _allAmenities.isEmpty
+                                ? Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(32.w),
+                                      child: Text(
+                                        'No amenities available',
+                                        style: TextStyle(
+                                          fontSize: 16.sp,
+                                          color: AppTheme.textLight,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : ListView.separated(
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    itemCount: _allAmenities.length,
+                                    separatorBuilder: (context, index) => SizedBox(height: 12.h),
+                                    itemBuilder: (context, index) {
+                                      final amenity = _allAmenities[index];
+                                      return _buildAmenityItem(amenity, formData);
+                                    },
+                                  ),
+                            ],
+                          ),
                         ),
-                      ),
-                      
-                      SizedBox(height: 24.h),
-                      
-                      // Amenities by Category
-                      _amenitiesByCategory.isEmpty
-                          ? const Center(
-                              child: Text(
-                                'No amenities available',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: AppTheme.textLight,
-                                ),
-                              ),
-                            )
-                          : Column(
-                              children: _amenitiesByCategory.entries.map((entry) {
-                                return _buildCategorySection(entry.key, entry.value, formData);
-                              }).toList(),
-                            ),
-                    ],
                   ),
-                ),
+            ],
+          ),
           bottomNavigationBar: Container(
             padding: EdgeInsets.all(24.w),
             decoration: BoxDecoration(
@@ -338,72 +514,90 @@ class _AmenitiesSelectionStepState extends State<AmenitiesSelectionStep> {
     );
   }
   
-Widget _buildCategorySection(String category, List<Map<String, dynamic>> amenities, PropertyFormData formData) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 24.h),
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: AppTheme.cardWhite,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: AppTheme.lightShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            category,
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.textPrimary,
-            ),
-          ),
-          SizedBox(height: 16.h),
-          Wrap(
-            spacing: 12.w,
-            runSpacing: 12.h,
-            children: amenities.map((amenity) {
-              return _buildAmenityChip(amenity, formData);
-            }).toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAmenityChip(Map<String, dynamic> amenity, PropertyFormData formData) {
+  Widget _buildAmenityItem(Map<String, dynamic> amenity, PropertyFormData formData) {
     final amenityId = amenity['id'].toString();
     final isSelected = formData.amenities.contains(amenityId);
+    final amenityName = amenity['name'] ?? 'Unknown';
+    final icon = _getAmenityIcon(amenityName);
     
     return GestureDetector(
       onTap: () => _toggleAmenity(amenity),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+        padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryBlue : AppTheme.cardWhite,
-          borderRadius: BorderRadius.circular(25.r),
+          color: isSelected 
+              ? const Color(0xFFE8F4FD) 
+              : Colors.white,
+          borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
-            color: isSelected ? AppTheme.primaryBlue : AppTheme.borderGrey,
-            width: 1.5,
+            color: isSelected 
+                ? AppTheme.primaryBlue 
+                : const Color(0xFFE2E8F0),
+            width: isSelected ? 2 : 1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            if (isSelected)
-              Icon(
-                Icons.check,
-                size: 16.w,
-                color: AppTheme.cardWhite,
+            // Icon
+            Container(
+              width: 48.w,
+              height: 48.w,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF3F4F6),
+                borderRadius: BorderRadius.circular(10.r),
               ),
-            if (isSelected) SizedBox(width: 8.w),
-            Text(
-              amenity['name'] ?? 'Unknown',
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w500,
-                color: isSelected ? AppTheme.cardWhite : AppTheme.textPrimary,
+              child: Icon(
+                icon,
+                color: isSelected 
+                    ? AppTheme.primaryBlue 
+                    : const Color(0xFF6B7280),
+                size: 24.w,
               ),
+            ),
+            SizedBox(width: 16.w),
+            // Amenity Name
+            Expanded(
+              child: Text(
+                amenityName,
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFF1F2937),
+                ),
+              ),
+            ),
+            SizedBox(width: 12.w),
+            // Checkbox
+            Container(
+              width: 24.w,
+              height: 24.w,
+              decoration: BoxDecoration(
+                color: isSelected 
+                    ? AppTheme.primaryBlue 
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(6.r),
+                border: Border.all(
+                  color: isSelected 
+                      ? AppTheme.primaryBlue 
+                      : const Color(0xFFD1D5DB),
+                  width: 2,
+                ),
+              ),
+              child: isSelected
+                  ? Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 16.w,
+                    )
+                  : null,
             ),
           ],
         ),

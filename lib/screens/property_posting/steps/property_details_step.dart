@@ -548,87 +548,47 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
           
           SizedBox(height: 24.h),
           
-          // Next Step Instruction
-          Container(
-            padding: EdgeInsets.all(16.w),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  const Color(0xFF1B5993).withValues(alpha: 0.1),
-                  const Color(0xFF20B2AA).withValues(alpha: 0.15),
-                ],
+          // Next Step Instruction - Simplified
+          GestureDetector(
+            onTap: () {
+              _tabController.animateTo(1);
+            },
+            child: Container(
+              padding: EdgeInsets.all(16.w),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1B5993).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(
+                  color: const Color(0xFF1B5993).withValues(alpha: 0.3),
+                  width: 1,
+                ),
               ),
-              borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(
-                color: const Color(0xFF1B5993).withValues(alpha: 0.3),
-                width: 1,
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(8.w),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1B5993),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Icon(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
                     Icons.location_on_rounded,
-                    color: Colors.white,
+                    color: const Color(0xFF1B5993),
                     size: 20.w,
                   ),
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '📍 Next: Mark Property Location',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF1B5993),
-                        ),
-                      ),
-                      SizedBox(height: 4.h),
-                      Text(
-                        'Switch to the Map tab above to pinpoint your property\'s exact location on the map.',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w400,
-                          color: const Color(0xFF16A34A),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    _tabController.animateTo(1);
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                    decoration: BoxDecoration(
+                  SizedBox(width: 8.w),
+                  Text(
+                    'Mark Property Location on Map',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
                       color: const Color(0xFF1B5993),
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    child: Text(
-                      'Go to Map →',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
                     ),
                   ),
-                ),
-              ],
+                  SizedBox(width: 8.w),
+                  Icon(
+                    Icons.arrow_forward_rounded,
+                    color: const Color(0xFF1B5993),
+                    size: 18.w,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -640,85 +600,38 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
   Widget _buildMapTab() {
     return Column(
       children: [
-        // Map Header
+        // Map Header - Only Toggle Button
         Container(
           padding: EdgeInsets.all(20.w),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                const Color(0xFF1B5993),
-                const Color(0xFF2563EB),
-              ],
+            color: Colors.white,
+            border: Border(
+              bottom: BorderSide(
+                color: const Color(0xFFE2E8F0),
+                width: 1,
+              ),
             ),
           ),
-          child: Column(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(8.w),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    child: Icon(
-                      Icons.location_on_rounded,
-                      color: Colors.white,
-                      size: 24.w,
-                    ),
+              // Enhanced Map Type Toggle
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F9FA),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(
+                    color: const Color(0xFFE2E8F0),
+                    width: 1,
                   ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Select Property Location',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                        SizedBox(height: 2.h),
-                        Text(
-                          _selectedLatLng != null 
-                              ? 'Location selected!'
-                              : 'Tap on map to select location',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.white.withValues(alpha: 0.9),
-                            letterSpacing: -0.2,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Enhanced Map Type Toggle
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        width: 1,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildEnhancedMapToggleButton('Street', !_isMapSatellite),
-                        _buildEnhancedMapToggleButton('Satellite', _isMapSatellite),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildEnhancedMapToggleButton('Street', !_isMapSatellite),
+                    _buildEnhancedMapToggleButton('Satellite', _isMapSatellite),
+                  ],
+                ),
               ),
             ],
           ),
@@ -1052,38 +965,6 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
               fontStyle: FontStyle.italic,
             ),
           ),
-        
-        SizedBox(height: 20.h),
-
-        // Location helper + coordinates preview (set by tapping the map)
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(12.w),
-          decoration: BoxDecoration(
-            color: const Color(0xFFE8F5E9),
-            borderRadius: BorderRadius.circular(8.r),
-            border: Border.all(
-              color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
-            ),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  _selectedLatLng == null
-                      ? 'Tip: Tap on the map below to mark your exact property location.'
-                      : 'Selected location: ${_selectedLatLng!.latitude.toStringAsFixed(6)}, ${_selectedLatLng!.longitude.toStringAsFixed(6)}',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF4CAF50),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
         
         SizedBox(height: 20.h),
         
@@ -1426,12 +1307,12 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
         decoration: BoxDecoration(
           color: isSelected 
-              ? Colors.white.withValues(alpha: 0.9)
+              ? const Color(0xFF1B5993)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(10.r),
           boxShadow: isSelected ? [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
+              color: const Color(0xFF1B5993).withValues(alpha: 0.3),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -1444,8 +1325,8 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
               label == 'Satellite' ? Icons.satellite_alt_rounded : Icons.map_rounded,
               size: 14.w,
               color: isSelected 
-                  ? const Color(0xFF1B5993)
-                  : Colors.white.withValues(alpha: 0.8),
+                  ? Colors.white
+                  : const Color(0xFF6B7280),
             ),
             SizedBox(width: 6.w),
             Text(
@@ -1455,8 +1336,8 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
                 color: isSelected 
-                    ? const Color(0xFF1B5993)
-                    : Colors.white.withValues(alpha: 0.9),
+                    ? Colors.white
+                    : const Color(0xFF6B7280),
                 letterSpacing: -0.2,
               ),
             ),
