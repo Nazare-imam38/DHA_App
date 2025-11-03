@@ -1062,16 +1062,15 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
       }
     }
 
-    // Branching after upload: Step 7 Owner Details if posting on behalf, otherwise go to review
-    final isOnBehalf = formData.onBehalf == 1;
-    final needsOwner = isOnBehalf && (formData.name == null || formData.phone == null || formData.cnic == null || formData.address == null);
-
+    // Always go to Owner Details Step (Step 7)
+    // - If own property: form will be pre-filled from user API
+    // - If on behalf: form will be empty for manual input
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ChangeNotifierProvider.value(
           value: formData,
-          child: needsOwner ? OwnerDetailsStep() : ReviewConfirmationStep(),
+          child: const OwnerDetailsStep(),
         ),
       ),
     );

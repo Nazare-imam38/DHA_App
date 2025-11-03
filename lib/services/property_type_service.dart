@@ -81,15 +81,20 @@ class PropertyTypeService {
       
       print('API Call: POST $uri with parent_id: $parentId'); // Debug log
       
+      // Create form data with parent_id[] format as shown in Postman
+      final Map<String, String> formData = {
+        'parent_id[]': parentId.toString(),
+      };
+      
+      print('Request Body: $formData'); // Debug log
+      
       final response = await http.post(
         uri,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Accept': 'application/json',
         },
-        body: {
-          'parent_id[]': parentId.toString(),
-        },
+        body: formData,
       );
       
       print('Response Status: ${response.statusCode}'); // Debug log
@@ -97,12 +102,26 @@ class PropertyTypeService {
       
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data['success'] == true && data['data'] != null) {
-          return List<Map<String, dynamic>>.from(data['data']);
+        
+        // Check if response has success field and data
+        if (data is Map<String, dynamic>) {
+          if (data['success'] == true && data['data'] != null) {
+            final List<dynamic> subtypesList = data['data'];
+            return subtypesList.map((item) => Map<String, dynamic>.from(item)).toList();
+          }
+          // If no success field but has data directly
+          else if (data['data'] != null) {
+            final List<dynamic> subtypesList = data['data'];
+            return subtypesList.map((item) => Map<String, dynamic>.from(item)).toList();
+          }
+        }
+        // If response is directly an array
+        else if (data is List) {
+          return data.map((item) => Map<String, dynamic>.from(item)).toList();
         }
       }
       
-      // Fallback to empty list
+      print('No subtypes found for parent_id: $parentId');
       return [];
     } catch (e) {
       print('Error loading property subtypes: $e');

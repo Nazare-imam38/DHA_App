@@ -243,7 +243,7 @@ class PurposeSelectionStep extends StatelessWidget {
           color: AppTheme.cardWhite,
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           border: Border.all(
-            color: isSelected ? AppTheme.primaryBlue : AppTheme.borderGrey,
+            color: isSelected ? const Color(0xFF20B2AA) : AppTheme.borderGrey,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
@@ -263,12 +263,12 @@ class PurposeSelectionStep extends StatelessWidget {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: isSelected ? AppTheme.lightBlue : AppTheme.inputBackground,
+                color: isSelected ? const Color(0xFF20B2AA).withValues(alpha: 0.1) : AppTheme.inputBackground,
                 borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
               ),
               child: Icon(
                 icon,
-                color: isSelected ? AppTheme.primaryBlue : AppTheme.textSecondary,
+                color: isSelected ? const Color(0xFF20B2AA) : AppTheme.textSecondary,
                 size: 28,
               ),
             ),
@@ -302,10 +302,10 @@ class PurposeSelectionStep extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected ? AppTheme.primaryBlue : AppTheme.borderGrey,
+                  color: isSelected ? const Color(0xFF20B2AA) : AppTheme.borderGrey,
                   width: 2,
                 ),
-                color: isSelected ? AppTheme.primaryBlue : Colors.transparent,
+                color: isSelected ? const Color(0xFF20B2AA) : Colors.transparent,
               ),
               child: isSelected
                   ? const Icon(

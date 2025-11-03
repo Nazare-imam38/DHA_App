@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
+import '../../../services/user_service.dart';
 
 class PropertyFormData extends ChangeNotifier {
   // Step 1: Ownership
@@ -83,9 +84,22 @@ class PropertyFormData extends ChangeNotifier {
                    ? (rentPrice != null)
                    : (price != null)
                );
-      case 5: return buildingName != null && floorNumber != null && apartmentNumber != null &&
-               area != null && areaUnit != null && phase != null && 
-               sector != null && streetNumber != null;
+      case 5: 
+        // For ALL commercial properties OR residential plots: only require buildingName (plot number), area, areaUnit, phase, sector, streetNumber
+        // For residential apartments/houses: require all fields including floor and apartment
+        final isCommercial = category?.toLowerCase() == 'commercial';
+        final isResidentialPlot = category?.toLowerCase() == 'residential' && 
+                                  propertyTypeName?.toLowerCase() == 'plot';
+        final showPlotFields = isCommercial || isResidentialPlot;
+        
+        if (showPlotFields) {
+          return buildingName != null && area != null && areaUnit != null && 
+                 phase != null && sector != null && streetNumber != null;
+        } else {
+          return buildingName != null && floorNumber != null && apartmentNumber != null &&
+                 area != null && areaUnit != null && phase != null && 
+                 sector != null && streetNumber != null;
+        }
       case 6: return location != null && sector != null && 
                phase != null && latitude != null && longitude != null;
       // Step 7 (Owner Details): valid automatically if own property, else require fields
@@ -116,6 +130,46 @@ class PropertyFormData extends ChangeNotifier {
     this.address = address;
     this.email = email;
     notifyListeners();
+  }
+  
+  // Fetch and populate user details automatically for own property
+  Future<void> fetchAndPopulateUserDetails() async {
+    if (isOwnProperty) {
+      try {
+        print('🔄 Fetching user details for own property...');
+        final userService = UserService();
+        final ownerDetails = await userService.getOwnerDetailsForProperty();
+        
+        if (ownerDetails != null && ownerDetails.isNotEmpty) {
+          // Only update if we got valid data
+          final hasValidData = ownerDetails['name']?.toString().isNotEmpty == true ||
+                               ownerDetails['cnic']?.toString().isNotEmpty == true;
+          
+          if (hasValidData) {
+            updateOwnerDetails(
+              cnic: ownerDetails['cnic']?.toString(),
+              name: ownerDetails['name']?.toString(),
+              phone: ownerDetails['phone']?.toString(),
+              address: ownerDetails['address']?.toString(),
+              email: ownerDetails['email']?.toString(),
+            );
+            print('✅ User details populated automatically');
+            print('   Name: ${ownerDetails['name']}');
+            print('   CNIC: ${ownerDetails['cnic']}');
+            print('   Phone: ${ownerDetails['phone']}');
+          } else {
+            print('⚠️ User API returned empty data - user may need to complete profile');
+          }
+        } else {
+          print('❌ Failed to fetch user details - API returned null/empty');
+        }
+      } catch (e) {
+        print('❌ Error fetching user details: $e');
+        // Don't throw error - allow user to continue and enter details manually if needed
+      }
+    } else {
+      print('ℹ️ Posting on behalf of someone else - user details not fetched');
+    }
   }
   
   void updatePurpose(String? purpose) {

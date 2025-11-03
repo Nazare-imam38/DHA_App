@@ -66,6 +66,15 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     });
   }
 
+  void _navigateToPropertyDetails(CustomerProperty property) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ListingDetailScreen(property: property),
+      ),
+    );
+  }
+
   Future<void> _loadProperties() async {
     setState(() {
       _isLoading = true;
@@ -464,102 +473,80 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         ),
       ),
       child: Container(
-      margin: EdgeInsets.only(bottom: 16.h),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        margin: EdgeInsets.only(bottom: 16.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             // Property Image with Status Overlay
             Stack(
               children: [
-          Container(
-            height: 200.h,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(16.r),
-                topRight: Radius.circular(16.r),
-              ),
-              color: AppTheme.lightBlue,
-            ),
-            child: (property.images.isNotEmpty)
-                ? ClipRRect(
+                Container(
+                  height: 200.h,
+                  decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(16.r),
                       topRight: Radius.circular(16.r),
                     ),
-                    child: Stack(
-                      children: [
-                        PageView.builder(
-                          itemCount: property.images.length,
-                          itemBuilder: (context, idx) {
-                            final raw = property.images[idx];
-                            print('🖼️ Loading image ${idx + 1}/${property.images.length}: ${raw.substring(0, raw.length > 60 ? 60 : raw.length)}...');
-                            final url = raw.startsWith('http')
-                                ? raw
-                                : 'https://testingbackend.dhamarketplace.com${raw.startsWith('/') ? '' : '/'}$raw';
-                            return Image.network(
-                              url,
-                              width: double.infinity,
-                              height: 200.h,
-                              fit: BoxFit.cover,
-                              loadingBuilder: (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Container(
-                                  height: 200.h,
-                                  color: AppTheme.lightBlue,
+                    color: AppTheme.lightBlue,
+                  ),
+                  child: (property.images.isNotEmpty)
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(16.r),
+                            topRight: Radius.circular(16.r),
+                          ),
+                          child: Stack(
+                            children: [
+                              PageView.builder(
+                                itemCount: property.images.length,
+                                itemBuilder: (context, idx) {
+                                  final raw = property.images[idx];
+                                  print('🖼️ Loading image ${idx + 1}/${property.images.length}: ${raw.substring(0, raw.length > 60 ? 60 : raw.length)}...');
+                                  final url = raw.startsWith('http')
+                                      ? raw
+                                      : 'https://testingbackend.dhamarketplace.com${raw.startsWith('/') ? '' : '/'}$raw';
+                                  return _buildRobustImage(url, idx);
+                                },
+                              ),
+                              // Simple dots indicator
+                              if (property.images.length > 1)
+                                Positioned(
+                                  bottom: 8,
+                                  left: 0,
+                                  right: 0,
                                   child: Center(
-                                    child: CircularProgressIndicator(
-                                      value: loadingProgress.expectedTotalBytes != null
-                                          ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                          : null,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: List.generate(
+                                        property.images.length,
+                                        (index) => Container(
+                                          width: 6,
+                                          height: 6,
+                                          margin: const EdgeInsets.symmetric(horizontal: 3),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withValues(alpha: 0.8),
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                );
-                              },
-                              errorBuilder: (context, error, stackTrace) {
-                                print('❌ Image load error: $error');
-                                return _buildPlaceholderImage();
-                              },
-                            );
-                          },
-                        ),
-                        // Simple dots indicator
-                        Positioned(
-                          bottom: 8,
-                          left: 0,
-                          right: 0,
-                          child: Center(
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: List.generate(
-                                property.images.length,
-                                (index) => Container(
-                                  width: 6,
-                                  height: 6,
-                                  margin: const EdgeInsets.symmetric(horizontal: 3),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.8),
-                                    shape: BoxShape.circle,
-                                  ),
                                 ),
-                              ),
-                            ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                  )
-                : _buildPlaceholderImage(),
+                        )
+                      : _buildPlaceholderImage(),
                 ),
                 Positioned(
                   top: 12,
@@ -567,7 +554,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                   child: _buildStatusPill(property),
                 ),
               ],
-          ),
+            ),
           
           // Property Details
           Padding(
@@ -593,19 +580,6 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                     ),
                     SizedBox(width: 8.w),
                     _buildStatusChip(property),
-                    SizedBox(width: 8.w),
-                    // Edit Button
-                    IconButton(
-                      icon: Icon(
-                        Icons.edit_outlined,
-                        color: AppTheme.primaryBlue,
-                        size: 20.sp,
-                      ),
-                      onPressed: () => _navigateToUpdateProperty(property),
-                      tooltip: 'Edit Property',
-                      padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(),
-                    ),
                   ],
                 ),
                 
@@ -644,12 +618,88 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                   SizedBox(height: 12.h),
                   _buildAmenitiesSection(property),
                 ],
+                
+                SizedBox(height: 16.h),
+                
+                // Action Buttons
+                _buildActionButtons(property),
               ],
             ),
           ),
         ],
-        ),
       ),
+    );
+  }
+
+  Widget _buildActionButtons(CustomerProperty property) {
+    return Row(
+      children: [
+        // View Button
+        Expanded(
+          child: ElevatedButton.icon(
+            onPressed: () => _navigateToPropertyDetails(property),
+            icon: Icon(
+              Icons.visibility_outlined,
+              size: 16.sp,
+              color: const Color(0xFF20B2AA),
+            ),
+            label: Text(
+              'View',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF20B2AA),
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF20B2AA),
+              elevation: 0,
+              side: BorderSide(
+                color: const Color(0xFF20B2AA),
+                width: 1,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+              padding: EdgeInsets.symmetric(vertical: 12.h),
+            ),
+          ),
+        ),
+        
+        SizedBox(width: 12.w),
+        
+        // Update Button
+        Expanded(
+          child: ElevatedButton.icon(
+            onPressed: () => _navigateToUpdateProperty(property),
+            icon: Icon(
+              Icons.edit_outlined,
+              size: 16.sp,
+              color: Colors.white,
+            ),
+            label: Text(
+              'Update',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF20B2AA),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+              padding: EdgeInsets.symmetric(vertical: 12.h),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -762,6 +812,156 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     );
   }
 
+  Widget _buildRobustImage(String url, int imageIndex) {
+    return FutureBuilder<Widget>(
+      future: _loadImageWithFallback(url, imageIndex),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Container(
+            height: 200.h,
+            color: AppTheme.lightBlue,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    color: AppTheme.primaryBlue,
+                    strokeWidth: 2,
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    'Loading image...',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 12.sp,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        
+        if (snapshot.hasError || !snapshot.hasData) {
+          print('❌ Image load failed for: ${url.substring(0, url.length > 60 ? 60 : url.length)}...');
+          return _buildPlaceholderImage();
+        }
+        
+        return snapshot.data!;
+      },
+    );
+  }
+
+  Future<Widget> _loadImageWithFallback(String url, int imageIndex) async {
+    try {
+      // Validate and potentially fix the URL
+      final validatedUrl = _validateAndFixS3Url(url);
+      print('🔍 Validated URL for image $imageIndex: ${validatedUrl.substring(0, validatedUrl.length > 80 ? 80 : validatedUrl.length)}...');
+      
+      // Try to load the image with proper configuration for S3
+      final image = Image.network(
+        validatedUrl,
+        width: double.infinity,
+        height: 200.h,
+        fit: BoxFit.cover,
+        headers: {
+          'Accept': 'image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) {
+            print('✅ Image $imageIndex loaded successfully');
+            return child;
+          }
+          final progress = loadingProgress.expectedTotalBytes != null
+              ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+              : null;
+          print('📥 Loading image $imageIndex: ${progress != null ? (progress * 100).toStringAsFixed(1) : '?'}%');
+          return Container(
+            height: 200.h,
+            color: AppTheme.lightBlue,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    value: progress,
+                    color: AppTheme.primaryBlue,
+                    strokeWidth: 3,
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    progress != null 
+                        ? '${(progress * 100).toStringAsFixed(0)}%'
+                        : 'Loading...',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 12.sp,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          print('❌ Image load error for image $imageIndex: $error');
+          print('❌ Failed URL: $validatedUrl');
+          print('❌ Stack trace: $stackTrace');
+          return _buildPlaceholderImage();
+        },
+      );
+      
+      return image;
+    } catch (e, stackTrace) {
+      print('❌ Exception loading image $imageIndex: $e');
+      print('❌ Stack trace: $stackTrace');
+      return _buildPlaceholderImage();
+    }
+  }
+
+  String _validateAndFixS3Url(String url) {
+    try {
+      // If it's already a full URL, validate it
+      if (url.startsWith('http')) {
+        final uri = Uri.parse(url);
+        
+        // Check if it's an S3 URL and fix common issues
+        if (uri.host.contains('s3') || uri.host.contains('amazonaws.com')) {
+          // Ensure the URL is properly encoded
+          final fixedUrl = url.replaceAll(' ', '%20');
+          
+          // For S3 signed URLs, ensure they're not expired
+          if (url.contains('X-Amz-Expires')) {
+            final expiresMatch = RegExp(r'X-Amz-Expires=(\d+)').firstMatch(url);
+            if (expiresMatch != null) {
+              final expires = int.tryParse(expiresMatch.group(1) ?? '0') ?? 0;
+              print('🕐 S3 URL expires in: ${expires}s');
+            }
+          }
+          
+          return fixedUrl;
+        }
+        
+        return url;
+      }
+      
+      // If it's a relative path, prepend the base URL
+      final baseUrl = 'https://testingbackend.dhamarketplace.com';
+      final cleanPath = url.startsWith('/') ? url : '/$url';
+      return '$baseUrl$cleanPath';
+      
+    } catch (e) {
+      print('❌ Error validating URL: $e');
+      return url;
+    }
+  }
+
   Widget _buildPlaceholderImage() {
     return Container(
       width: double.infinity,
@@ -776,17 +976,34 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.home_work_outlined,
-            size: 48.sp,
-            color: AppTheme.textSecondary,
+          Container(
+            padding: EdgeInsets.all(16.w),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: Icon(
+              Icons.image_not_supported_outlined,
+              size: 32.sp,
+              color: AppTheme.primaryBlue,
+            ),
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: 12.h),
           Text(
-            'No Image',
+            'Image Unavailable',
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: 14.sp,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            'Unable to load property image',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 12.sp,
               color: AppTheme.textSecondary,
             ),
           ),

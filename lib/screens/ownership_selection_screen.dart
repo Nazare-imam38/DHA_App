@@ -453,6 +453,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
     formData.updateOwnership(_selectedOption == 'own' ? 0 : 1);
     
     // Navigate directly to purpose selection step
+    // User details will be fetched later in Step 7 (Owner Details Step)
     if (mounted) {
       Navigator.push(
         context,

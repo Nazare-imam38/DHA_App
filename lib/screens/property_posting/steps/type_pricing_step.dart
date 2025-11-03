@@ -143,20 +143,38 @@ class _TypePricingStepState extends State<TypePricingStep> {
     });
     
     try {
-      print('Loading property subtypes for parentId: $parentId');
+      print('🔄 Loading property subtypes for parentId: $parentId');
+      print('🔄 Property Type: $_selectedPropertyTypeName, Category: $_selectedCategory');
       
       final subtypes = await _propertyTypeService.getPropertySubtypes(
         parentId: parentId,
       );
       
-      print('Received property subtypes: $subtypes');
+      print('✅ Received ${subtypes.length} property subtypes: $subtypes');
+      
+      // TEMPORARY FIX: For testing, if it's an apartment and no subtypes found,
+      // try using House ID 8 which has the apartment-like subtypes
+      List<Map<String, dynamic>> finalSubtypes = subtypes;
+      if (subtypes.isEmpty && _selectedPropertyTypeName?.toLowerCase() == 'apartment') {
+        print('🔧 No subtypes for Apartment ID $parentId, trying House ID 8...');
+        final houseSubtypes = await _propertyTypeService.getPropertySubtypes(parentId: 8);
+        if (houseSubtypes.isNotEmpty) {
+          print('✅ Found ${houseSubtypes.length} subtypes from House ID 8: $houseSubtypes');
+          finalSubtypes = houseSubtypes;
+        }
+      }
       
       setState(() {
-        _propertySubtypes = subtypes;
+        _propertySubtypes = finalSubtypes;
         _isLoadingSubtypes = false;
       });
+      
+      // Show message if no subtypes found
+      if (finalSubtypes.isEmpty) {
+        print('ℹ️ No subtypes available for property type ID: $parentId');
+      }
     } catch (e) {
-      print('Error in _loadPropertySubtypes: $e');
+      print('❌ Error in _loadPropertySubtypes: $e');
       setState(() {
         _propertySubtypes = [];
         _isLoadingSubtypes = false;
@@ -416,11 +434,18 @@ class _TypePricingStepState extends State<TypePricingStep> {
   }
   
   Widget _buildPropertyTypeSection(PropertyFormData formData) {
+    // Check if this section is active/selected (has data)
+    final isActive = formData.category != null || formData.propertyTypeId != null;
+    
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isActive ? const Color(0xFF20B2AA).withValues(alpha: 0.05) : Colors.white,
         borderRadius: BorderRadius.circular(20),
+        border: isActive ? Border.all(
+          color: const Color(0xFF20B2AA).withValues(alpha: 0.3),
+          width: 1,
+        ) : null,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -497,67 +522,98 @@ class _TypePricingStepState extends State<TypePricingStep> {
             isLoading: _isLoadingTypes,
             placeholder: _selectedCategory == null ? 'Select category first' : 'Select type',
             onChanged: (value) {
-              final selectedType = _propertyTypes.firstWhere((type) => type['name'] == value);
-              setState(() {
-                _selectedPropertyTypeId = selectedType['id'] as int;
-                _selectedPropertyTypeName = selectedType['name'] as String;
-              });
-              
-              // Load subtypes for this property type
-              _loadPropertySubtypes(_selectedPropertyTypeId!);
-              
-              formData.updatePropertyTypeAndListing(
-                category: formData.category,
-                propertyTypeId: _selectedPropertyTypeId,
-                propertyTypeName: _selectedPropertyTypeName,
-                propertySubtypeId: null,
-                propertySubtypeName: null,
-                title: formData.title,
-                description: formData.description,
-                listingDuration: formData.listingDuration,
-              );
+              if (value != null) {
+                final selectedType = _propertyTypes.firstWhere((type) => type['name'] == value);
+                setState(() {
+                  _selectedPropertyTypeId = selectedType['id'] as int;
+                  _selectedPropertyTypeName = selectedType['name'] as String;
+                  // Reset subtype selection when property type changes
+                  _selectedPropertySubtypeId = null;
+                  _selectedPropertySubtypeName = null;
+                });
+                
+                print('🎯 Selected Property Type: ${selectedType['name']} (ID: ${selectedType['id']})');
+                print('🎯 Category: $_selectedCategory, Purpose: ${context.read<PropertyFormData>().purpose}');
+                print('🎯 Available Property Types: $_propertyTypes');
+                
+                // Load subtypes for this property type using the parent_id
+                _loadPropertySubtypes(_selectedPropertyTypeId!);
+                
+                formData.updatePropertyTypeAndListing(
+                  category: formData.category,
+                  propertyTypeId: _selectedPropertyTypeId,
+                  propertyTypeName: _selectedPropertyTypeName,
+                  propertySubtypeId: null, // Reset subtype
+                  propertySubtypeName: null, // Reset subtype
+                  title: formData.title,
+                  description: formData.description,
+                  listingDuration: formData.listingDuration,
+                );
+              }
             },
           ),
           
           const SizedBox(height: 16),
           
-          // Property Subtype Dropdown (Optional)
-          _buildDropdownField(
-            label: 'Property Subtype',
-            value: _selectedPropertySubtypeName,
-            items: _propertySubtypes.map((subtype) => subtype['name'] as String).toList(),
-            isLoading: _isLoadingSubtypes,
-            placeholder: _selectedPropertyTypeId == null ? 'Select property type first' : 'No subtypes available',
-            onChanged: (value) {
-              final selectedSubtype = _propertySubtypes.firstWhere((subtype) => subtype['name'] == value);
-              setState(() {
-                _selectedPropertySubtypeId = selectedSubtype['id'] as int;
-                _selectedPropertySubtypeName = selectedSubtype['name'] as String;
-              });
-              
-              formData.updatePropertyTypeAndListing(
-                category: formData.category,
-                propertyTypeId: formData.propertyTypeId,
-                propertyTypeName: formData.propertyTypeName,
-                propertySubtypeId: _selectedPropertySubtypeId,
-                propertySubtypeName: _selectedPropertySubtypeName,
-                title: formData.title,
-                description: formData.description,
-                listingDuration: formData.listingDuration,
-              );
-            },
-          ),
+          // Property Subtype Dropdown (Show only if subtypes are available)
+          if (_propertySubtypes.isNotEmpty || _isLoadingSubtypes)
+            Column(
+              children: [
+                const SizedBox(height: 16),
+                _buildDropdownField(
+                  label: 'Property Subtype',
+                  value: _selectedPropertySubtypeName,
+                  items: _propertySubtypes.map((subtype) => subtype['name'] as String).toList(),
+                  isLoading: _isLoadingSubtypes,
+                  placeholder: _selectedPropertyTypeId == null 
+                    ? 'Select property type first' 
+                    : _isLoadingSubtypes 
+                      ? 'Loading subtypes...'
+                      : _propertySubtypes.isEmpty 
+                        ? 'No subtypes available'
+                        : 'Select subtype',
+                  onChanged: (value) {
+                    if (value != null) {
+                      final selectedSubtype = _propertySubtypes.firstWhere((subtype) => subtype['name'] == value);
+                      setState(() {
+                        _selectedPropertySubtypeId = selectedSubtype['id'] as int;
+                        _selectedPropertySubtypeName = selectedSubtype['name'] as String;
+                      });
+                      
+                      formData.updatePropertyTypeAndListing(
+                        category: formData.category,
+                        propertyTypeId: formData.propertyTypeId,
+                        propertyTypeName: formData.propertyTypeName,
+                        propertySubtypeId: _selectedPropertySubtypeId,
+                        propertySubtypeName: _selectedPropertySubtypeName,
+                        title: formData.title,
+                        description: formData.description,
+                        listingDuration: formData.listingDuration,
+                      );
+                    }
+                  },
+                ),
+              ],
+            ),
         ],
       ),
     );
   }
   
   Widget _buildBasicListingSection(PropertyFormData formData) {
+    // Check if this section is active/selected (has data)
+    final isActive = formData.title != null || formData.description != null || 
+                     formData.listingDuration != null || formData.price != null || formData.rentPrice != null;
+    
     return Container(
       padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isActive ? const Color(0xFF20B2AA).withValues(alpha: 0.05) : Colors.white,
         borderRadius: BorderRadius.circular(20),
+        border: isActive ? Border.all(
+          color: const Color(0xFF20B2AA).withValues(alpha: 0.3),
+          width: 1,
+        ) : null,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -604,7 +660,6 @@ class _TypePricingStepState extends State<TypePricingStep> {
             controller: _titleController,
             label: 'Property Title *',
             hint: 'E.G., Beautiful 5 Marla House In Phase 2',
-            icon: Icons.title,
             onChanged: (value) {
               formData.updatePropertyTypeAndListing(
                 category: formData.category,
@@ -654,7 +709,6 @@ class _TypePricingStepState extends State<TypePricingStep> {
             ),
             label: formData.isRent ? 'Rent Price (PKR) *' : 'Selling Price (PKR) *',
             hint: formData.isRent ? 'Enter monthly rent amount' : 'Enter property selling price',
-            icon: Icons.attach_money,
             onChanged: (value) {
               if (formData.isRent) {
                 // For rent: update rentPrice field
@@ -681,7 +735,6 @@ class _TypePricingStepState extends State<TypePricingStep> {
             controller: _descriptionController,
             label: 'Description *',
             hint: 'Describe your property in detail...',
-            icon: Icons.description,
             maxLines: 4,
             onChanged: (value) {
               formData.updatePropertyTypeAndListing(
@@ -790,7 +843,6 @@ class _TypePricingStepState extends State<TypePricingStep> {
     required TextEditingController controller,
     required String label,
     required String hint,
-    required IconData icon,
     required void Function(String) onChanged,
     int maxLines = 1,
   }) {
@@ -839,11 +891,6 @@ class _TypePricingStepState extends State<TypePricingStep> {
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 16,
-              ),
-              prefixIcon: Icon(
-                icon,
-                color: const Color(0xFF1B5993),
-                size: 20,
               ),
             ),
           ),

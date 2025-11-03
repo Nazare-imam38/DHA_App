@@ -48,14 +48,14 @@ class PropertyService {
       // Add ownership and owner details
       request.fields['on_behalf'] = formData.onBehalf.toString();
       
-      // Add owner details if on behalf
-      if (formData.hasOwnerDetails) {
-        request.fields['cnic'] = formData.cnic!;
-        request.fields['name'] = formData.name!;
-        request.fields['phone'] = formData.phone!;
-        request.fields['address'] = formData.address!;
-        if (formData.email != null) request.fields['email'] = formData.email!;
-      }
+      // Add owner details (always required for property creation)
+      // For own property: details fetched from user API
+      // For on behalf: details entered manually
+      if (formData.cnic != null) request.fields['cnic'] = formData.cnic!;
+      if (formData.name != null) request.fields['name'] = formData.name!;
+      if (formData.phone != null) request.fields['phone'] = formData.phone!;
+      if (formData.address != null) request.fields['address'] = formData.address!;
+      if (formData.email != null) request.fields['email'] = formData.email!;
       
       // Add images
       for (var image in formData.images) {

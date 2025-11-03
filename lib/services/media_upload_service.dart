@@ -46,9 +46,17 @@ class MediaUploadService {
       propertyData.forEach((key, value) {
         if (value != null) {
           if (key == 'amenities' && value is List) {
-            // Handle amenities array - extract IDs only (backend expects only IDs)
+            // Handle amenities array with nested format: amenities[property_type_id][amenity_id]
             print('🏠 Adding ${value.length} amenities to request');
             print('🏠 Amenities list: $value');
+            
+            // Get property_type_id from propertyData
+            final propertyTypeId = propertyData['property_type_id']?.toString();
+            if (propertyTypeId == null || propertyTypeId.isEmpty) {
+              print('❌ ERROR: property_type_id is missing! Cannot format amenities correctly.');
+              print('   Available keys: ${propertyData.keys.toList()}');
+            }
+            
             if (value.isEmpty) {
               print('⚠️ WARNING: Amenities list is EMPTY!');
             } else {
@@ -66,14 +74,16 @@ class MediaUploadService {
                   print('   ✅ Using amenity ID $i: $amenityId');
                 }
                 
-                if (amenityId.isNotEmpty) {
-                  // Backend expects only the ID in indexed array format
-                  request.fields['amenities[$i]'] = amenityId;
+                if (amenityId.isNotEmpty && propertyTypeId != null) {
+                  // NEW FORMAT: amenities[property_type_id][amenity_id]
+                  final fieldKey = 'amenities[$propertyTypeId][$amenityId]';
+                  request.fields[fieldKey] = ''; // Optional value (can be empty)
+                  print('   📤 Added: $fieldKey = ""');
                 } else {
-                  print('   ⚠️ Skipping empty amenity at index $i');
+                  print('   ⚠️ Skipping amenity $i: amenityId="$amenityId", propertyTypeId="$propertyTypeId"');
                 }
               }
-              print('🏠 Total amenity IDs sent: ${value.length}');
+              print('🏠 Total amenity fields sent: ${value.length} (format: amenities[$propertyTypeId][amenity_id])');
             }
           } else {
             request.fields[key] = value.toString();

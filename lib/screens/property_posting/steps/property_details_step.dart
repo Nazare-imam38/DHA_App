@@ -12,17 +12,23 @@ class PropertyDetailsStep extends StatefulWidget {
   _PropertyDetailsStepState createState() => _PropertyDetailsStepState();
 }
 
-class _PropertyDetailsStepState extends State<PropertyDetailsStep> {
-  final _buildingNameController = TextEditingController();
+class _PropertyDetailsStepState extends State<PropertyDetailsStep> 
+    with SingleTickerProviderStateMixin {
+  final _buildingNameController = TextEditingController(); // Also used for plot number
   final _floorNumberController = TextEditingController();
   final _apartmentNumberController = TextEditingController();
   final _areaController = TextEditingController();
   final _sectorController = TextEditingController();
   final _streetNumberController = TextEditingController();
+  final _completeAddressController = TextEditingController();
   
   String? _selectedAreaUnit;
   String? _selectedPhase;
-  bool _isMapSatellite = true;
+  bool _isMapSatellite = false; // Default to street view
+  
+  // Tab controller
+  late TabController _tabController;
+  int _currentTabIndex = 0;
   
   // Map related variables
   MapController _mapController = MapController();
@@ -52,8 +58,27 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep> {
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      setState(() {
+        _currentTabIndex = _tabController.index;
+      });
+    });
     _loadPhaseBoundaries();
     _initializeFormData();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _buildingNameController.dispose();
+    _floorNumberController.dispose();
+    _apartmentNumberController.dispose();
+    _areaController.dispose();
+    _sectorController.dispose();
+    _streetNumberController.dispose();
+    _completeAddressController.dispose();
+    super.dispose();
   }
 
   void _initializeFormData() {
@@ -66,6 +91,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep> {
     _areaController.text = formData.area?.toString() ?? '';
     _sectorController.text = formData.sector ?? '';
     _streetNumberController.text = formData.streetNumber ?? '';
+    _completeAddressController.text = formData.location ?? '';
     _selectedAreaUnit = formData.areaUnit;
     _selectedPhase = formData.phase;
     if (formData.latitude != null && formData.longitude != null) {
@@ -175,17 +201,6 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep> {
       LatLng(maxLat, maxLng),
     );
   }
-  
-  @override
-  void dispose() {
-    _buildingNameController.dispose();
-    _floorNumberController.dispose();
-    _apartmentNumberController.dispose();
-    _areaController.dispose();
-    _sectorController.dispose();
-    _streetNumberController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -258,143 +273,123 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep> {
         ),
       ),
       body: Column(
-                children: [
-                  // Process Indicator
+        children: [
+          // Process Indicator
           Container(
             padding: EdgeInsets.all(16.w),
             child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F4FD),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: const Color(0xFF20B2AA).withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF20B2AA),
+                        shape: BoxShape.circle,
                       ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE8F4FD),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: const Color(0xFF20B2AA).withValues(alpha: 0.3),
+                      child: const Center(
+                        child: Text(
+                          '4',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 24,
-                            height: 24,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF20B2AA),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Center(
-                              child: Text(
-                                '4',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'Property Details',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF20B2AA),
-                            ),
-                          ),
-                        ],
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Property Details',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF20B2AA),
                       ),
                     ),
-                    ),
-                  ),
-                  
-          // Main Content - Vertical Layout
+                  ],
+                ),
+              ),
+            ),
+          ),
+          
+          // Main Content - Tab System
           Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(24.w),
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 24.w),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
               child: Column(
                 children: [
-                  // Form Section
+                  // Custom Tab Bar
                   Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(24),
+                    padding: EdgeInsets.all(8.w),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
+                      color: const Color(0xFFF8F9FA),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20.r),
+                        topRight: Radius.circular(20.r),
+                      ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
                       children: [
-                        // Header
-                        const Text(
-                          'Property Details',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 28,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF1B5993),
-                            height: 1.2,
+                        Expanded(
+                          child: _buildCustomTab(
+                            'Details',
+                            Icons.description_rounded,
+                            0,
                           ),
                         ),
-                        
-                        const SizedBox(height: 8),
-                        
-                        const Text(
-                          'Enter your property details and location information.',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF616161),
-                            height: 1.5,
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: _buildCustomTab(
+                            'Map',
+                            Icons.location_on_rounded,
+                            1,
                           ),
                         ),
-                        
-                        const SizedBox(height: 32),
-                        
-                        // Form Fields
-                        _buildFormFields(),
                       ],
                     ),
                   ),
                   
-                  const SizedBox(height: 24),
-                  
-                  // Map Section
-                  Container(
-                    width: double.infinity,
-                    height: 400.h,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20.r),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
+                  // Tab Content
+                  Expanded(
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _buildDetailsTab(),
+                        _buildMapTab(),
                       ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20.r),
-                      child: _buildMapSection(),
-                          ),
-                        ),
-                      ],
-              ),
                     ),
                   ),
                 ],
+              ),
+            ),
+          ),
+        ],
       ),
       
       // Navigation Buttons
@@ -467,74 +462,520 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep> {
     );
   }
   
-  Widget _buildFormFields() {
+  // Custom Tab Widget
+  Widget _buildCustomTab(String title, IconData icon, int index) {
+    final isSelected = _currentTabIndex == index;
+    
+    return GestureDetector(
+      onTap: () {
+        _tabController.animateTo(index);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF1B5993) : Colors.transparent,
+          borderRadius: BorderRadius.circular(10.r),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: const Color(0xFF1B5993).withValues(alpha: 0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ] : null,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 18.w,
+              color: isSelected ? Colors.white : const Color(0xFF6B7280),
+            ),
+            SizedBox(width: 8.w),
+            Text(
+              title,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.white : const Color(0xFF6B7280),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  // Details Tab Content
+  Widget _buildDetailsTab() {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(24.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Text(
+            'Property Details',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 24.sp,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF1B5993),
+              height: 1.2,
+            ),
+          ),
+          
+          SizedBox(height: 8.h),
+          
+          Text(
+            'Enter your property details and location information.',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w400,
+              color: const Color(0xFF6B7280),
+              height: 1.5,
+            ),
+          ),
+          
+          SizedBox(height: 24.h),
+          
+          // Form Fields
+          _buildFormFields(),
+          
+          SizedBox(height: 24.h),
+          
+          // Next Step Instruction
+          Container(
+            padding: EdgeInsets.all(16.w),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color(0xFF1B5993).withValues(alpha: 0.1),
+                  const Color(0xFF20B2AA).withValues(alpha: 0.15),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12.r),
+              border: Border.all(
+                color: const Color(0xFF1B5993).withValues(alpha: 0.3),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8.w),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1B5993),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Icon(
+                    Icons.location_on_rounded,
+                    color: Colors.white,
+                    size: 20.w,
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '📍 Next: Mark Property Location',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF1B5993),
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
+                      Text(
+                        'Switch to the Map tab above to pinpoint your property\'s exact location on the map.',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w400,
+                          color: const Color(0xFF16A34A),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    _tabController.animateTo(1);
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1B5993),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Text(
+                      'Go to Map →',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  // Map Tab Content
+  Widget _buildMapTab() {
     return Column(
       children: [
-        // Building Name
-        _buildTextField(
-          controller: _buildingNameController,
-          label: 'Building Name *',
-          hint: 'E.G., Tower A, Building 5',
-          icon: Icons.business,
-          onChanged: (value) {
-            final formData = context.read<PropertyFormData>();
-            formData.updatePropertyDetails(
-              buildingName: value,
-              floorNumber: formData.floorNumber,
-              apartmentNumber: formData.apartmentNumber,
-              area: formData.area,
-              areaUnit: formData.areaUnit,
-              streetNumber: formData.streetNumber,
-            );
-            print('Building Name updated: $value');
-          },
+        // Map Header
+        Container(
+          padding: EdgeInsets.all(20.w),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                const Color(0xFF1B5993),
+                const Color(0xFF2563EB),
+              ],
+            ),
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(8.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    child: Icon(
+                      Icons.location_on_rounded,
+                      color: Colors.white,
+                      size: 24.w,
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Select Property Location',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        SizedBox(height: 2.h),
+                        Text(
+                          _selectedLatLng != null 
+                              ? 'Location selected!'
+                              : 'Tap on map to select location',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.white.withValues(alpha: 0.9),
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Enhanced Map Type Toggle
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildEnhancedMapToggleButton('Street', !_isMapSatellite),
+                        _buildEnhancedMapToggleButton('Satellite', _isMapSatellite),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
         
-        const SizedBox(height: 16),
-        
-        // Floor
-        _buildTextField(
-          controller: _floorNumberController,
-          label: 'Floor *',
-          hint: 'E.G., 3rd Floor, Ground Floor',
-          icon: Icons.layers,
-          onChanged: (value) {
-            final formData = context.read<PropertyFormData>();
-            formData.updatePropertyDetails(
-              buildingName: formData.buildingName,
-              floorNumber: value,
-              apartmentNumber: formData.apartmentNumber,
-              area: formData.area,
-              areaUnit: formData.areaUnit,
-              streetNumber: formData.streetNumber,
-            );
-            print('Floor updated: $value');
-          },
+        // Location Status Bar
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: _selectedLatLng != null 
+              ? Container(
+                  key: const ValueKey('selected'),
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        const Color(0xFF10B981).withValues(alpha: 0.08),
+                        const Color(0xFF059669).withValues(alpha: 0.12),
+                      ],
+                    ),
+                    border: Border(
+                      bottom: BorderSide(
+                        color: const Color(0xFFE2E8F0),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(6.w),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF10B981),
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Icon(
+                          Icons.check_rounded,
+                          color: Colors.white,
+                          size: 16.w,
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Location Selected',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF10B981),
+                              ),
+                            ),
+                            Text(
+                              '${_selectedLatLng!.latitude.toStringAsFixed(6)}, ${_selectedLatLng!.longitude.toStringAsFixed(6)}',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w400,
+                                color: const Color(0xFF6B7280),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedLatLng = null;
+                          });
+                          final formData = context.read<PropertyFormData>();
+                          formData.updateLocationDetails(
+                            location: formData.location,
+                            sector: formData.sector,
+                            phase: formData.phase,
+                            latitude: null,
+                            longitude: null,
+                            block: formData.block,
+                            streetNo: formData.streetNo,
+                            floor: formData.floor,
+                            building: formData.building,
+                          );
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(6.w),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF3F4F6),
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: Icon(
+                            Icons.close_rounded,
+                            color: const Color(0xFF6B7280),
+                            size: 16.w,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Container(
+                  key: const ValueKey('unselected'),
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        const Color(0xFF3B82F6).withValues(alpha: 0.08),
+                        const Color(0xFF1D4ED8).withValues(alpha: 0.12),
+                      ],
+                    ),
+                    border: Border(
+                      bottom: BorderSide(
+                        color: const Color(0xFFE2E8F0),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(6.w),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF3B82F6).withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Icon(
+                          Icons.touch_app_rounded,
+                          color: const Color(0xFF3B82F6),
+                          size: 16.w,
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: Text(
+                          'Tap on map to mark location',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFF3B82F6),
+                          ),
+                        ),
+                      ),
+                      Icon(
+                        Icons.arrow_downward_rounded,
+                        color: const Color(0xFF3B82F6).withValues(alpha: 0.7),
+                        size: 18.w,
+                      ),
+                    ],
+                  ),
+                ),
         ),
         
-        const SizedBox(height: 16),
-        
-        // Apartment Number
-        _buildTextField(
-          controller: _apartmentNumberController,
-          label: 'Apartment Number *',
-          hint: 'E.G., A-301',
-          icon: Icons.home,
-          onChanged: (value) {
-            final formData = context.read<PropertyFormData>();
-            formData.updatePropertyDetails(
-              buildingName: formData.buildingName,
-              floorNumber: formData.floorNumber,
-              apartmentNumber: value,
-              area: formData.area,
-              areaUnit: formData.areaUnit,
-              streetNumber: formData.streetNumber,
-            );
-            print('Apartment Number updated: $value');
-          },
+        // Map Container
+        Expanded(
+          child: _buildEnhancedMap(),
         ),
+      ],
+    );
+  }
+  
+  Widget _buildFormFields() {
+    final formData = context.read<PropertyFormData>();
+    // Show plot-style fields for ALL commercial properties OR residential plots
+    final isCommercial = formData.category?.toLowerCase() == 'commercial';
+    final isResidentialPlot = formData.category?.toLowerCase() == 'residential' && 
+                              formData.propertyTypeName?.toLowerCase() == 'plot';
+    final showPlotFields = isCommercial || isResidentialPlot;
+    
+    return Column(
+      children: [
+        // Conditional fields based on property type
+        if (showPlotFields) ...[
+          // Plot/Unit Number (for commercial properties and residential plots)
+          _buildTextField(
+            controller: _buildingNameController, // Reuse controller but change label
+            label: isCommercial ? 'Unit/Plot Number *' : 'Plot Number *',
+            hint: isCommercial ? 'E.G., Unit 123, Plot A-5' : 'E.G., 123',
+            onChanged: (value) {
+              formData.updatePropertyDetails(
+                buildingName: value, // Store as buildingName in backend
+                floorNumber: formData.floorNumber,
+                apartmentNumber: formData.apartmentNumber,
+                area: formData.area,
+                areaUnit: formData.areaUnit,
+                streetNumber: formData.streetNumber,
+              );
+              print('Plot/Unit Number updated: $value');
+            },
+          ),
+        ] else ...[
+          // Building Name (for apartments, houses, etc.)
+          _buildTextField(
+            controller: _buildingNameController,
+            label: 'Building Name *',
+            hint: 'E.G., Tower A, Building 5',
+            onChanged: (value) {
+              formData.updatePropertyDetails(
+                buildingName: value,
+                floorNumber: formData.floorNumber,
+                apartmentNumber: formData.apartmentNumber,
+                area: formData.area,
+                areaUnit: formData.areaUnit,
+                streetNumber: formData.streetNumber,
+              );
+              print('Building Name updated: $value');
+            },
+          ),
+          
+          SizedBox(height: 20.h),
+          
+          // Floor (not for plots)
+          _buildTextField(
+            controller: _floorNumberController,
+            label: 'Floor *',
+            hint: 'E.G., 3rd Floor, Ground Floor',
+            onChanged: (value) {
+              formData.updatePropertyDetails(
+                buildingName: formData.buildingName,
+                floorNumber: value,
+                apartmentNumber: formData.apartmentNumber,
+                area: formData.area,
+                areaUnit: formData.areaUnit,
+                streetNumber: formData.streetNumber,
+              );
+              print('Floor updated: $value');
+            },
+          ),
+          
+          SizedBox(height: 20.h),
+          
+          // Apartment Number (not for plots)
+          _buildTextField(
+            controller: _apartmentNumberController,
+            label: 'Apartment Number *',
+            hint: 'E.G., A-301',
+            onChanged: (value) {
+              formData.updatePropertyDetails(
+                buildingName: formData.buildingName,
+                floorNumber: formData.floorNumber,
+                apartmentNumber: value,
+                area: formData.area,
+                areaUnit: formData.areaUnit,
+                streetNumber: formData.streetNumber,
+              );
+              print('Apartment Number updated: $value');
+            },
+          ),
+        ],
         
-        const SizedBox(height: 16),
+        SizedBox(height: 20.h),
         
         // Area and Area Unit Row
         Row(
@@ -545,7 +986,6 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep> {
                 controller: _areaController,
                 label: 'Area *',
                 hint: 'E.G., 5',
-                icon: Icons.straighten,
                 onChanged: (value) {
                   final formData = context.read<PropertyFormData>();
                   formData.updatePropertyDetails(
@@ -561,7 +1001,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep> {
               ),
             ),
             
-            const SizedBox(width: 16),
+            SizedBox(width: 16.w),
             
             Expanded(
               flex: 1,
@@ -589,7 +1029,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep> {
           ],
         ),
         
-        const SizedBox(height: 16),
+        SizedBox(height: 20.h),
         
         // Phase Dropdown
         _buildDropdownField(
@@ -599,7 +1039,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep> {
           onChanged: _onPhaseSelected,
         ),
         
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         
         // Phase hint text
         if (_selectedPhase != null)
@@ -607,39 +1047,37 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep> {
             'Map will navigate to $_selectedPhase when selected.',
             style: TextStyle(
               fontFamily: 'Inter',
-              fontSize: 12,
+              fontSize: 12.sp,
               color: const Color(0xFF20B2AA),
               fontStyle: FontStyle.italic,
             ),
           ),
         
-        const SizedBox(height: 16),
+        SizedBox(height: 20.h),
 
         // Location helper + coordinates preview (set by tapping the map)
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(12.w),
           decoration: BoxDecoration(
             color: const Color(0xFFE8F5E9),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(8.r),
             border: Border.all(
               color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
             ),
           ),
           child: Row(
             children: [
-              const Icon(Icons.touch_app, color: Color(0xFF4CAF50), size: 16),
-              const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   _selectedLatLng == null
                       ? 'Tip: Tap on the map below to mark your exact property location.'
                       : 'Selected location: ${_selectedLatLng!.latitude.toStringAsFixed(6)}, ${_selectedLatLng!.longitude.toStringAsFixed(6)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF4CAF50),
+                    color: const Color(0xFF4CAF50),
                   ),
                 ),
               ),
@@ -647,12 +1085,13 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep> {
           ),
         ),
         
+        SizedBox(height: 20.h),
+        
         // Sector/Block/Zone
         _buildTextField(
           controller: _sectorController,
           label: 'Sector/Block/Zone *',
           hint: 'E.G., Sector A, Block 12',
-          icon: Icons.location_city,
           onChanged: (value) {
             final formData = context.read<PropertyFormData>();
             // Update both location details and property details
@@ -679,14 +1118,13 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep> {
           },
         ),
         
-        const SizedBox(height: 16),
+        SizedBox(height: 20.h),
         
         // Street Number
         _buildTextField(
           controller: _streetNumberController,
           label: 'Street Number *',
           hint: 'E.G., Street 1',
-          icon: Icons.streetview,
           onChanged: (value) {
             final formData = context.read<PropertyFormData>();
             // Update both location details and property details
@@ -712,152 +1150,317 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep> {
             print('Street Number updated: $value');
           },
         ),
+        
+        SizedBox(height: 20.h),
+        
+        // Complete Address (especially useful for plots)
+        _buildTextField(
+          controller: _completeAddressController,
+          label: 'Complete Address *',
+          hint: 'Enter complete property address',
+          maxLines: 3,
+          onChanged: (value) {
+            final formData = context.read<PropertyFormData>();
+            formData.updateLocationDetails(
+              location: value,
+              sector: formData.sector,
+              phase: formData.phase,
+              latitude: formData.latitude,
+              longitude: formData.longitude,
+              block: formData.block,
+              streetNo: formData.streetNo,
+              floor: formData.floor,
+              building: formData.building,
+            );
+            print('Complete Address updated: $value');
+          },
+        ),
       ],
     );
   }
 
-  Widget _buildMapSection() {
-    return Column(
-      children: [
-        // Map Header with Toggle
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
+  Widget _buildEnhancedMap() {
+    return _isLoadingBoundaries
+        ? Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(24.r),
+                bottomRight: Radius.circular(24.r),
+              ),
             ),
-          ),
-          child: Row(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(16.w),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1B5993).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                    child: CircularProgressIndicator(
+                      color: const Color(0xFF1B5993),
+                      strokeWidth: 3,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  Text(
+                    'Loading map boundaries...',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF6B7280),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        : Stack(
             children: [
-              Icon(
-                Icons.map,
-                color: const Color(0xFF1B5993),
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              const Text(
-                'Property Location',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1B5993),
+              FlutterMap(
+                mapController: _mapController,
+                options: MapOptions(
+                  initialCenter: const LatLng(33.6844, 73.0479),
+                  initialZoom: 12.0,
+                  minZoom: 8.0,
+                  maxZoom: 18.0,
+                  onTap: (tapPosition, latLng) {
+                    setState(() {
+                      _selectedLatLng = latLng;
+                    });
+                    final formData = context.read<PropertyFormData>();
+                    formData.updateLocationDetails(
+                      location: '${latLng.latitude.toStringAsFixed(6)}, ${latLng.longitude.toStringAsFixed(6)}',
+                      sector: formData.sector,
+                      phase: formData.phase,
+                      latitude: latLng.latitude,
+                      longitude: latLng.longitude,
+                      block: formData.block,
+                      streetNo: formData.streetNo,
+                      floor: formData.floor,
+                      building: formData.building,
+                    );
+                    print('📍 Map tapped: ${latLng.latitude}, ${latLng.longitude}');
+                  },
                 ),
-              ),
-              const Spacer(),
-              // Map Type Toggle
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildMapToggleButton('OpenStreetMap', !_isMapSatellite),
-                    _buildMapToggleButton('Satellite', _isMapSatellite),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        
-        // Map
-        Expanded(
-          child: _isLoadingBoundaries
-              ? const Center(
-                  child: CircularProgressIndicator(
-                    color: Color(0xFF1B5993),
+                children: [
+                  // Tile Layer
+                  TileLayer(
+                    urlTemplate: _isMapSatellite
+                        ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+                        : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    userAgentPackageName: 'com.dhamarketplace.app',
                   ),
-                )
-              : FlutterMap(
-                  mapController: _mapController,
-                  options: MapOptions(
-                    initialCenter: const LatLng(33.6844, 73.0479),
-                    initialZoom: 12.0,
-                    minZoom: 8.0,
-                    maxZoom: 18.0,
-                    onTap: (tapPosition, latLng) {
-                      setState(() {
-                        _selectedLatLng = latLng;
-                      });
-                      final formData = context.read<PropertyFormData>();
-                      formData.updateLocationDetails(
-                        location: '${latLng.latitude.toStringAsFixed(6)}, ${latLng.longitude.toStringAsFixed(6)}',
-                        sector: formData.sector,
-                        phase: formData.phase,
-                        latitude: latLng.latitude,
-                        longitude: latLng.longitude,
-                        block: formData.block,
-                        streetNo: formData.streetNo,
-                        floor: formData.floor,
-                        building: formData.building,
-                      );
-                      print('📍 Map tapped: ${latLng.latitude}, ${latLng.longitude}');
-                    },
+                  
+                  // Phase Boundaries
+                  PolygonLayer(
+                    polygons: _buildPhasePolygons(),
                   ),
+                  
+                  // Selected location marker with enhanced design
+                  if (_selectedLatLng != null)
+                    MarkerLayer(
+                      markers: [
+                        Marker(
+                          point: _selectedLatLng!,
+                          width: 50,
+                          height: 50,
+                          alignment: Alignment.topCenter,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Pulsing circle animation
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1B5993).withValues(alpha: 0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              Container(
+                                width: 24,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1B5993),
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFF1B5993).withValues(alpha: 0.4),
+                                      blurRadius: 8,
+                                      spreadRadius: 2,
+                                    ),
+                                  ],
+                                ),
+                                child: Icon(
+                                  Icons.location_on_rounded,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+              
+              // Map Controls Overlay
+              Positioned(
+                top: 16,
+                right: 16,
+                child: Column(
                   children: [
-                    // Tile Layer
-                    TileLayer(
-                      urlTemplate: _isMapSatellite
-                          ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-                          : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'com.dhamarketplace.app',
-                    ),
-                    
-                    // Phase Boundaries
-                    PolygonLayer(
-                      polygons: _buildPhasePolygons(),
-                    ),
-                    // Selected location marker
-                    if (_selectedLatLng != null)
-                      MarkerLayer(
-                        markers: [
-                          Marker(
-                            point: _selectedLatLng!,
-                            width: 36,
-                            height: 36,
-                            alignment: Alignment.topCenter,
-                            child: const Icon(
-                              Icons.location_on,
-                              color: Color(0xFFE53935),
-                              size: 32,
-                            ),
+                    // Zoom In Button
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12.r),
+                          onTap: () {
+                            _mapController.move(
+                              _mapController.camera.center,
+                              _mapController.camera.zoom + 1,
+                            );
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(12.w),
+                            child: Icon(
+                              Icons.add_rounded,
+                              color: const Color(0xFF1B5993),
+                              size: 20.w,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    // Zoom Out Button
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12.r),
+                          onTap: () {
+                            _mapController.move(
+                              _mapController.camera.center,
+                              _mapController.camera.zoom - 1,
+                            );
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(12.w),
+                            child: Icon(
+                              Icons.remove_rounded,
+                              color: const Color(0xFF1B5993),
+                              size: 20.w,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-        ),
-      ],
-    );
+              ),
+              
+              // Attribution
+              Positioned(
+                bottom: 8,
+                right: 8,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.7),
+                    borderRadius: BorderRadius.circular(6.r),
+                  ),
+                  child: Text(
+                    _isMapSatellite ? '© Esri' : '© OpenStreetMap',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 10.sp,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
   }
 
-  Widget _buildMapToggleButton(String label, bool isSelected) {
+  Widget _buildEnhancedMapToggleButton(String label, bool isSelected) {
     return GestureDetector(
       onTap: () {
         setState(() {
           _isMapSatellite = label == 'Satellite';
         });
-        print('Map type changed to: ${_isMapSatellite ? "Satellite" : "OpenStreetMap"}');
+        print('Map type changed to: ${_isMapSatellite ? "Satellite" : "Street"}');
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF1B5993) : Colors.transparent,
-          borderRadius: BorderRadius.circular(6),
+          color: isSelected 
+              ? Colors.white.withValues(alpha: 0.9)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(10.r),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ] : null,
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: isSelected ? Colors.white : const Color(0xFF666666),
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              label == 'Satellite' ? Icons.satellite_alt_rounded : Icons.map_rounded,
+              size: 14.w,
+              color: isSelected 
+                  ? const Color(0xFF1B5993)
+                  : Colors.white.withValues(alpha: 0.8),
+            ),
+            SizedBox(width: 6.w),
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w600,
+                color: isSelected 
+                    ? const Color(0xFF1B5993)
+                    : Colors.white.withValues(alpha: 0.9),
+                letterSpacing: -0.2,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -878,8 +1481,8 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep> {
     required TextEditingController controller,
     required String label,
     required String hint,
-    required IconData icon,
     required void Function(String) onChanged,
+    int maxLines = 1,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -907,6 +1510,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep> {
           child: TextFormField(
             controller: controller,
             onChanged: onChanged,
+            maxLines: maxLines,
             style: const TextStyle(
               fontFamily: 'Inter',
               fontSize: 16,
@@ -925,11 +1529,6 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep> {
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 16,
-              ),
-              prefixIcon: Icon(
-                icon,
-                color: const Color(0xFF1B5993),
-                size: 20,
               ),
             ),
           ),
