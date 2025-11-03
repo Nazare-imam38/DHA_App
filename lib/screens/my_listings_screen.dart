@@ -130,12 +130,6 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     }
   }
 
-
-
-
-  
-
-
   Future<void> _loadApprovalStatus(CustomerProperty property) async {
     property.isApprovalLoading = true;
     
@@ -158,8 +152,6 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
       if (mounted) setState(() {});
     }
   }
-
-
 
   void _applyFilter(String filter) {
     setState(() {
@@ -456,9 +448,8 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         },
       ),
     );
-  }
-
-  Widget _buildPropertyCard(CustomerProperty property) {
+  }  
+Widget _buildPropertyCard(CustomerProperty property) {
     // Debug: Check property images
     print('🎴 Building card for property ${property.id} - Images: ${property.images.length}');
     if (property.images.isNotEmpty) {
@@ -628,8 +619,8 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
 
   Widget _buildActionButtons(CustomerProperty property) {
     return Row(
