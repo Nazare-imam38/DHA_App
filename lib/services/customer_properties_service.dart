@@ -203,6 +203,119 @@ class CustomerPropertiesService {
     }
   }
 
+  // Get approved properties for browsing (public listing)
+  Future<Map<String, dynamic>> getApprovedProperties({
+    String? purpose,
+    int perPage = 9,
+    int page = 1,
+    String? overrideToken,
+  }) async {
+    try {
+      final token = overrideToken ?? await _authService.getToken();
+      if (token == null) {
+        return {
+          'success': false,
+          'message': 'Authentication token missing. Please login again.',
+        };
+      }
+
+      print('🏠 Fetching approved properties...');
+      
+      // Build query parameters
+      final queryParams = <String, String>{
+        'per_page': perPage.toString(),
+        'page': page.toString(),
+      };
+      if (purpose != null && purpose.isNotEmpty) {
+        queryParams['purpose'] = purpose;
+      }
+      
+      final uri = Uri.parse('$baseUrl/properties').replace(queryParameters: queryParams);
+      
+      final response = await http.get(
+        uri,
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('📊 Approved Properties Response Status: ${response.statusCode}');
+      print('📄 Approved Properties Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        
+        // Handle different response structures
+        if (decoded is Map<String, dynamic>) {
+          final map = Map<String, dynamic>.from(decoded);
+          
+          // Check for data property
+          if (map['data'] != null) {
+            final data = map['data'];
+            // Convert to List explicitly if it's a list-like structure
+            if (data is List) {
+              // Ensure it's a proper Dart List
+              final propertiesList = List<Map<String, dynamic>>.from(
+                data.map((item) => item is Map ? Map<String, dynamic>.from(item) : <String, dynamic>{})
+                    .where((item) => item.isNotEmpty)
+              );
+              return {'success': true, 'data': {'properties': propertiesList}, 'pagination': map['meta']};
+            } else if (data is Map<String, dynamic> && data['data'] is List) {
+              final propertiesList = List<Map<String, dynamic>>.from(
+                (data['data'] as List).map((item) => item is Map ? Map<String, dynamic>.from(item) : <String, dynamic>{})
+                    .where((item) => item.isNotEmpty)
+              );
+              return {'success': true, 'data': {'properties': propertiesList}, 'pagination': data['meta']};
+            }
+          }
+          
+          // Check for properties at top level
+          if (map['properties'] is List) {
+            final propertiesList = List<Map<String, dynamic>>.from(
+              (map['properties'] as List).map((item) => item is Map ? Map<String, dynamic>.from(item) : <String, dynamic>{})
+                  .where((item) => item.isNotEmpty)
+            );
+            return {'success': true, 'data': {'properties': propertiesList}, 'pagination': map['meta']};
+          }
+          
+          // Return entire map if it's a single property or different structure
+          return {'success': true, 'data': map};
+        } else if (decoded is List) {
+          // Convert list to List<Map<String, dynamic>>
+          final propertiesList = List<Map<String, dynamic>>.from(
+            decoded.map((item) => item is Map ? Map<String, dynamic>.from(item) : <String, dynamic>{})
+                .where((item) => item.isNotEmpty)
+          );
+          return {'success': true, 'data': {'properties': propertiesList}};
+        }
+        
+        return {
+          'success': false,
+          'message': 'Unexpected response shape',
+          'body': response.body,
+        };
+      } else if (response.statusCode == 401) {
+        return {
+          'success': false,
+          'message': 'Unauthorized. Please login again.',
+        };
+      } else {
+        return {
+          'success': false,
+          'message': 'Failed to fetch properties. Status: ${response.statusCode}',
+          'body': response.body,
+        };
+      }
+    } catch (e) {
+      print('❌ Error fetching approved properties: $e');
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
+
   // Delete property by ID
   Future<Map<String, dynamic>> deleteProperty(String propertyId) async {
     try {

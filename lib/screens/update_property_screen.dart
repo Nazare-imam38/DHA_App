@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../models/customer_property.dart';
 import '../services/property_update_service.dart';
 import '../screens/property_posting/models/property_form_data.dart';
@@ -27,6 +31,15 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
   Map<String, List<Map<String, dynamic>>> _amenitiesByCategory = {};
   List<Map<String, dynamic>> _allAmenities = [];
   bool _amenitiesLoading = false;
+  
+  // Media selection state
+  List<File> _selectedImages = [];
+  List<File> _selectedVideos = [];
+  final int _maxImageSize = 3 * 1024 * 1024; // 3MB
+  final int _maxVideoSize = 50 * 1024 * 1024; // 50MB
+  
+  // Expandable card state
+  bool _isContactInfoExpanded = false;
 
   @override
   void initState() {
@@ -75,8 +88,15 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
     // Step 3: Amenities
     _formData!.updateAmenities(property.amenities);
     
-    // Owner details
+    // Owner details - initialize with existing contact information if available
     _formData!.updateOwnership(0);
+    _formData!.updateOwnerDetails(
+      name: property.userName,
+      phone: property.userPhone,
+      // CNIC and address may not be available in property object, will be empty
+      cnic: null,
+      address: null,
+    );
     
     // Load amenities for selection
     if (property.propertyTypeId != null) {
@@ -157,7 +177,6 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
           // Title
           _buildTextField(
             label: 'Property Title *',
-            icon: Icons.title,
             value: _formData?.title ?? '',
             onChanged: (value) {
               _formData?.updatePropertyTypeAndListing(title: value);
@@ -169,7 +188,6 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
           // Description
           _buildTextField(
             label: 'Description *',
-            icon: Icons.description,
             value: _formData?.description ?? '',
             maxLines: 4,
             onChanged: (value) {
@@ -185,7 +203,6 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
               Expanded(
                 child: _buildTextField(
                   label: _formData?.isRent == true ? 'Rent Price *' : 'Sale Price *',
-                  icon: Icons.attach_money,
                   value: _formData?.isRent == true 
                       ? (_formData?.rentPrice?.toString() ?? '')
                       : (_formData?.price?.toString() ?? ''),
@@ -212,7 +229,6 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
                 flex: 2,
                 child: _buildTextField(
                   label: 'Area *',
-                  icon: Icons.straighten,
                   value: _formData?.area?.toString() ?? '',
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
@@ -223,9 +239,9 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
               ),
               SizedBox(width: 12.w),
               Expanded(
+                flex: 2,
                 child: _buildDropdown(
                   label: 'Unit *',
-                  icon: Icons.grid_view,
                   value: _formData?.areaUnit,
                   items: ['Marla', 'Kanal', 'Sqft', 'Sqyd'],
                   onChanged: (value) {
@@ -260,7 +276,6 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
               Expanded(
                 child: _buildTextField(
                   label: 'Building Name',
-                  icon: Icons.business,
                   value: _formData?.buildingName ?? '',
                   onChanged: (value) {
                     _formData?.updatePropertyDetails(buildingName: value);
@@ -272,7 +287,6 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
               Expanded(
                 child: _buildTextField(
                   label: 'Floor',
-                  icon: Icons.layers,
                   value: _formData?.floorNumber ?? '',
                   onChanged: (value) {
                     _formData?.updatePropertyDetails(floorNumber: value);
@@ -286,7 +300,6 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
           
           _buildTextField(
             label: 'Apartment Number',
-            icon: Icons.home,
             value: _formData?.apartmentNumber ?? '',
             onChanged: (value) {
               _formData?.updatePropertyDetails(apartmentNumber: value);
@@ -302,7 +315,6 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
                 flex: 2,
                 child: _buildTextField(
                   label: 'Phase *',
-                  icon: Icons.map,
                   value: _formData?.phase ?? '',
                   onChanged: (value) {
                     _formData?.updateLocationDetails(phase: value);
@@ -314,7 +326,6 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
               Expanded(
                 child: _buildTextField(
                   label: 'Sector *',
-                  icon: Icons.map,
                   value: _formData?.sector ?? '',
                   onChanged: (value) {
                     _formData?.updateLocationDetails(sector: value);
@@ -328,13 +339,71 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
           
           _buildTextField(
             label: 'Complete Address *',
-            icon: Icons.location_on,
             value: _formData?.location ?? '',
             maxLines: 2,
             onChanged: (value) {
               _formData?.updateLocationDetails(location: value);
               setState(() {});
             },
+          ),
+          SizedBox(height: 32.h),
+          
+          // Contact Information Section (Expandable Card)
+          _buildExpandableCard(
+            title: 'Contact Information',
+            icon: Icons.contact_phone,
+            description: 'Update owner/contact details for this property',
+            isExpanded: _isContactInfoExpanded,
+            onToggle: () => setState(() => _isContactInfoExpanded = !_isContactInfoExpanded),
+            child: Column(
+              children: [
+                // CNIC Field
+                _buildTextField(
+                  label: 'CNIC',
+                  value: _formData?.cnic ?? '',
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    _formData?.updateOwnerDetails(cnic: value);
+                    setState(() {});
+                  },
+                ),
+                SizedBox(height: 16.h),
+                
+                // Name Field
+                _buildTextField(
+                  label: 'Full Name',
+                  value: _formData?.name ?? widget.property.userName ?? '',
+                  onChanged: (value) {
+                    _formData?.updateOwnerDetails(name: value);
+                    setState(() {});
+                  },
+                ),
+                SizedBox(height: 16.h),
+                
+                // Phone Field
+                _buildTextField(
+                  label: 'Phone Number',
+                  value: _formData?.phone ?? widget.property.userPhone ?? '',
+                  keyboardType: TextInputType.phone,
+                  onChanged: (value) {
+                    _formData?.updateOwnerDetails(phone: value);
+                    setState(() {});
+                  },
+                ),
+                SizedBox(height: 16.h),
+                
+                // Address Field
+                _buildTextField(
+                  label: 'Address',
+                  value: _formData?.address ?? '',
+                  maxLines: 3,
+                  onChanged: (value) {
+                    _formData?.updateOwnerDetails(address: value);
+                    setState(() {});
+                  },
+                ),
+              ],
+            ),
           ),
           SizedBox(height: 24.h),
           
@@ -416,9 +485,214 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
                     color: AppTheme.textSecondary,
                   ),
                 ),
+                SizedBox(height: 16.h),
+                // Media selection buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _pickImages,
+                        icon: Icon(Icons.image, size: 18.sp),
+                        label: Text('Add Images'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryBlue,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 12.h),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _pickVideos,
+                        icon: Icon(Icons.video_library, size: 18.sp),
+                        label: Text('Add Videos'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.tealAccent,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 12.h),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
+          SizedBox(height: 24.h),
+          
+          // Existing Media Display
+          if (widget.property.images.isNotEmpty) ...[
+            Text(
+              'Existing Images',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primaryBlue,
+              ),
+            ),
+            SizedBox(height: 12.h),
+            SizedBox(
+              height: 120.h,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: widget.property.images.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    width: 120.w,
+                    margin: EdgeInsets.only(right: 12.w),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.r),
+                      border: Border.all(color: AppTheme.borderGrey),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8.r),
+                      child: CachedNetworkImage(
+                        imageUrl: widget.property.images[index],
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: AppTheme.lightBlue,
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          color: AppTheme.lightBlue,
+                          child: Icon(Icons.error),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            SizedBox(height: 24.h),
+          ],
+          
+          // Selected New Images
+          if (_selectedImages.isNotEmpty) ...[
+            Text(
+              'Selected Images (${_selectedImages.length})',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primaryBlue,
+              ),
+            ),
+            SizedBox(height: 12.h),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 8.w,
+                mainAxisSpacing: 8.h,
+                childAspectRatio: 1,
+              ),
+              itemCount: _selectedImages.length,
+              itemBuilder: (context, index) {
+                return Stack(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.r),
+                        border: Border.all(color: AppTheme.borderGrey),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8.r),
+                        child: Image.file(
+                          _selectedImages[index],
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedImages.removeAt(index);
+                          });
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(4.w),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.close, color: Colors.white, size: 16.sp),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+            SizedBox(height: 24.h),
+          ],
+          
+          // Selected New Videos
+          if (_selectedVideos.isNotEmpty) ...[
+            Text(
+              'Selected Videos (${_selectedVideos.length})',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primaryBlue,
+              ),
+            ),
+            SizedBox(height: 12.h),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: _selectedVideos.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  margin: EdgeInsets.only(bottom: 12.h),
+                  padding: EdgeInsets.all(12.w),
+                  decoration: BoxDecoration(
+                    color: AppTheme.lightBlue,
+                    borderRadius: BorderRadius.circular(8.r),
+                    border: Border.all(color: AppTheme.borderGrey),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.video_library, color: AppTheme.primaryBlue, size: 24.sp),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: Text(
+                          _selectedVideos[index].path.split('/').last,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14.sp,
+                            color: AppTheme.textPrimary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedVideos.removeAt(index);
+                          });
+                        },
+                        child: Icon(Icons.delete, color: Colors.red, size: 20.sp),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            SizedBox(height: 24.h),
+          ],
           SizedBox(height: 24.h),
           
           // Summary
@@ -495,50 +769,138 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
   Widget _buildPurposeCard(String purpose, IconData icon, bool isSelected, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.all(16.w),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.tealAccent.withValues(alpha: 0.1) : Colors.white,
-          border: Border.all(
-            color: isSelected ? AppTheme.tealAccent : AppTheme.borderGrey,
-            width: isSelected ? 2 : 1,
+      child: AspectRatio(
+        aspectRatio: 1.0, // Maintain square shape
+        child: Container(
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: isSelected ? AppTheme.tealAccent.withValues(alpha: 0.1) : Colors.white,
+            border: Border.all(
+              color: isSelected ? AppTheme.tealAccent : AppTheme.borderGrey,
+              width: isSelected ? 2 : 1,
+            ),
+            borderRadius: BorderRadius.circular(12.r),
           ),
-          borderRadius: BorderRadius.circular(12.r),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: EdgeInsets.all(12.w),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppTheme.tealAccent : AppTheme.lightBlue,
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Icon(icon, color: isSelected ? Colors.white : AppTheme.primaryBlue, size: 24.sp),
+              ),
+              SizedBox(height: 12.h),
+              Text(
+                purpose == 'Sell' ? 'Sell Property' : 'Rent Property',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                  color: isSelected ? AppTheme.primaryBlue : AppTheme.textSecondary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              if (isSelected)
+                Padding(
+                  padding: EdgeInsets.only(top: 8.h),
+                  child: Icon(Icons.check_circle, color: AppTheme.tealAccent, size: 20.sp),
+                ),
+            ],
+          ),
         ),
-        child: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.all(12.w),
-              decoration: BoxDecoration(
-                color: isSelected ? AppTheme.tealAccent : AppTheme.lightBlue,
-                borderRadius: BorderRadius.circular(8.r),
+      ),
+    );
+  }
+
+  // Helper method to build expandable card
+  Widget _buildExpandableCard({
+    required String title,
+    required IconData icon,
+    String? description,
+    required bool isExpanded,
+    required VoidCallback onToggle,
+    required Widget child,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: AppTheme.borderGrey,
+          width: 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          InkWell(
+            onTap: onToggle,
+            borderRadius: BorderRadius.circular(12.r),
+            child: Padding(
+              padding: EdgeInsets.all(16.w),
+              child: Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(8.w),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Icon(icon, color: AppTheme.primaryBlue, size: 20.sp),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.primaryBlue,
+                          ),
+                        ),
+                        if (description != null) ...[
+                          SizedBox(height: 4.h),
+                          Text(
+                            description,
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 12.sp,
+                              color: AppTheme.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    isExpanded ? Icons.expand_less : Icons.expand_more,
+                    color: AppTheme.textSecondary,
+                    size: 24.sp,
+                  ),
+                ],
               ),
-              child: Icon(icon, color: isSelected ? Colors.white : AppTheme.primaryBlue, size: 24.sp),
             ),
-            SizedBox(height: 12.h),
-            Text(
-              purpose == 'Sell' ? 'Sell Property' : 'Rent Property',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-                color: isSelected ? AppTheme.primaryBlue : AppTheme.textSecondary,
-              ),
+          ),
+          if (isExpanded) ...[
+            Divider(height: 1, color: AppTheme.borderGrey),
+            Padding(
+              padding: EdgeInsets.all(16.w),
+              child: child,
             ),
-            if (isSelected)
-              Padding(
-                padding: EdgeInsets.only(top: 8.h),
-                child: Icon(Icons.check_circle, color: AppTheme.tealAccent, size: 20.sp),
-              ),
           ],
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildTextField({
     required String label,
-    required IconData icon,
     required String value,
     required ValueChanged<String> onChanged,
     TextInputType? keyboardType,
@@ -567,7 +929,6 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
             fontSize: 16.sp,
           ),
           decoration: InputDecoration(
-            prefixIcon: Icon(icon, color: AppTheme.tealAccent),
             filled: true,
             fillColor: AppTheme.inputBackground,
             border: OutlineInputBorder(
@@ -590,7 +951,6 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
 
   Widget _buildDropdown({
     required String label,
-    required IconData icon,
     String? value,
     required List<String> items,
     required ValueChanged<String?> onChanged,
@@ -618,7 +978,6 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
           child: DropdownButtonFormField<String>(
             value: value,
             decoration: InputDecoration(
-              prefixIcon: Icon(icon, color: AppTheme.tealAccent),
               border: InputBorder.none,
             ),
             items: items.map((item) => DropdownMenuItem(
@@ -727,6 +1086,14 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
           _buildSummaryRow('Phase', _formData?.phase ?? ''),
           _buildSummaryRow('Sector', _formData?.sector ?? ''),
           _buildSummaryRow('Amenities', '${_formData?.amenities.length ?? 0} selected'),
+          if (_formData?.cnic != null && _formData!.cnic!.isNotEmpty)
+            _buildSummaryRow('CNIC', _formData!.cnic!),
+          if (_formData?.name != null && _formData!.name!.isNotEmpty)
+            _buildSummaryRow('Name', _formData!.name!),
+          if (_formData?.phone != null && _formData!.phone!.isNotEmpty)
+            _buildSummaryRow('Phone', _formData!.phone!),
+          if (_formData?.address != null && _formData!.address!.isNotEmpty)
+            _buildSummaryRow('Address', _formData!.address!),
         ],
       ),
     );
@@ -758,6 +1125,136 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _pickImages() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: true,
+        allowCompression: true,
+      );
+
+      if (result != null) {
+        List<File> newImages = [];
+        
+        for (var file in result.files) {
+          if (file.size <= _maxImageSize) {
+            try {
+              File tempFile;
+              
+              if (file.bytes != null) {
+                final tempDir = await getTemporaryDirectory();
+                tempFile = File('${tempDir.path}/temp_image_${DateTime.now().millisecondsSinceEpoch}.${file.extension}');
+                await tempFile.writeAsBytes(file.bytes!);
+              } else if (file.path != null) {
+                tempFile = File(file.path!);
+              } else {
+                continue;
+              }
+              
+              newImages.add(tempFile);
+            } catch (e) {
+              print('Error processing image ${file.name}: $e');
+              continue;
+            }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Image ${file.name} is too large (max 3MB). Skipping...'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+        }
+
+        if (_selectedImages.length + newImages.length > 20) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Maximum 20 photos allowed. Please remove some existing photos first.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        setState(() {
+          _selectedImages.addAll(newImages);
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error selecting images: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _pickVideos() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.video,
+        allowMultiple: true,
+        allowCompression: true,
+      );
+
+      if (result != null) {
+        List<File> newVideos = [];
+        
+        for (var file in result.files) {
+          if (file.size <= _maxVideoSize) {
+            try {
+              File tempFile;
+              
+              if (file.bytes != null) {
+                final tempDir = await getTemporaryDirectory();
+                tempFile = File('${tempDir.path}/temp_video_${DateTime.now().millisecondsSinceEpoch}.${file.extension}');
+                await tempFile.writeAsBytes(file.bytes!);
+              } else if (file.path != null) {
+                tempFile = File(file.path!);
+              } else {
+                continue;
+              }
+              
+              newVideos.add(tempFile);
+            } catch (e) {
+              print('Error processing video ${file.name}: $e');
+              continue;
+            }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Video ${file.name} is too large (max 50MB). Skipping...'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+        }
+
+        if (_selectedVideos.length + newVideos.length > 5) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Maximum 5 videos allowed. Please remove some existing videos first.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        setState(() {
+          _selectedVideos.addAll(newVideos);
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error selecting videos: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   Future<void> _updateProperty() async {
@@ -796,21 +1293,32 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
         propertyData['floor'] = _formData!.floorNumber;
       }
 
+      // Handle ownership and contact information
       if (_formData!.onBehalf == 1) {
         propertyData['on_behalf'] = '1';
-        if (_formData!.cnic != null) propertyData['cnic'] = _formData!.cnic;
-        if (_formData!.name != null) propertyData['name'] = _formData!.name;
-        if (_formData!.phone != null) propertyData['phone'] = _formData!.phone;
-        if (_formData!.address != null) propertyData['address'] = _formData!.address;
       } else {
         propertyData['on_behalf'] = '0';
+      }
+      
+      // Always include contact information if provided (regardless of on_behalf)
+      if (_formData!.cnic != null && _formData!.cnic!.isNotEmpty) {
+        propertyData['cnic'] = _formData!.cnic;
+      }
+      if (_formData!.name != null && _formData!.name!.isNotEmpty) {
+        propertyData['name'] = _formData!.name;
+      }
+      if (_formData!.phone != null && _formData!.phone!.isNotEmpty) {
+        propertyData['phone'] = _formData!.phone;
+      }
+      if (_formData!.address != null && _formData!.address!.isNotEmpty) {
+        propertyData['address'] = _formData!.address;
       }
 
       final result = await _updateService.updateProperty(
         propertyId: widget.property.id,
         propertyData: propertyData,
-        images: _formData!.images,
-        videos: _formData!.videos,
+        images: _selectedImages.isNotEmpty ? _selectedImages : null,
+        videos: _selectedVideos.isNotEmpty ? _selectedVideos : null,
         propertyTypeId: _formData!.propertyTypeId,
         amenities: _formData!.amenities,
       );

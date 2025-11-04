@@ -3,11 +3,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../l10n/app_localizations.dart';
 import '../services/whatsapp_service.dart';
 import '../services/call_service.dart';
 import '../services/facility_service.dart';
 import '../models/nearby_facility.dart';
+import '../models/customer_property.dart';
 import 'main_wrapper.dart';
 import 'projects_screen_instant.dart';
 import 'property_listings_screen.dart';
@@ -15,12 +17,14 @@ import 'favorites_screen.dart';
 import 'profile_screen.dart';
 
 class PropertyDetailInfoScreen extends StatefulWidget {
-  final Map<String, dynamic> property;
+  final Map<String, dynamic>? propertyMap;
+  final CustomerProperty? property;
 
   const PropertyDetailInfoScreen({
     super.key,
-    required this.property,
-  });
+    this.propertyMap,
+    this.property,
+  }) : assert(propertyMap != null || property != null, 'Either propertyMap or property must be provided');
 
   @override
   State<PropertyDetailInfoScreen> createState() => _PropertyDetailInfoScreenState();
@@ -46,6 +50,119 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
     super.dispose();
   }
 
+  // Helper to get CustomerProperty from either source
+  CustomerProperty? get _property {
+    if (widget.property != null) return widget.property;
+    // Try to convert propertyMap to CustomerProperty if needed
+    return null;
+  }
+
+  // Helper to get image URL
+  String? get _imageUrl {
+    String? url;
+    if (_property != null && _property!.images.isNotEmpty) {
+      url = _property!.images.first;
+      print('📸 Using image from property: ${url.substring(0, url.length > 80 ? 80 : url.length)}...');
+    } else if (widget.propertyMap != null) {
+      final images = widget.propertyMap!['images'];
+      if (images is List && images.isNotEmpty) {
+        url = images.first;
+        print('📸 Using image from propertyMap list: ${url.toString().substring(0, url.toString().length > 80 ? 80 : url.toString().length)}...');
+      } else {
+        url = widget.propertyMap!['image'];
+        if (url != null) {
+          print('📸 Using image from propertyMap: ${url.toString().substring(0, url.toString().length > 80 ? 80 : url.toString().length)}...');
+        }
+      }
+    }
+    
+    if (url == null || url.isEmpty) {
+      print('⚠️ No image URL found');
+      return null;
+    }
+    
+    // Validate and fix S3 URL if needed
+    final validatedUrl = _validateAndFixS3Url(url);
+    print('✅ Final image URL: ${validatedUrl.substring(0, validatedUrl.length > 100 ? 100 : validatedUrl.length)}...');
+    return validatedUrl;
+  }
+
+  String _validateAndFixS3Url(String url) {
+    try {
+      // If it's already a full URL, validate it
+      if (url.startsWith('http')) {
+        final uri = Uri.parse(url);
+        
+        // Check if it's an S3 URL and fix common issues
+        if (uri.host.contains('s3') || uri.host.contains('amazonaws.com')) {
+          // Ensure the URL is properly encoded
+          final fixedUrl = url.replaceAll(' ', '%20');
+          print('📸 Validated S3 URL: ${fixedUrl.substring(0, fixedUrl.length > 80 ? 80 : fixedUrl.length)}...');
+          return fixedUrl;
+        }
+        
+        return url;
+      }
+      
+      // If it's a relative path, prepend the base URL
+      const baseUrl = 'https://testingbackend.dhamarketplace.com';
+      final cleanPath = url.startsWith('/') ? url : '/$url';
+      return '$baseUrl$cleanPath';
+      
+    } catch (e) {
+      print('❌ Error validating URL: $e');
+      return url;
+    }
+  }
+
+  // Helper to get price
+  String get _priceDisplay {
+    if (_property != null) {
+      return _property!.isRent 
+          ? 'PKR ${_property!.rentPrice ?? 'N/A'}'
+          : 'PKR ${_property!.price ?? 'N/A'}';
+    }
+    return widget.propertyMap?['price'] ?? 'PKR N/A';
+  }
+
+  // Helper to get title
+  String get _title {
+    return _property?.title ?? widget.propertyMap?['title'] ?? 'Property';
+  }
+
+  // Helper to get location
+  String get _location {
+    if (_property != null) {
+      return _property!.fullLocation.isNotEmpty 
+          ? _property!.fullLocation 
+          : (_property!.phase ?? _property!.location ?? 'N/A');
+    }
+    return widget.propertyMap?['phase'] ?? widget.propertyMap?['location'] ?? 'N/A';
+  }
+
+  // Helper to get coordinates
+  LatLng get _coordinates {
+    if (_property != null && _property!.latitude != null && _property!.longitude != null) {
+      return LatLng(_property!.latitude!, _property!.longitude!);
+    }
+    if (widget.propertyMap != null) {
+      final coords = widget.propertyMap!['coordinates'];
+      if (coords is Map) {
+        return LatLng(
+          double.tryParse(coords['lat']?.toString() ?? '31.5204') ?? 31.5204,
+          double.tryParse(coords['lng']?.toString() ?? '74.3587') ?? 74.3587,
+        );
+      }
+      if (widget.propertyMap!['latitude'] != null && widget.propertyMap!['longitude'] != null) {
+        return LatLng(
+          double.tryParse(widget.propertyMap!['latitude'].toString()) ?? 31.5204,
+          double.tryParse(widget.propertyMap!['longitude'].toString()) ?? 74.3587,
+        );
+      }
+    }
+    return LatLng(31.5204, 74.3587); // Default DHA Phase 1
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,11 +179,75 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // Property Image
-                  Image.asset(
-                    widget.property['image'] ?? 'assets/images/property_placeholder.jpg',
-                    fit: BoxFit.cover,
-                  ),
+                  // Property Image - Use network image if available
+                  _imageUrl != null && _imageUrl!.startsWith('http')
+                      ? CachedNetworkImage(
+                          imageUrl: _imageUrl!,
+                          fit: BoxFit.cover,
+                          httpHeaders: {
+                            'Accept': 'image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+                            'Accept-Encoding': 'gzip, deflate, br',
+                          },
+                          placeholder: (context, url) => Container(
+                            color: Colors.grey[300],
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF20B2AA)),
+                              ),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) {
+                            print('❌ Image load error: $error');
+                            print('❌ Failed URL: $url');
+                            return Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    const Color(0xFF20B2AA).withOpacity(0.1),
+                                    const Color(0xFF1B5993).withOpacity(0.1),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.image_not_supported,
+                                  color: Color(0xFF20B2AA),
+                                  size: 50,
+                                ),
+                              ),
+                            );
+                          },
+                          fadeInDuration: const Duration(milliseconds: 300),
+                          fadeOutDuration: const Duration(milliseconds: 100),
+                        )
+                      : Image.asset(
+                          _imageUrl ?? 'assets/images/property_placeholder.jpg',
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    const Color(0xFF20B2AA).withOpacity(0.1),
+                                    const Color(0xFF1B5993).withOpacity(0.1),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.home,
+                                  color: Color(0xFF20B2AA),
+                                  size: 50,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                   // Gradient Overlay
                   Container(
                     decoration: BoxDecoration(
@@ -90,7 +271,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                       children: [
                         // Price
                         Text(
-                          widget.property['price'] ?? 'PKR 25,000,000',
+                          _priceDisplay,
                           style: GoogleFonts.inter(
                             fontSize: 28.sp,
                             fontWeight: FontWeight.bold,
@@ -100,7 +281,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                         SizedBox(height: 8.h),
                         // Property Title
                         Text(
-                          widget.property['title'] ?? 'Luxury Villa - Phase 1',
+                          _title,
                           style: GoogleFonts.inter(
                             fontSize: 20.sp,
                             fontWeight: FontWeight.w600,
@@ -117,11 +298,14 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                               size: 16.sp,
                             ),
                             SizedBox(width: 4.w),
-                            Text(
-                              widget.property['location'] ?? '${AppLocalizations.of(context)!.dhaPhase1}',
-                              style: GoogleFonts.inter(
-                                fontSize: 14.sp,
-                                color: Colors.white70,
+                            Expanded(
+                              child: Text(
+                                _location,
+                                style: GoogleFonts.inter(
+                                  fontSize: 14.sp,
+                                  color: Colors.white70,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
@@ -140,7 +324,8 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                         }),
                         SizedBox(width: 12.w),
                         _buildActionIcon(Icons.phone, () {
-                          CallService.showCallBottomSheet(context, '+92-51-111-555-400');
+                          final phone = _property?.userPhone ?? widget.propertyMap?['userPhone'] ?? '+92-51-111-555-400';
+                          CallService.showCallBottomSheet(context, phone);
                         }),
                       ],
                     ),
@@ -260,62 +445,53 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
   }
 
   Widget _buildFeaturesTab() {
+    // Get amenities from API as a flat list
+    List<String> flatAmenities = [];
+    
+    if (_property != null) {
+      // Use the amenities list directly (flat list of amenity names)
+      flatAmenities = _property!.amenities;
+    } else if (widget.propertyMap != null) {
+      final flat = widget.propertyMap!['amenities'];
+      if (flat is List) {
+        flatAmenities = flat.map((e) => e.toString()).toList();
+      }
+    }
+
     return SingleChildScrollView(
       padding: EdgeInsets.all(20.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Property Features
-          _buildFeatureSection(
-            AppLocalizations.of(context)!.plotFeatures,
-            Icons.square_foot,
-            [
-              AppLocalizations.of(context)!.electricity,
-              AppLocalizations.of(context)!.sewerage,
-              AppLocalizations.of(context)!.waterSupply,
-              AppLocalizations.of(context)!.accessibleByRoad,
-            ],
-          ),
-          SizedBox(height: 24.h),
-          
-          _buildFeatureSection(
-            AppLocalizations.of(context)!.businessAndCommunication,
-            Icons.business,
-            [
-              AppLocalizations.of(context)!.broadbandInternetAccess,
-              AppLocalizations.of(context)!.satelliteOrCableTvReady,
-            ],
-          ),
-          SizedBox(height: 24.h),
-          
-          _buildFeatureSection(
-            AppLocalizations.of(context)!.nearbyFacilities,
-            Icons.local_attraction,
-            [
-              AppLocalizations.of(context)!.nearbyHospitals,
-              AppLocalizations.of(context)!.nearbyPublicTransportService,
-              AppLocalizations.of(context)!.nearbyRestaurants,
-              AppLocalizations.of(context)!.nearbySchools,
-              AppLocalizations.of(context)!.nearbyShoppingMalls,
-            ],
-          ),
-          SizedBox(height: 24.h),
-          
-          _buildFeatureSection(
-            AppLocalizations.of(context)!.otherFacilities,
-            Icons.more_horiz,
-            [
-              AppLocalizations.of(context)!.cctvSecurity,
-              AppLocalizations.of(context)!.maintenanceStaff,
-              AppLocalizations.of(context)!.securityStaff,
-              AppLocalizations.of(context)!.petPolicyAllowed,
-            ],
-          ),
-          SizedBox(height: 20.h), // Add bottom padding to prevent overflow
+          // Display amenities as a flat list
+          if (flatAmenities.isNotEmpty) ...[
+            _buildFeatureSection(
+              'Features',
+              Icons.checklist,
+              flatAmenities,
+            ),
+            SizedBox(height: 24.h),
+          ] else ...[
+            // No amenities available
+            Center(
+              child: Padding(
+                padding: EdgeInsets.all(40.w),
+                child: Text(
+                  'No features available',
+                  style: GoogleFonts.inter(
+                    fontSize: 14.sp,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ),
+            ),
+          ],
+          SizedBox(height: 20.h),
         ],
       ),
     );
   }
+
 
   Widget _buildFeatureSection(String title, IconData icon, List<String> features) {
     return Column(
@@ -366,18 +542,11 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
     setState(() => isLoadingFacilities = true);
     
     try {
-      // Default coordinates for DHA Phase 1, Lahore
-      final defaultLocation = LatLng(31.5204, 74.3587);
-      final propertyLocation = widget.property['coordinates'] != null 
-          ? LatLng(
-              widget.property['coordinates']['lat'] ?? defaultLocation.latitude,
-              widget.property['coordinates']['lng'] ?? defaultLocation.longitude,
-            )
-          : defaultLocation;
+      final propertyLocation = _coordinates;
       
       // Debug: Print the coordinates being used for facilities
-      print('Loading facilities for: ${widget.property['title']}');
-      print('Phase: ${widget.property['phase']}');
+      print('Loading facilities for: $_title');
+      print('Phase: ${_property?.phase ?? widget.propertyMap?['phase']}');
       print('Facility search coordinates: ${propertyLocation.latitude}, ${propertyLocation.longitude}');
       
       final facilities = await FacilityService.getNearbyFacilities(
@@ -396,18 +565,11 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
   }
 
   Widget _buildLocationTab() {
-    // Default coordinates for DHA Phase 1, Lahore
-    final defaultLocation = LatLng(31.5204, 74.3587);
-    final propertyLocation = widget.property['coordinates'] != null 
-        ? LatLng(
-            widget.property['coordinates']['lat'] ?? defaultLocation.latitude,
-            widget.property['coordinates']['lng'] ?? defaultLocation.longitude,
-          )
-        : defaultLocation;
+    final propertyLocation = _coordinates;
     
     // Debug: Print the coordinates being used
-    print('Property: ${widget.property['title']}');
-    print('Phase: ${widget.property['phase']}');
+    print('Property: $_title');
+    print('Phase: ${_property?.phase ?? widget.propertyMap?['phase']}');
     print('Coordinates: ${propertyLocation.latitude}, ${propertyLocation.longitude}');
 
     return SingleChildScrollView(
@@ -545,7 +707,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
           ),
           SizedBox(height: 8.h),
           Text(
-            widget.property['location'] ?? 'Located in the heart of ${AppLocalizations.of(context)!.dhaPhase1}, this property offers excellent connectivity to major areas of the city.',
+            _property?.description ?? widget.propertyMap?['description'] ?? 'Located in the heart of ${_location}, this property offers excellent connectivity to major areas of the city.',
             style: GoogleFonts.inter(
               fontSize: 14.sp,
               color: Colors.grey[700],
@@ -606,12 +768,30 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
   }
 
   Widget _buildPaymentTab() {
+    // Get price from API
+    String? price;
+    String? rentPrice;
+    bool isRent = false;
+    
+    if (_property != null) {
+      price = _property!.price;
+      rentPrice = _property!.rentPrice;
+      isRent = _property!.isRent;
+    } else if (widget.propertyMap != null) {
+      price = widget.propertyMap!['priceValue']?.toString() ?? widget.propertyMap!['price']?.toString();
+      rentPrice = widget.propertyMap!['rentPrice']?.toString();
+      isRent = (widget.propertyMap!['purpose']?.toString().toLowerCase() ?? '') == 'rent';
+    }
+    
+    final displayPrice = isRent ? rentPrice : price;
+    final priceValue = displayPrice != null ? double.tryParse(displayPrice) : null;
+    
     return SingleChildScrollView(
       padding: EdgeInsets.all(20.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Payment Plan Header
+          // Price Display Card
           Container(
             width: double.infinity,
             padding: EdgeInsets.all(16.w),
@@ -622,7 +802,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
             child: Column(
               children: [
                 Text(
-                  AppLocalizations.of(context)!.monthlyInstallments,
+                  isRent ? 'Monthly Rent' : AppLocalizations.of(context)!.price,
                   style: GoogleFonts.inter(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
@@ -630,59 +810,37 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                   ),
                 ),
                 SizedBox(height: 16.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Column(
-                      children: [
-                        Text(
-                          'PKR 47,500',
-                          style: GoogleFonts.inter(
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          AppLocalizations.of(context)!.monthly,
-                          style: GoogleFonts.inter(
-                            fontSize: 12.sp,
-                            color: Colors.white70,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Text(
-                          'PKR 95,000',
-                          style: GoogleFonts.inter(
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          AppLocalizations.of(context)!.monthly,
-                          style: GoogleFonts.inter(
-                            fontSize: 12.sp,
-                            color: Colors.white70,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                Text(
+                  _priceDisplay,
+                  style: GoogleFonts.inter(
+                    fontSize: 28.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
+                if (isRent) ...[
+                  SizedBox(height: 8.h),
+                  Text(
+                    AppLocalizations.of(context)!.monthly,
+                    style: GoogleFonts.inter(
+                      fontSize: 12.sp,
+                      color: Colors.white70,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
           SizedBox(height: 20.h),
           
-          // Payment Details
-          _buildPaymentDetail(AppLocalizations.of(context)!.downPayment, 'PKR 520,000'),
-          _buildPaymentDetail(AppLocalizations.of(context)!.totalCost, 'PKR 1,200,000'),
-          _buildPaymentDetail(AppLocalizations.of(context)!.finalPayment, 'PKR 3,999,999'),
-          SizedBox(height: 16.h),
+          // Payment Details - Only show if available
+          if (priceValue != null && !isRent) ...[
+            _buildPaymentDetail(AppLocalizations.of(context)!.totalCost, _priceDisplay),
+            SizedBox(height: 16.h),
+          ] else if (priceValue != null && isRent) ...[
+            _buildPaymentDetail('Monthly Rent', _priceDisplay),
+            SizedBox(height: 16.h),
+          ],
           
           // Additional Charges
           Container(
@@ -759,6 +917,18 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
   }
 
   Widget _buildContactSection() {
+    // Get user contact info from API
+    String? userName;
+    String? userPhone;
+    
+    if (_property != null) {
+      userName = _property!.userName;
+      userPhone = _property!.userPhone;
+    } else if (widget.propertyMap != null) {
+      userName = widget.propertyMap!['userName'];
+      userPhone = widget.propertyMap!['userPhone'];
+    }
+    
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
@@ -778,9 +948,21 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
             ),
           ),
           SizedBox(height: 12.h),
-          _buildContactItem(AppLocalizations.of(context)!.bookingOffice, '+92 21 1234567'),
-          _buildContactItem(AppLocalizations.of(context)!.siteOffice, '+92 21 7654321'),
-          _buildContactItem(AppLocalizations.of(context)!.salesCentre, '+92 21 9876543'),
+          if (userName != null && userName.isNotEmpty)
+            _buildContactItem('Name', userName),
+          if (userPhone != null && userPhone.isNotEmpty)
+            _buildContactItem('Phone', userPhone),
+          if ((userName == null || userName.isEmpty) && (userPhone == null || userPhone.isEmpty))
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 8.h),
+              child: Text(
+                'Contact information not available',
+                style: GoogleFonts.inter(
+                  fontSize: 14.sp,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -1021,11 +1203,16 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
   }
 
   void _launchWhatsAppForProperty() {
+    final phone = _property?.userPhone ?? widget.propertyMap?['userPhone'] ?? WhatsAppService.defaultContactNumber;
+    final title = _title;
+    final price = _priceDisplay;
+    final location = _location;
+    
     WhatsAppService.launchWhatsAppForProperty(
-      phoneNumber: WhatsAppService.defaultContactNumber,
-      propertyTitle: widget.property['title'] ?? 'Property',
-      propertyPrice: widget.property['price'] ?? 'Price not available',
-      propertyLocation: widget.property['location'] ?? 'Location not available',
+      phoneNumber: phone,
+      propertyTitle: title,
+      propertyPrice: price,
+      propertyLocation: location,
       context: context,
     );
   }

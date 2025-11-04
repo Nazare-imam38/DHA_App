@@ -6,7 +6,10 @@ import '../l10n/app_localizations.dart';
 import '../services/language_service.dart';
 import '../services/whatsapp_service.dart';
 import '../services/call_service.dart';
+import '../services/customer_properties_service.dart';
+import '../models/customer_property.dart';
 import '../ui/widgets/cached_asset_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'sidebar_drawer.dart';
 import 'property_detail_info_screen.dart';
 
@@ -23,9 +26,152 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
   String _selectedLocation = 'Any';
   String _searchQuery = '';
   late final TextEditingController _searchController;
+  
+  final CustomerPropertiesService _propertiesService = CustomerPropertiesService();
+  List<CustomerProperty> _properties = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+  int _currentPage = 1;
+  bool _hasMore = true;
 
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+    _loadProperties();
+  }
 
-  final List<Map<String, dynamic>> _properties = [
+  Future<void> _loadProperties({bool refresh = false}) async {
+    if (refresh) {
+      setState(() {
+        _currentPage = 1;
+        _hasMore = true;
+        _properties.clear();
+      });
+    }
+    
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final result = await _propertiesService.getApprovedProperties(
+        purpose: 'Rent', // Default to Rent, can be made dynamic
+        perPage: 9,
+        page: _currentPage,
+      );
+
+      if (result['success'] == true) {
+        // Handle different response structures
+        dynamic propertiesData = result['data'];
+        
+        // If data is a map, try to get properties from it
+        if (propertiesData is Map<String, dynamic>) {
+          propertiesData = propertiesData['properties'] ?? propertiesData['data'] ?? [];
+        }
+        
+        // Ensure it's a list
+        if (propertiesData is! List) {
+          print('⚠️ Properties data is not a list: ${propertiesData.runtimeType}');
+          propertiesData = [];
+        }
+        
+        final List<CustomerProperty> newProperties = [];
+        
+        // Convert each map to CustomerProperty
+        for (var propData in propertiesData) {
+          try {
+            // Ensure propData is a Map
+            if (propData is! Map<String, dynamic>) {
+              print('⚠️ Property data is not a Map: ${propData.runtimeType}');
+              continue;
+            }
+            
+            final property = CustomerProperty.fromJson(propData);
+            newProperties.add(property);
+          } catch (e, stackTrace) {
+            print('❌ Error parsing property: $e');
+            print('   Stack trace: $stackTrace');
+            print('   Property data type: ${propData.runtimeType}');
+            print('   Property data: $propData');
+          }
+        }
+
+        print('✅ Successfully parsed ${newProperties.length} properties from ${propertiesData.length} items');
+
+        setState(() {
+          if (refresh) {
+            _properties = List<CustomerProperty>.from(newProperties);
+          } else {
+            _properties.addAll(newProperties);
+          }
+          _hasMore = newProperties.length >= 9; // If we got less than requested, no more pages
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _errorMessage = result['message'] ?? 'Failed to load properties';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error loading properties: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Convert CustomerProperty to the format expected by PropertyDetailInfoScreen
+  Map<String, dynamic> _propertyToMap(CustomerProperty property) {
+    // Get first image URL or use placeholder
+    String imageUrl = property.images.isNotEmpty 
+        ? property.images.first 
+        : 'https://via.placeholder.com/400x300';
+    
+    // Format price
+    String priceDisplay = property.isRent 
+        ? 'PKR ${property.rentPrice ?? 'N/A'}'
+        : 'PKR ${property.price ?? 'N/A'}';
+    
+    return {
+      'id': property.id,
+      'title': property.title,
+      'price': priceDisplay,
+      'status': property.isApproved ? 'Available' : 'Pending',
+      'image': imageUrl,
+      'images': property.images,
+      'phase': property.phase ?? property.location ?? 'N/A',
+      'size': property.propertyDetails.isNotEmpty ? property.propertyDetails : 'N/A',
+      'type': property.propertyType ?? property.category,
+      'bedrooms': property.building ?? 'N/A',
+      'bathrooms': property.floor ?? 'N/A',
+      'description': property.description,
+      'coordinates': {
+        'lat': property.latitude ?? 31.5204,
+        'lng': property.longitude ?? 74.3587,
+      },
+      'latitude': property.latitude,
+      'longitude': property.longitude,
+      'amenities': property.amenities,
+      'amenitiesByCategory': property.amenitiesByCategory,
+      'paymentMethod': property.paymentMethod,
+      'durationDays': property.durationDays,
+      'userName': property.userName,
+      'userPhone': property.userPhone,
+      'purpose': property.purpose,
+      'category': property.category,
+      'propertyType': property.propertyType,
+      'area': property.area,
+      'areaUnit': property.areaUnit,
+      'fullLocation': property.fullLocation,
+      'rentPrice': property.rentPrice,
+      'priceValue': property.price,
+    };
+  }
+
+  final List<Map<String, dynamic>> _hardcodedProperties = [
     {
       'title': 'Luxury Villa – Phase 1',
       'price': 'PKR 25,000,000',
@@ -133,27 +279,20 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _searchController = TextEditingController();
-  }
-
-  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
 
-
-  List<Map<String, dynamic>> get _filteredProperties {
+  List<CustomerProperty> get _filteredProperties {
     if (_searchQuery.isEmpty || _searchQuery.trim().isEmpty) {
       return _properties;
     }
     
     return _properties.where((property) {
-      final title = property['title']?.toString().toLowerCase() ?? '';
-      final phase = property['phase']?.toString().toLowerCase() ?? '';
-      final size = property['size']?.toString().toLowerCase() ?? '';
+      final title = property.title.toLowerCase();
+      final phase = (property.phase ?? property.location ?? '').toLowerCase();
+      final size = (property.propertyDetails).toLowerCase();
       final query = _searchQuery.toLowerCase().trim();
       
       return title.contains(query) || 
@@ -315,46 +454,121 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
             
             // Properties List
             Expanded(
-              child: _filteredProperties.isEmpty && _searchQuery.isNotEmpty && _searchQuery.trim().isNotEmpty
+              child: _isLoading && _properties.isEmpty
                   ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.search_off,
-                            size: 64,
-                            color: Colors.grey[400],
+                          const CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF20B2AA)),
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'No properties found',
+                            'Loading properties...',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
                               color: Colors.grey[600],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Try searching with different keywords',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 14,
-                              color: Colors.grey[500],
                             ),
                           ),
                         ],
                       ),
                     )
-                  : ListView.builder(
-                padding: const EdgeInsets.all(16),
-                      itemCount: _filteredProperties.length,
-                itemBuilder: (context, index) {
-                        final property = _filteredProperties[index];
-                  return _buildZameenPropertyCard(property, index);
-                },
-              ),
+                  : _errorMessage != null && _properties.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                size: 64,
+                                color: Colors.red[300],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                _errorMessage!,
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () => _loadProperties(refresh: true),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF20B2AA),
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: const Text('Retry'),
+                              ),
+                            ],
+                          ),
+                        )
+                      : _filteredProperties.isEmpty && _searchQuery.isNotEmpty && _searchQuery.trim().isNotEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.search_off,
+                                    size: 64,
+                                    color: Colors.grey[400],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'No properties found',
+                                    style: TextStyle(
+                                      fontFamily: 'Inter',
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Try searching with different keywords',
+                                    style: TextStyle(
+                                      fontFamily: 'Inter',
+                                      fontSize: 14,
+                                      color: Colors.grey[500],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : _filteredProperties.isEmpty
+                              ? Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.home_outlined,
+                                        size: 64,
+                                        color: Colors.grey[400],
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        'No properties available',
+                                        style: TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : ListView.builder(
+                                  padding: const EdgeInsets.all(16),
+                                  itemCount: _filteredProperties.length,
+                                  itemBuilder: (context, index) {
+                                    final property = _filteredProperties[index];
+                                    return _buildZameenPropertyCard(property, index);
+                                  },
+                                ),
             ),
           ],
         ),
@@ -411,13 +625,19 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
     );
   }
 
-  Widget _buildZameenPropertyCard(Map<String, dynamic> property, int index) {
+  Widget _buildZameenPropertyCard(CustomerProperty property, int index) {
+    final propertyMap = _propertyToMap(property);
+    final imageUrl = property.images.isNotEmpty ? property.images.first : null;
+    final priceDisplay = property.isRent 
+        ? 'PKR ${property.rentPrice ?? 'N/A'}'
+        : 'PKR ${property.price ?? 'N/A'}';
+    
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => PropertyDetailInfoScreen(property: property),
+            builder: (context) => PropertyDetailInfoScreen(property: property, propertyMap: propertyMap),
           ),
         );
       },
@@ -448,34 +668,70 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
               child: Stack(
                 children: [
-                  // Property Image
-                  CachedAssetImage(
-                    assetPath: property['image'],
-                    width: double.infinity,
-                    height: 200,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              const Color(0xFF20B2AA).withOpacity(0.1),
-                              const Color(0xFF1B5993).withOpacity(0.1),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+                  // Property Image - Use network image if available, otherwise placeholder
+                  imageUrl != null && imageUrl.startsWith('http')
+                      ? CachedNetworkImage(
+                          imageUrl: imageUrl,
+                          width: double.infinity,
+                          height: 200,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  const Color(0xFF20B2AA).withOpacity(0.1),
+                                  const Color(0xFF1B5993).withOpacity(0.1),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF20B2AA)),
+                              ),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  const Color(0xFF20B2AA).withOpacity(0.1),
+                                  const Color(0xFF1B5993).withOpacity(0.1),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.image_not_supported,
+                                color: Color(0xFF20B2AA),
+                                size: 50,
+                              ),
+                            ),
+                          ),
+                        )
+                      : Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                const Color(0xFF20B2AA).withOpacity(0.1),
+                                const Color(0xFF1B5993).withOpacity(0.1),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.home,
+                              color: Color(0xFF20B2AA),
+                              size: 50,
+                            ),
                           ),
                         ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.work,
-                            color: Color(0xFF20B2AA),
-                            size: 50,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
                 Positioned(
                   top: 12,
                   right: 12,
@@ -486,9 +742,9 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      property['status'],
+                      property.isApproved ? 'Available' : 'Pending',
                       style: TextStyle(
-                              fontFamily: 'Inter',
+                        fontFamily: 'Inter',
                         color: Colors.white,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -539,7 +795,10 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                       }),
                       const SizedBox(width: 8),
                       _buildActionButton(Icons.phone, () {
-                        CallService.showCallBottomSheet(context, '+92-51-111-555-400');
+                        CallService.showCallBottomSheet(
+                          context, 
+                          property.userPhone ?? '+92-51-111-555-400'
+                        );
                       }),
                     ],
                   ),
@@ -556,9 +815,9 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  property['price'],
+                  priceDisplay,
                   style: TextStyle(
-                              fontFamily: 'Inter',
+                    fontFamily: 'Inter',
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: const Color(0xFF20B2AA),
@@ -566,9 +825,9 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  property['title'],
+                  property.title,
                   style: TextStyle(
-                              fontFamily: 'Poppins',
+                    fontFamily: 'Poppins',
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: Colors.black,
@@ -583,12 +842,15 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                       color: Colors.grey[600],
                     ),
                     const SizedBox(width: 4),
-                    Text(
-                      property['phase'],
-                      style: TextStyle(
-                              fontFamily: 'Inter',
-                        fontSize: 14,
-                        color: Colors.grey[600],
+                    Expanded(
+                      child: Text(
+                        property.fullLocation.isNotEmpty ? property.fullLocation : (property.phase ?? property.location ?? 'N/A'),
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -596,6 +858,24 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
+                    if (property.propertyDetails.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          property.propertyDetails,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ),
+                    if (property.propertyDetails.isNotEmpty) const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
@@ -603,97 +883,20 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        property['size'],
+                        property.propertyType ?? property.category ?? 'N/A',
                         style: TextStyle(
-                              fontFamily: 'Inter',
+                          fontFamily: 'Inter',
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: Colors.grey[700],
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        property['type'],
-                        style: TextStyle(
-                              fontFamily: 'Inter',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                    ),
-                    if (property['bedrooms'] != 'N/A') ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.bed,
-                              size: 12,
-                              color: Colors.grey[600],
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${property['bedrooms']} Beds',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey[700],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                    if (property['bathrooms'] != 'N/A') ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.bathroom,
-                              size: 12,
-                              color: Colors.grey[600],
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${property['bathrooms']} Baths',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey[700],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
                   ],
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  property['description'],
+                  property.description,
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 13,
@@ -985,12 +1188,16 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
     );
   }
 
-  void _launchWhatsAppForProperty(Map<String, dynamic> property) {
+  void _launchWhatsAppForProperty(CustomerProperty property) {
+    final priceDisplay = property.isRent 
+        ? 'PKR ${property.rentPrice ?? 'N/A'}'
+        : 'PKR ${property.price ?? 'N/A'}';
+    
     WhatsAppService.launchWhatsAppForProperty(
-      phoneNumber: WhatsAppService.defaultContactNumber,
-      propertyTitle: property['title'] ?? 'Property',
-      propertyPrice: property['price'] ?? 'Price not available',
-      propertyLocation: property['phase'] ?? 'Location not available',
+      phoneNumber: property.userPhone ?? WhatsAppService.defaultContactNumber,
+      propertyTitle: property.title,
+      propertyPrice: priceDisplay,
+      propertyLocation: property.fullLocation.isNotEmpty ? property.fullLocation : (property.phase ?? property.location ?? 'Location not available'),
       context: context,
     );
   }

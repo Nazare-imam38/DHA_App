@@ -25,6 +25,11 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
   Map<String, List<Map<String, dynamic>>>? _resolvedAmenitiesByCategory;
   bool _isLoadingAmenities = false;
 
+  // State for expandable cards
+  bool _isLocationExpanded = false;
+  bool _isPaymentExpanded = false;
+  bool _isContactExpanded = false;
+
   @override
   void initState() {
     super.initState();
@@ -194,13 +199,12 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final p = widget.property;
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
+    return Scaffold(
         backgroundColor: AppTheme.backgroundGrey,
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
+          centerTitle: true,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new, color: AppTheme.primaryBlue, size: 16),
             onPressed: () => Navigator.pop(context),
@@ -213,31 +217,15 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
               color: AppTheme.primaryBlue,
             ),
           ),
-          bottom: const TabBar(
-            labelColor: AppTheme.primaryBlue,
-            unselectedLabelColor: AppTheme.textSecondary,
-            tabs: [
-              Tab(icon: Icon(Icons.star_border), text: 'Features'),
-              Tab(icon: Icon(Icons.place_outlined), text: 'Location'),
-              Tab(icon: Icon(Icons.receipt_long), text: 'Payment'),
-            ],
-          ),
         ),
         body: Column(
           children: [
             // Header image with overlay price/title
             _buildHeader(p),
             Expanded(
-              child: TabBarView(
-                children: [
-                  _buildFeatures(p),
-                  _buildLocation(p),
-                  _buildPayment(p),
-                ],
-              ),
+              child: _buildFeatures(p),
             ),
           ],
-        ),
       ),
     );
   }
@@ -539,9 +527,9 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                     Expanded(
                       child: Text(
                         nameStr,
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 14.sp,
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 14.sp,
                           fontWeight: FontWeight.w500,
                           color: AppTheme.textPrimary,
                         ),
@@ -552,27 +540,292 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
               );
             }).toList(),
           ] else ...[
+                    Text(
+              'No features provided',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 14.sp,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ],
+          
+          SizedBox(height: 24.h),
+          
+          // Location Section (Expandable Card)
+          _buildExpandableCard(
+            title: 'Location',
+            icon: Icons.location_on,
+            isExpanded: _isLocationExpanded,
+            onToggle: () => setState(() => _isLocationExpanded = !_isLocationExpanded),
+            child: _buildLocationContent(p),
+          ),
+          
+          SizedBox(height: 16.h),
+          
+          // Payment Section (Expandable Card)
+          _buildExpandableCard(
+            title: 'Payment',
+            icon: Icons.receipt_long,
+            isExpanded: _isPaymentExpanded,
+            onToggle: () => setState(() => _isPaymentExpanded = !_isPaymentExpanded),
+            child: _buildPaymentContent(p),
+          ),
+          
+          SizedBox(height: 16.h),
+          
+          // Contact Owner Section (Expandable Card)
+          if (p.userPhone != null && p.userPhone!.isNotEmpty)
+            _buildExpandableCard(
+              title: 'Contact Owner',
+              icon: Icons.person_outline,
+              isExpanded: _isContactExpanded,
+              onToggle: () => setState(() => _isContactExpanded = !_isContactExpanded),
+              child: _buildContactContent(p),
+            ),
+        ],
+      ),
+    );
+  }
+  
+  // Helper method to build expandable card
+  Widget _buildExpandableCard({
+    required String title,
+    required IconData icon,
+    required bool isExpanded,
+    required VoidCallback onToggle,
+    required Widget child,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: AppTheme.borderGrey,
+          width: 1,
+        ),
+      ),
+                child: Column(
+                  children: [
+          InkWell(
+            onTap: onToggle,
+            borderRadius: BorderRadius.circular(12.r),
+            child: Padding(
+              padding: EdgeInsets.all(16.w),
+                        child: Row(
+                          children: [
+                            Container(
+                    padding: EdgeInsets.all(8.w),
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8.r),
+                              ),
+                    child: Icon(icon, color: AppTheme.primaryBlue, size: 20.sp),
+                            ),
+                            SizedBox(width: 12.w),
+                            Expanded(
+                              child: Text(
+                      title,
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.primaryBlue,
+                                ),
+                              ),
+                            ),
+                  Icon(
+                    isExpanded ? Icons.expand_less : Icons.expand_more,
+                    color: AppTheme.textSecondary,
+                    size: 24.sp,
+                            ),
+                          ],
+                        ),
+            ),
+          ),
+          if (isExpanded) ...[
+            Divider(height: 1, color: AppTheme.borderGrey),
+            Padding(
+              padding: EdgeInsets.all(16.w),
+              child: child,
+            ),
+          ],
+                  ],
+                ),
+              );
+  }
+  
+  // Location Content
+  Widget _buildLocationContent(CustomerProperty p) {
+    final lat = p.latitude;
+    final lng = p.longitude;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+        // Address display
+        if (lat != null && lng != null) ...[
+          if (_isGeocoding)
+            Row(
+              children: [
+                SizedBox(
+                  width: 16.w,
+                  height: 16.h,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                SizedBox(width: 8.w),
             Text(
-              'Plot Features',
+                  'Getting address...',
               style: TextStyle(
                 fontFamily: 'Inter',
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.primaryBlue,
-              ),
+                    fontSize: 14.sp,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ],
+            )
+          else if (_geocodedAddress != null)
+            Row(
+                  children: [
+                Icon(Icons.location_on, size: 18.sp, color: AppTheme.primaryBlue),
+                SizedBox(width: 8.w),
+                            Expanded(
+                              child: Text(
+                    _geocodedAddress!,
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 14.sp,
+                                  color: AppTheme.textPrimary,
+                                ),
+                              ),
+                            ),
+                          ],
+            )
+          else if (p.fullLocation.isNotEmpty)
+            Row(
+              children: [
+                Icon(Icons.location_on, size: 18.sp, color: AppTheme.primaryBlue),
+                SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                    _cleanLocationString(p.fullLocation),
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 14.sp,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+          SizedBox(height: 12.h),
+          // Map
+          Container(
+            height: 220.h,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.white,
             ),
-            SizedBox(height: 12.h),
+            clipBehavior: Clip.antiAlias,
+            child: FlutterMap(
+              options: MapOptions(
+                initialCenter: LatLng(lat, lng),
+                initialZoom: 14,
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.dhamarketplace.app',
+                ),
+                MarkerLayer(markers: [
+                  Marker(
+                    point: LatLng(lat, lng),
+                    width: 36,
+                    height: 36,
+                    alignment: Alignment.topCenter,
+                    child: const Icon(Icons.location_on, color: Color(0xFFE53935), size: 32),
+                  )
+                ])
+              ],
+            ),
+          ),
+        ] else
             Text(
-              'No features provided',
+            'No location available',
+              style: TextStyle(
+                fontFamily: 'Inter',
+              fontSize: 14.sp,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+      ],
+    );
+  }
+  
+  // Payment Content
+  Widget _buildPaymentContent(CustomerProperty p) {
+    return Column(
+      children: [
+        _buildPaymentRow('Price', 'PKR ${p.displayPrice}'),
+        if (p.paymentMethod != null && p.paymentMethod!.isNotEmpty)
+          _buildPaymentRow('Payment Method', p.paymentMethod!),
+        if (p.category.isNotEmpty)
+          _buildPaymentRow('Category', p.category),
+        if (p.purpose.isNotEmpty)
+          _buildPaymentRow('Purpose', p.purpose),
+      ],
+    );
+  }
+  
+  // Contact Owner Content
+  Widget _buildContactContent(CustomerProperty p) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (p.userName != null && p.userName!.isNotEmpty) ...[
+          Row(
+            children: [
+              Icon(
+                Icons.person_outline,
+                size: 18.sp,
+                color: AppTheme.textSecondary,
+              ),
+              SizedBox(width: 8.w),
+            Text(
+                p.userName!,
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontSize: 14.sp,
-                color: AppTheme.textSecondary,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textPrimary,
               ),
             ),
           ],
+            ),
+            SizedBox(height: 12.h),
         ],
-      ),
+        Row(
+                  children: [
+            Icon(
+              Icons.phone_outlined,
+              size: 18.sp,
+              color: AppTheme.textSecondary,
+            ),
+            SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                p.userPhone!,
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+      ],
     );
   }
 
@@ -959,13 +1212,13 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            label,
-            style: TextStyle(
-              fontFamily: 'Inter',
+                  label,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
               fontSize: 14.sp,
-              fontWeight: FontWeight.w500,
-              color: AppTheme.textSecondary,
-            ),
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.textSecondary,
+                  ),
           ),
           SizedBox(height: 8.h),
           Text(

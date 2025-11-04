@@ -10,6 +10,7 @@ import 'package:latlong2/latlong.dart';
 import 'update_property_screen.dart';
 import '../services/whatsapp_service.dart';
 import '../services/call_service.dart';
+import 'ownership_selection_screen.dart';
 
 class MyListingsScreen extends StatefulWidget {
   const MyListingsScreen({super.key});
@@ -592,7 +593,14 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.pushNamed(context, '/ownership-selection'),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const OwnershipSelectionScreen(),
+            ),
+          );
+        },
         backgroundColor: AppTheme.primaryBlue,
         icon: const Icon(Icons.add, color: Colors.white),
         label: Text(
@@ -709,7 +717,14 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
             if (_selectedFilter == 'All') ...[
               SizedBox(height: 24.h),
               ElevatedButton.icon(
-                onPressed: () => Navigator.pushNamed(context, '/ownership-selection'),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const OwnershipSelectionScreen(),
+                    ),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryBlue,
                   shape: RoundedRectangleBorder(
@@ -851,28 +866,6 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                   right: 12,
                   child: _buildStatusPill(property),
                 ),
-                // Call and Message Icons Overlay
-                if (property.userPhone != null && property.userPhone!.isNotEmpty)
-                  Positioned(
-                    bottom: 12,
-                    right: 12,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Call Icon
-                        _buildContactIcon(
-                          icon: Icons.phone,
-                          onTap: () => _makeCall(property.userPhone!),
-                        ),
-                        SizedBox(width: 8.w),
-                        // Message/WhatsApp Icon
-                        _buildContactIcon(
-                          icon: Icons.message,
-                          onTap: () => _sendWhatsApp(property.userPhone!, property),
-                        ),
-                      ],
-                    ),
-                  ),
               ],
             ),
             // Property Details
@@ -954,53 +947,18 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
   Widget _buildActionButtons(CustomerProperty property) {
     return Row(
       children: [
-        // View Button
+        // View Button - Longer with teal background and white text
         Expanded(
+          flex: 2,
           child: ElevatedButton.icon(
             onPressed: () => _navigateToPropertyDetails(property),
             icon: Icon(
               Icons.visibility_outlined,
               size: 16.sp,
-              color: const Color(0xFF20B2AA),
-            ),
-            label: Text(
-              'View',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF20B2AA),
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF20B2AA),
-              elevation: 0,
-              side: BorderSide(
-                color: const Color(0xFF20B2AA),
-                width: 1,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              padding: EdgeInsets.symmetric(vertical: 12.h),
-            ),
-          ),
-        ),
-        
-        SizedBox(width: 12.w),
-        
-        // Update Button
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: () => _navigateToUpdateProperty(property),
-            icon: Icon(
-              Icons.edit_outlined,
-              size: 16.sp,
               color: Colors.white,
             ),
             label: Text(
-              'Update',
+              'View',
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontSize: 14.sp,
@@ -1022,33 +980,45 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         
         SizedBox(width: 12.w),
         
-        // Delete Button
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: () => _showDeleteConfirmation(property),
-            icon: Icon(
-              Icons.delete_outline,
-              size: 16.sp,
-              color: Colors.white,
+        // Update Button - Icon only
+        ElevatedButton(
+          onPressed: () => _navigateToUpdateProperty(property),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF20B2AA),
+            foregroundColor: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.r),
             ),
-            label: Text(
-              'Delete',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
+            padding: EdgeInsets.all(12.w),
+            minimumSize: Size(48.w, 48.h),
+          ),
+          child: Icon(
+            Icons.edit_outlined,
+            size: 20.sp,
+            color: Colors.white,
+          ),
+        ),
+        
+        SizedBox(width: 12.w),
+        
+        // Delete Button - Icon only
+        ElevatedButton(
+          onPressed: () => _showDeleteConfirmation(property),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.r),
             ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              padding: EdgeInsets.symmetric(vertical: 12.h),
-            ),
+            padding: EdgeInsets.all(12.w),
+            minimumSize: Size(48.w, 48.h),
+          ),
+          child: Icon(
+            Icons.delete_outline,
+            size: 20.sp,
+            color: Colors.white,
           ),
         ),
       ],

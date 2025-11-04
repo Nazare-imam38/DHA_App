@@ -667,13 +667,15 @@ class _LoginScreenState extends State<LoginScreen>
                 size: 20,
               ),
               const SizedBox(width: 8),
-              Text(
-                'Security Verification',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+              Expanded(
+                child: Text(
+                  'Security Verification',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
