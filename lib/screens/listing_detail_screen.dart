@@ -97,14 +97,9 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
             'name': name,
           });
         } else {
-          // If ID not found, add to "Other" category
-          if (!resolvedAmenities.containsKey('Other')) {
-            resolvedAmenities['Other'] = [];
-          }
-          resolvedAmenities['Other']!.add({
-            'id': id,
-            'name': 'Amenity ID: $id',
-          });
+          // If ID not found, skip it - don't show "Amenity ID: X"
+          // Only show amenities that have actual names
+          print('⚠️ Amenity ID $id not found in fetched amenities, skipping');
         }
       }
 
@@ -312,7 +307,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      p.fullLocation,
+                      _cleanLocationString(p.fullLocation),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -374,6 +369,36 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
     final amenitiesByCategory = _resolvedAmenitiesByCategory ?? p.amenitiesByCategory;
     final flatAmenities = p.amenities;
     
+    // Property Details Grid (Side by Side)
+    // Collect all available details
+    List<Map<String, dynamic>> details = [];
+    
+    if (p.propertyType != null && p.propertyType!.isNotEmpty)
+      details.add({'label': 'Property Type', 'value': p.propertyType!});
+    
+    details.add({'label': 'Purpose', 'value': p.purpose});
+    
+    if (p.area != null && p.area!.isNotEmpty)
+      details.add({'label': 'Size', 'value': p.area!});
+    
+    if (p.phase != null && p.phase!.isNotEmpty)
+      details.add({'label': 'Phase', 'value': p.phase!});
+    
+    if (p.sector != null && p.sector!.isNotEmpty)
+      details.add({'label': 'Sector', 'value': p.sector!});
+    
+    if (p.building != null && p.building!.isNotEmpty)
+      details.add({'label': 'Building', 'value': p.building!});
+    
+    if (p.floor != null && p.floor!.isNotEmpty)
+      details.add({'label': 'Floor', 'value': p.floor!});
+    
+    if (p.apartmentNumber != null && p.apartmentNumber!.isNotEmpty)
+      details.add({'label': 'Unit No', 'value': p.apartmentNumber!});
+    
+    if (p.durationDays != null)
+      details.add({'label': 'Duration', 'value': '${p.durationDays} Days'});
+    
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
       child: Column(
@@ -390,147 +415,6 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
             ),
           ),
           SizedBox(height: 12.h),
-          
-          // Property Type
-          if (p.propertyType != null && p.propertyType!.isNotEmpty)
-            Padding(
-              padding: EdgeInsets.only(bottom: 16.h),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(8.w),
-                    decoration: BoxDecoration(
-                      color: AppTheme.lightBlue,
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    child: Icon(Icons.home, color: AppTheme.primaryBlue, size: 22.sp),
-                  ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Property Type',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w500,
-                            color: AppTheme.textSecondary,
-                          ),
-                        ),
-                        SizedBox(height: 4.h),
-                        Text(
-                          p.propertyType!,
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          
-          // Purpose
-          Padding(
-            padding: EdgeInsets.only(bottom: 16.h),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(8.w),
-                  decoration: BoxDecoration(
-                    color: AppTheme.lightBlue,
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Icon(Icons.sell, color: AppTheme.primaryBlue, size: 22.sp),
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Purpose',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w500,
-                          color: AppTheme.textSecondary,
-                        ),
-                      ),
-                      SizedBox(height: 4.h),
-                      Text(
-                        p.purpose,
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          // Location
-          if (p.fullLocation.isNotEmpty || (p.latitude != null && p.longitude != null))
-            Padding(
-              padding: EdgeInsets.only(bottom: 16.h),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(8.w),
-                    decoration: BoxDecoration(
-                      color: AppTheme.lightBlue,
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    child: Icon(Icons.location_on, color: AppTheme.primaryBlue, size: 22.sp),
-                  ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Location',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w500,
-                            color: AppTheme.textSecondary,
-                          ),
-                        ),
-                        SizedBox(height: 4.h),
-                        Text(
-                          p.fullLocation.isNotEmpty 
-                              ? p.fullLocation 
-                              : (p.latitude != null && p.longitude != null 
-                                  ? '${p.latitude}, ${p.longitude}' 
-                                  : 'Location not specified'),
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
           
           // Description
           if (p.description.isNotEmpty)
@@ -578,33 +462,38 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
               ),
             ),
           
-          // Size
-          if (p.area != null && p.area!.isNotEmpty)
-            _buildDetailRow('Size', p.area!, Icons.square_foot),
-          
-          // Phase
-          if (p.phase != null && p.phase!.isNotEmpty)
-            _buildDetailRow('Phase', p.phase!, Icons.location_city),
-          
-          // Sector
-          if (p.sector != null && p.sector!.isNotEmpty)
-            _buildDetailRow('Sector', p.sector!, Icons.map),
-          
-          // Building
-          if (p.building != null && p.building!.isNotEmpty)
-            _buildDetailRow('Building', p.building!, Icons.business),
-          
-          // Floor
-          if (p.floor != null && p.floor!.isNotEmpty)
-            _buildDetailRow('Floor', p.floor!, Icons.layers),
-          
-          // Unit No
-          if (p.apartmentNumber != null && p.apartmentNumber!.isNotEmpty)
-            _buildDetailRow('Unit No', p.apartmentNumber!, Icons.door_front_door),
-          
-          // Duration
-          if (p.durationDays != null)
-            _buildDetailRow('Duration', '${p.durationDays} Days', Icons.calendar_today),
+          // Display in 2-column grid
+          ...List.generate(
+            (details.length / 2).ceil(),
+            (index) {
+              final firstIndex = index * 2;
+              final secondIndex = firstIndex + 1;
+              
+              return Padding(
+                padding: EdgeInsets.only(bottom: 16.h),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildGridDetailItem(
+                        details[firstIndex]['label'],
+                        details[firstIndex]['value'],
+                      ),
+                    ),
+                    if (secondIndex < details.length) ...[
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: _buildGridDetailItem(
+                          details[secondIndex]['label'],
+                          details[secondIndex]['value'],
+                        ),
+                      ),
+                    ] else
+                      Expanded(child: SizedBox()),
+                  ],
+                ),
+              );
+            },
+          ),
           
           SizedBox(height: 24.h),
           
@@ -620,118 +509,20 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
           ),
           SizedBox(height: 12.h),
           
-          if (_isLoadingAmenities) ...[
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 24.h),
-              child: Center(
-                child: Column(
-                  children: [
-                    SizedBox(
-                      width: 24.w,
-                      height: 24.h,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                    SizedBox(height: 12.h),
-                    Text(
-                      'Loading amenities...',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 14.sp,
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ] else if (amenitiesByCategory != null && amenitiesByCategory.isNotEmpty) ...[
-            // Display amenities grouped by category
-            ...amenitiesByCategory.entries.map((entry) {
-              final categoryName = entry.key;
-              final amenities = entry.value;
-              
-              if (amenities == null) return const SizedBox.shrink();
-              
-              List<dynamic> amenityList = [];
-              if (amenities is List) {
-                amenityList = amenities;
-              } else if (amenities is String) {
-                amenityList = [amenities];
-              }
-              
-              if (amenityList.isEmpty) return const SizedBox.shrink();
-              
-              return Padding(
-                padding: EdgeInsets.only(bottom: 24.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      categoryName,
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.primaryBlue,
-                      ),
-                    ),
-                    SizedBox(height: 12.h),
-                    ...amenityList.map((amenity) {
-                      String name;
-                      if (amenity is Map) {
-                        name = amenity['name']?.toString() ?? 
-                               amenity['amenity_name']?.toString() ?? 
-                               amenity.toString();
-                      } else {
-                        name = amenity.toString();
-                      }
-                      final icon = _getAmenityIcon(name);
-                      return Padding(
-                        padding: EdgeInsets.symmetric(vertical: 6.h),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(6.w),
-                              decoration: BoxDecoration(
-                                color: AppTheme.primaryBlue.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(6.r),
-                              ),
-                              child: Icon(icon, color: AppTheme.primaryBlue, size: 18.sp),
-                            ),
-                            SizedBox(width: 12.w),
-                            Expanded(
-                              child: Text(
-                                name,
-                                style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppTheme.textPrimary,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ],
-                ),
-              );
-            }).toList(),
-          ] else if (flatAmenities.isNotEmpty) ...[
-            // Fallback: display flat list if no category info
-            Text(
-              'Plot Features',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.primaryBlue,
-              ),
-            ),
-            SizedBox(height: 12.h),
-            ...flatAmenities.map((name) {
-              final icon = _getAmenityIcon(name);
+          // Show flat list of amenities selected by user in step 5
+          // Filter out any IDs or "Amenity ID:" entries - only show actual amenity names
+          if (flatAmenities.isNotEmpty) ...[
+            ...flatAmenities.where((name) {
+              final nameStr = name.toString().trim();
+              // Filter out entries that are just numbers (IDs) or contain "Amenity ID:"
+              if (nameStr.isEmpty) return false;
+              if (nameStr.contains('Amenity ID:') || nameStr.startsWith('Amenity ID:')) return false;
+              // Check if it's just a number (ID)
+              if (RegExp(r'^\d+$').hasMatch(nameStr)) return false;
+              return true;
+            }).map((name) {
+              final nameStr = name.toString().trim();
+              final icon = _getAmenityIcon(nameStr);
               return Padding(
                 padding: EdgeInsets.symmetric(vertical: 6.h),
                 child: Row(
@@ -747,7 +538,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                     SizedBox(width: 12.w),
                     Expanded(
                       child: Text(
-                        name,
+                        nameStr,
                         style: TextStyle(
                           fontFamily: 'Inter',
                           fontSize: 14.sp,
@@ -759,7 +550,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                   ],
                 ),
               );
-            }),
+            }).toList(),
           ] else ...[
             Text(
               'Plot Features',
@@ -783,6 +574,19 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
         ],
       ),
     );
+  }
+
+  // Helper function to remove coordinate patterns from location string
+  String _cleanLocationString(String location) {
+    // Remove patterns like "33.533725, 73.150831" or "(33.53, 73.15)"
+    // Pattern matches: optional opening paren, digits and decimals, comma, space, digits and decimals, optional closing paren
+    String cleaned = location.replaceAll(RegExp(r'\(?\d+\.?\d*\s*,\s*\d+\.?\d*\)?'), '');
+    // Clean up any double commas or extra spaces
+    cleaned = cleaned.replaceAll(RegExp(r',\s*,+'), ',');
+    cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ').trim();
+    // Remove leading/trailing commas
+    cleaned = cleaned.replaceAll(RegExp(r'^,+\s*|\s*,+$'), '').trim();
+    return cleaned;
   }
 
   Widget _buildLocation(CustomerProperty p) {
@@ -856,7 +660,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                     SizedBox(width: 8.w),
                     Expanded(
                       child: Text(
-                        '${p.fullLocation} (${lat}, ${lng})',
+                        _cleanLocationString(p.fullLocation),
                         style: TextStyle(
                           fontFamily: 'Inter',
                           fontSize: 14.sp,
@@ -1134,6 +938,46 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGridDetailItem(String label, String value) {
+    return Container(
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(
+          color: AppTheme.borderGrey,
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            value,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textPrimary,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
