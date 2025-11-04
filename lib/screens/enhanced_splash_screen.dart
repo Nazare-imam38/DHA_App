@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../ui/screens/auth/login_screen.dart';
 import '../ui/widgets/cached_asset_image.dart';
-import '../ui/widgets/dha_loading_widget.dart';
 import 'main_wrapper.dart';
 
 /// Enhanced Splash Screen with Real Preloading
@@ -22,12 +21,19 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
   
   // Animation controllers
   late AnimationController _logoController;
-  late AnimationController _textController;
+  late AnimationController _logoHeartbeatController;
+  late AnimationController _dhaTextController;
+  late AnimationController _marketplaceTextController;
   late AnimationController _progressController;
   
   // Animations
   late Animation<double> _logoScale;
-  late Animation<double> _textFade;
+  late Animation<double> _logoOpacity;
+  late Animation<double> _logoHeartbeatScale;
+  late Animation<double> _dhaTextSlide;
+  late Animation<double> _dhaTextOpacity;
+  late Animation<double> _marketplaceTextSlide;
+  late Animation<double> _marketplaceTextOpacity;
   late Animation<double> _progressFade;
   
   // Preloading state
@@ -47,13 +53,27 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
   }
   
   void _initializeAnimations() {
+    // Logo animation controller
     _logoController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
     
-    _textController = AnimationController(
-      duration: const Duration(milliseconds: 1000),
+    // Logo heartbeat animation controller - quick and subtle
+    _logoHeartbeatController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    
+    // DHA text animation controller
+    _dhaTextController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    
+    // MARKETPLACE text animation controller
+    _marketplaceTextController = AnimationController(
+      duration: const Duration(milliseconds: 800),
       vsync: this,
     );
     
@@ -62,12 +82,39 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
       vsync: this,
     );
 
+    // Logo animations - scale and fade in
     _logoScale = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _logoController, curve: Curves.elasticOut),
     );
     
-    _textFade = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _textController, curve: Curves.easeIn),
+    _logoOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _logoController, curve: Curves.easeIn),
+    );
+    
+    // Logo heartbeat animation - subtle single pulse
+    _logoHeartbeatScale = Tween<double>(begin: 1.0, end: 1.08).animate(
+      CurvedAnimation(
+        parent: _logoHeartbeatController,
+        curve: Curves.easeInOut,
+      ),
+    );
+    
+    // DHA text animations - slides down from logo (inside) and fades in, then goes back
+    _dhaTextSlide = Tween<double>(begin: -120.0, end: 0.0).animate(
+      CurvedAnimation(parent: _dhaTextController, curve: Curves.easeOutCubic),
+    );
+    
+    _dhaTextOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _dhaTextController, curve: Curves.easeIn),
+    );
+    
+    // MARKETPLACE text animations - slides down from logo (inside) and fades in, then goes back
+    _marketplaceTextSlide = Tween<double>(begin: -120.0, end: 0.0).animate(
+      CurvedAnimation(parent: _marketplaceTextController, curve: Curves.easeOutCubic),
+    );
+    
+    _marketplaceTextOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _marketplaceTextController, curve: Curves.easeIn),
     );
     
     _progressFade = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -75,14 +122,47 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
     );
   }
   
+  void _triggerLogoHeartbeat() {
+    // Reset to beginning and start subtle heartbeat animation
+    _logoHeartbeatController.reset();
+    _logoHeartbeatController.forward().then((_) {
+      _logoHeartbeatController.reverse();
+    });
+  }
+  
   void _startPreloading() async {
-    // Start animations
+    // Step 1: Logo appears first
     await _logoController.forward();
-    await _textController.forward();
-    await _progressController.forward();
     
-    // Start preloading
+    // Step 2: Wait a bit, then DHA text comes out from logo with heartbeat
+    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(milliseconds: 50)); // Small delay before heartbeat
+    _triggerLogoHeartbeat(); // Start heartbeat (runs in parallel)
+    await _dhaTextController.forward();
+    
+    // Step 3: Wait a bit, then MARKETPLACE text comes out from logo with heartbeat
+    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(milliseconds: 50)); // Small delay before heartbeat
+    _triggerLogoHeartbeat(); // Start heartbeat (runs in parallel)
+    await _marketplaceTextController.forward();
+    
+    // Step 4: Wait to show the complete text
+    await Future.delayed(const Duration(milliseconds: 600));
+    
+    // Step 5: DHA text goes back into logo with heartbeat
+    await Future.delayed(const Duration(milliseconds: 50)); // Small delay before heartbeat
+    _triggerLogoHeartbeat(); // Start heartbeat (runs in parallel)
+    await _dhaTextController.reverse();
+    
+    // Step 6: Wait a bit, then MARKETPLACE text goes back into logo with heartbeat
+    await Future.delayed(const Duration(milliseconds: 150));
+    await Future.delayed(const Duration(milliseconds: 50)); // Small delay before heartbeat
+    _triggerLogoHeartbeat(); // Start heartbeat (runs in parallel)
+    await _marketplaceTextController.reverse();
+    
+    // Step 7: Start preloading
     _isPreloading = true;
+    await _progressController.forward();
     
     // Simulate preloading progress for now
     await _simulatePreloadingProgress();
@@ -157,7 +237,9 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
   @override
   void dispose() {
     _logoController.dispose();
-    _textController.dispose();
+    _logoHeartbeatController.dispose();
+    _dhaTextController.dispose();
+    _marketplaceTextController.dispose();
     _progressController.dispose();
     _fallbackTimer?.cancel();
     super.dispose();
@@ -170,111 +252,111 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
         decoration: const BoxDecoration(
           color: Colors.white,
         ),
-        child: SafeArea(
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo section - Clean Logo Only
-              Expanded(
-                flex: 3,
-                child: Center(
-                  child: AnimatedBuilder(
-                    animation: _logoScale,
-                    builder: (context, child) {
-                      return Transform.scale(
-                        scale: _logoScale.value,
-                        child: Container(
-                          width: 180,
-                          height: 180,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(25),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.25),
-                                blurRadius: 25,
-                                offset: const Offset(0, 12),
-                                spreadRadius: 3,
-                              ),
-                            ],
-                          ),
-                          padding: EdgeInsets.all(25),
-                          child: CachedAssetImage(
-                            assetPath: 'assets/images/dhalogo.png',
-                            width: 130,
-                            height: 130,
-                            fit: BoxFit.contain,
-                          ),
+              // Logo - appears first with heartbeat animation
+              AnimatedBuilder(
+                animation: Listenable.merge([_logoScale, _logoOpacity, _logoHeartbeatScale]),
+                builder: (context, child) {
+                  // Combine initial scale with heartbeat scale
+                  final combinedScale = _logoScale.value * _logoHeartbeatScale.value;
+                  
+                  return Opacity(
+                    opacity: _logoOpacity.value,
+                    child: Transform.scale(
+                      scale: combinedScale,
+                      child: Container(
+                        width: 200,
+                        height: 200,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.15),
+                              blurRadius: 30,
+                              offset: const Offset(0, 15),
+                              spreadRadius: 5,
+                            ),
+                          ],
                         ),
-                      );
-                    },
-                  ),
-                ),
+                        padding: const EdgeInsets.all(30),
+                        child: CachedAssetImage(
+                          assetPath: 'assets/images/dhalogo.png',
+                          width: 140,
+                          height: 140,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
               
-              // Progress section with DHA Loading Widget
-              Expanded(
-                flex: 2,
-                child: AnimatedBuilder(
-                  animation: _progressFade,
-                  builder: (context, child) {
-                    return Opacity(
-                      opacity: _progressFade.value,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // DHA Loading Widget - Much Bigger
-                          DHALoadingWidget(
-                            size: 160,
-                            primaryColor: const Color(0xFF1E3A8A),
-                            secondaryColor: const Color(0xFF3B82F6),
-                            message: 'Loading data...',
-                            showMessage: true,
-                          ),
-                          
-                          const SizedBox(height: 20),
-                          
-                          // Progress percentage
-                          Text(
-                            '${_preloadProgress.toStringAsFixed(0)}%',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Color(0xFF1E3A8A),
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 1.0,
+              const SizedBox(height: 40),
+              
+              // DHA Text - comes out from logo
+              AnimatedBuilder(
+                animation: Listenable.merge([_dhaTextSlide, _dhaTextOpacity]),
+                builder: (context, child) {
+                  return Opacity(
+                    opacity: _dhaTextOpacity.value,
+                    child: Transform.translate(
+                      offset: Offset(0, _dhaTextSlide.value),
+                      child: Text(
+                        'DHA',
+                        style: TextStyle(
+                          fontFamily: 'GT Walsheim',
+                          fontSize: 42,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF1E3A8A),
+                          letterSpacing: 2.0,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
               
-              // Footer
-              Expanded(
-                flex: 1,
-                child: AnimatedBuilder(
-                  animation: _textFade,
-                  builder: (context, child) {
-                    return Opacity(
-                      opacity: _textFade.value,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Powered by Advanced Caching Technology',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.white.withValues(alpha: 0.6),
+              const SizedBox(height: 8),
+              
+              // MARKETPLACE Text - comes out from logo
+              AnimatedBuilder(
+                animation: Listenable.merge([_marketplaceTextSlide, _marketplaceTextOpacity]),
+                builder: (context, child) {
+                  return Opacity(
+                    opacity: _marketplaceTextOpacity.value,
+                    child: Transform.translate(
+                      offset: Offset(0, _marketplaceTextSlide.value),
+                      child: Text(
+                        'MARKETPLACE',
+                        style: TextStyle(
+                          fontFamily: 'GT Walsheim',
+                          fontSize: 28,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF1E3A8A),
+                          letterSpacing: 3.0,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                        ],
+                          ],
+                        ),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
             ],
           ),

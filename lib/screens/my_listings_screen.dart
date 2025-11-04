@@ -76,6 +76,296 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     );
   }
 
+  Future<void> _showDeleteConfirmation(CustomerProperty property) async {
+    // First confirmation dialog
+    final firstConfirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.r),
+          ),
+          title: Text(
+            'Delete Property',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 20.sp,
+              fontWeight: FontWeight.w700,
+              color: Colors.red,
+            ),
+          ),
+          content: Text(
+            'Do you want to delete this property? This action cannot be undone.',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 14.sp,
+              color: Colors.black87,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                'No',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 14.sp,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(
+                'Yes',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (firstConfirm == true) {
+      // Second confirmation dialog (like GitHub)
+      await _showGitHubStyleDeleteDialog(property);
+    }
+  }
+
+  Future<void> _showGitHubStyleDeleteDialog(CustomerProperty property) async {
+    final TextEditingController textController = TextEditingController();
+    final String requiredText = 'delete my property';
+    bool isTextMatched = false;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+              title: Row(
+                children: [
+                  Icon(Icons.warning_amber_rounded, color: Colors.red, size: 24.sp),
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: Text(
+                      'Delete Property',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'This action cannot be undone. This will permanently delete your property.',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14.sp,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  Text(
+                    'Please type "$requiredText" to confirm:',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  TextField(
+                    controller: textController,
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      hintText: requiredText,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                        borderSide: BorderSide(
+                          color: isTextMatched ? Colors.green : Colors.red,
+                          width: 2,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                        borderSide: BorderSide(
+                          color: isTextMatched ? Colors.green : Colors.grey,
+                          width: 2,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                        borderSide: BorderSide(
+                          color: isTextMatched ? Colors.green : Colors.red,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14.sp,
+                    ),
+                    onChanged: (value) {
+                      setDialogState(() {
+                        isTextMatched = value.trim().toLowerCase() == requiredText.toLowerCase();
+                      });
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    textController.dispose();
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14.sp,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: isTextMatched
+                      ? () async {
+                          textController.dispose();
+                          Navigator.of(context).pop();
+                          await _deleteProperty(property);
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: Colors.grey[300],
+                    disabledForegroundColor: Colors.grey[600],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+                  ),
+                  child: Text(
+                    'Delete',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    ).then((_) {
+      textController.dispose();
+    });
+  }
+
+  Future<void> _deleteProperty(CustomerProperty property) async {
+    // Show loading indicator
+    if (!mounted) return;
+    
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: CircularProgressIndicator(
+          color: const Color(0xFF20B2AA),
+        ),
+      ),
+    );
+
+    try {
+      final result = await _service.deleteProperty(property.id.toString());
+      
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Close loading dialog
+
+      if (result['success'] == true) {
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              result['message'] ?? 'Property deleted successfully',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14.sp,
+              ),
+            ),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+          ),
+        );
+        
+        // Refresh the properties list
+        _loadProperties();
+      } else {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              result['message'] ?? 'Failed to delete property',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14.sp,
+              ),
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Close loading dialog
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Error deleting property: $e',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 14.sp,
+            ),
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+        ),
+      );
+    }
+  }
+
   Future<void> _loadProperties() async {
     setState(() {
       _isLoading = true;
@@ -693,6 +983,38 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF20B2AA),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+              padding: EdgeInsets.symmetric(vertical: 12.h),
+            ),
+          ),
+        ),
+        
+        SizedBox(width: 12.w),
+        
+        // Delete Button
+        Expanded(
+          child: ElevatedButton.icon(
+            onPressed: () => _showDeleteConfirmation(property),
+            icon: Icon(
+              Icons.delete_outline,
+              size: 16.sp,
+              color: Colors.white,
+            ),
+            label: Text(
+              'Delete',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
               foregroundColor: Colors.white,
               elevation: 0,
               shape: RoundedRectangleBorder(

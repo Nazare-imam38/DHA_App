@@ -202,4 +202,61 @@ class CustomerPropertiesService {
       };
     }
   }
+
+  // Delete property by ID
+  Future<Map<String, dynamic>> deleteProperty(String propertyId) async {
+    try {
+      final token = await _authService.getToken();
+      if (token == null) {
+        return {
+          'success': false,
+          'message': 'Authentication token missing. Please login again.',
+        };
+      }
+
+      print('🗑️ Deleting property: $propertyId');
+
+      final response = await http.delete(
+        Uri.parse('$baseUrl/delete/property/$propertyId'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('📊 Delete Property Response Status: ${response.statusCode}');
+      print('📄 Delete Property Response Body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        final responseData = response.body.isNotEmpty 
+            ? json.decode(response.body) as Map<String, dynamic>
+            : {'message': 'Property deleted successfully'};
+        return {
+          'success': true,
+          'data': responseData,
+          'message': responseData['message'] ?? 'Property deleted successfully',
+        };
+      } else if (response.statusCode == 401) {
+        return {
+          'success': false,
+          'message': 'Unauthorized. Please login again.',
+        };
+      } else {
+        final errorData = response.body.isNotEmpty 
+            ? json.decode(response.body) as Map<String, dynamic>
+            : <String, dynamic>{};
+        return {
+          'success': false,
+          'message': errorData['message'] ?? 'Failed to delete property. Status: ${response.statusCode}',
+          'body': response.body,
+        };
+      }
+    } catch (e) {
+      print('❌ Error deleting property: $e');
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
 }
