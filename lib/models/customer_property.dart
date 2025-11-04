@@ -22,6 +22,7 @@ class CustomerProperty {
   final double? latitude;
   final double? longitude;
   final String? paymentMethod;
+  final int? durationDays; // Duration in days from API
   final List<String> images;
   final List<String> videos;
   List<String> amenities;
@@ -33,6 +34,10 @@ class CustomerProperty {
   String? approvalStatus;
   String? approvalNotes;
   bool? isApprovalLoading;
+  
+  // User/Owner contact information
+  String? userName;
+  String? userPhone;
 
   CustomerProperty({
     required this.id,
@@ -55,6 +60,7 @@ class CustomerProperty {
     this.latitude,
     this.longitude,
     this.paymentMethod,
+    this.durationDays,
     List<String>? images,
     List<String>? videos,
     List<String>? amenities,
@@ -64,6 +70,8 @@ class CustomerProperty {
     this.approvalStatus,
     this.approvalNotes,
     this.isApprovalLoading = false,
+    this.userName,
+    this.userPhone,
   }) : images = images ?? [],
        videos = videos ?? [],
        amenities = amenities ?? [];
@@ -76,9 +84,31 @@ class CustomerProperty {
     final mediaData = json['images'] ?? json['media'];
     final parsedImages = _parseMediaList(mediaData);
     
+    // Parse user/owner contact information
+    String? userName;
+    String? userPhone;
+    
+    // Check for user object in the response
+    if (json['user'] is Map) {
+      final userData = json['user'] as Map;
+      userName = userData['name']?.toString();
+      userPhone = userData['phone']?.toString();
+    }
+    
+    // If no user object, check owner array (first owner if available)
+    if ((userName == null || userPhone == null) && json['owner'] is List) {
+      final ownerList = json['owner'] as List;
+      if (ownerList.isNotEmpty && ownerList.first is Map) {
+        final ownerData = ownerList.first as Map;
+        userName = userName ?? ownerData['name']?.toString();
+        userPhone = userPhone ?? ownerData['phone']?.toString();
+      }
+    }
+    
     print('🏠 Parsing property $propertyId');
     print('   📸 Media/Images: ${parsedImages.length} items');
     print('   🎯 Amenities: ${parsedAmenities.length} items, Categories: ${parsedAmenitiesByCategory?.keys.length ?? 0}');
+    print('   👤 User: $userName, Phone: $userPhone');
     if (parsedAmenitiesByCategory != null) {
       parsedAmenitiesByCategory.forEach((cat, items) {
         print('   📁 Category "$cat": ${items.length} amenities');
@@ -109,12 +139,15 @@ class CustomerProperty {
       latitude: _toDouble(json['latitude']),
       longitude: _toDouble(json['longitude']),
       paymentMethod: json['payment_method']?.toString(),
+      durationDays: json['duration_days'] is int ? json['duration_days'] as int : (json['duration_days'] != null ? int.tryParse(json['duration_days'].toString()) : null),
       images: parsedImages,
       videos: _parseStringList(json['videos']),
       amenities: parsedAmenities,
       amenitiesByCategory: parsedAmenitiesByCategory,
       createdAt: json['created_at']?.toString(),
       updatedAt: json['updated_at']?.toString(),
+      userName: userName,
+      userPhone: userPhone,
     );
   }
 

@@ -8,6 +8,8 @@ import 'listing_detail_screen.dart';
 import '../core/services/geocoding_service.dart';
 import 'package:latlong2/latlong.dart';
 import 'update_property_screen.dart';
+import '../services/whatsapp_service.dart';
+import '../services/call_service.dart';
 
 class MyListingsScreen extends StatefulWidget {
   const MyListingsScreen({super.key});
@@ -480,7 +482,10 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
             color: AppTheme.primaryBlue,
             size: 16,
           ),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.pop(context);
+            // Ensure FAB is removed when navigating back
+          },
         ),
         title: Row(
           mainAxisSize: MainAxisSize.min,
@@ -846,6 +851,28 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                   right: 12,
                   child: _buildStatusPill(property),
                 ),
+                // Call and Message Icons Overlay
+                if (property.userPhone != null && property.userPhone!.isNotEmpty)
+                  Positioned(
+                    bottom: 12,
+                    right: 12,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Call Icon
+                        _buildContactIcon(
+                          icon: Icons.phone,
+                          onTap: () => _makeCall(property.userPhone!),
+                        ),
+                        SizedBox(width: 8.w),
+                        // Message/WhatsApp Icon
+                        _buildContactIcon(
+                          icon: Icons.message,
+                          onTap: () => _sendWhatsApp(property.userPhone!, property),
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
             // Property Details
@@ -1453,6 +1480,73 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
       return '${date.day}/${date.month}/${date.year}';
     } catch (e) {
       return dateString;
+    }
+  }
+  
+  // Build contact icon overlay button
+  Widget _buildContactIcon({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 44.w,
+        height: 44.w,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.15),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Icon(
+          icon,
+          color: const Color(0xFF20B2AA), // Teal color
+          size: 20.sp,
+        ),
+      ),
+    );
+  }
+  
+  // Make phone call
+  Future<void> _makeCall(String phoneNumber) async {
+    try {
+      await CallService.launchCall(phoneNumber);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to make call: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+  
+  // Send WhatsApp message
+  Future<void> _sendWhatsApp(String phoneNumber, CustomerProperty property) async {
+    try {
+      final message = 'Hi, I am interested in your property "${property.title}"';
+      await WhatsAppService.launchWhatsApp(
+        phoneNumber: phoneNumber,
+        message: message,
+        context: context,
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to open WhatsApp: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }

@@ -801,10 +801,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final languageService = Provider.of<LanguageService>(context);
     final locationService = Provider.of<LocationService>(context);
     
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      drawer: const SidebarDrawer(),
-      body: SafeArea(
+    return PopScope(
+      canPop: true,
+      child: Scaffold(
+        backgroundColor: Colors.grey[50],
+        drawer: const SidebarDrawer(),
+        floatingActionButton: const SizedBox.shrink(), // Explicitly remove any floating action button
+        body: SafeArea(
         child: Column(
           children: [
             // Header with white background
@@ -1164,6 +1167,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

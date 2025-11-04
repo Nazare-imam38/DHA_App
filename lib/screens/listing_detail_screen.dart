@@ -4,6 +4,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../models/customer_property.dart';
 import '../core/theme/app_theme.dart';
+import '../services/whatsapp_service.dart';
+import '../services/call_service.dart';
 import '../core/services/geocoding_service.dart';
 import '../services/amenities_service.dart';
 
@@ -576,6 +578,34 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
               ),
             ),
           
+          // Size
+          if (p.area != null && p.area!.isNotEmpty)
+            _buildDetailRow('Size', p.area!, Icons.square_foot),
+          
+          // Phase
+          if (p.phase != null && p.phase!.isNotEmpty)
+            _buildDetailRow('Phase', p.phase!, Icons.location_city),
+          
+          // Sector
+          if (p.sector != null && p.sector!.isNotEmpty)
+            _buildDetailRow('Sector', p.sector!, Icons.map),
+          
+          // Building
+          if (p.building != null && p.building!.isNotEmpty)
+            _buildDetailRow('Building', p.building!, Icons.business),
+          
+          // Floor
+          if (p.floor != null && p.floor!.isNotEmpty)
+            _buildDetailRow('Floor', p.floor!, Icons.layers),
+          
+          // Unit No
+          if (p.apartmentNumber != null && p.apartmentNumber!.isNotEmpty)
+            _buildDetailRow('Unit No', p.apartmentNumber!, Icons.door_front_door),
+          
+          // Duration
+          if (p.durationDays != null)
+            _buildDetailRow('Duration', '${p.durationDays} Days', Icons.calendar_today),
+          
           SizedBox(height: 24.h),
           
           // Amenities/Features Section
@@ -655,18 +685,28 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                       } else {
                         name = amenity.toString();
                       }
+                      final icon = _getAmenityIcon(name);
                       return Padding(
                         padding: EdgeInsets.symmetric(vertical: 6.h),
                         child: Row(
                           children: [
-                            Icon(Icons.check_circle, color: const Color(0xFF4CAF50), size: 18.sp),
-                            SizedBox(width: 8.w),
+                            Container(
+                              padding: EdgeInsets.all(6.w),
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(6.r),
+                              ),
+                              child: Icon(icon, color: AppTheme.primaryBlue, size: 18.sp),
+                            ),
+                            SizedBox(width: 12.w),
                             Expanded(
                               child: Text(
                                 name,
                                 style: TextStyle(
                                   fontFamily: 'Inter',
                                   fontSize: 14.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppTheme.textPrimary,
                                 ),
                               ),
                             ),
@@ -690,24 +730,36 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
               ),
             ),
             SizedBox(height: 12.h),
-            ...flatAmenities.map((name) => Padding(
-                  padding: EdgeInsets.symmetric(vertical: 6.h),
-                  child: Row(
-                    children: [
-                      Icon(Icons.check_circle, color: const Color(0xFF4CAF50), size: 18.sp),
-                      SizedBox(width: 8.w),
-                      Expanded(
-                        child: Text(
-                          name,
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 14.sp,
-                          ),
+            ...flatAmenities.map((name) {
+              final icon = _getAmenityIcon(name);
+              return Padding(
+                padding: EdgeInsets.symmetric(vertical: 6.h),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(6.w),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      child: Icon(icon, color: AppTheme.primaryBlue, size: 18.sp),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Text(
+                        name,
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.textPrimary,
                         ),
                       ),
-                    ],
-                  ),
-                )),
+                    ),
+                  ],
+                ),
+              );
+            }),
           ] else ...[
             Text(
               'Plot Features',
@@ -876,6 +928,213 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
             _buildPaymentRow('Category', p.category),
           if (p.purpose.isNotEmpty)
             _buildPaymentRow('Purpose', p.purpose),
+          
+          // Contact Owner Section
+          if (p.userPhone != null && p.userPhone!.isNotEmpty) ...[
+            SizedBox(height: 24.h),
+            Container(
+              padding: EdgeInsets.all(16.w),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(
+                  color: AppTheme.borderGrey,
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Contact Owner',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.primaryBlue,
+                    ),
+                  ),
+                  SizedBox(height: 12.h),
+                  if (p.userName != null && p.userName!.isNotEmpty) ...[
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.person_outline,
+                          size: 18.sp,
+                          color: AppTheme.textSecondary,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          p.userName!,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8.h),
+                  ],
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.phone_outlined,
+                        size: 18.sp,
+                        color: AppTheme.textSecondary,
+                      ),
+                      SizedBox(width: 8.w),
+                      Expanded(
+                        child: Text(
+                          p.userPhone!,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16.h),
+                  Row(
+                    children: [
+                      // Call Button
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _makeCall(p.userPhone!),
+                          icon: Icon(
+                            Icons.phone,
+                            size: 18.sp,
+                            color: Colors.white,
+                          ),
+                          label: Text(
+                            'Call',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF20B2AA),
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            padding: EdgeInsets.symmetric(vertical: 12.h),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      // WhatsApp Button
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _sendWhatsApp(p.userPhone!, p),
+                          icon: Icon(
+                            Icons.message,
+                            size: 18.sp,
+                            color: Colors.white,
+                          ),
+                          label: Text(
+                            'Message',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF20B2AA),
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            padding: EdgeInsets.symmetric(vertical: 12.h),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // Icon mapping for amenities (same as in amenities_selection_step.dart)
+  IconData _getAmenityIcon(String amenityName) {
+    final name = amenityName.toLowerCase();
+    if (name.contains('water')) return Icons.water_drop;
+    if (name.contains('sewerage') || name.contains('drainage')) return Icons.water;
+    if (name.contains('gas')) return Icons.local_gas_station;
+    if (name.contains('electricity') || name.contains('power')) {
+      if (name.contains('backup')) return Icons.battery_charging_full;
+      return Icons.bolt;
+    }
+    if (name.contains('broadband') || name.contains('cable') || name.contains('wifi') || name.contains('wi-fi')) return Icons.wifi;
+    if (name.contains('elevator')) return Icons.elevator;
+    if (name.contains('fire') || name.contains('safety')) return Icons.shield;
+    if (name.contains('waste') || name.contains('disposal') || name.contains('trash')) return Icons.delete_outline;
+    if (name.contains('parking')) return Icons.local_parking;
+    if (name.contains('security')) return Icons.security;
+    if (name.contains('servant') || name.contains('quarter')) return Icons.home;
+    if (name.contains('storage') || name.contains('utility')) return Icons.inventory_2;
+    if (name.contains('reception')) return Icons.desk;
+    return Icons.star_outline;
+  }
+  
+  // Build detail row with icon and label
+  Widget _buildDetailRow(String label, String value, IconData icon) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 16.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.all(8.w),
+            decoration: BoxDecoration(
+              color: AppTheme.lightBlue,
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+            child: Icon(icon, color: AppTheme.primaryBlue, size: 22.sp),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -911,5 +1170,42 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
         ],
       ),
     );
+  }
+  
+  // Make phone call
+  Future<void> _makeCall(String phoneNumber) async {
+    try {
+      await CallService.launchCall(phoneNumber);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to make call: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+  
+  // Send WhatsApp message
+  Future<void> _sendWhatsApp(String phoneNumber, CustomerProperty property) async {
+    try {
+      final message = 'Hi, I am interested in your property "${property.title}"';
+      await WhatsAppService.launchWhatsApp(
+        phoneNumber: phoneNumber,
+        message: message,
+        context: context,
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to open WhatsApp: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../models/property_form_data.dart';
-import '../../../services/user_service.dart';
+import '../../../providers/auth_provider.dart';
+import '../../../models/auth_models.dart';
 import 'review_confirmation_step.dart';
 
 class OwnerDetailsStep extends StatefulWidget {
@@ -41,81 +42,95 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
     
     if (formData.isOwnProperty) {
       print('🔄 User owns property - calling _prefillFromUser()');
-      _prefillFromUser();
+      // Schedule to run after build completes to avoid setState during build
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _prefillFromUser();
+      });
     } else {
       print('ℹ️ Property on behalf - no auto-fill needed');
     }
   }
 
   Future<void> _prefillFromUser() async {
+    if (!mounted) return;
+    
     print('🚀 _prefillFromUser() started');
-    setState(() => _loadingUser = true);
+    if (mounted) {
+      setState(() => _loadingUser = true);
+    }
     
     try {
-      print('🔄 Creating UserService instance...');
-      final userService = UserService();
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
       
-      print('🔄 Calling getOwnerDetailsForProperty()...');
-      final ownerDetails = await userService.getOwnerDetailsForProperty();
+      // First try to get user from stored data (like profile page does)
+      var user = authProvider.userInfo?.user ?? authProvider.user;
       
-      print('📥 Received owner details: $ownerDetails');
+      print('🔍 Checking stored user data:');
+      print('   authProvider.userInfo: ${authProvider.userInfo != null}');
+      print('   authProvider.user: ${authProvider.user != null}');
+      print('   user: ${user != null}');
       
-      if (!mounted) {
-        print('⚠️ Widget not mounted, returning');
-        return;
+      if (user != null) {
+        print('   User object details:');
+        print('   - id: ${user.id}');
+        print('   - name: ${user.name}');
+        print('   - email: ${user.email}');
+        print('   - phone: ${user.phone}');
+        print('   - cnic: ${user.cnic}');
+        print('   - address: ${user.address}');
+        print('   - address type: ${user.address?.runtimeType ?? 'null'}');
       }
       
-      if (ownerDetails != null && ownerDetails.isNotEmpty) {
-        print('✅ Owner details found, updating form fields...');
+      // If we have stored user data, use it immediately (but defer setState)
+      if (user != null) {
+        print('✅ Found stored user data, using it immediately');
+        // Defer setState to avoid calling during build - use addPostFrameCallback for safety
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _populateFormFromUser(user);
+          }
+        });
         
-        // Get values and trim whitespace
-        final name = (ownerDetails['name']?.toString() ?? '').trim();
-        final cnic = (ownerDetails['cnic']?.toString() ?? '').trim();
-        final address = (ownerDetails['address']?.toString() ?? '').trim();
-        final email = (ownerDetails['email']?.toString() ?? '').trim();
-        final phone = (ownerDetails['phone']?.toString() ?? '').trim();
-        
-        print('   Name: "$name" (length: ${name.length})');
-        print('   CNIC: "$cnic" (length: ${cnic.length})');
-        print('   Phone: "$phone" (length: ${phone.length})');
-        print('   Address: "$address" (length: ${address.length})');
-        print('   Email: "$email" (length: ${email.length})');
-        
-        // Only update if we have at least some meaningful data
-        final hasData = name.isNotEmpty || cnic.isNotEmpty || phone.isNotEmpty || address.isNotEmpty;
-        
-        if (hasData) {
-          setState(() {
-            if (name.isNotEmpty) _nameController.text = name;
-            if (cnic.isNotEmpty) _cnicController.text = cnic;
-            if (address.isNotEmpty) _addressController.text = address;
-            if (email.isNotEmpty) _emailController.text = email;
-            if (phone.isNotEmpty) _phoneController.text = phone;
-          });
-          
-          print('✅ Form fields updated with fetched data');
-        } else {
-          print('⚠️ All owner details are empty - not updating form fields');
+        // Then try to refresh with latest data from server (like profile page does)
+        try {
+          print('🔄 Refreshing user data from server...');
+          final response = await authProvider.getUserInfo();
+          if (mounted && response.data.user != null) {
+            print('✅ Got fresh user data from server');
+            final freshUser = response.data.user!;
+            print('   Fresh user address: ${freshUser.address}');
+            print('   Fresh user address is null: ${freshUser.address == null}');
+            // Defer setState to avoid calling during build
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) {
+                _populateFormFromUser(freshUser);
+              }
+            });
+          }
+        } catch (e) {
+          // If server call fails, keep using stored data
+          print('⚠️ Failed to refresh user info from server: $e');
+          print('   Keeping stored data');
         }
-        
-        final form = context.read<PropertyFormData>();
-        form.updateOwnerDetails(
-          cnic: cnic.isEmpty ? null : cnic,
-          name: name.isEmpty ? null : name,
-          phone: phone.isEmpty ? null : phone,
-          address: address.isEmpty ? null : address,
-          email: email.isEmpty ? null : email,
-        );
-        
-        // Set auto-fill flag to true only if we got some data
-        _wasAutoFilled = name.isNotEmpty || cnic.isNotEmpty || phone.isNotEmpty;
-        
-        print('✅ Owner details prefilled and form data updated');
-        print('   Auto-fill successful: $_wasAutoFilled');
       } else {
-        print('⚠️ No user details found or empty response');
-        print('   ownerDetails is null: ${ownerDetails == null}');
-        print('   ownerDetails is empty: ${ownerDetails?.isEmpty ?? true}');
+        // If no stored user, try to get from server
+        print('🔄 No stored user data, fetching from server...');
+        try {
+          final response = await authProvider.getUserInfo();
+          if (mounted && response.data.user != null) {
+            print('✅ Got user data from server');
+            // Defer setState to avoid calling during build
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) {
+                _populateFormFromUser(response.data.user!);
+              }
+            });
+          } else {
+            print('⚠️ No user data in server response');
+          }
+        } catch (e) {
+          print('❌ Failed to get user info from server: $e');
+        }
       }
     } catch (e, stackTrace) {
       print('❌ Error prefilling user details: $e');
@@ -125,6 +140,69 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
         print('🏁 Setting loading to false');
         setState(() => _loadingUser = false);
       }
+    }
+  }
+  
+  void _populateFormFromUser(User user) {
+    if (!mounted) {
+      print('⚠️ Widget not mounted, cannot populate form');
+      return;
+    }
+    
+    print('📝 Populating form from user data:');
+    print('   User name: ${user.name}');
+    print('   User cnic: ${user.cnic}');
+    print('   User phone: ${user.phone}');
+    print('   User email: ${user.email}');
+    print('   User address: ${user.address}');
+    print('   User address is null: ${user.address == null}');
+    print('   User address isEmpty: ${user.address?.isEmpty ?? true}');
+    
+    // Get values and trim whitespace
+    final name = user.name.trim();
+    final cnic = user.cnic.trim();
+    final phone = user.phone.trim();
+    final email = user.email.trim();
+    final address = (user.address ?? '').trim();
+    
+    print('   Name: "$name" (length: ${name.length})');
+    print('   CNIC: "$cnic" (length: ${cnic.length})');
+    print('   Phone: "$phone" (length: ${phone.length})');
+    print('   Address: "$address" (length: ${address.length})');
+    print('   Email: "$email" (length: ${email.length})');
+    
+    // Only update if we have at least some meaningful data
+    final hasData = name.isNotEmpty || cnic.isNotEmpty || phone.isNotEmpty || address.isNotEmpty;
+    
+    if (hasData && mounted) {
+      setState(() {
+        if (name.isNotEmpty) _nameController.text = name;
+        if (cnic.isNotEmpty) _cnicController.text = cnic;
+        if (phone.isNotEmpty) _phoneController.text = phone;
+        if (email.isNotEmpty) _emailController.text = email;
+        // Always set address, even if empty, to clear any previous values
+        _addressController.text = address;
+      });
+      
+      print('✅ Form fields updated with fetched data');
+      
+      // Update form data
+      final form = context.read<PropertyFormData>();
+      form.updateOwnerDetails(
+        cnic: cnic.isEmpty ? null : cnic,
+        name: name.isEmpty ? null : name,
+        phone: phone.isEmpty ? null : phone,
+        address: address.isEmpty ? null : address,
+        email: email.isEmpty ? null : email,
+      );
+      
+      // Set auto-fill flag to true only if we got some data
+      _wasAutoFilled = name.isNotEmpty || cnic.isNotEmpty || phone.isNotEmpty;
+      
+      print('✅ Owner details prefilled and form data updated');
+      print('   Auto-fill successful: $_wasAutoFilled');
+    } else {
+      print('⚠️ All user details are empty - not updating form fields');
     }
   }
 

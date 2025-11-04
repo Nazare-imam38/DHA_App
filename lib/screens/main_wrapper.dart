@@ -81,7 +81,7 @@ class _MainWrapperState extends State<MainWrapper>
         children: _screens,
       ),
       bottomNavigationBar: _buildModernBottomNav(l10n),
-      floatingActionButton: _currentIndex == 0 ? _buildFloatingActionButton() : null,
+      floatingActionButton: _currentIndex == 0 ? _buildFloatingActionButton() : const SizedBox.shrink(),
     );
   }
 
