@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CallService {
@@ -307,8 +308,11 @@ class CallBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // App theme blue color
+    const appBlue = Color(0xFF1B5993);
+    
     return Container(
-      height: MediaQuery.of(context).size.height * 0.75,
+      height: MediaQuery.of(context).size.height * 0.45, // Reduced from 0.75 to 0.45
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
@@ -320,11 +324,11 @@ class CallBottomSheet extends StatelessWidget {
         padding: EdgeInsets.only(
           left: 24,
           right: 24,
-          top: 24,
-          bottom: MediaQuery.of(context).padding.bottom + 24,
+          top: 12, // Reduced from 24
+          bottom: MediaQuery.of(context).padding.bottom + 16, // Reduced from 24
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.max,
+          mainAxisSize: MainAxisSize.min, // Changed from max to min
           children: [
             // Handle bar
             Container(
@@ -335,7 +339,7 @@ class CallBottomSheet extends StatelessWidget {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 12), // Reduced from 20
             
             // Header with close button
             Row(
@@ -344,7 +348,7 @@ class CallBottomSheet extends StatelessWidget {
                 const Text(
                   'Contact Details',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18, // Reduced from 20
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                     fontFamily: 'Inter',
@@ -367,37 +371,37 @@ class CallBottomSheet extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 16), // Reduced from 30
             
-            // Phone icon
+            // Phone icon - smaller
             Container(
-              width: 100,
-              height: 100,
+              width: 70, // Reduced from 100
+              height: 70, // Reduced from 100
               decoration: BoxDecoration(
-                color: const Color(0xFF20B2AA).withOpacity(0.1),
+                color: appBlue.withOpacity(0.1), // Changed to blue
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.phone,
-                size: 50,
-                color: Color(0xFF20B2AA),
+                size: 35, // Reduced from 50
+                color: appBlue, // Changed to blue
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 16), // Reduced from 30
             
             // Numbers section header
             Row(
               children: [
                 const Icon(
                   Icons.phone,
-                  size: 18,
-                  color: Color(0xFF20B2AA),
+                  size: 16, // Reduced from 18
+                  color: appBlue, // Changed to blue
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6), // Reduced from 8
                 const Text(
                   'Numbers',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14, // Reduced from 16
                     fontWeight: FontWeight.w600,
                     color: Colors.black,
                     fontFamily: 'Inter',
@@ -405,13 +409,13 @@ class CallBottomSheet extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 8), // Reduced from 20
             
             // Country name
             Text(
               countryName,
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 12, // Reduced from 14
                 color: Colors.grey,
                 fontFamily: 'Inter',
               ),
@@ -422,21 +426,21 @@ class CallBottomSheet extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: const Color(0xFF20B2AA).withOpacity(0.1),
+                color: appBlue.withOpacity(0.1), // Changed to blue
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: const Color(0xFF20B2AA).withOpacity(0.3),
+                  color: appBlue.withOpacity(0.3), // Changed to blue
                   width: 1,
                 ),
               ),
               child: Row(
                 children: [
-                  // Country flag placeholder (you can add actual flag icons later)
+                  // Country flag placeholder
                   Container(
                     width: 24,
                     height: 16,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF20B2AA),
+                      color: appBlue, // Changed to blue
                       borderRadius: BorderRadius.circular(2),
                     ),
                     child: const Center(
@@ -451,20 +455,21 @@ class CallBottomSheet extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    phoneNumber,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF20B2AA),
-                      fontFamily: 'Inter',
+                  Expanded(
+                    child: Text(
+                      phoneNumber,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: appBlue, // Changed to blue
+                        fontFamily: 'Inter',
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            const Spacer(),
+            const SizedBox(height: 16), // Reduced from 20, removed Spacer()
             
             // Action buttons
             Row(
@@ -485,62 +490,64 @@ class CallBottomSheet extends StatelessWidget {
                         );
                       }
                     },
-                    icon: const Icon(Icons.phone, color: Colors.white, size: 20),
+                    icon: const Icon(Icons.phone, color: Colors.white, size: 18), // Reduced from 20
                     label: const Text(
                       'Call Now',
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                         fontFamily: 'Inter',
-                        fontSize: 16,
+                        fontSize: 15, // Reduced from 16
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF20B2AA),
-                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      backgroundColor: appBlue, // Changed to blue
+                      padding: const EdgeInsets.symmetric(vertical: 14), // Reduced from 18
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
+                        borderRadius: BorderRadius.circular(12), // Reduced from 15
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12), // Reduced from 16
                 
                 // Copy button
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () {
-                      // Copy to clipboard functionality would go here
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Phone number copied to clipboard'),
-                          backgroundColor: Color(0xFF20B2AA),
-                        ),
-                      );
+                    onPressed: () async {
+                      await Clipboard.setData(ClipboardData(text: phoneNumber));
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Phone number copied to clipboard'),
+                            backgroundColor: appBlue, // Changed to blue
+                          ),
+                        );
+                      }
                     },
-                    icon: const Icon(Icons.copy, color: Color(0xFF20B2AA), size: 20),
+                    icon: const Icon(Icons.copy, color: appBlue, size: 18), // Changed to blue, reduced size
                     label: const Text(
                       'Copy',
                       style: TextStyle(
-                        color: Color(0xFF20B2AA),
+                        color: appBlue, // Changed to blue
                         fontWeight: FontWeight.w600,
                         fontFamily: 'Inter',
-                        fontSize: 16,
+                        fontSize: 15, // Reduced from 16
                       ),
                     ),
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      padding: const EdgeInsets.symmetric(vertical: 14), // Reduced from 18
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
+                        borderRadius: BorderRadius.circular(12), // Reduced from 15
                       ),
-                      side: const BorderSide(color: Color(0xFF20B2AA), width: 2),
+                      side: const BorderSide(color: appBlue, width: 2), // Changed to blue
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 12), // Reduced from 20
             
             // Cancel button
             TextButton(
@@ -551,11 +558,11 @@ class CallBottomSheet extends StatelessWidget {
                   color: Colors.grey,
                   fontWeight: FontWeight.w500,
                   fontFamily: 'Inter',
-                  fontSize: 16,
+                  fontSize: 14, // Reduced from 16
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 8), // Reduced from 20
           ],
         ),
       ),
