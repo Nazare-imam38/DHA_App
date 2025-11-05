@@ -468,11 +468,42 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
       }
     }
 
+    // Get description
+    final description = _property?.description ?? widget.propertyMap?['description'] ?? '';
+
     return SingleChildScrollView(
       padding: EdgeInsets.all(20.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Description Section
+          if (description.isNotEmpty) ...[
+            Row(
+              children: [
+                Icon(Icons.description, color: const Color(0xFF1B5993), size: 20.sp),
+                SizedBox(width: 8.w),
+                Text(
+                  'Description',
+                  style: GoogleFonts.inter(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF1B5993),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              description,
+              style: GoogleFonts.inter(
+                fontSize: 14.sp,
+                color: Colors.grey[700],
+                height: 1.5,
+              ),
+            ),
+            SizedBox(height: 24.h),
+          ],
+          
           // Display amenities as a flat list
           if (flatAmenities.isNotEmpty) ...[
             _buildFeatureSection(
@@ -481,8 +512,8 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
               flatAmenities,
             ),
             SizedBox(height: 24.h),
-          ] else ...[
-            // No amenities available
+          ] else if (description.isEmpty) ...[
+            // No amenities available and no description
             Center(
               child: Padding(
                 padding: EdgeInsets.all(40.w),
@@ -702,26 +733,6 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
               ),
                 ],
               ),
-            ),
-          ),
-          SizedBox(height: 16.h),
-          
-          // Location Details
-          Text(
-            AppLocalizations.of(context)!.propertyLocationDetails,
-            style: GoogleFonts.inter(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            _property?.description ?? widget.propertyMap?['description'] ?? 'Located in the heart of ${_location}, this property offers excellent connectivity to major areas of the city.',
-            style: GoogleFonts.inter(
-              fontSize: 14.sp,
-              color: Colors.grey[700],
-              height: 1.5,
             ),
           ),
           SizedBox(height: 16.h),
