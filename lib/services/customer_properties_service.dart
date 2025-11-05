@@ -372,4 +372,65 @@ class CustomerPropertiesService {
       };
     }
   }
+
+  // Add property to favorites
+  Future<Map<String, dynamic>> addFavoriteProperty(String propertyId, {String? overrideToken}) async {
+    try {
+      final token = overrideToken ?? await _authService.getToken();
+      if (token == null) {
+        return {
+          'success': false,
+          'message': 'Authentication token missing. Please login again.',
+        };
+      }
+
+      print('⭐ Adding property $propertyId to favorites...');
+
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$baseUrl/add/favorite/property'),
+      );
+
+      request.headers['Authorization'] = 'Bearer $token';
+      request.headers['Accept'] = 'application/json';
+      request.fields['property_id'] = propertyId;
+
+      final streamed = await request.send();
+      final response = await http.Response.fromStream(streamed);
+
+      print('📊 Add Favorite Response Status: ${response.statusCode}');
+      print('📄 Add Favorite Response Body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = response.body.isNotEmpty 
+            ? json.decode(response.body) as Map<String, dynamic>
+            : {'message': 'Property added to favorites successfully'};
+        return {
+          'success': true,
+          'data': data,
+          'message': data['message'] ?? 'Property added to favorites successfully',
+        };
+      } else if (response.statusCode == 401) {
+        return {
+          'success': false,
+          'message': 'Unauthorized. Please login again.',
+        };
+      } else {
+        final errorData = response.body.isNotEmpty 
+            ? json.decode(response.body) as Map<String, dynamic>
+            : <String, dynamic>{};
+        return {
+          'success': false,
+          'message': errorData['message'] ?? 'Failed to add property to favorites. Status: ${response.statusCode}',
+          'body': response.body,
+        };
+      }
+    } catch (e) {
+      print('❌ Error adding property to favorites: $e');
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
 }

@@ -839,6 +839,10 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                   right: 12,
                   child: Row(
                     children: [
+                      _buildActionButton(Icons.favorite_border, () {
+                        _addToFavorites(property);
+                      }),
+                      const SizedBox(width: 8),
                       _buildActionButton(Icons.message, () {
                         _launchWhatsAppForProperty(property);
                       }),
@@ -1259,5 +1263,89 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
       propertyLocation: property.fullLocation.isNotEmpty ? property.fullLocation : (property.phase ?? property.location ?? 'Location not available'),
       context: context,
     );
+  }
+
+  Future<void> _addToFavorites(CustomerProperty property) async {
+    try {
+      // Show loading indicator
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text('Adding to favorites...'),
+            ],
+          ),
+          backgroundColor: const Color(0xFF20B2AA),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      final result = await _propertiesService.addFavoriteProperty(property.id);
+
+      // Hide loading indicator
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                Text(result['message'] ?? 'Property added to favorites successfully'),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(result['message'] ?? 'Failed to add property to favorites'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white, size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text('Error: ${e.toString()}'),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
   }
 }
