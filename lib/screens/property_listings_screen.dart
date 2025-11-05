@@ -57,7 +57,6 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
 
     try {
       final result = await _propertiesService.getApprovedProperties(
-        purpose: 'Rent', // Default to Rent, can be made dynamic
         perPage: 9,
         page: _currentPage,
       );
