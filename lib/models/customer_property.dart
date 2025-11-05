@@ -92,7 +92,10 @@ class CustomerProperty {
     if (json['user'] is Map) {
       final userData = json['user'] as Map;
       userName = userData['name']?.toString();
-      userPhone = userData['phone']?.toString();
+      userPhone = userData['phone']?.toString() ?? 
+                  userData['phone_number']?.toString() ?? 
+                  userData['mobile']?.toString() ??
+                  userData['contact']?.toString();
     }
     
     // If no user object, check owner array (first owner if available)
@@ -101,8 +104,31 @@ class CustomerProperty {
       if (ownerList.isNotEmpty && ownerList.first is Map) {
         final ownerData = ownerList.first as Map;
         userName = userName ?? ownerData['name']?.toString();
-        userPhone = userPhone ?? ownerData['phone']?.toString();
+        userPhone = userPhone ?? 
+                    ownerData['phone']?.toString() ?? 
+                    ownerData['phone_number']?.toString() ?? 
+                    ownerData['mobile']?.toString() ??
+                    ownerData['contact']?.toString();
       }
+    }
+    
+    // Check for phone number at top level (as fallback)
+    if (userPhone == null) {
+      userPhone = json['phone']?.toString() ?? 
+                  json['phone_number']?.toString() ?? 
+                  json['owner_phone']?.toString() ??
+                  json['contact_number']?.toString();
+    }
+    
+    // Check for owner object (not array)
+    if ((userName == null || userPhone == null) && json['owner'] is Map) {
+      final ownerData = json['owner'] as Map;
+      userName = userName ?? ownerData['name']?.toString();
+      userPhone = userPhone ?? 
+                  ownerData['phone']?.toString() ?? 
+                  ownerData['phone_number']?.toString() ?? 
+                  ownerData['mobile']?.toString() ??
+                  ownerData['contact']?.toString();
     }
     
     print('🏠 Parsing property $propertyId');

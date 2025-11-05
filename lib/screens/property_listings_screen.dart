@@ -844,10 +844,20 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                       }),
                       const SizedBox(width: 8),
                       _buildActionButton(Icons.phone, () {
-                        CallService.showCallBottomSheet(
-                          context, 
-                          property.userPhone ?? '+92-51-111-555-400'
-                        );
+                        if (property.userPhone != null && property.userPhone!.isNotEmpty) {
+                          CallService.showCallBottomSheet(
+                            context, 
+                            property.userPhone!
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('Phone number not available for this property'),
+                              backgroundColor: Colors.red,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
                       }),
                     ],
                   ),

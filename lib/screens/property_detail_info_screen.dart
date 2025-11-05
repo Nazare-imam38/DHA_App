@@ -324,8 +324,18 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                         }),
                         SizedBox(width: 12.w),
                         _buildActionIcon(Icons.phone, () {
-                          final phone = _property?.userPhone ?? widget.propertyMap?['userPhone'] ?? '+92-51-111-555-400';
-                          CallService.showCallBottomSheet(context, phone);
+                          final phone = _property?.userPhone ?? widget.propertyMap?['userPhone'];
+                          if (phone != null && phone.isNotEmpty) {
+                            CallService.showCallBottomSheet(context, phone);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text('Phone number not available for this property'),
+                                backgroundColor: Colors.red,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
                         }),
                       ],
                     ),
@@ -1060,7 +1070,18 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                       ),
                       child: TextButton.icon(
                         onPressed: () {
-                          CallService.showCallBottomSheet(context, '+92-51-111-555-400');
+                          final phone = _property?.userPhone ?? widget.propertyMap?['userPhone'];
+                          if (phone != null && phone.isNotEmpty) {
+                            CallService.showCallBottomSheet(context, phone);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text('Phone number not available for this property'),
+                                backgroundColor: Colors.red,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
                         },
                         icon: Icon(Icons.phone, color: Colors.white, size: 14.sp),
                         label: Text(
