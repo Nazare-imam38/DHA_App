@@ -148,6 +148,11 @@ class CustomerProperty {
       updatedAt: json['updated_at']?.toString(),
       userName: userName,
       userPhone: userPhone,
+      // Parse approval status from API response if available
+      approvalStatus: json['approval_status']?.toString().toLowerCase() ?? 
+                     json['status']?.toString().toLowerCase() ?? 
+                     (json['is_approved'] == true ? 'approved' : 
+                      json['is_approved'] == false ? 'pending' : null),
     );
   }
 

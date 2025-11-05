@@ -283,21 +283,71 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
     super.dispose();
   }
 
-  List<CustomerProperty> get _filteredProperties {
-    if (_searchQuery.isEmpty || _searchQuery.trim().isEmpty) {
-      return _properties;
+  bool _matchesPropertyType(CustomerProperty property, String filterLabel) {
+    final propertyType = (property.propertyType ?? property.category ?? '').toLowerCase();
+    final filterLower = filterLabel.toLowerCase();
+    
+    // Check if filter matches "All" (handle both localized and English)
+    if (filterLower == 'all' || filterLower.isEmpty) {
+      return true;
     }
     
-    return _properties.where((property) {
-      final title = property.title.toLowerCase();
-      final phase = (property.phase ?? property.location ?? '').toLowerCase();
-      final size = (property.propertyDetails).toLowerCase();
-      final query = _searchQuery.toLowerCase().trim();
-      
-      return title.contains(query) || 
-             phase.contains(query) || 
-             size.contains(query);
-    }).toList();
+    // Map filter labels to property type keywords
+    // This handles both localized strings and English keywords
+    List<String> typeKeywords = [];
+    
+    // Check for Houses filter (matches: house, houses, villa, townhouse, etc.)
+    if (filterLower.contains('house') || filterLower.contains('villa') || filterLower.contains('townhouse')) {
+      typeKeywords = ['house', 'villa', 'townhouse', 'duplex', 'bungalow', 'residential house', 'home'];
+    } 
+    // Check for Flats filter (matches: flat, flats, apartment, etc.)
+    else if (filterLower.contains('flat') || filterLower.contains('apartment') || filterLower.contains('penthouse')) {
+      typeKeywords = ['flat', 'apartment', 'penthouse', 'studio', 'condo', 'unit', 'apartments'];
+    } 
+    // Check for Plots filter (matches: plot, plots, land, etc.)
+    else if (filterLower.contains('plot') || filterLower.contains('land')) {
+      typeKeywords = ['plot', 'land', 'plot of land', 'residential plot', 'commercial plot', 'plots'];
+    } 
+    // Check for Commercial filter
+    else if (filterLower.contains('commercial') || filterLower.contains('office') || filterLower.contains('shop')) {
+      typeKeywords = ['commercial', 'office', 'shop', 'store', 'warehouse', 'retail', 'showroom', 'offices'];
+    }
+    
+    // If no keywords found, return false (shouldn't happen with valid filters)
+    if (typeKeywords.isEmpty) {
+      return false;
+    }
+    
+    // Check if property type matches any of the keywords
+    return typeKeywords.any((keyword) => propertyType.contains(keyword));
+  }
+
+  List<CustomerProperty> get _filteredProperties {
+    List<CustomerProperty> filtered = _properties;
+    
+    // Filter by property type (skip if "All" is selected)
+    final filterLower = _selectedPropertyType.toLowerCase();
+    if (filterLower != 'all' && _selectedPropertyType.isNotEmpty) {
+      filtered = filtered.where((property) {
+        return _matchesPropertyType(property, _selectedPropertyType);
+      }).toList();
+    }
+    
+    // Filter by search query if provided
+    if (_searchQuery.isNotEmpty && _searchQuery.trim().isNotEmpty) {
+      filtered = filtered.where((property) {
+        final title = property.title.toLowerCase();
+        final phase = (property.phase ?? property.location ?? '').toLowerCase();
+        final size = (property.propertyDetails).toLowerCase();
+        final query = _searchQuery.toLowerCase().trim();
+        
+        return title.contains(query) || 
+               phase.contains(query) || 
+               size.contains(query);
+      }).toList();
+    }
+    
+    return filtered;
   }
 
   void _onSearchChanged(String value) {
@@ -437,15 +487,15 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _buildFilterChip(l10n.all, true),
+                    _buildFilterChip(l10n.all, _selectedPropertyType == l10n.all),
                     const SizedBox(width: 8),
-                    _buildFilterChip(l10n.houses, false),
+                    _buildFilterChip(l10n.houses, _selectedPropertyType == l10n.houses),
                     const SizedBox(width: 8),
-                    _buildFilterChip(l10n.flats, false),
+                    _buildFilterChip(l10n.flats, _selectedPropertyType == l10n.flats),
                     const SizedBox(width: 8),
-                    _buildFilterChip(l10n.plots, false),
+                    _buildFilterChip(l10n.plots, _selectedPropertyType == l10n.plots),
                     const SizedBox(width: 8),
-                    _buildFilterChip(l10n.commercial, false),
+                    _buildFilterChip(l10n.commercial, _selectedPropertyType == l10n.commercial),
                   ],
                 ),
               ),
@@ -741,7 +791,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      property.isApproved ? 'Available' : 'Pending',
+                      'Approved',
                       style: TextStyle(
                         fontFamily: 'Inter',
                         color: Colors.white,

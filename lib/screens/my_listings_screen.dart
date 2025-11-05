@@ -11,6 +11,8 @@ import 'update_property_screen.dart';
 import '../services/whatsapp_service.dart';
 import '../services/call_service.dart';
 import 'ownership_selection_screen.dart';
+import 'property_listings_screen.dart';
+import 'main_wrapper.dart';
 
 class MyListingsScreen extends StatefulWidget {
   const MyListingsScreen({super.key});
@@ -432,18 +434,30 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
       
       if (result['success']) {
         final data = result['data'];
-        property.approvalStatus = data['status']?.toString() ?? 'pending';
+        final newStatus = data['status']?.toString().toLowerCase() ?? 'pending';
+        property.approvalStatus = newStatus;
         property.approvalNotes = data['notes']?.toString();
       } else {
-        property.approvalStatus = 'unknown';
+        // If status fetch fails and no status was set from API, default to pending
+        if (property.approvalStatus == null) {
+          property.approvalStatus = 'pending';
+        }
         property.approvalNotes = 'Could not fetch status';
       }
     } catch (e) {
-      property.approvalStatus = 'error';
+      // If status fetch fails and no status was set from API, default to pending
+      if (property.approvalStatus == null) {
+        property.approvalStatus = 'pending';
+      }
       property.approvalNotes = 'Error fetching status';
     } finally {
       property.isApprovalLoading = false;
-      if (mounted) setState(() {});
+      if (mounted) {
+        setState(() {
+          // Re-apply filter after status is loaded to ensure correct filtering
+          _applyFilter(_selectedFilter);
+        });
+      }
     }
   }
 
@@ -452,16 +466,22 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
       _selectedFilter = filter;
       
       if (filter == 'All') {
-        _filteredProperties = _properties;
+        _filteredProperties = List.from(_properties);
       } else {
         _filteredProperties = _properties.where((property) {
+          // Ensure we check the approval status correctly
+          final status = property.approvalStatus?.toLowerCase();
+          
           switch (filter) {
             case 'Pending':
-              return property.isPending;
+              // Show properties that are pending (null, 'pending', or not explicitly approved/rejected)
+              return status == null || status == 'pending' || status.isEmpty;
             case 'Approved':
-              return property.isApproved;
+              // Show properties that are approved (same ones that appear in search screen)
+              return status == 'approved';
             case 'Rejected':
-              return property.isRejected;
+              // Show properties that are rejected
+              return status == 'rejected';
             default:
               return true;
           }
@@ -683,6 +703,74 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     }
 
     if (_filteredProperties.isEmpty) {
+      // Special handling for Approved filter
+      if (_selectedFilter == 'Approved') {
+        return Center(
+          child: Padding(
+            padding: EdgeInsets.all(24.w),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.home_work_outlined,
+                  size: 64.sp,
+                  color: AppTheme.textSecondary,
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  'No Approved Properties',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  'Approved property posts are shown in the search screen.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 14.sp,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+                SizedBox(height: 24.h),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MainWrapper(initialTabIndex: 2),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryBlue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+                  ),
+                  icon: const Icon(Icons.search, color: Colors.white),
+                  label: Text(
+                    'Go to Search Screen',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+      
+      // Default empty state for other filters
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -860,11 +948,6 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                           ),
                         )
                       : _buildPlaceholderImage(),
-                ),
-                Positioned(
-                  top: 12,
-                  right: 12,
-                  child: _buildStatusPill(property),
                 ),
               ],
             ),
