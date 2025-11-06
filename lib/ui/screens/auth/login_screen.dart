@@ -275,7 +275,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 height: 140,
                                 fit: BoxFit.contain,
                               ),
-                              const SizedBox(height: 0),
+                              const SizedBox(height: 2),
                               Text(
                                 l10n.welcomeBack,
                                 style: TextStyle(
@@ -306,7 +306,7 @@ class _LoginScreenState extends State<LoginScreen>
                             ],
                           ),
                         ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
 
                   // Email Field
                   SlideTransition(
@@ -320,7 +320,7 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 6),
 
                   // Password Field
                   SlideTransition(
@@ -345,7 +345,7 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 6),
 
                   // Captcha Field
                   SlideTransition(
@@ -353,7 +353,7 @@ class _LoginScreenState extends State<LoginScreen>
                     child: _buildCaptchaField(errorText: _captchaError),
                   ),
 
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 2),
 
                   // Forgot Password
                   SlideTransition(
@@ -798,7 +798,7 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 // Help Text
                 Row(
                   children: [
@@ -826,8 +826,8 @@ class _LoginScreenState extends State<LoginScreen>
           ),
           // Reserved space for error messages - always present to prevent layout shifts
           Container(
-            height: 24, // Fixed height for error message space
-            margin: const EdgeInsets.only(top: 4),
+            height: 20, // Fixed height for error message space
+            margin: const EdgeInsets.only(top: 2),
             child: errorText != null
                 ? Text(
                     errorText,

@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../services/language_service.dart';
 import '../providers/auth_provider.dart';
 import '../core/services/location_service.dart';
+import '../services/customer_properties_service.dart';
 import '../models/auth_models.dart';
 import '../ui/screens/auth/login_screen.dart';
 import 'property_listing_status_screen.dart';
@@ -23,6 +24,9 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   UserInfo? _userInfo;
   bool _isLoadingUserInfo = false;
+  int _verifiedPropertiesCount = 0;
+  bool _isLoadingPropertyCounts = false;
+  final CustomerPropertiesService _propertiesService = CustomerPropertiesService();
   
   // Feedback emojis
   final List<Map<String, dynamic>> _feedbackEmojis = [
@@ -39,6 +43,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _loadUserInfo();
+    _loadPropertyCounts();
+  }
+
+  Future<void> _loadPropertyCounts() async {
+    setState(() {
+      _isLoadingPropertyCounts = true;
+    });
+
+    try {
+      final result = await _propertiesService.getPropertyCounts();
+      if (result['success'] == true && result['data'] != null) {
+        final data = result['data'] as Map<String, dynamic>;
+        setState(() {
+          _verifiedPropertiesCount = data['verified_properties'] ?? 0;
+        });
+      }
+    } catch (e) {
+      print('Error loading property counts: $e');
+    } finally {
+      setState(() {
+        _isLoadingPropertyCounts = false;
+      });
+    }
   }
 
   Future<void> _loadUserInfo() async {
@@ -1235,9 +1262,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           _buildGridButton(
                             icon: Icons.search,
-                            title: 'My Saved\nSearches',
+                            title: 'Verified\nProperties',
+                            count: _verifiedPropertiesCount,
                             onTap: () {
-                              // TODO: Navigate to saved searches
+                              // TODO: Navigate to verified properties
                             },
                           ),
                           _buildGridButton(
@@ -1564,6 +1592,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
+    int? count,
   }) {
     return Material(
       color: Colors.transparent,
@@ -1583,25 +1612,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  icon,
-                  color: const Color(0xFF20B2AA),
-                  size: 36,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                    height: 1.2,
+                count != null
+                    ? Text(
+                        '$count',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 32,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF20B2AA),
+                        ),
+                      )
+                    : Icon(
+                        icon,
+                        color: const Color(0xFF20B2AA),
+                        size: 36,
+                      ),
+                const SizedBox(height: 8),
+                Flexible(
+                  child: Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                      height: 1.2,
+                    ),
                   ),
                 ),
               ],

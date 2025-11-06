@@ -454,4 +454,60 @@ class CustomerPropertiesService {
       };
     }
   }
+
+  // Get property counts (verified properties, etc.)
+  Future<Map<String, dynamic>> getPropertyCounts({String? overrideToken}) async {
+    try {
+      final token = overrideToken ?? await _authService.getToken();
+      if (token == null) {
+        return {
+          'success': false,
+          'message': 'Authentication token missing. Please login again.',
+        };
+      }
+
+      print('📊 Fetching property counts...');
+      print('🔗 API URL: $baseUrl/property-counts');
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/property-counts'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('📊 Property Counts Response Status: ${response.statusCode}');
+      print('📄 Property Counts Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        print('✅ Successfully fetched property counts');
+        return {
+          'success': true,
+          'data': data['data'] ?? data,
+        };
+      } else if (response.statusCode == 401) {
+        return {
+          'success': false,
+          'message': 'Unauthorized. Please login again.',
+        };
+      } else {
+        final errorData = response.body.isNotEmpty
+            ? json.decode(response.body) as Map<String, dynamic>
+            : <String, dynamic>{};
+        return {
+          'success': false,
+          'message': errorData['message'] ?? 'Failed to fetch property counts. Status: ${response.statusCode}',
+          'body': response.body,
+        };
+      }
+    } catch (e) {
+      print('❌ Error fetching property counts: $e');
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
 }
