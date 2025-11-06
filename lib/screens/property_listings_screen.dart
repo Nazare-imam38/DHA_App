@@ -957,18 +957,6 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  property.description,
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 13,
-                    color: Colors.grey[600],
-                    height: 1.4,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
               ],
             ),
           ),
