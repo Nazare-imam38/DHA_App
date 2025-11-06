@@ -71,28 +71,40 @@ class _ModernForgotPasswordDialogState extends State<ModernForgotPasswordDialog>
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final screenHeight = mediaQuery.size.height;
+    final screenWidth = mediaQuery.size.width;
+    
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
       ),
       elevation: 0,
       backgroundColor: Colors.transparent,
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF1B5993).withValues(alpha: 0.15),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
-            ),
-          ],
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: screenWidth > 600 ? 100 : 16,
+        vertical: screenHeight > 800 ? 50 : 16,
+      ),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: screenHeight * 0.9,
+          maxWidth: screenWidth > 600 ? 500 : double.infinity,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF1B5993).withValues(alpha: 0.15),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
             // Header
             Container(
               width: double.infinity,
@@ -147,14 +159,16 @@ class _ModernForgotPasswordDialogState extends State<ModernForgotPasswordDialog>
             ),
             
             // Form Content
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: SlideTransition(
-                position: _slideAnimation,
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: Column(
-                    children: [
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                       // Email Field
                       _buildModernFormField(
                         controller: _emailController,
@@ -301,13 +315,15 @@ class _ModernForgotPasswordDialogState extends State<ModernForgotPasswordDialog>
                           ),
                         ],
                       ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -320,6 +336,7 @@ class _ModernForgotPasswordDialogState extends State<ModernForgotPasswordDialog>
     TextInputType? keyboardType,
     int? maxLength,
   }) {
+    final showCounter = maxLength != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -334,6 +351,9 @@ class _ModernForgotPasswordDialogState extends State<ModernForgotPasswordDialog>
         ),
         const SizedBox(height: 8),
         Container(
+          constraints: const BoxConstraints(
+            minHeight: 56,
+          ),
           decoration: BoxDecoration(
             color: Colors.grey[50],
             borderRadius: BorderRadius.circular(12),
@@ -346,6 +366,8 @@ class _ModernForgotPasswordDialogState extends State<ModernForgotPasswordDialog>
             controller: controller,
             keyboardType: keyboardType,
             maxLength: maxLength,
+            maxLines: 1,
+            textInputAction: TextInputAction.next,
             style: const TextStyle(
               fontFamily: 'Inter',
               fontSize: 16,
@@ -364,6 +386,7 @@ class _ModernForgotPasswordDialogState extends State<ModernForgotPasswordDialog>
                 horizontal: 16,
                 vertical: 16,
               ),
+              counterText: showCounter ? null : '',
               prefixIcon: Container(
                 margin: const EdgeInsets.all(8),
                 padding: const EdgeInsets.all(8),

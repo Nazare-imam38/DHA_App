@@ -226,73 +226,216 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
   }
 
   void _continueAsGuest() {
-    // Show confirmation dialog
+    // Show modern confirmation dialog
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          'Continue as Guest',
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        content: Text(
-          'You can browse properties without creating an account. You can always sign up later to save your preferences.',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontSize: 14,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: TextStyle(
-                color: Colors.grey[600],
-              ),
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF1B5993).withValues(alpha: 0.15),
+                  blurRadius: 30,
+                  offset: const Offset(0, 10),
+                ),
+                BoxShadow(
+                  color: const Color(0xFF20B2AA).withValues(alpha: 0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 5),
+                ),
+              ],
             ),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context); // Close dialog
-              
-              // Clear authentication state for guest mode
-              final authProvider = Provider.of<AuthProvider>(context, listen: false);
-              await authProvider.clearAuthForGuest();
-              
-              // Navigate to main app as guest
-              if (mounted) {
-                Navigator.pushReplacement(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) => MainWrapper(),
-                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                      return SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(1.0, 0.0),
-                          end: Offset.zero,
-                        ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
-                        child: child,
-                      );
-                    },
-                    transitionDuration: const Duration(milliseconds: 600),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header with icon
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF1B5993), // Blue color from Login Required dialog
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(24),
+                      topRight: Radius.circular(24),
+                    ),
                   ),
-                );
-              }
-            },
-            child: Text(
-              'Continue',
-              style: TextStyle(
-                color: const Color(0xFF20B2AA),
-                fontWeight: FontWeight.w600,
-              ),
+                  child: Column(
+                    children: [
+                      // Icon container
+                      Container(
+                        width: 64.w,
+                        height: 64.h,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(20.r),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.3),
+                            width: 1.w,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.person_outline_rounded,
+                          color: Colors.white,
+                          size: 32,
+                        ),
+                      ),
+                      SizedBox(height: 16.h),
+                      Text(
+                        'Continue as Guest',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 24.sp,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                // Content
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      Text(
+                        'You can browse properties without creating an account. You can always sign up later to save your preferences.',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF616161),
+                          height: 1.5,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      
+                      SizedBox(height: 32.h),
+                      
+                      // Action buttons
+                      Row(
+                        children: [
+                          // Cancel button
+                          Expanded(
+                            child: Container(
+                              height: 48.h,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF5F5F5),
+                                borderRadius: BorderRadius.circular(12.r),
+                                border: Border.all(
+                                  color: const Color(0xFFE0E0E0),
+                                  width: 1.w,
+                                ),
+                              ),
+                              child: TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                style: TextButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                    fontFamily: 'Inter',
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color(0xFF757575),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          
+                          SizedBox(width: 12.w),
+                          
+                          // Continue button
+                          Expanded(
+                            child: Container(
+                              height: 48.h,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1B5993), // Blue color matching the header
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFF1B5993).withValues(alpha: 0.3),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: TextButton(
+                                onPressed: () async {
+                                  Navigator.pop(context); // Close dialog
+                                  
+                                  // Clear authentication state for guest mode
+                                  final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                                  await authProvider.clearAuthForGuest();
+                                  
+                                  // Navigate to main app as guest
+                                  if (mounted) {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      PageRouteBuilder(
+                                        pageBuilder: (context, animation, secondaryAnimation) => MainWrapper(),
+                                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                          return SlideTransition(
+                                            position: Tween<Offset>(
+                                              begin: const Offset(1.0, 0.0),
+                                              end: Offset.zero,
+                                            ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+                                            child: child,
+                                          );
+                                        },
+                                        transitionDuration: const Duration(milliseconds: 600),
+                                      ),
+                                    );
+                                  }
+                                },
+                                style: TextButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Continue',
+                                      style: TextStyle(
+                                        fontFamily: 'Inter',
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Icon(
+                                      Icons.arrow_forward,
+                                      color: Colors.white,
+                                      size: 18,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

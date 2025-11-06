@@ -341,7 +341,7 @@ class _SignupScreenState extends State<SignupScreen>
                       },
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 12),
 
                   // Email Field
                   SlideTransition(
@@ -362,7 +362,7 @@ class _SignupScreenState extends State<SignupScreen>
                       },
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
 
                   // Phone Field
                   SlideTransition(
@@ -387,7 +387,7 @@ class _SignupScreenState extends State<SignupScreen>
                       },
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 12),
 
                   // CNIC Field
                   SlideTransition(
@@ -411,7 +411,7 @@ class _SignupScreenState extends State<SignupScreen>
                       },
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 12),
 
                   // Password Field
                   SlideTransition(
@@ -443,7 +443,7 @@ class _SignupScreenState extends State<SignupScreen>
                       },
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 12),
 
                   // Confirm Password Field
                   SlideTransition(
@@ -772,7 +772,7 @@ class _SignupScreenState extends State<SignupScreen>
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 1),
+          const SizedBox(height: 6),
           Container(
             height: 60,
       decoration: BoxDecoration(
