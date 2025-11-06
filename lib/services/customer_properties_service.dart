@@ -206,6 +206,10 @@ class CustomerPropertiesService {
   // Get approved properties for browsing (public listing)
   Future<Map<String, dynamic>> getApprovedProperties({
     String? purpose,
+    String? category,
+    int? priceMin,
+    int? priceMax,
+    String? sortBy,
     int perPage = 9,
     int page = 1,
     String? overrideToken,
@@ -228,6 +232,18 @@ class CustomerPropertiesService {
       };
       if (purpose != null && purpose.isNotEmpty) {
         queryParams['purpose'] = purpose;
+      }
+      if (category != null && category.isNotEmpty) {
+        queryParams['category'] = category;
+      }
+      if (priceMin != null && priceMin > 0) {
+        queryParams['price_min'] = priceMin.toString();
+      }
+      if (priceMax != null && priceMax > 0) {
+        queryParams['price_max'] = priceMax.toString();
+      }
+      if (sortBy != null && sortBy.isNotEmpty) {
+        queryParams['sort_by'] = sortBy;
       }
       
       final uri = Uri.parse('$baseUrl/properties').replace(queryParameters: queryParams);
@@ -385,6 +401,7 @@ class CustomerPropertiesService {
       }
 
       print('⭐ Adding property $propertyId to favorites...');
+      print('🔗 API URL: $baseUrl/add/favorite/property');
 
       final request = http.MultipartRequest(
         'POST',
@@ -393,7 +410,10 @@ class CustomerPropertiesService {
 
       request.headers['Authorization'] = 'Bearer $token';
       request.headers['Accept'] = 'application/json';
-      request.fields['property_id'] = propertyId;
+      // Don't set Content-Type manually for MultipartRequest - it's set automatically with boundary
+      request.fields['property_id'] = propertyId.toString();
+      
+      print('📤 Request fields: ${request.fields}');
 
       final streamed = await request.send();
       final response = await http.Response.fromStream(streamed);
@@ -405,6 +425,7 @@ class CustomerPropertiesService {
         final data = response.body.isNotEmpty 
             ? json.decode(response.body) as Map<String, dynamic>
             : {'message': 'Property added to favorites successfully'};
+        print('✅ Successfully added to favorites');
         return {
           'success': true,
           'data': data,

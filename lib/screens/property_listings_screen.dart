@@ -26,6 +26,14 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
   String _selectedLocation = 'Any';
   String _searchQuery = '';
   late final TextEditingController _searchController;
+
+  // Filter state variables
+  String? _selectedCategory; // Commercial or Residential
+  String? _selectedPurpose; // Rent or Sell
+  double _priceMin = 1000;
+  double _priceMax = 5000000;
+  bool _priceRangeModified = false; // Track if user has modified price range
+  String? _selectedSortBy; // price_high_low or price_low_high
   
   final CustomerPropertiesService _propertiesService = CustomerPropertiesService();
   List<CustomerProperty> _properties = [];
@@ -59,6 +67,11 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
       final result = await _propertiesService.getApprovedProperties(
         perPage: 9,
         page: _currentPage,
+        category: _selectedCategory,
+        purpose: _selectedPurpose,
+        priceMin: _priceRangeModified ? _priceMin.toInt() : null,
+        priceMax: _priceRangeModified ? _priceMax.toInt() : null,
+        sortBy: _selectedSortBy,
       );
 
       if (result['success'] == true) {
@@ -339,12 +352,12 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
         final title = property.title.toLowerCase();
         final phase = (property.phase ?? property.location ?? '').toLowerCase();
         final size = (property.propertyDetails).toLowerCase();
-        final query = _searchQuery.toLowerCase().trim();
-        
-        return title.contains(query) || 
-               phase.contains(query) || 
-               size.contains(query);
-      }).toList();
+      final query = _searchQuery.toLowerCase().trim();
+      
+      return title.contains(query) || 
+             phase.contains(query) || 
+             size.contains(query);
+    }).toList();
     }
     
     return filtered;
@@ -487,15 +500,15 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _buildFilterChip(l10n.all, _selectedPropertyType == l10n.all),
+                    _buildFilterPill(l10n.all, _selectedPropertyType == l10n.all),
                     const SizedBox(width: 8),
-                    _buildFilterChip(l10n.houses, _selectedPropertyType == l10n.houses),
+                    _buildFilterPill(l10n.houses, _selectedPropertyType == l10n.houses),
                     const SizedBox(width: 8),
-                    _buildFilterChip(l10n.flats, _selectedPropertyType == l10n.flats),
+                    _buildFilterPill(l10n.flats, _selectedPropertyType == l10n.flats),
                     const SizedBox(width: 8),
-                    _buildFilterChip(l10n.plots, _selectedPropertyType == l10n.plots),
+                    _buildFilterPill(l10n.plots, _selectedPropertyType == l10n.plots),
                     const SizedBox(width: 8),
-                    _buildFilterChip(l10n.commercial, _selectedPropertyType == l10n.commercial),
+                    _buildFilterPill(l10n.commercial, _selectedPropertyType == l10n.commercial),
                   ],
                 ),
               ),
@@ -556,32 +569,32 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                           ),
                         )
                       : _filteredProperties.isEmpty && _searchQuery.isNotEmpty && _searchQuery.trim().isNotEmpty
-                          ? Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.search_off,
-                                    size: 64,
-                                    color: Colors.grey[400],
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'No properties found',
-                                    style: TextStyle(
-                                      fontFamily: 'Inter',
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Try searching with different keywords',
-                                    style: TextStyle(
-                                      fontFamily: 'Inter',
-                                      fontSize: 14,
-                                      color: Colors.grey[500],
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No properties found',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Try searching with different keywords',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 14,
+                              color: Colors.grey[500],
                                     ),
                                   ),
                                 ],
@@ -605,19 +618,19 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                                           fontSize: 18,
                                           fontWeight: FontWeight.w600,
                                           color: Colors.grey[600],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : ListView.builder(
-                                  padding: const EdgeInsets.all(16),
-                                  itemCount: _filteredProperties.length,
-                                  itemBuilder: (context, index) {
-                                    final property = _filteredProperties[index];
-                                    return _buildZameenPropertyCard(property, index);
-                                  },
-                                ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                padding: const EdgeInsets.all(16),
+                      itemCount: _filteredProperties.length,
+                itemBuilder: (context, index) {
+                        final property = _filteredProperties[index];
+                  return _buildZameenPropertyCard(property, index);
+                },
+              ),
             ),
           ],
         ),
@@ -625,7 +638,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
     );
   }
 
-  Widget _buildFilterChip(String label, bool isSelected) {
+  Widget _buildFilterPill(String label, bool isSelected) {
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -721,9 +734,9 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                   imageUrl != null && imageUrl.startsWith('http')
                       ? CachedNetworkImage(
                           imageUrl: imageUrl,
-                          width: double.infinity,
-                          height: 200,
-                          fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: 200,
+                    fit: BoxFit.cover,
                           placeholder: (context, url) => Container(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
@@ -743,23 +756,23 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                             ),
                           ),
                           errorWidget: (context, url, error) => Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  const Color(0xFF20B2AA).withOpacity(0.1),
-                                  const Color(0xFF1B5993).withOpacity(0.1),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                            ),
-                            child: const Center(
-                              child: Icon(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color(0xFF20B2AA).withOpacity(0.1),
+                              const Color(0xFF1B5993).withOpacity(0.1),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: const Center(
+                          child: Icon(
                                 Icons.image_not_supported,
-                                color: Color(0xFF20B2AA),
-                                size: 50,
-                              ),
-                            ),
+                            color: Color(0xFF20B2AA),
+                            size: 50,
+                          ),
+                        ),
                           ),
                         )
                       : Container(
@@ -780,7 +793,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                               size: 50,
                             ),
                           ),
-                        ),
+                  ),
                 Positioned(
                   top: 12,
                   right: 12,
@@ -793,7 +806,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                     child: Text(
                       'Approved',
                       style: TextStyle(
-                        fontFamily: 'Inter',
+                              fontFamily: 'Inter',
                         color: Colors.white,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -880,7 +893,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                 Text(
                   priceDisplay,
                   style: TextStyle(
-                    fontFamily: 'Inter',
+                              fontFamily: 'Inter',
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: const Color(0xFF20B2AA),
@@ -890,7 +903,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                 Text(
                   property.title,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                              fontFamily: 'Poppins',
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: Colors.black,
@@ -908,10 +921,10 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                     Expanded(
                       child: Text(
                         property.fullLocation.isNotEmpty ? property.fullLocation : (property.phase ?? property.location ?? 'N/A'),
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 14,
-                          color: Colors.grey[600],
+                      style: TextStyle(
+                              fontFamily: 'Inter',
+                        fontSize: 14,
+                        color: Colors.grey[600],
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -922,22 +935,22 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                 Row(
                   children: [
                     if (property.propertyDetails.isNotEmpty)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
                           property.propertyDetails,
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[700],
-                          ),
+                        style: TextStyle(
+                              fontFamily: 'Inter',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey[700],
                         ),
                       ),
+                    ),
                     if (property.propertyDetails.isNotEmpty) const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -948,14 +961,14 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                       child: Text(
                         property.propertyType ?? property.category ?? 'N/A',
                         style: TextStyle(
-                          fontFamily: 'Inter',
+                              fontFamily: 'Inter',
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: Colors.grey[700],
                         ),
-                      ),
-                    ),
-                  ],
+                              ),
+                            ),
+                          ],
                 ),
               ],
             ),
@@ -1085,155 +1098,404 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.75,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          children: [
-            // Handle bar
-            Container(
-              margin: const EdgeInsets.only(top: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            
-            // Header
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          height: MediaQuery.of(context).size.height * 0.85,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            children: [
+              // Handle bar
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
-              child: Row(
-                children: [
-                  const Icon(Icons.tune, color: Colors.white, size: 24),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Filter Properties',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.close, color: Colors.white, size: 24),
-                  ),
-                ],
-              ),
-            ),
-            
-            // Filter Content
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
+              
+              // Header
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1B5993),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                child: Row(
                   children: [
-                    // Property Type Filter
-                    _buildFilterSection(
-                      'Property Type',
-                      Icons.apartment,
-                      [
-                        'All', 'Houses', 'Flats', 'Plots', 'Commercial'
-                      ],
-                      _selectedPropertyType,
-                      (value) => setState(() => _selectedPropertyType = value),
+                    const Icon(Icons.tune, color: Colors.white, size: 24),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Filter Properties',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
                     ),
-                    
-                    // Price Range Filter
-                    _buildFilterSection(
-                      'Price Range',
-                      Icons.attach_money,
-                      [
-                        'Any', 'Under 5M', '5M - 10M', '10M - 20M', 'Above 20M'
-                      ],
-                      _selectedPriceRange,
-                      (value) => setState(() => _selectedPriceRange = value),
-                    ),
-                    
-                    // Location Filter
-                    _buildFilterSection(
-                      'Location',
-                      Icons.place,
-                      [
-                        'Any', 'Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'Phase 5', 'Phase 6', 'Phase 7'
-                      ],
-                      _selectedLocation,
-                      (value) => setState(() => _selectedLocation = value),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: const Icon(Icons.close, color: Colors.white, size: 24),
                     ),
                   ],
                 ),
               ),
-            ),
-            
-            // Filter Actions
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.grey[50],
-                border: Border(
-                  top: BorderSide(color: Colors.grey[200]!),
+              
+              // Filter Content
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Category Filter
+                      _buildFilterSectionHeader(Icons.category, 'Category'),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildFilterChip(
+                              'Commercial',
+                              _selectedCategory == 'Commercial',
+                              () {
+                                setModalState(() {
+                                  _selectedCategory = _selectedCategory == 'Commercial' ? null : 'Commercial';
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildFilterChip(
+                              'Residential',
+                              _selectedCategory == 'Residential',
+                              () {
+                                setModalState(() {
+                                  _selectedCategory = _selectedCategory == 'Residential' ? null : 'Residential';
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      // Purpose Filter
+                      _buildFilterSectionHeader(Icons.sell, 'Purpose'),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildFilterChip(
+                              'Rent',
+                              _selectedPurpose == 'Rent',
+                              () {
+                                setModalState(() {
+                                  _selectedPurpose = _selectedPurpose == 'Rent' ? null : 'Rent';
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildFilterChip(
+                              'Sell',
+                              _selectedPurpose == 'Sell',
+                              () {
+                                setModalState(() {
+                                  _selectedPurpose = _selectedPurpose == 'Sell' ? null : 'Sell';
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      // Property Type Filter (based on category)
+                      _buildFilterSectionHeader(Icons.apartment, 'Property Type'),
+                      const SizedBox(height: 12),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _buildFilterChip(
+                              'All',
+                              _selectedPropertyType == 'All',
+                              () {
+                                setModalState(() {
+                                  _selectedPropertyType = 'All';
+                                });
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            _buildFilterChip(
+                              'Houses',
+                              _selectedPropertyType == 'Houses',
+                              () {
+                                setModalState(() {
+                                  _selectedPropertyType = 'Houses';
+                                });
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            _buildFilterChip(
+                              'Flats',
+                              _selectedPropertyType == 'Flats',
+                              () {
+                                setModalState(() {
+                                  _selectedPropertyType = 'Flats';
+                                });
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            _buildFilterChip(
+                              'Plots',
+                              _selectedPropertyType == 'Plots',
+                              () {
+                                setModalState(() {
+                                  _selectedPropertyType = 'Plots';
+                                });
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            _buildFilterChip(
+                              'Commercial',
+                              _selectedPropertyType == 'Commercial',
+                              () {
+                                setModalState(() {
+                                  _selectedPropertyType = 'Commercial';
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      // Price Range Slider
+                      _buildFilterSectionHeader(Icons.attach_money, 'Price Range'),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'PKR ${_priceMin.toInt().toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF1B5993),
+                            ),
+                          ),
+                          Text(
+                            'PKR ${_priceMax.toInt().toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF1B5993),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      RangeSlider(
+                        values: RangeValues(_priceMin, _priceMax),
+                        min: 1000,
+                        max: 5000000,
+                        divisions: 499,
+                        activeColor: const Color(0xFF1B5993),
+                        inactiveColor: Colors.grey[300],
+                        labels: RangeLabels(
+                          'PKR ${_priceMin.toInt().toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+                          'PKR ${_priceMax.toInt().toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+                        ),
+                        onChanged: (RangeValues values) {
+                          setModalState(() {
+                            _priceMin = values.start;
+                            _priceMax = values.end;
+                            _priceRangeModified = true;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      // Sort Filter
+                      _buildFilterSectionHeader(Icons.sort, 'Sort By'),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildFilterChip(
+                              'Price: Low to High',
+                              _selectedSortBy == 'price_low_high',
+                              () {
+                                setModalState(() {
+                                  _selectedSortBy = _selectedSortBy == 'price_low_high' ? null : 'price_low_high';
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildFilterChip(
+                              'Price: High to Low',
+                              _selectedSortBy == 'price_high_low',
+                              () {
+                                setModalState(() {
+                                  _selectedSortBy = _selectedSortBy == 'price_high_low' ? null : 'price_high_low';
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          _selectedPropertyType = 'All';
-                          _selectedPriceRange = 'Any';
-                          _selectedLocation = 'Any';
-                        });
-                      },
-                      icon: const Icon(Icons.clear, size: 16),
-                      label: const Text('Clear All'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.grey[600],
-                        side: BorderSide(color: Colors.grey[300]!),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+              
+              // Filter Actions
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  border: Border(
+                    top: BorderSide(color: Colors.grey[200]!),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          // Clear all filters and reload properties
+                          setModalState(() {
+                            _selectedCategory = null;
+                            _selectedPurpose = null;
+                            _selectedPropertyType = 'All';
+                            _priceMin = 1000;
+                            _priceMax = 5000000;
+                            _priceRangeModified = false;
+                            _selectedSortBy = null;
+                          });
+                          // Update main state and close bottom sheet
+                          Navigator.pop(context);
+                          setState(() {
+                            _selectedCategory = null;
+                            _selectedPurpose = null;
+                            _selectedPropertyType = 'All';
+                            _priceMin = 1000;
+                            _priceMax = 5000000;
+                            _priceRangeModified = false;
+                            _selectedSortBy = null;
+                          });
+                          // Reload all properties without any filters
+                          _loadProperties(refresh: true);
+                        },
+                        icon: const Icon(Icons.clear, size: 16),
+                        label: const Text('Clear All'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.grey[600],
+                          side: BorderSide(color: Colors.grey[300]!),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        // Apply filters logic can be added here
-                      },
-                      icon: const Icon(Icons.check, size: 16),
-                      label: const Text('Apply Filters'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1B5993),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                    const SizedBox(width: 12),
+                    Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            // Sync state and apply filters
+                            Navigator.pop(context);
+                            setState(() {
+                              // Ensure price range modification flag is set if values differ from defaults
+                              if (!_priceRangeModified && (_priceMin != 1000 || _priceMax != 5000000)) {
+                                _priceRangeModified = true;
+                              }
+                            });
+                            _loadProperties(refresh: true);
+                          },
+                        icon: const Icon(Icons.check, size: 16),
+                        label: const Text('Apply Filters'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1B5993),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterSectionHeader(IconData icon, String title) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1B5993).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            color: const Color(0xFF1B5993),
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          title,
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilterChip(String label, bool isSelected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF1B5993) : Colors.grey[100],
+          borderRadius: BorderRadius.circular(20),
+          border: isSelected ? null : Border.all(color: Colors.grey[300]!),
+        ),
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: isSelected ? Colors.white : Colors.grey[700],
+          ),
         ),
       ),
     );
