@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/property_form_data.dart';
 import 'property_details_step.dart';
 import '../../../services/property_type_service.dart';
+import '../../../ui/widgets/app_icons.dart';
 
 class TypePricingStep extends StatefulWidget {
   @override
@@ -191,7 +192,7 @@ class _TypePricingStepState extends State<TypePricingStep> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(
-            Icons.arrow_back_ios_new,
+            AppIcons.arrowBackIosNew,
             color: Color(0xFF1B5993),
             size: 16,
           ),
@@ -214,7 +215,7 @@ class _TypePricingStepState extends State<TypePricingStep> {
                 ],
               ),
               child: Icon(
-                Icons.home_work_rounded,
+                AppIcons.homeWorkRounded,
                 color: const Color(0xFF1B5993),
                 size: 20.sp,
               ),
@@ -468,7 +469,7 @@ class _TypePricingStepState extends State<TypePricingStep> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
-                  Icons.category_rounded,
+                  AppIcons.categoryRounded,
                   color: Color(0xFF8E24AA),
                   size: 20,
                 ),
@@ -636,7 +637,7 @@ class _TypePricingStepState extends State<TypePricingStep> {
                 borderRadius: BorderRadius.circular(8),
               ),
                 child: const Icon(
-                  Icons.description_rounded,
+                  AppIcons.descriptionRounded,
                   color: Color(0xFF1B5993),
                   size: 20,
                 ),
@@ -814,7 +815,7 @@ class _TypePricingStepState extends State<TypePricingStep> {
                     ),
                   )
                 : const Icon(
-                    Icons.keyboard_arrow_down,
+                    AppIcons.keyboardArrowDown,
                     color: Color(0xFF1B5993),
                     size: 20,
                   ),

@@ -11,7 +11,7 @@ import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import '../models/property_form_data.dart';
 import '../../../services/media_upload_service.dart';
-
+import '../../../ui/widgets/app_icons.dart';
 import 'review_confirmation_step.dart';
 import '../../../core/theme/app_theme.dart';
 
@@ -39,7 +39,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(
-            Icons.arrow_back_ios_new,
+            AppIcons.arrowBackIosNew,
             color: Color(0xFF1B5993),
             size: 16,
           ),
@@ -62,7 +62,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                 ],
               ),
               child: Icon(
-                Icons.photo_library_rounded,
+                AppIcons.photoLibraryRounded,
                 color: const Color(0xFF1B5993),
                 size: 20.sp,
               ),
@@ -230,7 +230,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(
-                      Icons.arrow_forward,
+                      AppIcons.arrowForward,
                       color: AppTheme.cardWhite,
                       size: 20,
                     ),
@@ -274,7 +274,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                   borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                 ),
                 child: const Icon(
-                  Icons.photo_library,
+                  AppIcons.photoLibrary,
                   color: AppTheme.primaryBlue,
                   size: 24,
                 ),
@@ -314,7 +314,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
             child: Row(
               children: [
                 Icon(
-                  Icons.info_outline,
+                  AppIcons.infoOutline,
                   color: AppTheme.primaryBlue,
                   size: 20.sp,
                 ),
@@ -361,7 +361,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                   borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Icon(
-                  Icons.image_rounded,
+                  AppIcons.imageRounded,
                   color: const Color(0xFF1B5993),
                   size: 24.w,
                 ),
@@ -445,7 +445,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.arrow_upward_rounded,
+                    AppIcons.arrowUpwardRounded,
                     color: const Color(0xFF4B5563),
                     size: 56.w,
                   ),
@@ -520,7 +520,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                     borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: Icon(
-                    Icons.close,
+                    AppIcons.close,
                     color: AppTheme.cardWhite,
                     size: 16.sp,
                   ),
@@ -559,7 +559,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                   borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Icon(
-                  Icons.videocam_rounded,
+                  AppIcons.videocamRounded,
                   color: const Color(0xFF1B5993),
                   size: 24.w,
                 ),
@@ -643,7 +643,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.movie_filter_rounded,
+                    AppIcons.movieFilterRounded,
                     color: const Color(0xFF4B5563),
                     size: 56.w,
                   ),
@@ -701,7 +701,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                   borderRadius: BorderRadius.circular(8.r),
               ),
               child: Icon(
-                  Icons.play_circle_outline,
+                  AppIcons.playCircleOutline,
                   color: AppTheme.primaryBlue,
                   size: 24.sp,
                 ),
@@ -746,7 +746,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Icon(
-                    Icons.delete_outline,
+                    AppIcons.deleteOutline,
                     color: AppTheme.error,
                     size: 20.sp,
                   ),
@@ -842,7 +842,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
             child: Row(
               children: [
                 Icon(
-                  Icons.info_rounded,
+                  AppIcons.infoRounded,
                   color: AppTheme.primaryBlue,
                   size: 20.sp,
                 ),
@@ -1076,7 +1076,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
           title: Row(
             children: [
               Icon(
-                result['success'] == true ? Icons.check_circle : Icons.error,
+                result['success'] == true ? AppIcons.checkCircle : AppIcons.error,
                 color: result['success'] == true ? AppTheme.success : AppTheme.error,
                 size: 28.sp,
               ),
@@ -1315,7 +1315,7 @@ class _MediaUploadStepState extends State<MediaUploadStep> {
         title: Row(
           children: [
             Icon(
-              Icons.check_circle,
+              AppIcons.checkCircle,
               color: AppTheme.success,
               size: 28.sp,
             ),

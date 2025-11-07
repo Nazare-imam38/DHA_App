@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../models/property_form_data.dart';
 import '../../../services/amenities_service.dart';
+import '../../../ui/widgets/app_icons.dart';
 import 'media_upload_step.dart';
 import '../../../core/theme/app_theme.dart';
 
@@ -176,23 +177,23 @@ class _AmenitiesSelectionStepState extends State<AmenitiesSelectionStep> {
   // Icon mapping for amenities
   IconData _getAmenityIcon(String amenityName) {
     final name = amenityName.toLowerCase();
-    if (name.contains('water')) return Icons.water_drop;
-    if (name.contains('sewerage') || name.contains('drainage')) return Icons.water;
-    if (name.contains('gas')) return Icons.local_gas_station;
+    if (name.contains('water')) return AppIcons.waterDrop;
+    if (name.contains('sewerage') || name.contains('drainage')) return AppIcons.water;
+    if (name.contains('gas')) return AppIcons.localGasStation;
     if (name.contains('electricity') || name.contains('power')) {
-      if (name.contains('backup')) return Icons.battery_charging_full;
-      return Icons.bolt;
+      if (name.contains('backup')) return AppIcons.batteryChargingFull;
+      return AppIcons.bolt;
     }
-    if (name.contains('broadband') || name.contains('cable') || name.contains('wifi') || name.contains('wi-fi')) return Icons.wifi;
-    if (name.contains('elevator')) return Icons.elevator;
-    if (name.contains('fire') || name.contains('safety')) return Icons.shield;
-    if (name.contains('waste') || name.contains('disposal') || name.contains('trash')) return Icons.delete_outline;
-    if (name.contains('parking')) return Icons.local_parking;
-    if (name.contains('security')) return Icons.security;
-    if (name.contains('servant') || name.contains('quarter')) return Icons.home;
-    if (name.contains('storage') || name.contains('utility')) return Icons.inventory_2;
-    if (name.contains('reception')) return Icons.desk;
-    return Icons.star_outline;
+    if (name.contains('broadband') || name.contains('cable') || name.contains('wifi') || name.contains('wi-fi')) return AppIcons.wifi;
+    if (name.contains('elevator')) return AppIcons.elevator;
+    if (name.contains('fire') || name.contains('safety')) return AppIcons.shield;
+    if (name.contains('waste') || name.contains('disposal') || name.contains('trash')) return AppIcons.deleteOutline;
+    if (name.contains('parking')) return AppIcons.localParking;
+    if (name.contains('security')) return AppIcons.security;
+    if (name.contains('servant') || name.contains('quarter')) return AppIcons.home;
+    if (name.contains('storage') || name.contains('utility')) return AppIcons.inventory;
+    if (name.contains('reception')) return AppIcons.desk;
+    return AppIcons.starOutline;
   }
 
   @override
@@ -206,7 +207,7 @@ class _AmenitiesSelectionStepState extends State<AmenitiesSelectionStep> {
             elevation: 0,
             leading: IconButton(
               icon: const Icon(
-                Icons.arrow_back_ios_new,
+                AppIcons.arrowBackIosNew,
                 color: Color(0xFF1B5993),
                 size: 16,
               ),
@@ -228,7 +229,7 @@ class _AmenitiesSelectionStepState extends State<AmenitiesSelectionStep> {
                     ],
                   ),
                   child: Icon(
-                    Icons.star_rounded,
+                    AppIcons.starRounded,
                     color: const Color(0xFF1B5993),
                     size: 20.sp,
                   ),
@@ -329,7 +330,7 @@ class _AmenitiesSelectionStepState extends State<AmenitiesSelectionStep> {
                 child: Row(
                   children: [
                     Icon(
-                      Icons.star_rounded,
+                      AppIcons.starRounded,
                       color: const Color(0xFF1B5993),
                       size: 22.w,
                     ),

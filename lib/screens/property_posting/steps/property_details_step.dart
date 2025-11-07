@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../models/property_form_data.dart';
+import '../../../ui/widgets/app_icons.dart';
 import 'amenities_selection_step.dart';
 import '../../../core/services/dha_geojson_boundary_service.dart' as dha;
 
@@ -211,7 +212,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
         elevation: 0,
         leading: IconButton(
           icon: const Icon(
-            Icons.arrow_back_ios_new,
+            AppIcons.arrowBackIosNew,
             color: Color(0xFF1B5993),
             size: 16,
           ),
@@ -233,7 +234,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
                 ],
               ),
               child: Icon(
-                Icons.home_work_rounded,
+                AppIcons.homeWorkRounded,
                 color: const Color(0xFF1B5993),
                 size: 20.sp,
               ),
@@ -359,7 +360,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
                         Expanded(
                           child: _buildCustomTab(
                             'Details',
-                            Icons.description_rounded,
+                            AppIcons.descriptionRounded,
                             0,
                           ),
                         ),
@@ -367,7 +368,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
                         Expanded(
                           child: _buildCustomTab(
                             'Map',
-                            Icons.location_on_rounded,
+                            AppIcons.locationOnRounded,
                             1,
                           ),
                         ),
@@ -583,7 +584,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
                   ),
                   SizedBox(width: 8.w),
                   Icon(
-                    Icons.arrow_forward_rounded,
+                    AppIcons.arrowForwardRounded,
                     color: const Color(0xFF1B5993),
                     size: 18.w,
                   ),
@@ -670,7 +671,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
                           borderRadius: BorderRadius.circular(8.r),
                         ),
                         child: Icon(
-                          Icons.check_rounded,
+                          AppIcons.checkRounded,
                           color: Colors.white,
                           size: 16.w,
                         ),
@@ -726,7 +727,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
                             borderRadius: BorderRadius.circular(8.r),
                           ),
                           child: Icon(
-                            Icons.close_rounded,
+                            AppIcons.closeRounded,
                             color: const Color(0xFF6B7280),
                             size: 16.w,
                           ),
@@ -764,7 +765,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
                           borderRadius: BorderRadius.circular(8.r),
                         ),
                         child: Icon(
-                          Icons.touch_app_rounded,
+                          AppIcons.touchAppRounded,
                           color: const Color(0xFF3B82F6),
                           size: 16.w,
                         ),
@@ -782,7 +783,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
                         ),
                       ),
                       Icon(
-                        Icons.arrow_downward_rounded,
+                        AppIcons.arrowDownwardRounded,
                         color: const Color(0xFF3B82F6).withValues(alpha: 0.7),
                         size: 18.w,
                       ),
@@ -1177,7 +1178,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
                                   ],
                                 ),
                                 child: Icon(
-                                  Icons.location_on_rounded,
+                                  AppIcons.locationOnRounded,
                                   color: Colors.white,
                                   size: 16,
                                 ),
@@ -1222,7 +1223,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
                           child: Container(
                             padding: EdgeInsets.all(12.w),
                             child: Icon(
-                              Icons.add_rounded,
+                              AppIcons.addRounded,
                               color: const Color(0xFF1B5993),
                               size: 20.w,
                             ),
@@ -1257,7 +1258,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
                           child: Container(
                             padding: EdgeInsets.all(12.w),
                             child: Icon(
-                              Icons.remove_rounded,
+                              AppIcons.removeRounded,
                               color: const Color(0xFF1B5993),
                               size: 20.w,
                             ),
@@ -1322,7 +1323,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              label == 'Satellite' ? Icons.satellite_alt_rounded : Icons.map_rounded,
+              label == 'Satellite' ? AppIcons.satelliteAltRounded : AppIcons.mapRounded,
               size: 14.w,
               color: isSelected 
                   ? Colors.white
@@ -1479,7 +1480,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
               ),
             ),
             icon: const Icon(
-              Icons.keyboard_arrow_down,
+              AppIcons.keyboardArrowDown,
               color: Color(0xFF1B5993),
             ),
           ),

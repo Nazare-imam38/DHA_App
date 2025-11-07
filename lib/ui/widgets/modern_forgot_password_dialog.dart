@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/auth_models.dart';
+import 'app_icons.dart';
 
 class ModernForgotPasswordDialog extends StatefulWidget {
   const ModernForgotPasswordDialog({super.key});
@@ -128,7 +129,7 @@ class _ModernForgotPasswordDialogState extends State<ModernForgotPasswordDialog>
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: const Icon(
-                        Icons.lock_reset,
+                        AppIcons.lockReset,
                         color: Colors.white,
                         size: 28,
                       ),
@@ -174,7 +175,7 @@ class _ModernForgotPasswordDialogState extends State<ModernForgotPasswordDialog>
                         controller: _emailController,
                         label: 'Email Address',
                         hint: 'Enter your email address',
-                        icon: Icons.email_outlined,
+                        icon: AppIcons.emailOutlined,
                         keyboardType: TextInputType.emailAddress,
                       ),
                       
@@ -185,7 +186,7 @@ class _ModernForgotPasswordDialogState extends State<ModernForgotPasswordDialog>
                         controller: _cnicController,
                         label: 'CNIC Number',
                         hint: 'Enter your CNIC (13 digits)',
-                        icon: Icons.credit_card_outlined,
+                        icon: AppIcons.creditCardOutlined,
                         keyboardType: TextInputType.number,
                         maxLength: 13,
                       ),
@@ -197,7 +198,7 @@ class _ModernForgotPasswordDialogState extends State<ModernForgotPasswordDialog>
                         controller: _phoneController,
                         label: 'Phone Number',
                         hint: 'Enter your phone number',
-                        icon: Icons.phone_outlined,
+                        icon: AppIcons.phoneOutlined,
                         keyboardType: TextInputType.phone,
                       ),
                       
@@ -230,7 +231,7 @@ class _ModernForgotPasswordDialogState extends State<ModernForgotPasswordDialog>
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
-                                      Icons.close,
+                                      AppIcons.close,
                                       color: const Color(0xFF1B5993),
                                       size: 18,
                                     ),
@@ -304,7 +305,7 @@ class _ModernForgotPasswordDialogState extends State<ModernForgotPasswordDialog>
                                           ),
                                           const SizedBox(width: 8),
                                           const Icon(
-                                            Icons.arrow_forward,
+                                            AppIcons.arrowForward,
                                             color: Colors.white,
                                             size: 18,
                                           ),
@@ -449,7 +450,7 @@ class _ModernForgotPasswordDialogState extends State<ModernForgotPasswordDialog>
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
-                    Icons.check_circle,
+                    AppIcons.checkCircle,
                     color: Colors.white,
                     size: 20,
                   ),

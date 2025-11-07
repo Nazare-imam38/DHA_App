@@ -15,6 +15,7 @@ import 'projects_screen_instant.dart';
 import 'property_listings_screen.dart';
 import 'favorites_screen.dart';
 import 'profile_screen.dart';
+import '../ui/widgets/app_icons.dart';
 
 class PropertyDetailInfoScreen extends StatefulWidget {
   final Map<String, dynamic>? propertyMap;
@@ -213,7 +214,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                               ),
                               child: const Center(
                                 child: Icon(
-                                  Icons.image_not_supported,
+                                  AppIcons.imageNotSupported,
                                   color: Color(0xFF20B2AA),
                                   size: 50,
                                 ),
@@ -240,7 +241,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                               ),
                               child: const Center(
                                 child: Icon(
-                                  Icons.home,
+                                  AppIcons.home,
                                   color: Color(0xFF20B2AA),
                                   size: 50,
                                 ),
@@ -293,7 +294,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                         Row(
                           children: [
                             Icon(
-                              Icons.place,
+                              AppIcons.place,
                               color: Colors.white,
                               size: 16.sp,
                             ),
@@ -319,11 +320,11 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                     right: 20.w,
                     child: Row(
                       children: [
-                        _buildActionIcon(Icons.chat_bubble_outline, () {
+                        _buildActionIcon(AppIcons.chatBubbleOutline, () {
                           _launchWhatsAppForProperty();
                         }),
                         SizedBox(width: 12.w),
-                        _buildActionIcon(Icons.phone, () {
+                        _buildActionIcon(AppIcons.phone, () {
                           final phone = _property?.userPhone ?? widget.propertyMap?['userPhone'];
                           if (phone != null && phone.isNotEmpty) {
                             CallService.showCallBottomSheet(context, phone);
@@ -384,7 +385,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.apartment, size: 18.sp),
+                              Icon(AppIcons.apartment, size: 18.sp),
                               SizedBox(width: 8.w),
                               Text(AppLocalizations.of(context)!.features, style: TextStyle(fontSize: 14.sp)),
                             ],
@@ -404,7 +405,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.payment, size: 18.sp),
+                              Icon(AppIcons.payment, size: 18.sp),
                               SizedBox(width: 8.w),
                               Text(AppLocalizations.of(context)!.payment, style: TextStyle(fontSize: 14.sp)),
                             ],
@@ -480,7 +481,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
           if (description.isNotEmpty) ...[
             Row(
               children: [
-                Icon(Icons.description, color: const Color(0xFF1B5993), size: 20.sp),
+                Icon(AppIcons.description, color: const Color(0xFF1B5993), size: 20.sp),
                 SizedBox(width: 8.w),
                 Text(
                   'Description',
@@ -508,7 +509,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
           if (flatAmenities.isNotEmpty) ...[
             _buildFeatureSection(
               'Features',
-              Icons.checklist,
+              AppIcons.checklist,
               flatAmenities,
             ),
             SizedBox(height: 24.h),
@@ -558,7 +559,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
           child: Row(
             children: [
               Icon(
-                Icons.check_circle,
+                AppIcons.checkCircle,
                 color: const Color(0xFF20B2AA),
                 size: 16.sp,
               ),
@@ -1059,7 +1060,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                       ),
                       child: TextButton.icon(
                         onPressed: () {},
-                        icon: Icon(Icons.info_outline, color: const Color(0xFF20B2AA), size: 14.sp),
+                        icon: Icon(AppIcons.infoOutline, color: const Color(0xFF20B2AA), size: 14.sp),
                         label: Text(
                           AppLocalizations.of(context)!.getMoreInfo,
                           style: GoogleFonts.inter(
@@ -1094,7 +1095,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
                             );
                           }
                         },
-                        icon: Icon(Icons.phone, color: Colors.white, size: 14.sp),
+                        icon: Icon(AppIcons.phone, color: Colors.white, size: 14.sp),
                         label: Text(
                           AppLocalizations.of(context)!.call,
                           style: GoogleFonts.inter(

@@ -5,6 +5,7 @@ import 'ms_verification_screen.dart';
 import 'property_posting/property_posting_flow.dart';
 import 'property_posting/models/property_form_data.dart';
 import 'property_posting/steps/purpose_selection_step.dart';
+import '../ui/widgets/app_icons.dart';
 import '../core/theme/app_theme.dart';
 
 class OwnershipSelectionScreen extends StatefulWidget {
@@ -77,7 +78,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
               elevation: 0,
               leading: IconButton(
                   icon: const Icon(
-                    Icons.arrow_back_ios_new,
+                    AppIcons.arrowBackIosNew,
             color: AppTheme.primaryBlue,
             size: 16,
                   ),
@@ -92,7 +93,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                 borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
               ),
               child: Icon(
-                Icons.work_rounded,
+                AppIcons.workRounded,
                 color: Colors.white,
                 size: 20.sp,
               ),
@@ -242,7 +243,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                     _buildOptionCard(
                               title: 'My Own Property',
                               subtitle: 'I am the owner of this property',
-                              icon: Icons.home_rounded,
+                              icon: AppIcons.homeRounded,
                               isSelected: _selectedOption == 'own',
                               onTap: () => _selectOption('own'),
                             ),
@@ -253,7 +254,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                     _buildOptionCard(
                               title: 'On Behalf of Someone Else',
                               subtitle: 'I am listing this property for someone else',
-                              icon: Icons.people_rounded,
+                              icon: AppIcons.peopleRounded,
                               isSelected: _selectedOption == 'behalf',
                               onTap: () => _selectOption('behalf'),
                             ),
@@ -301,7 +302,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 const Icon(
-                                  Icons.check_circle_rounded,
+                                  AppIcons.checkCircleRounded,
                                   size: 20,
                                   color: AppTheme.tealAccent,
                                 ),
@@ -414,7 +415,7 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
               ),
               child: isSelected
                   ? const Icon(
-                      Icons.check_rounded,
+                      AppIcons.checkRounded,
                       color: AppTheme.tealAccent,
                       size: 16,
                     )

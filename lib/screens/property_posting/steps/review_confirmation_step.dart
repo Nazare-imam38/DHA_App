@@ -6,6 +6,7 @@ import '../../../services/media_upload_service.dart';
 import '../../../services/local_amenities_cache.dart';
 import '../../property_listing_status_screen.dart';
 import '../../main_wrapper.dart';
+import '../../../ui/widgets/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
 
 class ReviewConfirmationStep extends StatefulWidget {
@@ -27,7 +28,7 @@ class _ReviewConfirmationStepState extends State<ReviewConfirmationStep> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppTheme.primaryBlue),
+          icon: Icon(AppIcons.arrowBackIos, color: AppTheme.primaryBlue),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -418,7 +419,7 @@ class _ReviewConfirmationStepState extends State<ReviewConfirmationStep> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
         title: Row(
           children: [
-            Icon(Icons.check_circle, color: AppTheme.success, size: 28.sp),
+            Icon(AppIcons.checkCircle, color: AppTheme.success, size: 28.sp),
             SizedBox(width: 12.w),
             const Text(
               'Application Submitted',
@@ -587,7 +588,7 @@ class _ReviewConfirmationStepState extends State<ReviewConfirmationStep> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
         title: Row(
           children: [
-            Icon(Icons.error, color: AppTheme.error, size: 28.sp),
+            Icon(AppIcons.error, color: AppTheme.error, size: 28.sp),
             SizedBox(width: 12.w),
             const Text(
               'Error',

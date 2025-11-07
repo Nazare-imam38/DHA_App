@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import '../services/language_service.dart';
 import '../services/call_service.dart';
 import 'sidebar_drawer.dart';
+import '../ui/widgets/app_icons.dart';
 
 class ContactUsScreen extends StatefulWidget {
   const ContactUsScreen({super.key});
@@ -111,7 +112,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
-                  Icons.arrow_back_ios,
+                  AppIcons.arrowBackIos,
                   color: Colors.white,
                   size: 18,
                 ),
@@ -175,7 +176,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                   ),
                                 ),
                                 child: const Icon(
-                                  Icons.contact_phone,
+                                  AppIcons.contactPhone,
                                   color: Colors.white,
                                   size: 32,
                                 ),
@@ -222,7 +223,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                   SlideTransition(
                     position: _slideAnimation,
                   child: _buildEnhancedContactCard(
-                      icon: Icons.place,
+                      icon: AppIcons.place,
                       title: l10n.visitOurOffice,
                     gradient: const LinearGradient(
                       colors: [Color(0xFF667eea), Color(0xFF764ba2)],
@@ -251,7 +252,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: const Icon(
-                                  Icons.business,
+                                  AppIcons.business,
                                   color: Color(0xFF1E3C90),
                                   size: 20,
                                 ),
@@ -339,7 +340,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                           ],
                                         ),
                                         child: const Icon(
-                                          Icons.place,
+                                          AppIcons.place,
                                           color: Colors.white,
                                           size: 30,
                                         ),
@@ -376,7 +377,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                               mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   const Icon(
-                                  Icons.directions,
+                                  AppIcons.directions,
                                   color: Colors.white,
                                   size: 18,
                                 ),
@@ -405,7 +406,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                   SlideTransition(
                     position: _slideAnimation,
                   child: _buildEnhancedContactCard(
-                      icon: Icons.phone,
+                      icon: AppIcons.phone,
                       title: l10n.callUs,
                     gradient: const LinearGradient(
                       colors: [Color(0xFF11998e), Color(0xFF38ef7d)],
@@ -449,7 +450,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: const Icon(
-                                      Icons.business_center,
+                                      AppIcons.businessCenter,
                                       color: Color(0xFF10B981),
                                       size: 22,
                                     ),
@@ -483,7 +484,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                   child: Row(
                                     children: [
                                       const Icon(
-                                        Icons.phone,
+                                        AppIcons.phone,
                                         color: Color(0xFF10B981),
                                         size: 20,
                                       ),
@@ -549,7 +550,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: const Icon(
-                                      Icons.support_agent,
+                                      AppIcons.supportAgent,
                                       color: Color(0xFF8B5CF6),
                                       size: 22,
                                     ),
@@ -586,7 +587,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                   SlideTransition(
                     position: _slideAnimation,
                   child: _buildEnhancedContactCard(
-                      icon: Icons.email,
+                      icon: AppIcons.email,
                       title: l10n.emailUs,
                     gradient: const LinearGradient(
                       colors: [Color(0xFF667eea), Color(0xFF764ba2)],
@@ -630,7 +631,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: const Icon(
-                                      Icons.store,
+                                      AppIcons.store,
                                       color: Color(0xFF1E3C90),
                                       size: 22,
                                     ),
@@ -664,7 +665,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                   child: Row(
                                     children: [
                                       const Icon(
-                                        Icons.email,
+                                        AppIcons.email,
                                         color: Color(0xFF1E3C90),
                                         size: 20,
                                       ),
@@ -723,7 +724,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: const Icon(
-                                      Icons.access_time,
+                                      AppIcons.accessTime,
                                       color: Color(0xFF0EA5E9),
                                       size: 22,
                                     ),
@@ -826,17 +827,17 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                         const SizedBox(height: 28),
                           Row(
                             children: [
-                            Expanded(child: _buildEnhancedFeatureItem(Icons.security, l10n.secureTransactions, l10n.secureTransactionsDesc, const Color(0xFF1E3C90))),
+                            Expanded(child: _buildEnhancedFeatureItem(AppIcons.security, l10n.secureTransactions, l10n.secureTransactionsDesc, const Color(0xFF1E3C90))),
                             const SizedBox(width: 16),
-                            Expanded(child: _buildEnhancedFeatureItem(Icons.support_agent, l10n.expertSupport, l10n.expertSupportDesc, const Color(0xFF10B981))),
+                            Expanded(child: _buildEnhancedFeatureItem(AppIcons.supportAgent, l10n.expertSupport, l10n.expertSupportDesc, const Color(0xFF10B981))),
                           ],
                         ),
                         const SizedBox(height: 20),
                           Row(
                             children: [
-                            Expanded(child: _buildEnhancedFeatureItem(Icons.location_city, l10n.premiumLocations, l10n.premiumLocationsDesc, const Color(0xFF8B5CF6))),
+                            Expanded(child: _buildEnhancedFeatureItem(AppIcons.locationCity, l10n.premiumLocations, l10n.premiumLocationsDesc, const Color(0xFF8B5CF6))),
                             const SizedBox(width: 16),
-                            Expanded(child: _buildEnhancedFeatureItem(Icons.speed, l10n.quickProcessing, l10n.quickProcessingDesc, const Color(0xFFF59E0B))),
+                            Expanded(child: _buildEnhancedFeatureItem(AppIcons.speed, l10n.quickProcessing, l10n.quickProcessingDesc, const Color(0xFFF59E0B))),
                             ],
                           ),
                         ],
@@ -910,7 +911,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.explore, size: 18),
+                                Icon(AppIcons.explore, size: 18),
                                 const SizedBox(width: 8),
                                 Text(
                                     l10n.exploreProperties,

@@ -10,6 +10,7 @@ import '../services/customer_properties_service.dart';
 import '../models/auth_models.dart';
 import '../ui/screens/auth/login_screen.dart';
 import '../ui/widgets/cached_asset_image.dart';
+import '../ui/widgets/app_icons.dart';
 import 'property_listing_status_screen.dart';
 import 'my_listings_screen.dart';
 import 'contact_us_screen.dart';
@@ -1169,8 +1170,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    const Icon(
-                                      Icons.logout_rounded,
+                                    Icon(
+                                      AppIcons.logout,
                                       color: Colors.white,
                                       size: 18,
                                     ),
@@ -1237,8 +1238,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onTap: () {
                         Scaffold.of(context).openDrawer();
                       },
-                      child: const Icon(
-                        Icons.menu,
+                      child: Icon(
+                        AppIcons.menu,
                         color: Color(0xFF1B5993),
                         size: 24,
                       ),
@@ -1259,7 +1260,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onPressed: () {
                         // Settings functionality
                       },
-                      icon: const Icon(Icons.settings, color: Color(0xFF1B5993)),
+                      icon: Icon(AppIcons.settings, color: Color(0xFF1B5993)),
                     ),
                   ],
                 ),
@@ -1300,8 +1301,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               borderRadius: BorderRadius.circular(40),
                             ),
-                            child: const Icon(
-                              Icons.person,
+                            child: Icon(
+                              AppIcons.person,
                               size: 40,
                               color: Colors.white,
                             ),
@@ -1360,7 +1361,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     )
                                   else
                                 const Icon(
-                                  Icons.place,
+                                  AppIcons.place,
                                   color: Color(0xFF20B2AA),
                                   size: 16,
                                 ),
@@ -1376,8 +1377,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                                   const SizedBox(width: 4),
                                   Icon(
-                                    Icons.refresh,
-                                    color: const Color(0xFF20B2AA),
+                                    AppIcons.refresh,
+                                    color: Color(0xFF20B2AA),
                                     size: 14,
                                   ),
                                 ],
@@ -1407,7 +1408,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         childAspectRatio: 1.4,
                         children: [
                           _buildGridButton(
-                            icon: Icons.search,
+                            icon: AppIcons.search,
                             title: 'Verified\nProperties',
                             count: _verifiedPropertiesCount,
                             onTap: () {
@@ -1415,14 +1416,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             },
                           ),
                           _buildGridButton(
-                            icon: Icons.favorite_border,
+                            icon: AppIcons.favoriteBorder,
                             title: 'My\nFavourites',
                             onTap: () {
                               // TODO: Navigate to favourites
                             },
                           ),
                           _buildGridButton(
-                            icon: Icons.home_work,
+                            icon: AppIcons.homeWork,
                             title: 'My\nProperties',
                             onTap: () => Navigator.push(
                               context,
@@ -1430,7 +1431,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                           _buildGridButton(
-                            icon: Icons.domain_verification,
+                            icon: AppIcons.domainVerification,
                             title: 'Property Listing\nStatus',
                             onTap: () => Navigator.push(
                               context,
@@ -1467,39 +1468,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             _buildUserInfoOption(
                               'Email',
                               userData.email,
-                              Icons.email,
+                              AppIcons.email,
                             ),
                             _buildModernMenuDivider(),
                             _buildUserInfoOption(
                               'Phone',
                               userData.phone,
-                              Icons.phone,
+                              AppIcons.phone,
                             ),
                             _buildModernMenuDivider(),
                             _buildUserInfoOption(
                               'CNIC',
                               userData.cnic,
-                              Icons.credit_card,
+                              AppIcons.creditCard,
                             ),
                             if (userData.address != null) ...[
                               _buildModernMenuDivider(),
                               _buildUserInfoOption(
                                 'Address',
                                 userData.address!,
-                                Icons.place,
+                                AppIcons.place,
                               ),
                             ],
                             _buildModernMenuDivider(),
                             _buildModernMenuOption(
                               'Update Profile',
-                              Icons.edit,
+                              AppIcons.edit,
                               null,
                               _showUpdateProfileDialog,
                             ),
                             _buildModernMenuDivider(),
                             _buildModernMenuOption(
                               'Change Password',
-                              Icons.lock,
+                              AppIcons.lock,
                               null,
                               _showChangePasswordDialog,
                             ),
@@ -1529,14 +1530,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           _buildModernMenuOption(
                             l10n.language,
-                            Icons.language,
+                            AppIcons.language,
                             languageService.currentLanguageName,
                             _showLanguageSelector,
                           ),
                           _buildModernMenuDivider(),
                           _buildModernMenuOption(
                             l10n.contactUs,
-                            Icons.phone,
+                            AppIcons.phone,
                             null,
                             () => Navigator.push(
                               context,
@@ -1546,7 +1547,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           _buildModernMenuDivider(),
                           _buildModernMenuOption(
                             l10n.feedback,
-                            Icons.thumb_up,
+                            AppIcons.thumbUp,
                             null,
                             _showFeedbackDialog,
                           ),
@@ -1575,7 +1576,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.logout,
+                              AppIcons.logout,
                               size: 20,
                             ),
                             const SizedBox(width: 8),
@@ -1715,7 +1716,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               if (isClickable)
                 Icon(
-                  Icons.arrow_forward_ios,
+                  AppIcons.arrowForwardIos,
                   color: Colors.grey[400],
                   size: 16,
                 ),
@@ -1836,7 +1837,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           : null,
       trailing: isClickable
           ? const Icon(
-              Icons.arrow_forward_ios,
+              AppIcons.arrowForwardIos,
               size: 16,
               color: Colors.grey,
             )

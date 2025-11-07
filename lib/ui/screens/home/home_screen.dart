@@ -10,6 +10,7 @@ import '../../../screens/ownership_selection_screen.dart';
 import '../../../screens/sidebar_drawer.dart';
 import '../../../ui/screens/auth/login_screen.dart';
 import '../../../ui/widgets/cached_asset_image.dart';
+import '../../../ui/widgets/app_icons.dart';
 import '../../../providers/plot_stats_provider.dart';
 import '../../../providers/auth_provider.dart';
 
@@ -427,8 +428,8 @@ class _HomeScreenState extends State<HomeScreen>
                             width: 1.w,
                           ),
                         ),
-                        child: const Icon(
-                          Icons.lock_outline_rounded,
+                        child: Icon(
+                          AppIcons.lockOutlineRounded,
                           color: Colors.white,
                           size: 32,
                         ),
@@ -567,8 +568,8 @@ class _HomeScreenState extends State<HomeScreen>
                                         color: Colors.white.withValues(alpha: 0.2),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
-                                      child: const Icon(
-                                        Icons.arrow_forward_ios,
+                                      child: Icon(
+                                        AppIcons.arrowForwardIos,
                                         color: Colors.white,
                                         size: 14,
                                       ),
@@ -671,7 +672,7 @@ class _HomeScreenState extends State<HomeScreen>
                             _scaffoldKey.currentState?.openDrawer();
                           },
                           child: Icon(
-                            Icons.menu,
+                            AppIcons.menu,
                             color: const Color(0xFF1B5993),
                             size: 24.sp,
                           ),
@@ -862,7 +863,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       l10n.residentialProperties,
                                       stats['residential'].toString(),
                                       l10n.propertiesCount,
-                                      Icons.apartment,
+                                      AppIcons.apartment,
                                       const Color(0xFF20B2AA),
                                       animation: _residentialCounterAnimation,
                                     ),
@@ -873,7 +874,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       l10n.commercialProperties,
                                       stats['commercial'].toString(),
                                       l10n.propertiesCount,
-                                      Icons.business,
+                                      AppIcons.business,
                                       const Color(0xFF1B5993),
                                       animation: _commercialCounterAnimation,
                                     ),
@@ -906,7 +907,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       subtitle: l10n.interactiveSocietyMaps,
                                       description: l10n.plotsCount,
                                       buttonText: l10n.tryItNow,
-                                      icon: Icons.map_outlined,
+                                      icon: AppIcons.mapOutlined,
                                       gradient: const LinearGradient(
                                         colors: [Color(0xFF1B5993), Color(0xFF20B2AA)],
                                         begin: Alignment.topLeft,
@@ -947,7 +948,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       subtitle: l10n.sellOrRentOut,
                                       description: l10n.reachBuyers,
                                       buttonText: l10n.postAnAd,
-                                      icon: Icons.add_home_work_outlined,
+                                      icon: AppIcons.addHomeWorkOutlined,
                                 gradient: const LinearGradient(
                                         colors: [Color(0xFF20B2AA), Color(0xFF1B5993)],
                                   begin: Alignment.topLeft,
@@ -1194,8 +1195,8 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                         ),
                         const SizedBox(width: 8),
-                        const Icon(
-                          Icons.arrow_forward_rounded,
+                        Icon(
+                          AppIcons.arrowForwardRounded,
                           color: Colors.white,
                           size: 16,
                   ),
@@ -1418,7 +1419,7 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                         child: Center(
                           child: Icon(
-                            Icons.work,
+                            AppIcons.work,
                             color: const Color(0xFF1B5993),
                             size: 40.sp,
                           ),
@@ -1432,7 +1433,7 @@ class _HomeScreenState extends State<HomeScreen>
                   bottom: 8.h,
                   right: 8.w,
                   child: Icon(
-                    Icons.visibility,
+                    AppIcons.visibility,
                     color: Colors.white,
                     size: 18.sp,
                   ),
@@ -1492,7 +1493,7 @@ class _HomeScreenState extends State<HomeScreen>
                           });
                         },
                         child: Icon(
-                          Icons.visibility,
+                          AppIcons.visibility,
                           color: Colors.white,
                           size: 18.sp,
                         ),
@@ -1580,7 +1581,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(
-                                    Icons.broken_image,
+                                    AppIcons.brokenImage,
                                     color: Colors.grey[400],
                                     size: 48.sp,
                                   ),
@@ -1617,7 +1618,7 @@ class _HomeScreenState extends State<HomeScreen>
                   });
                 },
                 child: Icon(
-                  Icons.close,
+                  AppIcons.close,
                   color: Colors.white,
                   size: 18.sp,
                 ),

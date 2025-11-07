@@ -9,6 +9,7 @@ import '../../../models/auth_models.dart';
 import '../../../screens/main_wrapper.dart';
 import '../../../ui/widgets/cached_asset_image.dart';
 import '../../../ui/widgets/modern_forgot_password_dialog.dart';
+import '../../../ui/widgets/app_icons.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -314,7 +315,7 @@ class _LoginScreenState extends State<LoginScreen>
                     child: _buildModernTextField(
                       controller: _emailController,
                       label: l10n.emailAddress,
-                      icon: Icons.email_outlined,
+                      icon: AppIcons.emailOutlined,
                       keyboardType: TextInputType.emailAddress,
                       errorText: _emailError,
                     ),
@@ -328,12 +329,12 @@ class _LoginScreenState extends State<LoginScreen>
                     child: _buildModernTextField(
                       controller: _passwordController,
                       label: l10n.password,
-                      icon: Icons.lock_outlined,
+                      icon: AppIcons.lockOutline,
                       obscureText: _obscurePassword,
                       errorText: _passwordError,
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                          _obscurePassword ? AppIcons.visibilityOff : AppIcons.visibility,
                           color: Colors.grey[600],
                         ),
                         onPressed: () {
@@ -662,7 +663,7 @@ class _LoginScreenState extends State<LoginScreen>
           Row(
             children: [
               Icon(
-                Icons.verified_user,
+                AppIcons.verifiedUser,
                 color: Colors.white.withOpacity(0.9),
                 size: 20,
               ),
@@ -752,7 +753,7 @@ class _LoginScreenState extends State<LoginScreen>
                           borderRadius: BorderRadius.circular(8),
                           onTap: _refreshCaptcha,
                           child: Icon(
-                            Icons.refresh,
+                            AppIcons.refresh,
                             color: Colors.grey[700],
                             size: 20,
                           ),
@@ -803,7 +804,7 @@ class _LoginScreenState extends State<LoginScreen>
                 Row(
                   children: [
                     Icon(
-                      Icons.info_outline,
+                      AppIcons.infoOutline,
                       color: Colors.white,
                       size: 16,
                     ),
@@ -900,8 +901,8 @@ class _LoginScreenState extends State<LoginScreen>
                             width: 1.w,
                           ),
                         ),
-                        child: const Icon(
-                          Icons.person_outline_rounded,
+                        child: Icon(
+                          AppIcons.personOutlineRounded,
                           color: Colors.white,
                           size: 32,
                         ),
@@ -1038,8 +1039,8 @@ class _LoginScreenState extends State<LoginScreen>
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    const Icon(
-                                      Icons.arrow_forward,
+                                    Icon(
+                                      AppIcons.arrowForward,
                                       color: Colors.white,
                                       size: 18,
                                     ),

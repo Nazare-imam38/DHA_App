@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../models/property_form_data.dart';
+import '../../../ui/widgets/app_icons.dart';
 import 'type_pricing_step.dart';
 import '../../../core/theme/app_theme.dart';
 
@@ -15,7 +16,7 @@ class PurposeSelectionStep extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(
-            Icons.arrow_back_ios_new,
+            AppIcons.arrowBackIosNew,
             color: AppTheme.primaryBlue,
             size: 16,
           ),
@@ -31,7 +32,7 @@ class PurposeSelectionStep extends StatelessWidget {
                 boxShadow: AppTheme.lightShadow,
               ),
               child: Icon(
-                Icons.sell_rounded,
+                AppIcons.sellRounded,
                 color: AppTheme.primaryBlue,
                 size: 20.sp,
               ),
@@ -170,7 +171,7 @@ class PurposeSelectionStep extends StatelessWidget {
                 _buildPurposeOption(
                   context: context,
                   formData: formData,
-                  icon: Icons.home_rounded,
+                  icon: AppIcons.homeRounded,
                   title: 'Rent Property',
                   description: 'I want to rent this property',
                   value: 'Rent',
@@ -309,7 +310,7 @@ class PurposeSelectionStep extends StatelessWidget {
               ),
               child: isSelected
                   ? const Icon(
-                      Icons.check_rounded,
+                      AppIcons.checkRounded,
                       color: AppTheme.cardWhite,
                       size: 16,
                     )

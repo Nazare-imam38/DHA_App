@@ -8,6 +8,7 @@ import '../services/language_service.dart';
 import '../providers/auth_provider.dart';
 import '../models/auth_models.dart';
 import 'sidebar_drawer.dart';
+import '../ui/widgets/app_icons.dart';
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
@@ -162,7 +163,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                             Scaffold.of(context).openDrawer();
                           },
                           child: Icon(
-                            Icons.menu,
+                            AppIcons.menu,
                             color: const Color(0xFF1B5993),
                             size: 24.sp,
                           ),
@@ -187,7 +188,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                                 ),
                               )
                             : Icon(
-                                Icons.refresh,
+                                AppIcons.refresh,
                                 color: const Color(0xFF1B5993),
                                 size: 24.sp,
                               ),
@@ -237,7 +238,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                             children: [
                               if (isSelected)
                                 const Icon(
-                                  Icons.check,
+                                  AppIcons.check,
                                   color: Colors.white,
                                   size: 16,
                                 ),
@@ -319,7 +320,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: const Icon(
-                            Icons.work,
+                            AppIcons.work,
                             size: 60,
                             color: Colors.white,
                           ),
@@ -390,7 +391,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: const Icon(
-                            Icons.work,
+                            AppIcons.work,
                             size: 60,
                             color: Colors.white,
                           ),
@@ -496,7 +497,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: const Icon(
-                            Icons.work,
+                            AppIcons.work,
                             size: 50,
                             color: Colors.white,
                           ),
@@ -532,7 +533,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          Icons.info_outline,
+                          AppIcons.infoOutline,
                           size: 16,
                           color: Colors.orange[700],
                         ),
@@ -790,7 +791,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                           errorBuilder: (context, error, stackTrace) {
                             print('Error loading DHA logo: $error');
                             return const Icon(
-                        Icons.home_work,
+                        AppIcons.homeWork,
                               color: Color(0xFF20B2AA),
                         size: 24,
                             );
@@ -816,7 +817,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                           Row(
                             children: [
                               Icon(
-                                Icons.place,
+                                AppIcons.place,
                                 size: 16,
                                 color: const Color(0xFF20B2AA),
                               ),
@@ -857,7 +858,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                     child: Row(
                       children: [
                         Icon(
-                          Icons.timer,
+                          AppIcons.accessTime,
                           color: Colors.orange[700],
                           size: 18,
                         ),
@@ -931,7 +932,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                   child: Row(
                     children: [
                       Icon(
-                        Icons.attach_money,
+                        AppIcons.attachMoney,
                         color: const Color(0xFF1B5993),
                         size: 18,
                       ),
@@ -1005,7 +1006,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                         child: _buildImprovedInfoItem(
                           'Category',
                           widget.booking.plot.category,
-                          Icons.category,
+                          AppIcons.category,
                         ),
                       ),
                       Container(
@@ -1017,7 +1018,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                         child: _buildImprovedInfoItem(
                           'Phase',
                           widget.booking.plot.phase,
-                          Icons.location_city,
+                          AppIcons.locationCity,
                         ),
                       ),
                       Container(
@@ -1029,7 +1030,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                         child: _buildImprovedInfoItem(
                           'Sector',
                           widget.booking.plot.sector,
-                          Icons.map,
+                          AppIcons.mapRounded,
                         ),
                       ),
                     ],
@@ -1241,7 +1242,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget> {
                   ),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close, color: Colors.grey),
+                    icon: Icon(AppIcons.close, color: Colors.grey),
                   ),
                 ],
               ),

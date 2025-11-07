@@ -7,6 +7,7 @@ import '../../../services/language_service.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../models/auth_models.dart';
 import '../../../ui/widgets/cached_asset_image.dart';
+import '../../../ui/widgets/app_icons.dart';
 import 'login_screen.dart';
 import '../../../screens/otp_verification_screen.dart';
 
@@ -282,7 +283,7 @@ class _SignupScreenState extends State<SignupScreen>
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: const Icon(
-                                      Icons.person_add,
+                                      AppIcons.personAdd,
                                       size: 80,
                                       color: Colors.white,
                                     ),
@@ -328,7 +329,7 @@ class _SignupScreenState extends State<SignupScreen>
                     child: _buildModernTextField(
                       controller: _nameController,
                       label: l10n.fullName,
-                      icon: Icons.person_outline,
+                      icon: AppIcons.personOutlineRounded,
                       keyboardType: TextInputType.name,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -349,7 +350,7 @@ class _SignupScreenState extends State<SignupScreen>
                     child: _buildModernTextField(
                       controller: _emailController,
                       label: l10n.emailAddress,
-                      icon: Icons.email_outlined,
+                      icon: AppIcons.emailOutlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -370,7 +371,7 @@ class _SignupScreenState extends State<SignupScreen>
                     child: _buildModernTextField(
                       controller: _phoneController,
                       label: l10n.phoneNumber,
-                      icon: Icons.phone_outlined,
+                      icon: AppIcons.phoneOutlined,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -395,7 +396,7 @@ class _SignupScreenState extends State<SignupScreen>
                     child: _buildModernTextField(
                       controller: _cnicController,
                       label: 'CNIC (13 digits)',
-                      icon: Icons.credit_card_outlined,
+                      icon: AppIcons.creditCardOutlined,
                       keyboardType: TextInputType.number,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -419,11 +420,11 @@ class _SignupScreenState extends State<SignupScreen>
                     child: _buildModernTextField(
                       controller: _passwordController,
                       label: l10n.password,
-                      icon: Icons.lock_outlined,
+                      icon: AppIcons.lockOutline,
                       obscureText: _obscurePassword,
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                          _obscurePassword ? AppIcons.visibilityOff : AppIcons.visibility,
                           color: Colors.grey[600],
                         ),
                         onPressed: () {
@@ -451,11 +452,11 @@ class _SignupScreenState extends State<SignupScreen>
                     child: _buildModernTextField(
                       controller: _confirmPasswordController,
                       label: l10n.confirmPassword,
-                      icon: Icons.lock_outlined,
+                      icon: AppIcons.lockOutline,
                       obscureText: _obscureConfirmPassword,
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                          _obscureConfirmPassword ? AppIcons.visibilityOff : AppIcons.visibility,
                           color: Colors.grey[600],
                         ),
                         onPressed: () {
@@ -848,7 +849,7 @@ class _SignupScreenState extends State<SignupScreen>
           Row(
             children: [
               Icon(
-                Icons.verified_user,
+                AppIcons.verifiedUser,
                 color: Colors.white.withOpacity(0.9),
                 size: 20,
               ),
@@ -936,7 +937,7 @@ class _SignupScreenState extends State<SignupScreen>
                           borderRadius: BorderRadius.circular(8),
                           onTap: _refreshCaptcha,
             child: Icon(
-                            Icons.refresh,
+                            AppIcons.refresh,
                             color: Colors.grey[700],
                             size: 20,
                           ),
@@ -1002,7 +1003,7 @@ class _SignupScreenState extends State<SignupScreen>
                 Row(
                   children: [
                     Icon(
-                      Icons.info_outline,
+                      AppIcons.infoOutline,
                       color: Colors.white,
                       size: 16,
                     ),

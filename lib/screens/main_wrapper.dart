@@ -10,6 +10,7 @@ import 'favorites_screen.dart';
 import 'profile_screen.dart';
 import 'sidebar_drawer.dart';
 import '../providers/plots_provider.dart';
+import '../ui/widgets/app_icons.dart';
 
 class MainWrapper extends StatefulWidget {
   final int initialTabIndex;
@@ -108,7 +109,7 @@ class _MainWrapperState extends State<MainWrapper>
         },
         backgroundColor: Colors.transparent,
         elevation: 0,
-        child: const Icon(Icons.search, color: Colors.white),
+        child: Icon(AppIcons.search, color: Colors.white),
       ),
     );
   }
@@ -143,36 +144,36 @@ class _MainWrapperState extends State<MainWrapper>
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildNavItem(
-                icon: Icons.home_outlined,
-                activeIcon: Icons.home,
+                icon: AppIcons.homeOutlined,
+                activeIcon: AppIcons.home,
                 label: l10n.home,
                 index: 0,
                 l10n: l10n,
               ),
               _buildNavItem(
-                icon: Icons.home_work_outlined,
-                activeIcon: Icons.home_work,
+                icon: AppIcons.homeWorkOutlined,
+                activeIcon: AppIcons.homeWork,
                 label: l10n.projects,
                 index: 1,
                 l10n: l10n,
               ),
               _buildNavItem(
-                icon: Icons.search_outlined,
-                activeIcon: Icons.search,
+                icon: AppIcons.searchOutlined,
+                activeIcon: AppIcons.search,
                 label: l10n.search,
                 index: 2,
                 l10n: l10n,
               ),
               _buildNavItem(
-                icon: Icons.favorite_outline,
-                activeIcon: Icons.favorite,
+                icon: AppIcons.favoriteOutline,
+                activeIcon: AppIcons.favorite,
                 label: l10n.myBookings,
                 index: 3,
                 l10n: l10n,
               ),
               _buildNavItem(
-                icon: Icons.person_outline,
-                activeIcon: Icons.person,
+                icon: AppIcons.personOutline,
+                activeIcon: AppIcons.person,
                 label: l10n.profile,
                 index: 4,
                 l10n: l10n,

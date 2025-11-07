@@ -8,6 +8,7 @@ import '../services/whatsapp_service.dart';
 import '../services/call_service.dart';
 import '../core/services/geocoding_service.dart';
 import '../services/amenities_service.dart';
+import '../ui/widgets/app_icons.dart';
 
 class ListingDetailScreen extends StatefulWidget {
   final CustomerProperty property;
@@ -206,7 +207,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
           elevation: 0,
           centerTitle: true,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: AppTheme.primaryBlue, size: 16),
+            icon: Icon(AppIcons.arrowBackIosNew, color: AppTheme.primaryBlue, size: 16),
             onPressed: () => Navigator.pop(context),
           ),
           title: const Text(
@@ -291,7 +292,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
               SizedBox(height: 4.h),
               Row(
                 children: [
-                  const Icon(Icons.location_on, color: Colors.white70, size: 14),
+                  Icon(AppIcons.locationOn, color: Colors.white70, size: 14),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
@@ -331,10 +332,10 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
         children: [
           Icon(
             p.isApproved
-                ? Icons.check_circle
+                ? AppIcons.checkCircle
                 : p.isRejected
-                    ? Icons.cancel
-                    : Icons.hourglass_top,
+                    ? AppIcons.cancel
+                    : AppIcons.hourglassTop,
             size: 14,
             color: fg,
           ),
@@ -417,7 +418,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                       color: AppTheme.lightBlue,
                       borderRadius: BorderRadius.circular(8.r),
                     ),
-                    child: Icon(Icons.description, color: AppTheme.primaryBlue, size: 22.sp),
+                    child: Icon(AppIcons.description, color: AppTheme.primaryBlue, size: 22.sp),
                   ),
                   SizedBox(width: 12.w),
                   Expanded(
@@ -555,7 +556,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
           // Location Section (Expandable Card)
           _buildExpandableCard(
             title: 'Location',
-            icon: Icons.location_on,
+            icon: AppIcons.locationOn,
             isExpanded: _isLocationExpanded,
             onToggle: () => setState(() => _isLocationExpanded = !_isLocationExpanded),
             child: _buildLocationContent(p),
@@ -566,7 +567,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
           // Payment Section (Expandable Card)
           _buildExpandableCard(
             title: 'Payment',
-            icon: Icons.receipt_long,
+            icon: AppIcons.receiptLong,
             isExpanded: _isPaymentExpanded,
             onToggle: () => setState(() => _isPaymentExpanded = !_isPaymentExpanded),
             child: _buildPaymentContent(p),
@@ -578,7 +579,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
           if (p.userPhone != null && p.userPhone!.isNotEmpty)
             _buildExpandableCard(
               title: 'Contact Owner',
-              icon: Icons.person_outline,
+              icon: AppIcons.personOutline,
               isExpanded: _isContactExpanded,
               onToggle: () => setState(() => _isContactExpanded = !_isContactExpanded),
               child: _buildContactContent(p),
@@ -635,7 +636,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                               ),
                             ),
                   Icon(
-                    isExpanded ? Icons.expand_less : Icons.expand_more,
+                    isExpanded ? AppIcons.expandLess : AppIcons.expandMore,
                     color: AppTheme.textSecondary,
                     size: 24.sp,
                             ),
@@ -687,7 +688,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
           else if (_geocodedAddress != null)
             Row(
                   children: [
-                Icon(Icons.location_on, size: 18.sp, color: AppTheme.primaryBlue),
+                Icon(AppIcons.locationOn, size: 18.sp, color: AppTheme.primaryBlue),
                 SizedBox(width: 8.w),
                             Expanded(
                               child: Text(
@@ -704,7 +705,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
           else if (p.fullLocation.isNotEmpty)
             Row(
               children: [
-                Icon(Icons.location_on, size: 18.sp, color: AppTheme.primaryBlue),
+                Icon(AppIcons.locationOn, size: 18.sp, color: AppTheme.primaryBlue),
                 SizedBox(width: 8.w),
                     Expanded(
                       child: Text(
@@ -743,7 +744,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                     width: 36,
                     height: 36,
                     alignment: Alignment.topCenter,
-                    child: const Icon(Icons.location_on, color: Color(0xFFE53935), size: 32),
+                    child: Icon(AppIcons.locationOn, color: Color(0xFFE53935), size: 32),
                   )
                 ])
               ],
@@ -786,7 +787,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
           Row(
             children: [
               Icon(
-                Icons.person_outline,
+                AppIcons.personOutline,
                 size: 18.sp,
                 color: AppTheme.textSecondary,
               ),
@@ -807,7 +808,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
         Row(
                   children: [
             Icon(
-              Icons.phone_outlined,
+              AppIcons.phoneOutlined,
               size: 18.sp,
               color: AppTheme.textSecondary,
             ),
@@ -889,7 +890,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                 padding: EdgeInsets.only(bottom: 12.h),
                 child: Row(
                   children: [
-                    Icon(Icons.location_on, size: 18.sp, color: AppTheme.primaryBlue),
+                    Icon(AppIcons.locationOn, size: 18.sp, color: AppTheme.primaryBlue),
                     SizedBox(width: 8.w),
                     Expanded(
                       child: Text(
@@ -909,7 +910,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                 padding: EdgeInsets.only(bottom: 12.h),
                 child: Row(
                   children: [
-                    Icon(Icons.location_on, size: 18.sp, color: AppTheme.primaryBlue),
+                    Icon(AppIcons.locationOn, size: 18.sp, color: AppTheme.primaryBlue),
                     SizedBox(width: 8.w),
                     Expanded(
                       child: Text(
@@ -950,7 +951,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                           width: 36,
                           height: 36,
                           alignment: Alignment.topCenter,
-                          child: const Icon(Icons.location_on, color: Color(0xFFE53935), size: 32),
+                          child: Icon(AppIcons.locationOn, color: Color(0xFFE53935), size: 32),
                         )
                       ])
                     ],
@@ -1016,7 +1017,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                     Row(
                       children: [
                         Icon(
-                          Icons.person_outline,
+                          AppIcons.personOutline,
                           size: 18.sp,
                           color: AppTheme.textSecondary,
                         ),
@@ -1037,7 +1038,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                   Row(
                     children: [
                       Icon(
-                        Icons.phone_outlined,
+                        AppIcons.phoneOutlined,
                         size: 18.sp,
                         color: AppTheme.textSecondary,
                       ),

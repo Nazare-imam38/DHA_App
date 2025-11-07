@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../ui/widgets/app_icons.dart';
 
 class FAQContactScreen extends StatefulWidget {
   const FAQContactScreen({super.key});
@@ -188,7 +189,7 @@ class _FAQContactScreenState extends State<FAQContactScreen>
                     decoration: InputDecoration(
                       labelText: 'Full Name',
                       labelStyle: GoogleFonts.inter(color: Colors.grey[600]),
-                      prefixIcon: const Icon(Icons.person, color: Color(0xFF1E3C90)),
+                      prefixIcon: Icon(AppIcons.person, color: Color(0xFF1E3C90)),
                       filled: true,
                       fillColor: const Color(0xFFF4F4F6),
                       border: OutlineInputBorder(
@@ -214,7 +215,7 @@ class _FAQContactScreenState extends State<FAQContactScreen>
                     decoration: InputDecoration(
                       labelText: 'Email Address',
                       labelStyle: GoogleFonts.inter(color: Colors.grey[600]),
-                      prefixIcon: const Icon(Icons.email, color: Color(0xFF1E3C90)),
+                      prefixIcon: Icon(AppIcons.email, color: Color(0xFF1E3C90)),
                       filled: true,
                       fillColor: const Color(0xFFF4F4F6),
                       border: OutlineInputBorder(
@@ -245,7 +246,7 @@ class _FAQContactScreenState extends State<FAQContactScreen>
                       labelStyle: GoogleFonts.inter(color: Colors.grey[600]),
                       prefixIcon: const Padding(
                         padding: EdgeInsets.only(bottom: 120),
-                        child: Icon(Icons.message, color: Color(0xFF1E3C90)),
+                        child: Icon(AppIcons.message, color: Color(0xFF1E3C90)),
                       ),
                       filled: true,
                       fillColor: const Color(0xFFF4F4F6),
@@ -332,28 +333,28 @@ class _FAQContactScreenState extends State<FAQContactScreen>
                   const SizedBox(height: 16),
                   
                   _buildContactInfo(
-                    Icons.place,
+                    AppIcons.place,
                     'Address',
                     'DHA Islamabad-Rawalpindi\nPhase 1, Commercial Area\nIslamabad, Pakistan',
                   ),
                   const SizedBox(height: 16),
                   
                   _buildContactInfo(
-                    Icons.phone,
+                    AppIcons.phone,
                     'Phone',
                     '+92-51-1234567',
                   ),
                   const SizedBox(height: 16),
                   
                   _buildContactInfo(
-                    Icons.email,
+                    AppIcons.email,
                     'Email',
                     'info@dhamarketplace.com',
                   ),
                   const SizedBox(height: 16),
                   
                   _buildContactInfo(
-                    Icons.access_time,
+                    AppIcons.accessTime,
                     'Working Hours',
                     'Monday - Friday: 9:00 AM - 6:00 PM\nSaturday: 9:00 AM - 2:00 PM',
                   ),

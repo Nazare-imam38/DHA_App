@@ -11,6 +11,7 @@ import '../screens/property_posting/models/property_form_data.dart';
 import '../core/theme/app_theme.dart';
 import 'my_listings_screen.dart';
 import '../services/amenities_service.dart';
+import '../ui/widgets/app_icons.dart';
 
 class UpdatePropertyScreen extends StatefulWidget {
   final CustomerProperty property;
@@ -138,7 +139,7 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildStepHeader(
-            icon: Icons.info_outline,
+            icon: AppIcons.infoOutline,
             title: 'Basic Information',
             description: 'Update your property\'s basic details',
           ),
@@ -158,14 +159,14 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
           Row(
             children: [
               Expanded(
-                child: _buildPurposeCard('Sell', Icons.sell, _formData?.purpose == 'Sell', () {
+                child: _buildPurposeCard('Sell', AppIcons.sellRounded, _formData?.purpose == 'Sell', () {
                   _formData?.updatePurpose('Sell');
                   setState(() {});
                 }),
               ),
               SizedBox(width: 12.w),
               Expanded(
-                child: _buildPurposeCard('Rent', Icons.home, _formData?.purpose == 'Rent', () {
+                child: _buildPurposeCard('Rent', AppIcons.homeRounded, _formData?.purpose == 'Rent', () {
                   _formData?.updatePurpose('Rent');
                   setState(() {});
                 }),
@@ -264,7 +265,7 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildStepHeader(
-            icon: Icons.location_on,
+            icon: AppIcons.locationOn,
             title: 'Location & Features',
             description: 'Update location and select amenities',
           ),
@@ -351,7 +352,7 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
           // Contact Information Section (Expandable Card)
           _buildExpandableCard(
             title: 'Contact Information',
-            icon: Icons.contact_phone,
+            icon: AppIcons.contactPhone,
             description: 'Update owner/contact details for this property',
             isExpanded: _isContactInfoExpanded,
             onToggle: () => setState(() => _isContactInfoExpanded = !_isContactInfoExpanded),
@@ -445,7 +446,7 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildStepHeader(
-            icon: Icons.photo_library,
+            icon: AppIcons.photoLibrary,
             title: 'Media & Review',
             description: 'Update images and review your changes',
           ),
@@ -463,7 +464,7 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.photo_library, color: AppTheme.primaryBlue, size: 24.sp),
+                    Icon(AppIcons.photoLibrary, color: AppTheme.primaryBlue, size: 24.sp),
                     SizedBox(width: 12.w),
                     Text(
                       'Property Media',
@@ -492,7 +493,7 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: _pickImages,
-                        icon: Icon(Icons.image, size: 18.sp),
+                        icon: Icon(AppIcons.imageRounded, size: 18.sp),
                         label: Text('Add Images'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryBlue,
@@ -508,7 +509,7 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: _pickVideos,
-                        icon: Icon(Icons.video_library, size: 18.sp),
+                        icon: Icon(AppIcons.videoLibrary, size: 18.sp),
                         label: Text('Add Videos'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.tealAccent,
@@ -563,7 +564,7 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
                         ),
                         errorWidget: (context, url, error) => Container(
                           color: AppTheme.lightBlue,
-                          child: Icon(Icons.error),
+                          child: Icon(AppIcons.error),
                         ),
                       ),
                     ),
@@ -627,7 +628,7 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
                             color: Colors.red,
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(Icons.close, color: Colors.white, size: 16.sp),
+                          child: Icon(AppIcons.close, color: Colors.white, size: 16.sp),
                         ),
                       ),
                     ),
@@ -665,7 +666,7 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.video_library, color: AppTheme.primaryBlue, size: 24.sp),
+                      Icon(AppIcons.videoLibrary, color: AppTheme.primaryBlue, size: 24.sp),
                       SizedBox(width: 12.w),
                       Expanded(
                         child: Text(
@@ -684,7 +685,7 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
                             _selectedVideos.removeAt(index);
                           });
                         },
-                        child: Icon(Icons.delete, color: Colors.red, size: 20.sp),
+                        child: Icon(AppIcons.delete, color: Colors.red, size: 20.sp),
                       ),
                     ],
                   ),
@@ -806,7 +807,7 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
               if (isSelected)
                 Padding(
                   padding: EdgeInsets.only(top: 8.h),
-                  child: Icon(Icons.check_circle, color: AppTheme.tealAccent, size: 20.sp),
+                  child: Icon(AppIcons.checkCircle, color: AppTheme.tealAccent, size: 20.sp),
                 ),
             ],
           ),
@@ -879,7 +880,7 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
                     ),
                   ),
                   Icon(
-                    isExpanded ? Icons.expand_less : Icons.expand_more,
+                    isExpanded ? AppIcons.expandLess : AppIcons.expandMore,
                     color: AppTheme.textSecondary,
                     size: 24.sp,
                   ),
@@ -1041,7 +1042,7 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      isSelected ? Icons.check_circle : Icons.circle_outlined,
+                      isSelected ? AppIcons.checkCircle : AppIcons.circleOutlined,
                       color: isSelected ? Colors.white : AppTheme.textSecondary,
                       size: 18.sp,
                     ),
@@ -1361,7 +1362,7 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
         title: Row(
           children: [
-            Icon(Icons.check_circle, color: AppTheme.success, size: 28.sp),
+            Icon(AppIcons.checkCircle, color: AppTheme.success, size: 28.sp),
             SizedBox(width: 12.w),
             Text(
               'Property Updated',

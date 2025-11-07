@@ -13,6 +13,7 @@ import '../services/call_service.dart';
 import 'ownership_selection_screen.dart';
 import 'property_listings_screen.dart';
 import 'main_wrapper.dart';
+import '../ui/widgets/app_icons.dart';
 
 class MyListingsScreen extends StatefulWidget {
   const MyListingsScreen({super.key});
@@ -159,7 +160,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
               ),
               title: Row(
                 children: [
-                  Icon(Icons.warning_amber_rounded, color: Colors.red, size: 24.sp),
+                  Icon(AppIcons.warningAmberRounded, color: Colors.red, size: 24.sp),
                   SizedBox(width: 8.w),
                   Expanded(
                     child: Text(
@@ -499,7 +500,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(
-            Icons.arrow_back_ios_new,
+            AppIcons.arrowBackIosNew,
             color: AppTheme.primaryBlue,
             size: 16,
           ),
@@ -518,7 +519,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                 borderRadius: BorderRadius.circular(8.r),
               ),
               child: Icon(
-                Icons.home_work_rounded,
+                AppIcons.homeWorkRounded,
                 color: Colors.white,
                 size: 20.sp,
               ),
@@ -622,7 +623,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           );
         },
         backgroundColor: AppTheme.primaryBlue,
-        icon: const Icon(Icons.add, color: Colors.white),
+        icon: Icon(AppIcons.add, color: Colors.white),
         label: Text(
           'Add Property',
           style: TextStyle(
@@ -651,7 +652,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.error_outline,
+              AppIcons.errorOutline,
               size: 64.sp,
               color: Colors.red,
             ),
@@ -712,7 +713,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  Icons.home_work_outlined,
+                  AppIcons.homeWorkOutlined,
                   size: 64.sp,
                   color: AppTheme.textSecondary,
                 ),
@@ -753,7 +754,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                     ),
                     padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
                   ),
-                  icon: const Icon(Icons.search, color: Colors.white),
+                  icon: Icon(AppIcons.search, color: Colors.white),
                   label: Text(
                     'Go to Search Screen',
                     style: TextStyle(
@@ -820,7 +821,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
                 ),
-                icon: const Icon(Icons.add, color: Colors.white),
+                icon: Icon(AppIcons.add, color: Colors.white),
                 label: Text(
                   'Post Your First Property',
                   style: TextStyle(
@@ -1036,7 +1037,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           child: ElevatedButton.icon(
             onPressed: () => _navigateToPropertyDetails(property),
             icon: Icon(
-              Icons.visibility_outlined,
+              AppIcons.visibilityOutlined,
               size: 16.sp,
               color: Colors.white,
             ),
@@ -1077,7 +1078,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
             minimumSize: Size(48.w, 48.h),
           ),
           child: Icon(
-            Icons.edit_outlined,
+            AppIcons.editOutlined,
             size: 20.sp,
             color: Colors.white,
           ),
@@ -1099,7 +1100,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
             minimumSize: Size(48.w, 48.h),
           ),
           child: Icon(
-            Icons.delete_outline,
+            AppIcons.deleteOutline,
             size: 20.sp,
             color: Colors.white,
           ),
@@ -1374,7 +1375,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: Icon(
-              Icons.image_not_supported_outlined,
+              AppIcons.imageNotSupportedOutlined,
               size: 32.sp,
               color: AppTheme.primaryBlue,
             ),
@@ -1505,10 +1506,10 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         children: [
           Icon(
             property.isApproved
-                ? Icons.check_circle
+                ? AppIcons.checkCircle
                 : property.isRejected
-                    ? Icons.cancel
-                    : Icons.hourglass_top,
+                    ? AppIcons.cancel
+                    : AppIcons.hourglassTop,
             size: 14.sp,
             color: fg,
           ),

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/property_form_data.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../models/auth_models.dart';
+import '../../../ui/widgets/app_icons.dart';
 import 'review_confirmation_step.dart';
 
 class OwnerDetailsStep extends StatefulWidget {
@@ -228,7 +229,7 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF1B5993), size: 16),
+          icon: Icon(AppIcons.arrowBackIosNew, color: Color(0xFF1B5993), size: 16),
           onPressed: () => Navigator.pop(context),
         ),
         title: Row(
@@ -248,7 +249,7 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
                 ],
               ),
               child: Icon(
-                Icons.person_rounded,
+                AppIcons.personRounded,
                 color: const Color(0xFF1B5993),
                 size: 20.sp,
               ),
@@ -422,7 +423,7 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: const Icon(
-                                  Icons.person_rounded,
+                                  AppIcons.personRounded,
                                   color: Color(0xFF1B5993),
                                   size: 20,
                                 ),
@@ -622,7 +623,7 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
               ),
               suffixIcon: isAutoFilled 
                 ? const Icon(
-                    Icons.edit_rounded,
+                    AppIcons.editRounded,
                     color: Color(0xFF20B2AA),
                     size: 16,
                   )

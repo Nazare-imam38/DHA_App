@@ -6,6 +6,7 @@ import '../services/language_service.dart';
 import '../providers/auth_provider.dart';
 import '../models/auth_models.dart';
 import '../ui/widgets/cached_asset_image.dart';
+import '../ui/widgets/app_icons.dart';
 import 'main_wrapper.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
@@ -278,8 +279,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                             width: 1.w,
                           ),
                         ),
-                        child: const Icon(
-                          Icons.person_outline_rounded,
+                        child: Icon(
+                          AppIcons.personOutlineRounded,
                           color: Colors.white,
                           size: 32,
                         ),
@@ -416,8 +417,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    const Icon(
-                                      Icons.arrow_forward,
+                                    Icon(
+                                      AppIcons.arrowForward,
                                       color: Colors.white,
                                       size: 18,
                                     ),
@@ -523,7 +524,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                                           borderRadius: BorderRadius.circular(20),
                                         ),
                                         child: const Icon(
-                                          Icons.verified_user,
+                                          AppIcons.verifiedUser,
                                           size: 35,
                                           color: Colors.white,
                                         ),

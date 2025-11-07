@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../ui/widgets/cached_asset_image.dart';
+import '../ui/widgets/app_icons.dart';
 import 'faq_contact_screen.dart';
 
 class SidebarScreen extends StatefulWidget {
@@ -75,8 +76,8 @@ class _SidebarScreenState extends State<SidebarScreen>
                               color: Colors.white.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(30),
                             ),
-                            child: const Icon(
-                              Icons.person,
+                            child: Icon(
+                              AppIcons.person,
                               color: Colors.white,
                               size: 30,
                             ),
@@ -106,8 +107,8 @@ class _SidebarScreenState extends State<SidebarScreen>
                           ),
                           IconButton(
                             onPressed: () => Navigator.pop(context),
-                            icon: const Icon(
-                              Icons.close,
+                            icon: Icon(
+                              AppIcons.close,
                               color: Colors.white,
                               size: 24,
                             ),
@@ -124,8 +125,8 @@ class _SidebarScreenState extends State<SidebarScreen>
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
-                              Icons.place,
+                            Icon(
+                              AppIcons.place,
                               color: Colors.white,
                               size: 16,
                             ),
@@ -151,7 +152,7 @@ class _SidebarScreenState extends State<SidebarScreen>
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     children: [
                       _buildMenuItem(
-                        icon: Icons.apartment,
+                        icon: AppIcons.apartment,
                         title: 'Home',
                         subtitle: 'Browse properties',
                         onTap: () {
@@ -160,7 +161,7 @@ class _SidebarScreenState extends State<SidebarScreen>
                         },
                       ),
                       _buildMenuItem(
-                        icon: Icons.work,
+                        icon: AppIcons.business,
                         title: 'Projects',
                         subtitle: 'View DHA projects',
                         onTap: () {
@@ -169,7 +170,7 @@ class _SidebarScreenState extends State<SidebarScreen>
                         },
                       ),
                       _buildMenuItem(
-                        icon: Icons.search,
+                        icon: AppIcons.search,
                         title: 'Search',
                         subtitle: 'Find properties',
                         onTap: () {
@@ -178,7 +179,7 @@ class _SidebarScreenState extends State<SidebarScreen>
                         },
                       ),
                       _buildMenuItem(
-                        icon: Icons.favorite,
+                        icon: AppIcons.favorite,
                         title: 'Favorites',
                         subtitle: 'Your saved properties',
                         onTap: () {
@@ -187,7 +188,7 @@ class _SidebarScreenState extends State<SidebarScreen>
                         },
                       ),
                       _buildMenuItem(
-                        icon: Icons.history,
+                        icon: AppIcons.history,
                         title: 'Recently Viewed',
                         subtitle: 'Your browsing history',
                         onTap: () {
@@ -196,7 +197,7 @@ class _SidebarScreenState extends State<SidebarScreen>
                         },
                       ),
                       _buildMenuItem(
-                        icon: Icons.notifications,
+                        icon: AppIcons.notifications,
                         title: 'Notifications',
                         subtitle: 'Alerts and updates',
                         onTap: () {
@@ -205,7 +206,7 @@ class _SidebarScreenState extends State<SidebarScreen>
                         },
                       ),
                       _buildMenuItem(
-                        icon: Icons.help,
+                        icon: AppIcons.help,
                         title: 'Help & Support',
                         subtitle: 'FAQ and contact',
                         onTap: () {
@@ -217,7 +218,7 @@ class _SidebarScreenState extends State<SidebarScreen>
                         },
                       ),
                       _buildMenuItem(
-                        icon: Icons.settings,
+                        icon: AppIcons.settings,
                         title: 'Settings',
                         subtitle: 'App preferences',
                         onTap: () {
@@ -226,7 +227,7 @@ class _SidebarScreenState extends State<SidebarScreen>
                         },
                       ),
                       _buildMenuItem(
-                        icon: Icons.person,
+                        icon: AppIcons.person,
                         title: 'Profile',
                         subtitle: 'Account information',
                         onTap: () {
@@ -252,7 +253,7 @@ class _SidebarScreenState extends State<SidebarScreen>
                       Row(
                         children: [
                           Icon(
-                            Icons.info_outline,
+                            AppIcons.infoOutline,
                             color: Colors.grey[600],
                             size: 20,
                           ),
@@ -355,7 +356,7 @@ class _SidebarScreenState extends State<SidebarScreen>
           ),
         ),
         trailing: Icon(
-          Icons.arrow_forward_ios,
+          AppIcons.arrowForwardIos,
           color: Colors.grey[400],
           size: 16,
         ),
@@ -534,8 +535,8 @@ class _SidebarScreenState extends State<SidebarScreen>
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    const Icon(
-                                      Icons.logout_rounded,
+                                    Icon(
+                                      AppIcons.logout,
                                       color: Colors.white,
                                       size: 18,
                                     ),
