@@ -435,21 +435,37 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
       
       if (result['success']) {
         final data = result['data'];
-        final newStatus = data['status']?.toString().toLowerCase() ?? 'pending';
-        property.approvalStatus = newStatus;
-        property.approvalNotes = data['notes']?.toString();
-      } else {
-        // If status fetch fails and no status was set from API, default to pending
-        if (property.approvalStatus == null) {
+        
+        // Update property_approvals and property_rejection_logs if available
+        if (data['property_approvals'] is List) {
+          property.propertyApprovals = List<Map<String, dynamic>>.from(
+            (data['property_approvals'] as List).map((e) => e is Map ? Map<String, dynamic>.from(e) : {})
+          );
+        }
+        
+        if (data['property_rejection_logs'] is List) {
+          property.propertyRejectionLogs = List<Map<String, dynamic>>.from(
+            (data['property_rejection_logs'] as List).map((e) => e is Map ? Map<String, dynamic>.from(e) : {})
+          );
+        }
+        
+        // Recalculate status from property_approvals and rejection_logs
+        // The status is already calculated in fromJson, but we update it here if we get new data
+        // Use the getters to determine the correct status
+        if (property.isRejected) {
+          property.approvalStatus = 'rejected';
+        } else if (property.isApproved) {
+          property.approvalStatus = 'approved';
+        } else {
           property.approvalStatus = 'pending';
         }
+        property.approvalNotes = data['notes']?.toString();
+      } else {
+        // If status fetch fails, keep existing status
         property.approvalNotes = 'Could not fetch status';
       }
     } catch (e) {
-      // If status fetch fails and no status was set from API, default to pending
-      if (property.approvalStatus == null) {
-        property.approvalStatus = 'pending';
-      }
+      // If status fetch fails, keep existing status
       property.approvalNotes = 'Error fetching status';
     } finally {
       property.isApprovalLoading = false;
@@ -470,19 +486,17 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         _filteredProperties = List.from(_properties);
       } else {
         _filteredProperties = _properties.where((property) {
-          // Ensure we check the approval status correctly
-          final status = property.approvalStatus?.toLowerCase();
-          
+          // Use the getters that calculate status from property_approvals and rejection_logs
           switch (filter) {
             case 'Pending':
-              // Show properties that are pending (null, 'pending', or not explicitly approved/rejected)
-              return status == null || status == 'pending' || status.isEmpty;
+              // Show properties that are pending based on property_approvals array
+              return property.isPending;
             case 'Approved':
-              // Show properties that are approved (same ones that appear in search screen)
-              return status == 'approved';
+              // Show properties that are approved (all approvals have status "Approved")
+              return property.isApproved;
             case 'Rejected':
-              // Show properties that are rejected
-              return status == 'rejected';
+              // Show properties that are rejected (has rejection_logs or any approval is rejected)
+              return property.isRejected;
             default:
               return true;
           }
@@ -958,7 +972,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title and Status with Edit Button
+                  // Title and Status Badge
                   Row(
                     children: [
                       Expanded(
@@ -975,7 +989,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                         ),
                       ),
                       SizedBox(width: 8.w),
-                      _buildStatusChip(property),
+                      _buildStatusBadge(property),
                     ],
                   ),
                   
@@ -1404,7 +1418,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     );
   }
 
-  Widget _buildStatusChip(CustomerProperty property) {
+  Widget _buildStatusBadge(CustomerProperty property) {
     if (property.isApprovalLoading == true) {
       return Container(
         padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
@@ -1438,22 +1452,37 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
       );
     }
 
+    // Determine status and color based on property_approvals and rejection_logs
+    Color badgeColor;
+    String badgeText;
+    
+    if (property.isRejected) {
+      badgeColor = Colors.red;
+      badgeText = 'Rejected';
+    } else if (property.isApproved) {
+      badgeColor = Colors.orange; // Orange for approved as requested
+      badgeText = 'Approved';
+    } else {
+      badgeColor = Colors.amber; // Amber/yellow for pending to distinguish from approved
+      badgeText = 'Pending';
+    }
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
       decoration: BoxDecoration(
-        color: property.statusColor.withValues(alpha: 0.1),
+        color: badgeColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: property.statusColor.withValues(alpha: 0.3),
+          color: badgeColor.withValues(alpha: 0.3),
         ),
       ),
       child: Text(
-        property.statusText,
+        badgeText,
         style: TextStyle(
           fontFamily: 'Inter',
           fontSize: 10.sp,
           fontWeight: FontWeight.w600,
-          color: property.statusColor,
+          color: badgeColor,
         ),
       ),
     );

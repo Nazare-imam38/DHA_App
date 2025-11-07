@@ -35,6 +35,10 @@ class CustomerProperty {
   String? approvalNotes;
   bool? isApprovalLoading;
   
+  // Property approvals and rejection logs
+  List<Map<String, dynamic>>? propertyApprovals;
+  List<Map<String, dynamic>>? propertyRejectionLogs;
+  
   // User/Owner contact information
   String? userName;
   String? userPhone;
@@ -70,6 +74,8 @@ class CustomerProperty {
     this.approvalStatus,
     this.approvalNotes,
     this.isApprovalLoading = false,
+    this.propertyApprovals,
+    this.propertyRejectionLogs,
     this.userName,
     this.userPhone,
   }) : images = images ?? [],
@@ -174,12 +180,85 @@ class CustomerProperty {
       updatedAt: json['updated_at']?.toString(),
       userName: userName,
       userPhone: userPhone,
-      // Parse approval status from API response if available
-      approvalStatus: json['approval_status']?.toString().toLowerCase() ?? 
-                     json['status']?.toString().toLowerCase() ?? 
-                     (json['is_approved'] == true ? 'approved' : 
-                      json['is_approved'] == false ? 'pending' : null),
+      // Parse property approvals and rejection logs
+      propertyApprovals: json['property_approvals'] is List 
+          ? List<Map<String, dynamic>>.from(
+              (json['property_approvals'] as List).map((e) => e is Map ? Map<String, dynamic>.from(e) : {})
+            )
+          : null,
+      propertyRejectionLogs: json['property_rejection_logs'] is List
+          ? List<Map<String, dynamic>>.from(
+              (json['property_rejection_logs'] as List).map((e) => e is Map ? Map<String, dynamic>.from(e) : {})
+            )
+          : null,
+      // Parse approval status from API response - determine from property_approvals and rejection_logs
+      approvalStatus: _determineApprovalStatus(
+        json['property_approvals'],
+        json['property_rejection_logs'],
+        json['approval_status'],
+        json['status'],
+        json['is_approved'],
+      ),
     );
+  }
+
+  /// Determine approval status based on property_approvals and property_rejection_logs
+  static String? _determineApprovalStatus(
+    dynamic propertyApprovals,
+    dynamic propertyRejectionLogs,
+    dynamic approvalStatus,
+    dynamic status,
+    dynamic isApproved,
+  ) {
+    // First check if there are rejection logs - if so, property is rejected
+    if (propertyRejectionLogs is List && propertyRejectionLogs.isNotEmpty) {
+      return 'rejected';
+    }
+    
+    // Check property_approvals array
+    if (propertyApprovals is List && propertyApprovals.isNotEmpty) {
+      // Check if all approvals have status "Approved"
+      bool allApproved = true;
+      bool hasRejected = false;
+      
+      for (var approval in propertyApprovals) {
+        if (approval is Map) {
+          final approvalStatus = approval['status']?.toString().toLowerCase();
+          if (approvalStatus == 'rejected') {
+            hasRejected = true;
+            allApproved = false;
+            break; // If any is rejected, property is rejected
+          } else if (approvalStatus != 'approved') {
+            allApproved = false;
+          }
+        }
+      }
+      
+      if (hasRejected) {
+        return 'rejected';
+      } else if (allApproved) {
+        return 'approved';
+      } else {
+        return 'pending';
+      }
+    }
+    
+    // Fallback to other status fields if property_approvals is not available
+    if (approvalStatus != null) {
+      return approvalStatus.toString().toLowerCase();
+    }
+    if (status != null) {
+      return status.toString().toLowerCase();
+    }
+    if (isApproved == true) {
+      return 'approved';
+    }
+    if (isApproved == false) {
+      return 'pending';
+    }
+    
+    // Default to pending if no status information is available
+    return 'pending';
   }
 
   static double? _toDouble(dynamic v) {
@@ -411,13 +490,74 @@ class CustomerProperty {
   String get fullLocation => [location, phase, sector].where((e) => e != null && e.isNotEmpty).join(', ');
   String get propertyDetails => [area, areaUnit].where((e) => e != null && e.isNotEmpty).join(' ');
   
-  // Status helpers
-  bool get isPending => approvalStatus == null || approvalStatus == 'pending';
-  bool get isApproved => approvalStatus == 'approved';
-  bool get isRejected => approvalStatus == 'rejected';
+  // Status helpers - recalculate based on property_approvals and rejection_logs
+  bool get isPending {
+    // Recalculate status if we have property_approvals data
+    if (propertyApprovals != null || propertyRejectionLogs != null) {
+      final calculatedStatus = _calculateStatusFromApprovals();
+      return calculatedStatus == null || calculatedStatus == 'pending';
+    }
+    return approvalStatus == null || approvalStatus == 'pending';
+  }
+  
+  bool get isApproved {
+    // Recalculate status if we have property_approvals data
+    if (propertyApprovals != null || propertyRejectionLogs != null) {
+      final calculatedStatus = _calculateStatusFromApprovals();
+      return calculatedStatus == 'approved';
+    }
+    return approvalStatus == 'approved';
+  }
+  
+  bool get isRejected {
+    // Recalculate status if we have property_approvals data
+    if (propertyApprovals != null || propertyRejectionLogs != null) {
+      final calculatedStatus = _calculateStatusFromApprovals();
+      return calculatedStatus == 'rejected';
+    }
+    return approvalStatus == 'rejected';
+  }
+  
+  /// Calculate status from property_approvals and property_rejection_logs
+  String? _calculateStatusFromApprovals() {
+    // First check rejection logs
+    if (propertyRejectionLogs != null && propertyRejectionLogs!.isNotEmpty) {
+      return 'rejected';
+    }
+    
+    // Check property_approvals
+    if (propertyApprovals != null && propertyApprovals!.isNotEmpty) {
+      bool allApproved = true;
+      bool hasRejected = false;
+      
+      for (var approval in propertyApprovals!) {
+        final status = approval['status']?.toString().toLowerCase();
+        if (status == 'rejected') {
+          hasRejected = true;
+          allApproved = false;
+          break;
+        } else if (status != 'approved') {
+          allApproved = false;
+        }
+      }
+      
+      if (hasRejected) {
+        return 'rejected';
+      } else if (allApproved) {
+        return 'approved';
+      } else {
+        return 'pending';
+      }
+    }
+    
+    // Fallback to stored approvalStatus
+    return approvalStatus;
+  }
   
   Color get statusColor {
-    switch (approvalStatus?.toLowerCase()) {
+    // Use calculated status from approvals
+    final status = _calculateStatusFromApprovals() ?? approvalStatus;
+    switch (status?.toLowerCase()) {
       case 'approved':
         return Colors.green;
       case 'rejected':
@@ -428,7 +568,9 @@ class CustomerProperty {
   }
   
   String get statusText {
-    switch (approvalStatus?.toLowerCase()) {
+    // Use calculated status from approvals
+    final status = _calculateStatusFromApprovals() ?? approvalStatus;
+    switch (status?.toLowerCase()) {
       case 'approved':
         return 'Approved';
       case 'rejected':

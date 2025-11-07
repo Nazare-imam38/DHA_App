@@ -1056,8 +1056,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       SizedBox(height: 16.h),
                       Text(
-                        'Logout',
-                        style: TextStyle(
+          'Logout',
+          style: TextStyle(
                           fontFamily: 'Inter',
                           fontSize: 24.sp,
                           fontWeight: FontWeight.w800,
@@ -1066,8 +1066,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                     ],
-                  ),
-                ),
+          ),
+        ),
                 
                 // Content
                 Padding(
@@ -1075,16 +1075,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     children: [
                       Text(
-                        'Are you sure you want to logout?',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
+          'Are you sure you want to logout?',
+          style: TextStyle(
+            fontFamily: 'Inter',
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w500,
                           color: const Color(0xFF616161),
                           height: 1.5,
                         ),
                         textAlign: TextAlign.center,
-                      ),
+          ),
                       
                       SizedBox(height: 32.h),
                       
@@ -1104,22 +1104,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                               child: TextButton(
-                                onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context),
                                 style: TextButton.styleFrom(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: Text(
-                                  'Cancel',
-                                  style: TextStyle(
+            child: Text(
+              'Cancel',
+              style: TextStyle(
                                     fontFamily: 'Inter',
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.w600,
                                     color: const Color(0xFF757575),
-                                  ),
-                                ),
-                              ),
+              ),
+            ),
+          ),
                             ),
                           ),
                           
@@ -1141,17 +1141,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ],
                               ),
                               child: TextButton(
-                                onPressed: () async {
-                                  Navigator.pop(context);
-                                  final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                                  await authProvider.logout();
-                                  if (mounted) {
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => LoginScreen()),
-                                    );
-                                  }
-                                },
+            onPressed: () async {
+              Navigator.pop(context);
+              final authProvider = Provider.of<AuthProvider>(context, listen: false);
+              await authProvider.logout();
+              if (mounted) {
+              Navigator.pushReplacement(
+                context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+              );
+              }
+            },
                                 style: TextButton.styleFrom(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
@@ -1161,8 +1161,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      'Logout',
-                                      style: TextStyle(
+              'Logout',
+              style: TextStyle(
                                         fontFamily: 'Inter',
                                         fontSize: 16.sp,
                                         fontWeight: FontWeight.w700,
@@ -1177,11 +1177,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   ],
                                 ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+              ),
+            ),
+          ),
+        ],
+      ),
                     ],
                   ),
                 ),

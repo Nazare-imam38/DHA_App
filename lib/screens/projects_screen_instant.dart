@@ -994,17 +994,6 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                     print('🚫 Town plan tile error: $error');
                     print('🚫 Failed tile coordinates: ${tile.coordinates}');
                   },
-                  tileBuilder: (context, tileWidget, tile) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.blue.withOpacity(0.3),
-                          width: 0.5,
-                        ),
-                      ),
-                      child: tileWidget,
-                    );
-                  },
                 ),
             // DEBUG: Test polygon to verify rendering works
             if (_showBoundaries)

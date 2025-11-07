@@ -324,7 +324,7 @@ class _ModernForgotPasswordDialogState extends State<ModernForgotPasswordDialog>
             ),
           ],
         ),
-      ),
+        ),
       ),
     );
   }

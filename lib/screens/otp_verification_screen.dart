@@ -287,8 +287,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                       ),
                       SizedBox(height: 16.h),
                       Text(
-                        'Continue as Guest',
-                        style: TextStyle(
+          'Continue as Guest',
+          style: TextStyle(
                           fontFamily: 'Inter',
                           fontSize: 24.sp,
                           fontWeight: FontWeight.w800,
@@ -297,8 +297,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                         ),
                       ),
                     ],
-                  ),
-                ),
+          ),
+        ),
                 
                 // Content
                 Padding(
@@ -306,16 +306,16 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                   child: Column(
                     children: [
                       Text(
-                        'You can browse properties without creating an account. You can always sign up later to save your preferences.',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
+          'You can browse properties without creating an account. You can always sign up later to save your preferences.',
+          style: TextStyle(
+            fontFamily: 'Inter',
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w500,
                           color: const Color(0xFF616161),
                           height: 1.5,
                         ),
                         textAlign: TextAlign.center,
-                      ),
+          ),
                       
                       SizedBox(height: 32.h),
                       
@@ -335,24 +335,24 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                                 ),
                               ),
                               child: TextButton(
-                                onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context),
                                 style: TextButton.styleFrom(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: Text(
-                                  'Cancel',
-                                  style: TextStyle(
+            child: Text(
+              'Cancel',
+              style: TextStyle(
                                     fontFamily: 'Inter',
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.w600,
                                     color: const Color(0xFF757575),
                                   ),
                                 ),
-                              ),
-                            ),
-                          ),
+              ),
+            ),
+          ),
                           
                           SizedBox(width: 12.w),
                           
@@ -372,33 +372,33 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                                 ],
                               ),
                               child: TextButton(
-                                onPressed: () async {
-                                  Navigator.pop(context); // Close dialog
-                                  
-                                  // Clear authentication state for guest mode
-                                  final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                                  await authProvider.clearAuthForGuest();
-                                  
-                                  // Navigate to main app as guest
-                                  if (mounted) {
-                                    Navigator.pushReplacement(
-                                      context,
-                                      PageRouteBuilder(
-                                        pageBuilder: (context, animation, secondaryAnimation) => MainWrapper(),
-                                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                          return SlideTransition(
-                                            position: Tween<Offset>(
-                                              begin: const Offset(1.0, 0.0),
-                                              end: Offset.zero,
-                                            ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
-                                            child: child,
-                                          );
-                                        },
-                                        transitionDuration: const Duration(milliseconds: 600),
-                                      ),
-                                    );
-                                  }
-                                },
+            onPressed: () async {
+              Navigator.pop(context); // Close dialog
+              
+              // Clear authentication state for guest mode
+              final authProvider = Provider.of<AuthProvider>(context, listen: false);
+              await authProvider.clearAuthForGuest();
+              
+              // Navigate to main app as guest
+              if (mounted) {
+                Navigator.pushReplacement(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) => MainWrapper(),
+                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                      return SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(1.0, 0.0),
+                          end: Offset.zero,
+                        ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+                        child: child,
+                      );
+                    },
+                    transitionDuration: const Duration(milliseconds: 600),
+                  ),
+                );
+              }
+            },
                                 style: TextButton.styleFrom(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
@@ -408,8 +408,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      'Continue',
-                                      style: TextStyle(
+              'Continue',
+              style: TextStyle(
                                         fontFamily: 'Inter',
                                         fontSize: 16.sp,
                                         fontWeight: FontWeight.w700,
@@ -424,11 +424,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                                     ),
                                   ],
                                 ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+              ),
+            ),
+          ),
+        ],
+      ),
                     ],
                   ),
                 ),
