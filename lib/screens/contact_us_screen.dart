@@ -102,18 +102,18 @@ class _ContactUsScreenState extends State<ContactUsScreen>
             expandedHeight: 200.0,
             floating: false,
             pinned: true,
-        backgroundColor: const Color(0xFF1E3C90),
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
               icon: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   AppIcons.arrowBackIos,
-                  color: Colors.white,
+                  color: Colors.black87,
                   size: 18,
                 ),
               ),

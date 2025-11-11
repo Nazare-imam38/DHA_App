@@ -57,15 +57,14 @@ class KuickPayService {
   }
 
   /// Get payment summary with token amount and fees
-  Future<PaymentSummary> getPaymentSummary(double plotPrice, String selectedPlan) async {
+  Future<PaymentSummary> getPaymentSummary(double plotPrice, String selectedPlan, double tokenAmount) async {
     try {
-      print('KuickPayService: Getting payment summary for plot price: $plotPrice, plan: $selectedPlan');
+      print('KuickPayService: Getting payment summary for plot price: $plotPrice, plan: $selectedPlan, token amount: $tokenAmount');
       
-      // Fixed token amount as per requirement: 250,000 PKR
-      const double tokenAmount = 250000.0;
-      print('KuickPayService: Using fixed token amount: $tokenAmount');
+      // Use token amount from backend
+      print('KuickPayService: Using token amount from backend: $tokenAmount');
 
-      // Get KuickPay fee for the fixed token amount
+      // Get KuickPay fee for the token amount
       final feeResponse = await calculateFee(tokenAmount);
       
       return PaymentSummary(

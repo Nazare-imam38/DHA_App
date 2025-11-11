@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../models/property_form_data.dart';
@@ -198,38 +199,43 @@ class _TypePricingStepState extends State<TypePricingStep> {
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
+        title: Stack(
+          alignment: Alignment.center,
           children: [
-            Container(
-              padding: EdgeInsets.all(8.w),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8.w),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1B5993),
+                    borderRadius: BorderRadius.circular(8.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Icon(
-                AppIcons.homeWorkRounded,
-                color: const Color(0xFF1B5993),
-                size: 20.sp,
-              ),
-            ),
-            SizedBox(width: 12.w),
-            Text(
-              'PROPERTY TYPE',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF1B5993),
-                letterSpacing: 0.5,
-              ),
+                  child: Icon(
+                    AppIcons.homeWorkRounded,
+                    color: Colors.white,
+                    size: 20.sp,
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Text(
+                  'PROPERTY TYPE',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF1B5993),
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -365,6 +371,10 @@ class _TypePricingStepState extends State<TypePricingStep> {
         padding: EdgeInsets.all(24.0.w),
         decoration: BoxDecoration(
           color: Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
@@ -559,43 +569,38 @@ class _TypePricingStepState extends State<TypePricingStep> {
           
           // Property Subtype Dropdown (Show only if subtypes are available)
           if (_propertySubtypes.isNotEmpty || _isLoadingSubtypes)
-            Column(
-              children: [
-                const SizedBox(height: 16),
-                _buildDropdownField(
-                  label: 'Property Subtype',
-                  value: _selectedPropertySubtypeName,
-                  items: _propertySubtypes.map((subtype) => subtype['name'] as String).toList(),
-                  isLoading: _isLoadingSubtypes,
-                  placeholder: _selectedPropertyTypeId == null 
-                    ? 'Select property type first' 
-                    : _isLoadingSubtypes 
-                      ? 'Loading subtypes...'
-                      : _propertySubtypes.isEmpty 
-                        ? 'No subtypes available'
-                        : 'Select subtype',
-                  onChanged: (value) {
-                    if (value != null) {
-                      final selectedSubtype = _propertySubtypes.firstWhere((subtype) => subtype['name'] == value);
-                      setState(() {
-                        _selectedPropertySubtypeId = selectedSubtype['id'] as int;
-                        _selectedPropertySubtypeName = selectedSubtype['name'] as String;
-                      });
-                      
-                      formData.updatePropertyTypeAndListing(
-                        category: formData.category,
-                        propertyTypeId: formData.propertyTypeId,
-                        propertyTypeName: formData.propertyTypeName,
-                        propertySubtypeId: _selectedPropertySubtypeId,
-                        propertySubtypeName: _selectedPropertySubtypeName,
-                        title: formData.title,
-                        description: formData.description,
-                        listingDuration: formData.listingDuration,
-                      );
-                    }
-                  },
-                ),
-              ],
+            _buildDropdownField(
+              label: 'Property Subtype',
+              value: _selectedPropertySubtypeName,
+              items: _propertySubtypes.map((subtype) => subtype['name'] as String).toList(),
+              isLoading: _isLoadingSubtypes,
+              placeholder: _selectedPropertyTypeId == null 
+                ? 'Select property type first' 
+                : _isLoadingSubtypes 
+                  ? 'Loading subtypes...'
+                  : _propertySubtypes.isEmpty 
+                    ? 'No subtypes available'
+                    : 'Select subtype',
+              onChanged: (value) {
+                if (value != null) {
+                  final selectedSubtype = _propertySubtypes.firstWhere((subtype) => subtype['name'] == value);
+                  setState(() {
+                    _selectedPropertySubtypeId = selectedSubtype['id'] as int;
+                    _selectedPropertySubtypeName = selectedSubtype['name'] as String;
+                  });
+                  
+                  formData.updatePropertyTypeAndListing(
+                    category: formData.category,
+                    propertyTypeId: formData.propertyTypeId,
+                    propertyTypeName: formData.propertyTypeName,
+                    propertySubtypeId: _selectedPropertySubtypeId,
+                    propertySubtypeName: _selectedPropertySubtypeName,
+                    title: formData.title,
+                    description: formData.description,
+                    listingDuration: formData.listingDuration,
+                  );
+                }
+              },
             ),
         ],
       ),
@@ -703,7 +708,7 @@ class _TypePricingStepState extends State<TypePricingStep> {
           const SizedBox(height: 16),
           
           // Dynamic Pricing based on Purpose Selection (Step 2)
-          _buildTextField(
+          _buildPriceField(
             controller: TextEditingController(
               text: formData.isRent 
                 ? (formData.rentPrice?.toString() ?? '')
@@ -731,7 +736,9 @@ class _TypePricingStepState extends State<TypePricingStep> {
               }
             },
           ),
-
+          
+          const SizedBox(height: 16),
+          
           // Description Field
           _buildTextField(
             controller: _descriptionController,
@@ -874,6 +881,68 @@ class _TypePricingStepState extends State<TypePricingStep> {
           child: TextFormField(
             controller: controller,
             maxLines: maxLines,
+            onChanged: onChanged,
+            style: const TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.black,
+            ),
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 16,
+                color: Colors.grey,
+                fontWeight: FontWeight.w400,
+              ),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+  
+  Widget _buildPriceField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required void Function(String) onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1B5993),
+            letterSpacing: 0.2,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.grey.withValues(alpha: 0.3),
+              width: 1,
+            ),
+          ),
+          child: TextFormField(
+            controller: controller,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*\.?[0-9]*')),
+            ],
             onChanged: onChanged,
             style: const TextStyle(
               fontFamily: 'Inter',

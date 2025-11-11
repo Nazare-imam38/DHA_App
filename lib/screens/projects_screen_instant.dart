@@ -77,7 +77,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   
   String _selectedFilter = 'All';
   String _selectedPhase = 'All Phases';
-  String _selectedView = 'Satellite'; // Satellite, Street, Hybrid
+  String _selectedView = 'Satellite'; // Satellite, Street
   bool _showFilters = false;
   bool _showProjectDetails = false;
   bool _isDataLoading = false; // Changed from _isLoading to be more specific
@@ -121,7 +121,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   bool _isPlotSizeExpanded = true; // Plot Size is expanded by default
   
   final List<String> _filters = ['All', 'Available', 'Reserved', 'Unsold', 'Sold'];
-  final List<String> _viewTypes = ['Satellite', 'Street', 'Hybrid'];
+  final List<String> _viewTypes = ['Satellite', 'Street'];
   
   // Filter options
   final List<String> _events = ['Event 1', 'Event 2', 'Event 3'];
@@ -179,6 +179,10 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   @override
   void initState() {
     super.initState();
+    // Ensure _selectedView is always a valid option (remove Hybrid if present)
+    if (!_viewTypes.contains(_selectedView)) {
+      _selectedView = 'Satellite';
+    }
     _initializeAnimations();
     _initializeLocation();
     _updateActiveFilters();
@@ -1181,7 +1185,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 // Boundaries Button
                 RectangularToggleButton(
                   text: 'Boundaries',
-                  icon: Icons.layers,
+                  icon: Icons.border_all,
                   isSelected: _showBoundaries,
                   onPressed: () {
                     setState(() {
@@ -1490,8 +1494,6 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
       case 'Street':
         return 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-      case 'Hybrid':
-        return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
       default:
         return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
     }
@@ -2035,8 +2037,6 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         return 'Satellite';
       case 'Street':
         return 'Street';
-      case 'Hybrid':
-        return 'Hybrid';
       default:
         return 'Satellite';
     }
@@ -2064,20 +2064,73 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               child: Column(
-                children: _viewTypes.map((viewType) => ListTile(
-                  title: Text(viewType),
-                  trailing: _selectedView == viewType ? const Icon(Icons.check) : null,
-                  onTap: () {
-                    setState(() {
-                      _selectedView = viewType;
-                    });
-                    Navigator.pop(context);
-                  },
-                )).toList(),
+                children: _viewTypes.map((viewType) {
+                  final isSelected = _selectedView == viewType;
+                  final icon = viewType == 'Satellite' 
+                      ? Icons.satellite_alt 
+                      : Icons.map;
+                  
+                  return InkWell(
+                    onTap: () {
+                      setState(() {
+                        _selectedView = viewType;
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      margin: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected 
+                            ? const Color(0xFF1B5993).withOpacity(0.1)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected 
+                              ? const Color(0xFF1B5993)
+                              : Colors.grey.withOpacity(0.2),
+                          width: isSelected ? 2 : 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            icon,
+                            color: isSelected 
+                                ? const Color(0xFF1B5993)
+                                : Colors.grey[600],
+                            size: 24,
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Text(
+                              viewType,
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 16,
+                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                color: isSelected 
+                                    ? const Color(0xFF1B5993)
+                                    : Colors.black87,
+                              ),
+                            ),
+                          ),
+                          if (isSelected)
+                            const Icon(
+                              Icons.check_circle,
+                              color: Color(0xFF1B5993),
+                              size: 24,
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
             ),
+            const SizedBox(height: 8),
           ],
         ),
       ),
@@ -3487,57 +3540,64 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 child: Column(
                   children: [
                     // Plot count badge and title
-                    Row(
+                    Stack(
+                      alignment: Alignment.center,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1B5993),
-                            borderRadius: BorderRadius.circular(20),
+                        // Centered title
+                        const Text(
+                          'Filtered Results',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
                           ),
-                          child: Text(
-                            '${_plots.length} plots',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Text(
-                            'Filtered Results',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ),
-                        // Close button for bottom sheet
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _isBottomSheetVisible = false;
-                              _isBottomSheetExpanded = false;
-                              // Also clear plot selection when closing bottom sheet
-                              _selectedPlot = null;
-                              _selectedPlotDetails = null;
-                              _showSelectedPlotDetails = false;
-                              _isLoadingPlotDetails = false;
-                            });
-                          },
+                        // Left badge
+                        Positioned(
+                          left: 0,
                           child: Container(
-                            padding: const EdgeInsets.all(8),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.grey[200],
+                              color: const Color(0xFF1B5993),
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: const Icon(
-                              Icons.close,
-                              color: Colors.grey,
-                              size: 18,
+                            child: Text(
+                              '${_plots.length} plots',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                        // Right close button
+                        Positioned(
+                          right: 0,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _isBottomSheetVisible = false;
+                                _isBottomSheetExpanded = false;
+                                // Also clear plot selection when closing bottom sheet
+                                _selectedPlot = null;
+                                _selectedPlotDetails = null;
+                                _showSelectedPlotDetails = false;
+                                _isLoadingPlotDetails = false;
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                color: Colors.grey,
+                                size: 18,
+                              ),
                             ),
                           ),
                         ),
@@ -4282,7 +4342,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        Icons.layers,
+                        Icons.border_all,
                         color: _showBoundaries ? const Color(0xFF1B5993) : Colors.grey,
                         size: 18,
                       ),

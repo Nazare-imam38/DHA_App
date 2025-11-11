@@ -175,7 +175,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
           SliverAppBar(
             expandedHeight: 300.h,
             pinned: true,
-            backgroundColor: const Color(0xFF1B5993),
+            backgroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,

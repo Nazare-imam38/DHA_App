@@ -414,10 +414,17 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         // Apply current filter (defaults to Pending)
         _applyFilter(_selectedFilter);
       } else {
+        final errorMessage = result['message'] ?? 'Failed to load properties';
         setState(() {
-          _error = result['message'] ?? 'Failed to load properties';
+          _error = errorMessage;
           _isLoading = false;
         });
+        
+        // Show dialog for authentication errors
+        if (errorMessage.contains('Authentication token missing') || 
+            errorMessage.contains('Please login again')) {
+          _showAuthenticationErrorDialog(errorMessage);
+        }
       }
     } catch (e) {
       setState(() {
@@ -425,6 +432,94 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  void _showAuthenticationErrorDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+            ),
+            padding: EdgeInsets.all(24.sp),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // DHA Marketplace Logo with red border
+                Container(
+                  width: 80.sp,
+                  height: 80.sp,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.red,
+                      width: 3,
+                    ),
+                  ),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/images/dhalogo.png',
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(
+                          Icons.error,
+                          size: 64.sp,
+                          color: Colors.red,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                SizedBox(height: 24.h),
+                // Error message
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 16.sp,
+                    color: Colors.grey[700],
+                  ),
+                ),
+                SizedBox(height: 24.h),
+                // Retry button
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _loadProperties();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF20B2AA),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 32.w,
+                      vertical: 12.h,
+                    ),
+                  ),
+                  child: Text(
+                    'Retry',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _loadApprovalStatus(CustomerProperty property) async {
@@ -661,15 +756,45 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     }
 
     if (_error != null) {
+      // Check if it's an authentication error - show DHA logo instead of error icon
+      final isAuthError = _error!.contains('Authentication token missing') || 
+                          _error!.contains('Please login again');
+      
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              AppIcons.errorOutline,
-              size: 64.sp,
-              color: Colors.red,
-            ),
+            if (isAuthError)
+              Container(
+                width: 80.sp,
+                height: 80.sp,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.red,
+                    width: 3,
+                  ),
+                ),
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/images/dhalogo.png',
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(
+                        AppIcons.errorOutline,
+                        size: 64.sp,
+                        color: Colors.red,
+                      );
+                    },
+                  ),
+                ),
+              )
+            else
+              Icon(
+                AppIcons.errorOutline,
+                size: 64.sp,
+                color: Colors.red,
+              ),
             SizedBox(height: 16.h),
             Text(
               'Error',
@@ -697,7 +822,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
             ElevatedButton(
               onPressed: _loadProperties,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryBlue,
+                backgroundColor: const Color(0xFF20B2AA),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.r),
                 ),

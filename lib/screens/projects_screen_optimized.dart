@@ -44,7 +44,7 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
   
   String _selectedFilter = 'All';
   String _selectedPhase = 'All Phases';
-  String _selectedView = 'Satellite'; // Satellite, Street, Hybrid
+  String _selectedView = 'Satellite'; // Satellite, Street
   bool _showFilters = false;
   bool _showProjectDetails = false;
   bool _isLoading = true;
@@ -76,7 +76,7 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
   bool _isPlotSizeExpanded = true; // Plot Size is expanded by default
   
   final List<String> _filters = ['All', 'Available', 'Reserved', 'Unsold', 'Sold'];
-  final List<String> _viewTypes = ['Satellite', 'Street', 'Hybrid'];
+  final List<String> _viewTypes = ['Satellite', 'Street'];
   
   // Filter options
   final List<String> _events = ['Event 1', 'Event 2', 'Event 3'];
@@ -489,7 +489,7 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
                 // Boundaries Button
                 RectangularToggleButton(
                   text: 'Boundaries',
-                  icon: Icons.layers,
+                  icon: Icons.border_all,
                   isSelected: _showBoundaries,
                   onPressed: () {
                     setState(() {
@@ -649,8 +649,6 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
         return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
       case 'Street':
         return 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-      case 'Hybrid':
-        return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
       default:
         return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
     }
@@ -747,8 +745,6 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
         return 'Satellite';
       case 'Street':
         return 'Street';
-      case 'Hybrid':
-        return 'Hybrid';
       default:
         return 'Satellite';
     }
@@ -776,20 +772,73 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               child: Column(
-                children: _viewTypes.map((viewType) => ListTile(
-                  title: Text(viewType),
-                  trailing: _selectedView == viewType ? const Icon(Icons.check) : null,
-                  onTap: () {
-                    setState(() {
-                      _selectedView = viewType;
-                    });
-                    Navigator.pop(context);
-                  },
-                )).toList(),
+                children: _viewTypes.map((viewType) {
+                  final isSelected = _selectedView == viewType;
+                  final icon = viewType == 'Satellite' 
+                      ? Icons.satellite_alt 
+                      : Icons.map;
+                  
+                  return InkWell(
+                    onTap: () {
+                      setState(() {
+                        _selectedView = viewType;
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      margin: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected 
+                            ? const Color(0xFF1B5993).withOpacity(0.1)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected 
+                              ? const Color(0xFF1B5993)
+                              : Colors.grey.withOpacity(0.2),
+                          width: isSelected ? 2 : 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            icon,
+                            color: isSelected 
+                                ? const Color(0xFF1B5993)
+                                : Colors.grey[600],
+                            size: 24,
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Text(
+                              viewType,
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 16,
+                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                color: isSelected 
+                                    ? const Color(0xFF1B5993)
+                                    : Colors.black87,
+                              ),
+                            ),
+                          ),
+                          if (isSelected)
+                            const Icon(
+                              Icons.check_circle,
+                              color: Color(0xFF1B5993),
+                              size: 24,
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
             ),
+            const SizedBox(height: 8),
           ],
         ),
       ),

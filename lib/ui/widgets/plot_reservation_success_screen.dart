@@ -443,9 +443,19 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
       ),
       child: Column(
         children: [
-          _buildEnhancedAmountRow('Token Amount:', 'PKR 250,000', false, Icons.apartment),
+          _buildEnhancedAmountRow(
+            'Token Amount:', 
+            widget.reservationData.formattedTokenAmount, 
+            false, 
+            Icons.apartment
+          ),
           const SizedBox(height: 16),
-          _buildEnhancedAmountRow('KuickPay Fee:', 'PKR 135', false, Icons.payment),
+          _buildEnhancedAmountRow(
+            'KuickPay Fee:', 
+            widget.reservationData.formattedKuickPayFee, 
+            false, 
+            Icons.payment
+          ),
           const SizedBox(height: 20),
           Container(
             height: 1,
@@ -456,7 +466,12 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
             ),
           ),
           const SizedBox(height: 20),
-          _buildEnhancedAmountRow('Total Amount:', 'PKR 250,135', true, Icons.account_balance_wallet),
+          _buildEnhancedAmountRow(
+            'Total Amount:', 
+            widget.reservationData.formattedTotalAmount, 
+            true, 
+            Icons.account_balance_wallet
+          ),
         ],
       ),
     );
@@ -515,11 +530,11 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
       ),
       child: Column(
         children: [
-          _buildAmountRow('Token Amount:', 'PKR 250,000', false),
+          _buildAmountRow('Token Amount:', widget.reservationData.formattedTokenAmount, false),
           const SizedBox(height: 8),
-          _buildAmountRow('KuickPay Fee:', 'PKR 135', false),
+          _buildAmountRow('KuickPay Fee:', widget.reservationData.formattedKuickPayFee, false),
           const Divider(height: 20),
-          _buildAmountRow('Total Amount:', 'PKR 250,135', true),
+          _buildAmountRow('Total Amount:', widget.reservationData.formattedTotalAmount, true),
         ],
       ),
     );

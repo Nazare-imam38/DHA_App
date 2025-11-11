@@ -84,31 +84,37 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
                   ),
                   onPressed: () => Navigator.pop(context),
               ),
-        title: Row(
+        title: Stack(
+          alignment: Alignment.center,
           children: [
-            Container(
-              padding: EdgeInsets.all(8.w),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryBlue,
-                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-              ),
-              child: Icon(
-                AppIcons.workRounded,
-                color: Colors.white,
-                size: 20.sp,
-              ),
-            ),
-            SizedBox(width: 12.w),
-            Text(
-                        'OWNERSHIP SELECTION',
-                        style: AppTheme.titleLarge.copyWith(
-                          fontSize: 18.sp,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8.w),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryBlue,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                  ),
+                  child: Icon(
+                    AppIcons.workRounded,
+                    color: Colors.white,
+                    size: 20.sp,
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Text(
+                  'OWNERSHIP SELECTION',
+                  style: AppTheme.titleLarge.copyWith(
+                    fontSize: 18.sp,
                 letterSpacing: 0.5,
                               ),
             ),
+              ],
+            ),
           ],
         ),
-        centerTitle: false,
+        centerTitle: true,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(20.r),
@@ -406,17 +412,17 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: isSelected ? AppTheme.cardWhite : Colors.transparent,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected ? AppTheme.cardWhite : AppTheme.textLight,
+                  color: isSelected ? AppTheme.tealAccent : AppTheme.textLight,
                   width: 2,
                 ),
+                color: isSelected ? AppTheme.tealAccent : Colors.transparent,
               ),
               child: isSelected
                   ? const Icon(
                       AppIcons.checkRounded,
-                      color: AppTheme.tealAccent,
+                      color: AppTheme.cardWhite,
                       size: 16,
                     )
                   : null,

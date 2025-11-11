@@ -22,32 +22,38 @@ class PurposeSelectionStep extends StatelessWidget {
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Row(
+        title: Stack(
+          alignment: Alignment.center,
           children: [
-            Container(
-              padding: EdgeInsets.all(8.w),
-              decoration: BoxDecoration(
-                color: AppTheme.cardWhite,
-                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                boxShadow: AppTheme.lightShadow,
-              ),
-              child: Icon(
-                AppIcons.sellRounded,
-                color: AppTheme.primaryBlue,
-                size: 20.sp,
-              ),
-            ),
-            SizedBox(width: 12.w),
-            Text(
-              'PURPOSE SELECTION',
-              style: AppTheme.titleLarge.copyWith(
-                fontSize: 18.sp,
-                letterSpacing: 0.5,
-              ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8.w),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryBlue,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                    boxShadow: AppTheme.lightShadow,
+                  ),
+                  child: Icon(
+                    AppIcons.sellRounded,
+                    color: Colors.white,
+                    size: 20.sp,
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Text(
+                  'PURPOSE SELECTION',
+                  style: AppTheme.titleLarge.copyWith(
+                    fontSize: 18.sp,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-        centerTitle: false,
+        centerTitle: true,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(20.r),
@@ -187,6 +193,10 @@ class PurposeSelectionStep extends StatelessWidget {
         padding: EdgeInsets.all(24.0.w),
         decoration: BoxDecoration(
           color: AppTheme.cardWhite,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20.r),
+            topRight: Radius.circular(20.r),
+          ),
           boxShadow: AppTheme.lightShadow,
         ),
         child: Row(
@@ -284,7 +294,7 @@ class PurposeSelectionStep extends StatelessWidget {
                   Text(
                     title,
                     style: AppTheme.titleLarge.copyWith(
-                      color: isSelected ? AppTheme.primaryBlue : AppTheme.primaryBlue,
+                      color: isSelected ? const Color(0xFF20B2AA) : AppTheme.primaryBlue,
                     ),
                   ),
                   const SizedBox(height: 4),

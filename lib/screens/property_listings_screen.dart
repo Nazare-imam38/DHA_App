@@ -1109,27 +1109,29 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
         child: Column(
           children: [
             // Handle bar
-            Container(
+            Center(
+              child: Container(
               margin: const EdgeInsets.only(top: 12),
               width: 40,
               height: 4,
               decoration: BoxDecoration(
                 color: Colors.grey[300],
                 borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
             
             // Header
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               decoration: const BoxDecoration(
                   color: Color(0xFF1B5993),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
-              child: Row(
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  Icon(AppIcons.tune, color: Colors.white, size: 24),
-                  const SizedBox(width: 12),
+                  // Centered title
                   Text(
                     'Filter Properties',
                     style: TextStyle(
@@ -1138,11 +1140,20 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
+                    textAlign: TextAlign.center,
                   ),
-                  const Spacer(),
-                  GestureDetector(
+                  // Left icon
+                  Positioned(
+                    left: 0,
+                    child: Icon(AppIcons.tune, color: Colors.white, size: 24),
+                  ),
+                  // Right close icon
+                  Positioned(
+                    right: 0,
+                    child: GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Icon(AppIcons.close, color: Colors.white, size: 24),
+                    ),
                   ),
                 ],
               ),

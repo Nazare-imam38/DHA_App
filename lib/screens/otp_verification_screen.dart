@@ -446,27 +446,17 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
     final languageService = Provider.of<LanguageService>(context);
     
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/login.jpg'),
             fit: BoxFit.cover,
           ),
         ),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                const Color(0xFF1E3C90).withOpacity(0.85),
-                const Color(0xFF1E3C90).withOpacity(0.75),
-                const Color(0xFF20B2AA).withOpacity(0.65),
-                Colors.black.withOpacity(0.4),
-              ],
-            ),
-          ),
-          child: Stack(
+        child: Stack(
             children: [
             // Content overlay
             SafeArea(
@@ -836,7 +826,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
               ),
             ),
             ],
-          ),
         ),
       ),
     );

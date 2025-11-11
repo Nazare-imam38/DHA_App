@@ -133,12 +133,12 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
               expandedHeight: 120,
               floating: false,
               pinned: true,
-              backgroundColor: Colors.transparent,
+              backgroundColor: Colors.white,
               elevation: 0,
               leading: IconButton(
                 icon: const Icon(
                   Icons.arrow_back_ios_new,
-                  color: Colors.white,
+                  color: Colors.black87,
                   size: 18,
                 ),
                 onPressed: () => Navigator.pushReplacement(

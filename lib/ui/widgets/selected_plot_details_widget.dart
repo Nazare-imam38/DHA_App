@@ -82,7 +82,8 @@ class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
 
       try {
         final basePrice = double.tryParse(widget.plot.basePrice) ?? 0;
-        final summary = await _kuickPayService.getPaymentSummary(basePrice, _selectedPaymentPlan);
+        final tokenAmount = double.tryParse(widget.plot.tokenAmount) ?? 0.0;
+        final summary = await _kuickPayService.getPaymentSummary(basePrice, _selectedPaymentPlan, tokenAmount);
         
         setState(() {
           _paymentSummary = summary;
@@ -239,7 +240,7 @@ class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
 
   Widget _buildPriceSection() {
     final basePrice = double.tryParse(widget.plot.basePrice) ?? 0;
-    const tokenAmount = 250000.0; // Fixed token amount as per requirement
+    final tokenAmount = double.tryParse(widget.plot.tokenAmount) ?? 0.0; // Token amount from backend
     
     return Container(
       padding: const EdgeInsets.all(16),
@@ -714,10 +715,17 @@ class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
         ),
       );
 
+      // Get token amount from plot
+      final tokenAmount = double.tryParse(widget.plot.tokenAmount) ?? 0.0;
+      
+      // Calculate KuickPay fee for the token amount
+      final feeResponse = await _kuickPayService.calculateFee(tokenAmount);
+      final totalAmount = tokenAmount + feeResponse.fee;
+      
       // Call reserve plot API
       final response = await _kuickPayService.reservePlot(
         widget.plot.id.toString(), // Using database ID, not plot number
-        250135.0, // Total amount (250,000 + 135)
+        tokenAmount, // Token amount from backend
         'KuickPay',
         '0', // plan_type
       );
@@ -1175,7 +1183,7 @@ class _SelectedPlotDetailsWidgetState extends State<SelectedPlotDetailsWidget> {
                       children: [
                         const Text('Token Amount:'),
                         Text(
-                          'PKR 250,000',
+                          'PKR ${_formatPrice(double.tryParse(widget.plot.tokenAmount) ?? 0.0)}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],

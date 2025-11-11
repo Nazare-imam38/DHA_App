@@ -973,7 +973,7 @@ class _HomeScreenState extends State<HomeScreen>
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 2.h),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                               Text(
                             'GALLERY',
@@ -982,15 +982,6 @@ class _HomeScreenState extends State<HomeScreen>
                               fontSize: 18.sp,
                               fontWeight: FontWeight.w600,
                               color: Colors.black,
-                            ),
-                          ),
-                          Text(
-                              l10n.viewAll,
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                              fontSize: 14.sp,
-                              color: const Color(0xFF1B5993),
-                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],

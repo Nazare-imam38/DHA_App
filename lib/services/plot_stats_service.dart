@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../data/models/plot_stats_model.dart';
 
 class PlotStatsService {
-  static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
+  static const String baseUrl = 'https://backend-apis.dhamarketplace.com/api';
   static const Duration _timeout = Duration(seconds: 30);
   static const int _maxRetries = 3;
 

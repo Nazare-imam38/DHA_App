@@ -55,6 +55,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
@@ -67,3 +68,12 @@ flutter:
     - assets/Boundaries/geojsons/
     - assets/gallery/
     - assets/earth_textures/
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/images/dhalogo.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/dhalogo.png"
+  remove_alpha_ios: true

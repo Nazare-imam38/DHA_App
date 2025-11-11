@@ -85,13 +85,13 @@ class _GalleryScreenState extends State<GalleryScreen> {
             fontFamily: 'Poppins',
             fontSize: 18.sp,
             fontWeight: FontWeight.w600,
-            color: Colors.white,
+            color: Colors.black87,
           ),
         ),
-        backgroundColor: const Color(0xFF1E3C90),
+        backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.black87),
       ),
       body: Column(
         children: [
