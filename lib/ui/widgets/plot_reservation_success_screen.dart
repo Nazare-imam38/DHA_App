@@ -96,7 +96,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
                             Text(
                               'DHA MARKETPLACE',
                               style: TextStyle(
-                                fontFamily: 'GT Walsheim',
+                                fontFamily: 'Poppins',
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
                                 color: const Color(0xFF1B5993),
@@ -240,7 +240,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
                 Text(
                   'Plot Reserved Successfully!',
                   style: TextStyle(
-                    fontFamily: 'GT Walsheim',
+                    fontFamily: 'Poppins',
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -273,7 +273,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
         Text(
           'Payment Method',
           style: TextStyle(
-            fontFamily: 'GT Walsheim',
+            fontFamily: 'Poppins',
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF1B5993),
@@ -649,7 +649,7 @@ class _PlotReservationSuccessScreenState extends State<PlotReservationSuccessScr
               Text(
                 'Payment Information',
                 style: TextStyle(
-                  fontFamily: 'GT Walsheim',
+                  fontFamily: 'Poppins',
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF1B5993),

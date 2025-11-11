@@ -438,7 +438,7 @@ class _HomeScreenState extends State<HomeScreen>
                       Text(
                         'Login Required',
                         style: TextStyle(
-                          fontFamily: 'GT Walsheim',
+                          fontFamily: 'Poppins',
                           fontSize: 24.sp,
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
@@ -652,7 +652,7 @@ class _HomeScreenState extends State<HomeScreen>
                         child: Text(
                           l10n.home,
                           style: TextStyle(
-                            fontFamily: 'GT Walsheim',
+                            fontFamily: 'Poppins',
                             fontSize: 18.sp,
                             fontWeight: FontWeight.w700,
                             color: const Color(0xFF1B5993),
@@ -759,7 +759,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                           child: Text(
                                                             l10n.appTitle.split(' ')[0],
                                                             style: TextStyle(
-                                                              fontFamily: 'GT Walsheim',
+                                                              fontFamily: 'Poppins',
                                                               fontSize: 32.sp,
                                                               fontWeight: FontWeight.w900,
                                                               color: Colors.white,
@@ -799,7 +799,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                           child: Text(
                                                             l10n.appTitle.split(' ')[1],
                                                             style: TextStyle(
-                                                              fontFamily: 'GT Walsheim',
+                                                              fontFamily: 'Poppins',
                                                               fontSize: 18.sp,
                                                               fontWeight: FontWeight.w700,
                                                               color: Colors.white,
@@ -978,7 +978,7 @@ class _HomeScreenState extends State<HomeScreen>
                               Text(
                             'GALLERY',
                                 style: TextStyle(
-                                  fontFamily: 'GT Walsheim',
+                                  fontFamily: 'Poppins',
                               fontSize: 18.sp,
                               fontWeight: FontWeight.w600,
                               color: Colors.black,
@@ -1143,7 +1143,7 @@ class _HomeScreenState extends State<HomeScreen>
                   Text(
                     title,
                     style: const TextStyle(
-                      fontFamily: 'GT Walsheim',
+                      fontFamily: 'Poppins',
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
@@ -1259,7 +1259,7 @@ class _HomeScreenState extends State<HomeScreen>
               return Text(
                 animation != null ? animation!.value.round().toString() : count,
                 style: TextStyle(
-                  fontFamily: 'GT Walsheim',
+                  fontFamily: 'Poppins',
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w700,
                   color: color,
@@ -1511,7 +1511,7 @@ class _HomeScreenState extends State<HomeScreen>
                 Text(
                     project['title'] as String,
                   style: TextStyle(
-                              fontFamily: 'GT Walsheim',
+                              fontFamily: 'Poppins',
                     fontSize: 11.sp,
                     fontWeight: FontWeight.w600,
                     color: Colors.black,
@@ -1633,7 +1633,7 @@ class _HomeScreenState extends State<HomeScreen>
               child: Text(
                 _selectedImageTitle,
                 style: TextStyle(
-                  fontFamily: 'GT Walsheim',
+                  fontFamily: 'Poppins',
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,

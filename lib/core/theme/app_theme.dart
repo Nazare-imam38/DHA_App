@@ -42,7 +42,7 @@ class AppTheme {
   
   // Typography
   static const String primaryFont = 'Inter';
-  static const String headingFont = 'GT Walsheim';
+  static const String headingFont = 'Poppins';
   
   // Spacing
   static const double paddingSmall = 8.0;

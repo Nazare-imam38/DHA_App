@@ -372,7 +372,7 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
                           Text(
                             'Loading DHA Projects...',
                             style: TextStyle(
-                              fontFamily: 'GT Walsheim',
+                              fontFamily: 'Poppins',
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF1B5993),
@@ -444,7 +444,7 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
                     Text(
                       l10n.dhaProjectsMap,
                       style: TextStyle(
-                        fontFamily: 'GT Walsheim',
+                        fontFamily: 'Poppins',
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF1B5993),
@@ -1124,7 +1124,7 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
               child: Text(
                 amenity.amenityType,
                 style: const TextStyle(
-                  fontFamily: 'GT Walsheim',
+                  fontFamily: 'Poppins',
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                 ),

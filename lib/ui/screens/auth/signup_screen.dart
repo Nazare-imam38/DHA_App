@@ -908,7 +908,7 @@ class _SignupScreenState extends State<SignupScreen>
                           child: Text(
                             _captchaText.isEmpty ? 'Loading...' : _captchaText,
                             style: TextStyle(
-                              fontFamily: 'Courier',
+                              fontFamily: 'Inter',
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: _captchaText.isEmpty ? Colors.grey[400] : const Color(0xFF4A5568),

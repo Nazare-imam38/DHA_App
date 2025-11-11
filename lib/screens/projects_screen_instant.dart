@@ -1130,7 +1130,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                     Text(
                       l10n.dhaProjectsMap,
                       style: TextStyle(
-                        fontFamily: 'GT Walsheim',
+                        fontFamily: 'Poppins',
                         fontSize: 18.sp,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF1B5993),
@@ -1912,7 +1912,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               child: Text(
                 amenity.amenityType,
                 style: const TextStyle(
-                  fontFamily: 'GT Walsheim',
+                  fontFamily: 'Poppins',
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                 ),
@@ -2155,7 +2155,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         title: const Text(
           'Search by Plot ID',
           style: TextStyle(
-            fontFamily: 'GT Walsheim',
+            fontFamily: 'Poppins',
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
