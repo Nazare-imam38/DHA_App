@@ -785,7 +785,7 @@ class _PlotDetailsModalState extends State<PlotDetailsModal> {
       // Calculate KuickPay fee for the token amount
       final feeResponse = await _kuickPayService.calculateFee(tokenAmount);
       final totalAmount = tokenAmount + feeResponse.fee;
-      
+
       // Call reserve plot API
       final response = await _kuickPayService.reservePlot(
         widget.plot.id.toString(), // Using database ID, not plot number

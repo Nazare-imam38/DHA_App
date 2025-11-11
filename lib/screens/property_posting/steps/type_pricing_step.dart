@@ -203,37 +203,37 @@ class _TypePricingStepState extends State<TypePricingStep> {
           alignment: Alignment.center,
           children: [
             Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(8.w),
-                  decoration: BoxDecoration(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: EdgeInsets.all(8.w),
+              decoration: BoxDecoration(
                     color: const Color(0xFF1B5993),
-                    borderRadius: BorderRadius.circular(8.r),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                borderRadius: BorderRadius.circular(8.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
                   ),
-                  child: Icon(
-                    AppIcons.homeWorkRounded,
+                ],
+              ),
+              child: Icon(
+                AppIcons.homeWorkRounded,
                     color: Colors.white,
-                    size: 20.sp,
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                Text(
-                  'PROPERTY TYPE',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1B5993),
-                    letterSpacing: 0.5,
-                  ),
+                size: 20.sp,
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Text(
+              'PROPERTY TYPE',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1B5993),
+                letterSpacing: 0.5,
+              ),
                 ),
               ],
             ),
@@ -569,38 +569,38 @@ class _TypePricingStepState extends State<TypePricingStep> {
           
           // Property Subtype Dropdown (Show only if subtypes are available)
           if (_propertySubtypes.isNotEmpty || _isLoadingSubtypes)
-            _buildDropdownField(
-              label: 'Property Subtype',
-              value: _selectedPropertySubtypeName,
-              items: _propertySubtypes.map((subtype) => subtype['name'] as String).toList(),
-              isLoading: _isLoadingSubtypes,
-              placeholder: _selectedPropertyTypeId == null 
-                ? 'Select property type first' 
-                : _isLoadingSubtypes 
-                  ? 'Loading subtypes...'
-                  : _propertySubtypes.isEmpty 
-                    ? 'No subtypes available'
-                    : 'Select subtype',
-              onChanged: (value) {
-                if (value != null) {
-                  final selectedSubtype = _propertySubtypes.firstWhere((subtype) => subtype['name'] == value);
-                  setState(() {
-                    _selectedPropertySubtypeId = selectedSubtype['id'] as int;
-                    _selectedPropertySubtypeName = selectedSubtype['name'] as String;
-                  });
-                  
-                  formData.updatePropertyTypeAndListing(
-                    category: formData.category,
-                    propertyTypeId: formData.propertyTypeId,
-                    propertyTypeName: formData.propertyTypeName,
-                    propertySubtypeId: _selectedPropertySubtypeId,
-                    propertySubtypeName: _selectedPropertySubtypeName,
-                    title: formData.title,
-                    description: formData.description,
-                    listingDuration: formData.listingDuration,
-                  );
-                }
-              },
+                _buildDropdownField(
+                  label: 'Property Subtype',
+                  value: _selectedPropertySubtypeName,
+                  items: _propertySubtypes.map((subtype) => subtype['name'] as String).toList(),
+                  isLoading: _isLoadingSubtypes,
+                  placeholder: _selectedPropertyTypeId == null 
+                    ? 'Select property type first' 
+                    : _isLoadingSubtypes 
+                      ? 'Loading subtypes...'
+                      : _propertySubtypes.isEmpty 
+                        ? 'No subtypes available'
+                        : 'Select subtype',
+                  onChanged: (value) {
+                    if (value != null) {
+                      final selectedSubtype = _propertySubtypes.firstWhere((subtype) => subtype['name'] == value);
+                      setState(() {
+                        _selectedPropertySubtypeId = selectedSubtype['id'] as int;
+                        _selectedPropertySubtypeName = selectedSubtype['name'] as String;
+                      });
+                      
+                      formData.updatePropertyTypeAndListing(
+                        category: formData.category,
+                        propertyTypeId: formData.propertyTypeId,
+                        propertyTypeName: formData.propertyTypeName,
+                        propertySubtypeId: _selectedPropertySubtypeId,
+                        propertySubtypeName: _selectedPropertySubtypeName,
+                        title: formData.title,
+                        description: formData.description,
+                        listingDuration: formData.listingDuration,
+                      );
+                    }
+                  },
             ),
         ],
       ),
@@ -738,7 +738,7 @@ class _TypePricingStepState extends State<TypePricingStep> {
           ),
           
           const SizedBox(height: 16),
-          
+
           // Description Field
           _buildTextField(
             controller: _descriptionController,

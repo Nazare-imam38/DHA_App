@@ -790,11 +790,11 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                 ),
               )
             else
-              Icon(
-                AppIcons.errorOutline,
-                size: 64.sp,
-                color: Colors.red,
-              ),
+            Icon(
+              AppIcons.errorOutline,
+              size: 64.sp,
+              color: Colors.red,
+            ),
             SizedBox(height: 16.h),
             Text(
               'Error',

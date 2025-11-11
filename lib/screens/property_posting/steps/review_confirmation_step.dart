@@ -58,13 +58,13 @@ class _ReviewConfirmationStepState extends State<ReviewConfirmationStep> {
                 ),
                 const SizedBox(width: 12),
                 const Text(
-                  'Review Details',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.primaryBlue,
-                  ),
+          'Review Details',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.primaryBlue,
+          ),
                 ),
               ],
             ),

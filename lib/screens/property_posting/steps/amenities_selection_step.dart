@@ -218,39 +218,39 @@ class _AmenitiesSelectionStepState extends State<AmenitiesSelectionStep> {
               children: [
                 Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(8.w),
-                      decoration: BoxDecoration(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8.w),
+                  decoration: BoxDecoration(
                         color: const Color(0xFF1B5993),
-                        borderRadius: BorderRadius.circular(8.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                    borderRadius: BorderRadius.circular(8.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
                       ),
-                      child: Icon(
-                        AppIcons.starRounded,
+                    ],
+                  ),
+                  child: Icon(
+                    AppIcons.starRounded,
                         color: Colors.white,
-                        size: 20.sp,
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
-                    Text(
-                      'SELECT AMENITIES',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1B5993),
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ],
+                    size: 20.sp,
+                  ),
                 ),
+                SizedBox(width: 12.w),
+                Text(
+                  'SELECT AMENITIES',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF1B5993),
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
               ],
             ),
             centerTitle: true,

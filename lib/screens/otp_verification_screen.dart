@@ -454,9 +454,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
           image: DecorationImage(
             image: AssetImage('assets/images/login.jpg'),
             fit: BoxFit.cover,
+            ),
           ),
-        ),
-        child: Stack(
+          child: Stack(
             children: [
             // Content overlay
             SafeArea(

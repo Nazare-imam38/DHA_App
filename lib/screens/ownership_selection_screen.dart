@@ -89,29 +89,29 @@ class _OwnershipSelectionScreenState extends State<OwnershipSelectionScreen>
           children: [
             Row(
               mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(8.w),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                  ),
-                  child: Icon(
-                    AppIcons.workRounded,
-                    color: Colors.white,
-                    size: 20.sp,
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                Text(
-                  'OWNERSHIP SELECTION',
-                  style: AppTheme.titleLarge.copyWith(
-                    fontSize: 18.sp,
+          children: [
+            Container(
+              padding: EdgeInsets.all(8.w),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryBlue,
+                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+              ),
+              child: Icon(
+                AppIcons.workRounded,
+                color: Colors.white,
+                size: 20.sp,
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Text(
+                        'OWNERSHIP SELECTION',
+                        style: AppTheme.titleLarge.copyWith(
+                          fontSize: 18.sp,
                 letterSpacing: 0.5,
                               ),
             ),
-              ],
-            ),
+          ],
+        ),
           ],
         ),
         centerTitle: true,

@@ -781,12 +781,12 @@ class _ProjectsScreenOptimizedState extends State<ProjectsScreenOptimized>
                       : Icons.map;
                   
                   return InkWell(
-                    onTap: () {
-                      setState(() {
-                        _selectedView = viewType;
-                      });
-                      Navigator.pop(context);
-                    },
+                  onTap: () {
+                    setState(() {
+                      _selectedView = viewType;
+                    });
+                    Navigator.pop(context);
+                  },
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                       margin: const EdgeInsets.only(bottom: 8),

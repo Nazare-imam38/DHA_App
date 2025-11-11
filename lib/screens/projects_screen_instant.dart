@@ -2073,12 +2073,12 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                       : Icons.map;
                   
                   return InkWell(
-                    onTap: () {
-                      setState(() {
-                        _selectedView = viewType;
-                      });
-                      Navigator.pop(context);
-                    },
+                  onTap: () {
+                    setState(() {
+                      _selectedView = viewType;
+                    });
+                    Navigator.pop(context);
+                  },
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                       margin: const EdgeInsets.only(bottom: 8),
@@ -3557,46 +3557,46 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                         Positioned(
                           left: 0,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF1B5993),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              '${_plots.length} plots',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1B5993),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '${_plots.length} plots',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
+                        ),
                         ),
                         // Right close button
                         Positioned(
                           right: 0,
                           child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _isBottomSheetVisible = false;
-                                _isBottomSheetExpanded = false;
-                                // Also clear plot selection when closing bottom sheet
-                                _selectedPlot = null;
-                                _selectedPlotDetails = null;
-                                _showSelectedPlotDetails = false;
-                                _isLoadingPlotDetails = false;
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: const Icon(
-                                Icons.close,
-                                color: Colors.grey,
-                                size: 18,
+                          onTap: () {
+                            setState(() {
+                              _isBottomSheetVisible = false;
+                              _isBottomSheetExpanded = false;
+                              // Also clear plot selection when closing bottom sheet
+                              _selectedPlot = null;
+                              _selectedPlotDetails = null;
+                              _showSelectedPlotDetails = false;
+                              _isLoadingPlotDetails = false;
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.grey,
+                              size: 18,
                               ),
                             ),
                           ),
