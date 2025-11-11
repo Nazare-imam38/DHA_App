@@ -4,7 +4,7 @@ import '../../data/models/plot_details_model.dart';
 import '../../data/models/plot_model.dart';
 
 class PlotDetailsService {
-  static const String _baseUrl = 'https://testingbackend.dhamarketplace.com/api';
+  static const String _baseUrl = 'https://backend-apis.dhamarketplace.com/api';
   
   /// Fetch detailed information for a specific plot using real API
   static Future<PlotDetailsModel?> fetchPlotDetails(String plotNo) async {

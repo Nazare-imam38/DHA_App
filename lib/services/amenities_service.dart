@@ -4,7 +4,7 @@ import 'auth_service.dart';
 import 'local_amenities_cache.dart';
 
 class AmenitiesService {
-  static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
+  static const String baseUrl = 'https://backend-apis.dhamarketplace.com/api';
   final AuthService _authService = AuthService();
 
   /// Fetch amenities grouped by category for a given property type id
