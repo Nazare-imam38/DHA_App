@@ -3413,17 +3413,19 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       return const SizedBox.shrink();
     }
 
-    // Dynamic bottom sheet - user can adjust from 10% to 80% of screen
+    // Dynamic bottom sheet - user can adjust from 15% to 90% of screen
     final shouldCollapseForPlot = _selectedPlot != null && !_showSelectedPlotDetails;
-    final initialSize = shouldCollapseForPlot ? 0.1 : (_showSelectedPlotDetails ? 0.4 : 0.2); // Start at 10% when plot selected
-    final minSize = 0.1; // Minimum 10% of screen
-    final maxSize = 0.8; // Maximum 80% of screen
+    final initialSize = shouldCollapseForPlot ? 0.15 : (_showSelectedPlotDetails ? 0.5 : 0.25); // Start at 15% when plot selected
+    final minSize = 0.15; // Minimum 15% of screen (shows header)
+    final maxSize = 0.9; // Maximum 90% of screen (almost full screen)
 
     return DraggableScrollableSheet(
       controller: _bottomSheetController,
       initialChildSize: initialSize,
-      minChildSize: minSize, // User can collapse to 10%
-      maxChildSize: maxSize, // User can expand to 80%
+      minChildSize: minSize, // User can collapse to 15%
+      maxChildSize: maxSize, // User can expand to 90%
+      snap: true, // Enable snapping behavior
+      snapSizes: const [0.15, 0.5, 0.9], // Snap points at 15%, 50%, and 90%
       builder: (context, scrollController) {
         // Initialize the bottom sheet controller
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -3453,84 +3455,35 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           ),
           child: Column(
             children: [
-              // Handle bar with expand/collapse controls
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Enhanced drag handle with visual feedback and interaction
-                    GestureDetector(
-                      onTap: () {
-                        // Toggle bottom sheet expansion
-                        setState(() {
-                          _isBottomSheetExpanded = !_isBottomSheetExpanded;
-                        });
-                        
-                        if (_isBottomSheetExpanded) {
-                          _safeAnimateBottomSheet(0.5);
-                        } else {
-                          _safeAnimateBottomSheet(0.1);
-                        }
-                      },
-                      child: Container(
+              // Handle bar - fully draggable area
+              GestureDetector(
+                onTap: () {
+                  // Cycle through snap points when tapped
+                  final currentSize = _bottomSheetController.size;
+                  if (currentSize < 0.3) {
+                    _bottomSheetController.animateTo(0.5, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                  } else if (currentSize < 0.8) {
+                    _bottomSheetController.animateTo(0.9, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                  } else {
+                    _bottomSheetController.animateTo(0.15, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Centered drag handle - visual indicator
+                      Container(
                         width: 60,
                         height: 6,
                         decoration: BoxDecoration(
-                          color: Colors.grey[500],
+                          color: Colors.grey[400],
                           borderRadius: BorderRadius.circular(3),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 2,
-                              offset: const Offset(0, 1),
-                            ),
-                          ],
                         ),
                       ),
-                    ),
-                    // Drag indicator text
-                    Text(
-                      'Drag to adjust',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors.grey[600],
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    // Expand/Collapse button (moved to extreme right, no background)
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _isBottomSheetExpanded = !_isBottomSheetExpanded;
-                        });
-                        
-                        if (_isBottomSheetExpanded) {
-                          // Expand to appropriate size based on content
-                          if (_showSelectedPlotDetails) {
-                            _safeAnimateBottomSheet(0.5);
-                          } else {
-                            _safeAnimateBottomSheet(0.5);
-                          }
-                        } else {
-                          // Collapse to minimum size (10%)
-                          _safeAnimateBottomSheet(0.1);
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.transparent, // Remove background color
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Icon(
-                          _isBottomSheetExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
-                          color: Colors.grey[600], // Change to grey color
-                          size: 20,
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               
@@ -3538,25 +3491,15 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Plot count badge and title
-                    Stack(
-                      alignment: Alignment.center,
+                    // Header row with plot count, title, expand/collapse, and close button
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // Centered title
-                        const Text(
-                          'Filtered Results',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        // Left badge
-                        Positioned(
-                          left: 0,
-                          child: Container(
+                        // Plot count badge
+                        Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: const Color(0xFF1B5993),
@@ -3571,11 +3514,49 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                             ),
                           ),
                         ),
+                        // Centered title
+                        const Expanded(
+                          child: Text(
+                            'Filtered Results',
+                      style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                            textAlign: TextAlign.center,
                         ),
-                        // Right close button
-                        Positioned(
-                          right: 0,
-                          child: GestureDetector(
+                    ),
+                    // Expand/Collapse button - cycles through snap points
+                    GestureDetector(
+                      onTap: () {
+                        if (!_bottomSheetController.isAttached) return;
+                        final currentSize = _bottomSheetController.size;
+                        if (currentSize < 0.3) {
+                          _bottomSheetController.animateTo(0.5, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                        } else if (currentSize < 0.8) {
+                          _bottomSheetController.animateTo(0.9, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                        } else {
+                          _bottomSheetController.animateTo(0.15, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Icon(
+                          _bottomSheetController.isAttached && _bottomSheetController.size > 0.7 
+                              ? Icons.keyboard_arrow_down 
+                              : Icons.keyboard_arrow_up,
+                          color: const Color(0xFF1B5993),
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                        const SizedBox(width: 8),
+                        // Close button
+                        GestureDetector(
                           onTap: () {
                             setState(() {
                               _isBottomSheetVisible = false;
@@ -3597,7 +3578,6 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                               Icons.close,
                               color: Colors.grey,
                               size: 18,
-                              ),
                             ),
                           ),
                         ),
@@ -3743,46 +3723,19 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                               ),
                             ),
                           )
-                        : Stack(
-                            children: [
-                              ListView.builder(
+                        : ListView.builder(
                                 controller: scrollController,
                                 physics: const BouncingScrollPhysics(),
                                 padding: const EdgeInsets.only(
                                   left: 20,
                                   right: 20,
-                                  bottom: 120, // Increased bottom padding to prevent overflow
+                              bottom: 20, // Reduced padding to prevent overflow
                                 ),
                                 itemCount: _plots.length,
                                 itemBuilder: (context, index) {
                                   final plot = _plots[index];
                                   return _buildPlotCard(plot);
                                 },
-                              ),
-                              // Scroll indicator
-                              if (_plots.length > 3)
-                                Positioned(
-                                  right: 10,
-                                  top: 0,
-                                  bottom: 0,
-                                  child: Container(
-                                    width: 4,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[300],
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
-                                    child: FractionallySizedBox(
-                                      heightFactor: 0.3,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF1B5993),
-                                          borderRadius: BorderRadius.circular(2),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
                           ),
               ),
             ],

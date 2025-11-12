@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 void main() async {
   print('🔍 Testing API responses to identify type casting issues\n');
   
-  const String baseUrl = 'https://backend-apis.dhamarketplace.com/api';
+  const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
   
   // Test 1: Basic plots endpoint
   await testEndpoint('$baseUrl/plots', 'Basic Plots');

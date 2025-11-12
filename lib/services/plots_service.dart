@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../data/models/plot_model.dart';
 
 class PlotsService {
-  static const String baseUrl = 'https://backend-apis.dhamarketplace.com/api';
+  static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
   
   // Test the API endpoint
   static Future<void> testPlotsApi() async {

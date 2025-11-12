@@ -340,25 +340,24 @@ class _AmenitiesSelectionStepState extends State<AmenitiesSelectionStep> {
                       color: const Color(0xFF1B5993),
                       size: 22.w,
                     ),
-                    SizedBox(width: 8.w),
-                    Flexible(
+                    SizedBox(width: 10.w),
+                    // Available Amenities text - use Expanded to prevent truncation
+                    Expanded(
                       child: Text(
                         'Available Amenities',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 16.sp,
+                          fontSize: 17.sp,
                           fontWeight: FontWeight.w700,
                           color: const Color(0xFF1B5993),
                           letterSpacing: 0.2,
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    SizedBox(width: 8.w),
-                    // Status Badge
-                    Flexible(
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                    SizedBox(width: 10.w),
+                    // Status Badge - fixed width to prevent truncation
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
                         decoration: BoxDecoration(
                           color: const Color(0xFFE8F4FD),
                           borderRadius: BorderRadius.circular(20.r),
@@ -366,15 +365,13 @@ class _AmenitiesSelectionStepState extends State<AmenitiesSelectionStep> {
                         child: Text(
                           '${formData.amenities.length}/${_allAmenities.length}',
                           style: TextStyle(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w600,
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w700,
                             color: const Color(0xFF1B5993),
-                          ),
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
-                    SizedBox(width: 8.w),
+                    SizedBox(width: 10.w),
                     // Select All Button
                     GestureDetector(
                       onTap: _selectAll,
@@ -392,7 +389,7 @@ class _AmenitiesSelectionStepState extends State<AmenitiesSelectionStep> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 6.w),
+                    SizedBox(width: 8.w),
                     // Clear All Button
                     GestureDetector(
                       onTap: _clearAll,
@@ -425,32 +422,34 @@ class _AmenitiesSelectionStepState extends State<AmenitiesSelectionStep> {
                           children: [
                             // Pro Tip Section
                             Container(
-                              padding: EdgeInsets.all(16.w),
+                              padding: EdgeInsets.all(18.w),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFE8F5E9),
                                 borderRadius: BorderRadius.circular(12.r),
                                 border: Border.all(
                                   color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
-                                  width: 1,
+                                  width: 1.5,
                                 ),
                               ),
                               child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Icon(
                                     Icons.lightbulb_outline,
                                     color: const Color(0xFF4CAF50),
-                                    size: 24.w,
+                                    size: 26.w,
                                   ),
-                                  SizedBox(width: 12.w),
+                                  SizedBox(width: 14.w),
                                   Expanded(
                                     child: Text(
                                       'Pro Tip: Select all amenities that are currently available at your property to attract the right buyers',
                                       style: TextStyle(
                                         fontFamily: 'Inter',
-                                        fontSize: 13.sp,
-                                        fontWeight: FontWeight.w400,
-                                        color: const Color(0xFF6B7280),
-                                        height: 1.4,
+                                        fontSize: 15.sp,
+                                        fontWeight: FontWeight.w500,
+                                        color: const Color(0xFF2D5016),
+                                        height: 1.5,
+                                        letterSpacing: 0.1,
                                       ),
                                     ),
                                   ),

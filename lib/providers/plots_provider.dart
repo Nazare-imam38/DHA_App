@@ -11,7 +11,6 @@ import '../core/services/coordinate_cache_manager.dart';
 import '../ui/widgets/dha_loading_widget.dart';
 import 'polygon_state_provider.dart';
 import '../core/utils/plots_debug_analyzer.dart';
-import '../core/utils/simple_api_test.dart';
 
 class PlotsProvider with ChangeNotifier {
   List<PlotModel> _plots = [];
@@ -94,10 +93,6 @@ class PlotsProvider with ChangeNotifier {
 
     try {
       print('Loading plots from API...');
-      
-      // Run simple API test first
-      print('🔍 Running simple API test...');
-      await SimpleApiTest.testPlotsApi();
       
       // Run comprehensive debug analysis
       print('🔍 Running comprehensive plots API analysis...');
