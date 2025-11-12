@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import '../screens/property_posting/models/property_form_data.dart';
 
 class PropertyService {
-  static const String baseUrl = 'https://api.dha.gov.pk'; // Replace with actual API URL
+  static const String baseUrl = 'https://marketplace-testingbackend.dhamarketplace.com/api';
   
   Future<Map<String, dynamic>> createProperty(PropertyFormData formData) async {
     try {

@@ -1483,7 +1483,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
       }
       
       // If it's a relative path, prepend the base URL
-      final baseUrl = 'https://marketplace-testingbackend.dhamarketplace.com';
+      final baseUrl = 'https://marketplace-testingbackend.dhamarketplace.com/api';
       final cleanPath = url.startsWith('/') ? url : '/$url';
       return '$baseUrl$cleanPath';
       
