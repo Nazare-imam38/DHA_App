@@ -87,6 +87,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   bool _isBottomSheetVisible = false; // Controls visibility based on filters
   final DraggableScrollableController _bottomSheetController = DraggableScrollableController();
   bool _isBottomSheetInitialized = false;
+  double _currentBottomSheetSize = 0.25; // Track current bottom sheet size
   
   // Plot polygon visibility
   bool _showPlotPolygons = true; // Always show plot polygons
@@ -2722,6 +2723,37 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     print('🗑️ Plot selection cleared');
   }
 
+  /// Handle expand/collapse button tap
+  void _handleExpandCollapse() {
+    if (!_bottomSheetController.isAttached) return;
+    
+    final currentSize = _currentBottomSheetSize;
+    double targetSize;
+    
+    // Cycle through snap points: 15% -> 50% -> 90% -> 15%
+    if (currentSize < 0.3) {
+      targetSize = 0.5; // Expand to 50%
+    } else if (currentSize < 0.8) {
+      targetSize = 0.9; // Expand to 90%
+    } else {
+      targetSize = 0.15; // Collapse to 15%
+    }
+    
+    try {
+      _bottomSheetController.animateTo(
+        targetSize,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+      setState(() {
+        _currentBottomSheetSize = targetSize;
+      });
+      print('📱 Bottom sheet animated to: ${(targetSize * 100).toInt()}%');
+    } catch (e) {
+      print('Error animating bottom sheet: $e');
+    }
+  }
+
   /// Safely animate bottom sheet
   void _safeAnimateBottomSheet(double size) {
     if (_isBottomSheetInitialized && _bottomSheetController.isAttached) {
@@ -2731,6 +2763,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
+        setState(() {
+          _currentBottomSheetSize = size;
+        });
         print('📱 Animating bottom sheet to: ${(size * 100).toInt()}%');
       } catch (e) {
         print('Error animating bottom sheet: $e');
@@ -2745,6 +2780,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
             );
+            setState(() {
+              _currentBottomSheetSize = size;
+            });
             print('📱 Animating bottom sheet to: ${(size * 100).toInt()}% (delayed)');
           } catch (e) {
             print('Error animating bottom sheet (delayed): $e');
@@ -3427,9 +3465,18 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       snap: true, // Enable snapping behavior
       snapSizes: const [0.15, 0.5, 0.9], // Snap points at 15%, 50%, and 90%
       builder: (context, scrollController) {
-        // Initialize the bottom sheet controller
+        // Initialize the bottom sheet controller and add listener
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!_isBottomSheetInitialized) {
+            _currentBottomSheetSize = initialSize;
+            // Add listener to track bottom sheet size changes
+            _bottomSheetController.addListener(() {
+              if (_bottomSheetController.isAttached) {
+                setState(() {
+                  _currentBottomSheetSize = _bottomSheetController.size;
+                });
+              }
+            });
             setState(() {
               _isBottomSheetInitialized = true;
             });
@@ -3529,28 +3576,37 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                     // Expand/Collapse button - cycles through snap points
                     GestureDetector(
                       onTap: () {
-                        if (!_bottomSheetController.isAttached) return;
-                        final currentSize = _bottomSheetController.size;
-                        if (currentSize < 0.3) {
-                          _bottomSheetController.animateTo(0.5, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-                        } else if (currentSize < 0.8) {
-                          _bottomSheetController.animateTo(0.9, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-                        } else {
-                          _bottomSheetController.animateTo(0.15, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                        if (!_bottomSheetController.isAttached) {
+                          // If not attached, try to attach it
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (_bottomSheetController.isAttached) {
+                              _handleExpandCollapse();
+                            }
+                          });
+                          return;
                         }
+                        _handleExpandCollapse();
                       },
                       child: Container(
-                        padding: const EdgeInsets.all(8),
+                        width: 32,
+                        height: 32,
                         decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(20),
+                          color: const Color(0xFF1B5993),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF1B5993).withOpacity(0.2),
+                              blurRadius: 2,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
                         ),
                         child: Icon(
-                          _bottomSheetController.isAttached && _bottomSheetController.size > 0.7 
+                          _currentBottomSheetSize > 0.7 
                               ? Icons.keyboard_arrow_down 
                               : Icons.keyboard_arrow_up,
-                          color: const Color(0xFF1B5993),
-                          size: 20,
+                          color: Colors.white,
+                          size: 18,
                         ),
                       ),
                     ),
