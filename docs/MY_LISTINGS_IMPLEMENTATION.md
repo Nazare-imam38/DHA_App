@@ -43,7 +43,7 @@ Complete implementation of "My Listings" feature that allows users to view all t
 
 ### **1. Customer Properties API**
 ```
-GET https://testingbackend.dhamarketplace.com/api/customer-properties
+GET https://marketplace-testingbackend.dhamarketplace.com/api/customer-properties
 Authorization: Bearer {token}
 ```
 
@@ -72,7 +72,7 @@ Authorization: Bearer {token}
 
 ### **2. Property Approval Status API**
 ```
-POST https://testingbackend.dhamarketplace.com/api/property/user-approval
+POST https://marketplace-testingbackend.dhamarketplace.com/api/property/user-approval
 Authorization: Bearer {token}
 Content-Type: multipart/form-data
 

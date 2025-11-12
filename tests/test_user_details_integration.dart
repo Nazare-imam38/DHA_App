@@ -26,7 +26,7 @@ Future<void> testUserAPI() async {
   try {
     // Note: This would need a real auth token in production
     final response = await http.get(
-      Uri.parse('https://testingbackend.dhamarketplace.com/api/user'),
+      Uri.parse('https://marketplace-testingbackend.dhamarketplace.com/api/user'),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',

@@ -106,7 +106,7 @@ class _PropertyDetailInfoScreenState extends State<PropertyDetailInfoScreen>
       }
       
       // If it's a relative path, prepend the base URL
-      const baseUrl = 'https://testingbackend.dhamarketplace.com';
+      const baseUrl = 'https://marketplace-testingbackend.dhamarketplace.com';
       final cleanPath = url.startsWith('/') ? url : '/$url';
       return '$baseUrl$cleanPath';
       

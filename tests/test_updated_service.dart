@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 void main() async {
   print('🔍 Testing Updated ProgressiveFilterService\n');
   
-  const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
+  const String baseUrl = 'https://marketplace-testingbackend.dhamarketplace.com/api';
   
   // Test the filtered-plots endpoint with the new parsing logic
   await testFilteredPlotsEndpoint('$baseUrl/filtered-plots?price_from=5000000&price_to=10000000');

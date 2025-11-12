@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'auth_service.dart';
 
 class CustomerPropertiesService {
-  static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
+  static const String baseUrl = 'https://marketplace-testingbackend.dhamarketplace.com/api';
   final AuthService _authService = AuthService();
 
   // Get all properties posted by the current user

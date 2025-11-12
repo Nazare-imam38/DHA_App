@@ -4,7 +4,7 @@ import '../../data/models/plot_model.dart';
 
 /// Enhanced plots API service with modern filtering capabilities
 class EnhancedPlotsApiService {
-  static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
+  static const String baseUrl = 'https://marketplace-testingbackend.dhamarketplace.com/api';
   static const Duration _timeout = Duration(seconds: 30);
   static const int _maxRetries = 3;
 

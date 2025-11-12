@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 /// Simple API test to verify the plots endpoint
 class SimpleApiTest {
-  static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
+  static const String baseUrl = 'https://marketplace-testingbackend.dhamarketplace.com/api';
   
   /// Test the plots API endpoint
   static Future<void> testPlotsApi() async {

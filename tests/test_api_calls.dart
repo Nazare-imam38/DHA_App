@@ -11,7 +11,7 @@ Future<void> testPropertyTypesAPI() async {
   print('=== Testing Property Types API ===');
   
   try {
-    final uri = Uri.parse('https://testingbackend.dhamarketplace.com/api/property/types?purpose=Sell&category=Residential');
+    final uri = Uri.parse('https://marketplace-testingbackend.dhamarketplace.com/api/property/types?purpose=Sell&category=Residential');
     
     print('Making GET request to: $uri');
     
@@ -40,7 +40,7 @@ Future<void> testPropertySubtypesAPI() async {
   print('\n=== Testing Property Subtypes API ===');
   
   try {
-    final uri = Uri.parse('https://testingbackend.dhamarketplace.com/api/property/sub-types');
+    final uri = Uri.parse('https://marketplace-testingbackend.dhamarketplace.com/api/property/sub-types');
     
     print('Making POST request to: $uri');
     print('Body: parent_id[] = 6');

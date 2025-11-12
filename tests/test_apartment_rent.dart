@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 void main() async {
-  final uri = Uri.parse('https://testingbackend.dhamarketplace.com/api/property/sub-types');
+  final uri = Uri.parse('https://marketplace-testingbackend.dhamarketplace.com/api/property/sub-types');
   final response = await http.post(
     uri, 
     headers: {'Content-Type': 'application/x-www-form-urlencoded'}, 

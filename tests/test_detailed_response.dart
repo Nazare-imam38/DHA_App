@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 void main() async {
   print('🔍 Detailed API Response Analysis\n');
   
-  const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
+  const String baseUrl = 'https://marketplace-testingbackend.dhamarketplace.com/api';
   
   // Test the filtered-plots endpoint that's causing issues
   await analyzeResponse('$baseUrl/filtered-plots?price_from=5000000&price_to=10000000', 'Filtered Plots');

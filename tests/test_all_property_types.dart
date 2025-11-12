@@ -27,7 +27,7 @@ Future<void> testPropertyTypesForCase(String category, String purpose) async {
   try {
     print('🔍 Testing: $category - $purpose');
     
-    final uri = Uri.parse('https://testingbackend.dhamarketplace.com/api/property/types').replace(
+    final uri = Uri.parse('https://marketplace-testingbackend.dhamarketplace.com/api/property/types').replace(
       queryParameters: {
         'category': category,
         'purpose': purpose,

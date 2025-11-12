@@ -6,7 +6,7 @@ import 'auth_service.dart';
 import 'package:image/image.dart' as img;
 
 class PropertyUpdateService {
-  static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
+  static const String baseUrl = 'https://marketplace-testingbackend.dhamarketplace.com/api';
   final AuthService _authService = AuthService();
 
   // Update property with all details

@@ -12,7 +12,7 @@ Future<void> testPropertyTypesAPI() async {
   
   try {
     // Test for Residential category
-    final uri = Uri.parse('https://testingbackend.dhamarketplace.com/api/property/types').replace(
+    final uri = Uri.parse('https://marketplace-testingbackend.dhamarketplace.com/api/property/types').replace(
       queryParameters: {
         'category': 'Residential',
         'purpose': 'Sell',
@@ -60,7 +60,7 @@ Future<void> testPropertyTypesAPI() async {
 
 Future<void> testSubcategoryForPropertyType(int propertyTypeId) async {
   try {
-    final uri = Uri.parse('https://testingbackend.dhamarketplace.com/api/property/sub-types');
+    final uri = Uri.parse('https://marketplace-testingbackend.dhamarketplace.com/api/property/sub-types');
     
     final Map<String, String> formData = {
       'parent_id[]': propertyTypeId.toString(),

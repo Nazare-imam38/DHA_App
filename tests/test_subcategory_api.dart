@@ -32,7 +32,7 @@ Future<void> testSingleSubcategory(int parentId, String description) async {
   try {
     print('🔍 Testing: $description (parent_id: $parentId)');
     
-    final uri = Uri.parse('https://testingbackend.dhamarketplace.com/api/property/sub-types');
+    final uri = Uri.parse('https://marketplace-testingbackend.dhamarketplace.com/api/property/sub-types');
     
     // Create form data exactly as shown in Postman
     final Map<String, String> formData = {

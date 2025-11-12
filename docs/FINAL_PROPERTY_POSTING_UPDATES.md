@@ -115,7 +115,7 @@ await authService.setTestToken('eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...');
 
 ### **API Endpoint**
 ```
-POST https://testingbackend.dhamarketplace.com/api/create/property
+POST https://marketplace-testingbackend.dhamarketplace.com/api/create/property
 Authorization: Bearer {token}
 Content-Type: multipart/form-data
 ```

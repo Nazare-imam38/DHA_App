@@ -10,7 +10,7 @@ Future<void> testNewAmenitiesFormat() async {
   print('🧪 Testing New Amenities Format');
   print('=' * 50);
   
-  const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
+  const String baseUrl = 'https://marketplace-testingbackend.dhamarketplace.com/api';
   const String authToken = 'YOUR_AUTH_TOKEN_HERE'; // Replace with real token
   
   // Simulate the scenario you described

@@ -7,7 +7,7 @@ import '../services/enhanced_plots_api_service.dart';
 
 /// Comprehensive test to identify all potential sources of type casting errors
 class ComprehensiveApiTest {
-  static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
+  static const String baseUrl = 'https://marketplace-testingbackend.dhamarketplace.com/api';
   
   /// Test all API endpoints that might cause type casting errors
   static Future<void> testAllEndpoints() async {

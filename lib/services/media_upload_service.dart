@@ -6,7 +6,7 @@ import 'auth_service.dart';
 import 'package:image/image.dart' as img;
 
 class MediaUploadService {
-  static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
+  static const String baseUrl = 'https://marketplace-testingbackend.dhamarketplace.com/api';
   final AuthService _authService = AuthService();
 
   // Upload images and videos to S3 via your API

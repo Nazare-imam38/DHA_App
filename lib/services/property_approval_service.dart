@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'auth_service.dart';
 
 class PropertyApprovalService {
-  static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
+  static const String baseUrl = 'https://marketplace-testingbackend.dhamarketplace.com/api';
   final AuthService _authService = AuthService();
 
   Future<Map<String, dynamic>> checkApprovalStatus({required String propertyId}) async {

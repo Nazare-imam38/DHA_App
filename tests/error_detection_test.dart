@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 /// Simple test to detect where type casting errors are occurring
 class ErrorDetectionTest {
-  static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
+  static const String baseUrl = 'https://marketplace-testingbackend.dhamarketplace.com/api';
   
   /// Test that will help identify the exact source of type casting errors
   static Future<void> detectTypeCastingErrors() async {

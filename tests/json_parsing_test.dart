@@ -4,7 +4,7 @@ import '../../data/models/plot_model.dart';
 
 /// Test utility to verify JSON parsing fixes work correctly
 class JsonParsingTest {
-  static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
+  static const String baseUrl = 'https://marketplace-testingbackend.dhamarketplace.com/api';
   
   /// Test the filtered-plots endpoint to ensure it handles both List and Map responses
   static Future<void> testFilteredPlotsEndpoint() async {

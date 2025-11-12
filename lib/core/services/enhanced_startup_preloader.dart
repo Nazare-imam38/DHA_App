@@ -232,7 +232,7 @@ class EnhancedStartupPreloader {
   static Future<List<PlotModel>> _loadAllPlotsFromApi() async {
     try {
       final response = await http.get(
-        Uri.parse('https://testingbackend.dhamarketplace.com/api/plots'),
+        Uri.parse('https://marketplace-testingbackend.dhamarketplace.com/api/plots'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',

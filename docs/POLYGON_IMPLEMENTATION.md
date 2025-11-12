@@ -83,7 +83,7 @@ static Color _getBorderColor(PlotModel plot)
 
 The implementation fetches data from:
 ```
-https://testingbackend.dhamarketplace.com/api/plots
+https://marketplace-testingbackend.dhamarketplace.com/api/plots
 ```
 
 Expected response format:

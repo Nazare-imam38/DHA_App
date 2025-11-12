@@ -8,7 +8,7 @@ import '../../data/models/plot_model.dart';
 /// Optimized API Manager with request deduplication and smart caching
 /// Preserves all existing functionality while reducing network calls
 class OptimizedAPIManager {
-  static const String baseUrl = 'https://testingbackend.dhamarketplace.com/api';
+  static const String baseUrl = 'https://marketplace-testingbackend.dhamarketplace.com/api';
   static const Duration _timeout = Duration(seconds: 30);
   static const int _maxRetries = 3;
   
