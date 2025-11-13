@@ -17,6 +17,14 @@ class ReviewConfirmationStep extends StatefulWidget {
 class _ReviewConfirmationStepState extends State<ReviewConfirmationStep> {
   final MediaUploadService _mediaUploadService = MediaUploadService();
   bool _isSubmitting = false;
+  
+  // State for expandable sections
+  bool _isListingExpanded = true;
+  bool _isPropertyDetailsExpanded = true;
+  bool _isLocationDetailsExpanded = true;
+  bool _isMediaExpanded = true;
+  bool _isAmenitiesExpanded = true;
+  bool _isOwnerDetailsExpanded = true;
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +66,7 @@ class _ReviewConfirmationStepState extends State<ReviewConfirmationStep> {
                 ),
                 const SizedBox(width: 12),
                 const Text(
-          'Review Details',
+          'REVIEW DETAILS',
           style: TextStyle(
             fontFamily: 'Inter',
             fontSize: 20,
@@ -71,82 +79,136 @@ class _ReviewConfirmationStepState extends State<ReviewConfirmationStep> {
           ],
         ),
         centerTitle: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(20.r),
+            bottomRight: Radius.circular(20.r),
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(2.0.h),
+          child: Container(
+            height: 2.0.h,
+            decoration: BoxDecoration(
+              color: AppTheme.primaryBlue,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20.r),
+                bottomRight: Radius.circular(20.r),
+              ),
+            ),
+          ),
+        ),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(24.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _section(
-              title: 'Listing',
-              rows: [
-                _row('Purpose', formData.purpose),
-                _row('Category', formData.category),
-                _row('Type', formData.propertyTypeName),
-                _row('Subtype', formData.propertySubtypeName),
-                _row('Title', formData.title),
-                _row('Description', formData.description),
-                _row('Duration', formData.listingDuration),
-                _row(formData.isRent ? 'Rent Price' : 'Sale Price', 
-                     formData.isRent ? formData.rentPrice?.toString() : formData.price?.toString()),
-              ],
-            ),
-            SizedBox(height: 16.h),
-            _section(
-              title: 'Property Details',
-              rows: [
-                _row('Building', formData.buildingName),
-                _row('Floor', formData.floorNumber),
-                _row('Apartment', formData.apartmentNumber),
-                _row('Area', formData.area?.toString()),
-                _row('Area Unit', formData.areaUnit),
-                _row('Street Number', formData.streetNumber),
-              ],
-            ),
-            SizedBox(height: 16.h),
-            _section(
-              title: 'Location Details',
-              rows: [
-                _row('Complete Address', formData.location ?? 'Not provided'),
-                _row('Phase', formData.phase),
-                _row('Sector', formData.sector),
-                _row('Street Number', formData.streetNumber),
-                _row('Coordinates', formData.latitude != null && formData.longitude != null 
-                    ? '${formData.latitude!.toStringAsFixed(6)}, ${formData.longitude!.toStringAsFixed(6)}'
-                    : 'Not set'),
-              ],
-            ),
-            SizedBox(height: 16.h),
-            _section(
-              title: 'Media',
-              rows: [
-                _row('Photos', '${formData.images.length} uploaded'),
-                _row('Videos', '${formData.videos.length} uploaded'),
-              ],
-            ),
-            SizedBox(height: 16.h),
-            _section(
-              title: 'Amenities',
-              rows: [
-                _row('Selected', formData.amenities.isEmpty ? 'None' : '${formData.amenities.length} amenities selected'),
-              ],
-            ),
+      body: Column(
+        children: [
+          // Scrollable content area
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(24.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildExpandableSection(
+                    title: 'Listing',
+                    isExpanded: _isListingExpanded,
+                    onToggle: () => setState(() => _isListingExpanded = !_isListingExpanded),
+                    rows: [
+                      _row('Purpose', formData.purpose),
+                      _row('Category', formData.category),
+                      _row('Type', formData.propertyTypeName),
+                      _row('Subtype', formData.propertySubtypeName),
+                      _row('Title', formData.title),
+                      _row('Description', formData.description),
+                      _row('Duration', formData.listingDuration),
+                      _row(formData.isRent ? 'Rent Price' : 'Sale Price', 
+                           formData.isRent ? formData.rentPrice?.toString() : formData.price?.toString()),
+                    ],
+                  ),
+                  SizedBox(height: 16.h),
+                  _buildExpandableSection(
+                    title: 'Property Details',
+                    isExpanded: _isPropertyDetailsExpanded,
+                    onToggle: () => setState(() => _isPropertyDetailsExpanded = !_isPropertyDetailsExpanded),
+                    rows: [
+                      _row('Building', formData.buildingName),
+                      _row('Floor', formData.floorNumber),
+                      _row('Apartment', formData.apartmentNumber),
+                      _row('Area', formData.area?.toString()),
+                      _row('Area Unit', formData.areaUnit),
+                      _row('Street Number', formData.streetNumber),
+                    ],
+                  ),
+                  SizedBox(height: 16.h),
+                  _buildExpandableSection(
+                    title: 'Location Details',
+                    isExpanded: _isLocationDetailsExpanded,
+                    onToggle: () => setState(() => _isLocationDetailsExpanded = !_isLocationDetailsExpanded),
+                    rows: [
+                      _row('Complete Address', formData.location ?? 'Not provided'),
+                      _row('Phase', formData.phase),
+                      _row('Sector', formData.sector),
+                      _row('Street Number', formData.streetNumber),
+                      _row('Coordinates', formData.latitude != null && formData.longitude != null 
+                          ? '${formData.latitude!.toStringAsFixed(6)}, ${formData.longitude!.toStringAsFixed(6)}'
+                          : 'Not set'),
+                    ],
+                  ),
+                  SizedBox(height: 16.h),
+                  _buildExpandableSection(
+                    title: 'Media',
+                    isExpanded: _isMediaExpanded,
+                    onToggle: () => setState(() => _isMediaExpanded = !_isMediaExpanded),
+                    rows: [
+                      _row('Photos', '${formData.images.length} uploaded'),
+                      _row('Videos', '${formData.videos.length} uploaded'),
+                    ],
+                  ),
+                  SizedBox(height: 16.h),
+                  _buildExpandableSection(
+                    title: 'Amenities',
+                    isExpanded: _isAmenitiesExpanded,
+                    onToggle: () => setState(() => _isAmenitiesExpanded = !_isAmenitiesExpanded),
+                    rows: [
+                      _row('Selected', formData.amenities.isEmpty ? 'None' : '${formData.amenities.length} amenities selected'),
+                    ],
+                  ),
 
-            if (formData.onBehalf == 1) ...[
-              SizedBox(height: 16.h),
-              _section(
-                title: 'Owner Details',
-                rows: [
-                  _row('CNIC', formData.cnic),
-                  _row('Name', formData.name),
-                  _row('Phone', formData.phone),
-                  _row('Address', formData.address),
-                  _row('Email', formData.email ?? 'Not provided'),
+                  if (formData.onBehalf == 1) ...[
+                    SizedBox(height: 16.h),
+                    _buildExpandableSection(
+                      title: 'Owner Details',
+                      isExpanded: _isOwnerDetailsExpanded,
+                      onToggle: () => setState(() => _isOwnerDetailsExpanded = !_isOwnerDetailsExpanded),
+                      rows: [
+                        _row('CNIC', formData.cnic),
+                        _row('Name', formData.name),
+                        _row('Phone', formData.phone),
+                        _row('Address', formData.address),
+                        _row('Email', formData.email ?? 'Not provided'),
+                      ],
+                    ),
+                  ],
+                  // Add bottom padding to ensure content doesn't get cut off
+                  SizedBox(height: 24.h),
                 ],
               ),
-            ],
-            SizedBox(height: 24.h),
-            Row(
+            ),
+          ),
+          // Fixed bottom buttons
+          Container(
+            padding: EdgeInsets.all(24.w),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
+                ),
+              ],
+            ),
+            child: Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
@@ -154,7 +216,7 @@ class _ReviewConfirmationStepState extends State<ReviewConfirmationStep> {
                     style: OutlinedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 16.h),
                       side: const BorderSide(color: AppTheme.primaryBlue, width: 2),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
                     ),
                     child: const Text(
                       'Back',
@@ -174,7 +236,7 @@ class _ReviewConfirmationStepState extends State<ReviewConfirmationStep> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryBlue,
                       padding: EdgeInsets.symmetric(vertical: 16.h),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
                       elevation: 0,
                     ),
                     child: _isSubmitting
@@ -214,8 +276,78 @@ class _ReviewConfirmationStepState extends State<ReviewConfirmationStep> {
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExpandableSection({
+    required String title,
+    required bool isExpanded,
+    required VoidCallback onToggle,
+    required List<Widget> rows,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.cardWhite,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: AppTheme.cardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with expand/collapse button
+          InkWell(
+            onTap: onToggle,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+            child: Container(
+              padding: EdgeInsets.all(20.w),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: AppTheme.titleLarge,
+                    ),
+                  ),
+                  AnimatedRotation(
+                    turns: isExpanded ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Icon(
+                      AppIcons.keyboardArrowDown,
+                      color: AppTheme.primaryBlue,
+                      size: 24,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Expandable content
+          AnimatedSize(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            child: ClipRect(
+              child: isExpanded
+                  ? Padding(
+                      padding: EdgeInsets.only(
+                        left: 20.w,
+                        right: 20.w,
+                        bottom: 20.h,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 8),
+                          ...rows,
+                        ],
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ),
+        ],
       ),
     );
   }
