@@ -11,6 +11,7 @@ import '../../../screens/sidebar_drawer.dart';
 import '../../../ui/screens/auth/login_screen.dart';
 import '../../../ui/widgets/cached_asset_image.dart';
 import '../../../ui/widgets/app_icons.dart';
+import '../../../ui/widgets/ad_banner_widget.dart';
 import '../../../providers/plot_stats_provider.dart';
 import '../../../providers/auth_provider.dart';
 
@@ -682,6 +683,12 @@ class _HomeScreenState extends State<HomeScreen>
                   ],
                 ),
               ),
+            ),
+            
+            // Ad Banner
+            AdBannerWidget(
+              imagePath: 'assets/Ads/300x80.jpg',
+              autoDismissDuration: const Duration(seconds: 2),
             ),
             
             // Main content area

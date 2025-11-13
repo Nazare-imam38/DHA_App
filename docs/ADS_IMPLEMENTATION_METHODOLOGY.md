@@ -7,6 +7,25 @@ This document outlines the methodology for implementing two types of advertiseme
 
 ---
 
+## Quick Reference: Ad Image Resolutions
+
+### Splash Screen Banner Ads
+| Device Type | Recommended Size | High Quality (2x) | Aspect Ratio | Max File Size |
+|------------|------------------|-------------------|-------------|---------------|
+| **Mobile (Portrait)** | 360x120px | 720x240px | 3:1 | 150KB |
+| **Tablet (Landscape)** | 728x90px | 1456x180px | 8:1 | 150KB |
+
+### Interstitial Ads (Between Property Listings)
+| Device Type | Recommended Size | High Quality (2x) | Aspect Ratio | Max File Size |
+|------------|------------------|-------------------|-------------|---------------|
+| **Mobile (Portrait)** | 360x200px | 720x400px | 16:9 or 2:1 | 200KB |
+| **Tablet** | 728x410px | 1456x820px | 16:9 | 200KB |
+
+**Image Format:** JPG or PNG  
+**Note:** Images will be displayed responsively and scaled to fit screen width while maintaining aspect ratio.
+
+---
+
 ## 1. Architecture Overview
 
 ### 1.1 Component Structure
@@ -190,11 +209,21 @@ class AdService {
 
 ### 4.3 Design Specifications
 - **Dimensions:** 
-  - Mobile: 320x100px (recommended)
-  - Tablet: 728x90px
+  - **Mobile (Portrait):** 
+    - **Recommended:** 360x120px (1:3 aspect ratio)
+    - **Alternative:** 320x100px (standard banner)
+    - **High Quality:** 720x240px (2x resolution for retina displays)
+  - **Tablet (Landscape):** 
+    - **Recommended:** 728x90px (standard leaderboard)
+    - **High Quality:** 1456x180px (2x resolution)
+- **Image Format:** JPG or PNG
+- **File Size:** Maximum 150KB (optimized for fast loading)
+- **Aspect Ratio:** 3:1 (width:height) for mobile banners
 - **Position:** Bottom of screen with padding
 - **Animation:** Fade in from bottom
 - **Auto-dismiss:** Optional, after 5 seconds
+
+**Note:** Images will be displayed responsively and scaled to fit screen width while maintaining aspect ratio.
 
 ---
 
@@ -285,7 +314,21 @@ ListView.builder(
   - Tap to navigate to ad detail screen
   - Rounded corners, shadow (match property card style)
 
-### 5.5 Ad Placement Rules
+### 5.5 Interstitial Ad Image Specifications
+- **Dimensions:**
+  - **Mobile (Portrait):**
+    - **Recommended:** 360x200px (matches property card image height)
+    - **Standard:** 320x180px
+    - **High Quality:** 720x400px (2x resolution for retina displays)
+  - **Tablet:**
+    - **Recommended:** 728x410px
+    - **High Quality:** 1456x820px (2x resolution)
+- **Image Format:** JPG or PNG
+- **File Size:** Maximum 200KB (can be larger than banners due to better visibility)
+- **Aspect Ratio:** 16:9 or 2:1 (width:height) recommended
+- **Display:** Full-width card matching property card width (screen width minus 32px padding)
+
+### 5.6 Ad Placement Rules
 - **Frequency:** Every 5th property card (configurable)
 - **Maximum:** 3 ads per screen (to avoid overwhelming users)
 - **Rotation:** Rotate through available ads if multiple exist

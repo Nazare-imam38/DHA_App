@@ -21,6 +21,7 @@ import 'core/services/unified_cache_manager.dart';
 import 'core/services/enterprise_api_manager.dart';
 import 'core/services/smart_filter_manager.dart';
 import 'core/services/progressive_map_renderer.dart';
+import 'core/navigation/navigation_ad_observer.dart';
 
 // Custom gradient theme extension
 @immutable
@@ -261,6 +262,9 @@ class _DHAMarketplaceAppState extends State<DHAMarketplaceApp> {
               ),
               home: const EnhancedSplashScreen(),
               debugShowCheckedModeBanner: false,
+              navigatorObservers: [
+                NavigationAdObserver(),
+              ],
             ),
           );
         },

@@ -6,6 +6,8 @@ import '../providers/auth_provider.dart';
 import '../ui/screens/auth/login_screen.dart';
 import '../ui/widgets/dha_loading_widget.dart';
 import '../ui/widgets/cached_asset_image.dart';
+import '../ui/widgets/ad_banner_widget.dart';
+import '../core/navigation/navigation_ad_observer.dart';
 import 'main_wrapper.dart';
 import '../core/services/unified_memory_cache.dart';
 import '../core/services/satellite_imagery_preloader.dart';
@@ -106,6 +108,9 @@ class _SplashScreenState extends State<SplashScreen>
         
         // Initialize authentication state
         await authProvider.initializeAuth();
+        
+        // Reset navigation ad observer when app starts
+        NavigationAdObserver.reset();
         
         // Navigate based on authentication status
         if (mounted) {
@@ -227,7 +232,15 @@ class _SplashScreenState extends State<SplashScreen>
                 },
               ),
 
-              const SizedBox(height: 100),
+              const SizedBox(height: 60),
+
+              // Ad Banner
+              AdBannerWidget(
+                imagePath: 'assets/Ads/300x80.jpg',
+                autoDismissDuration: const Duration(seconds: 2),
+              ),
+
+              const SizedBox(height: 40),
 
               // Enhanced Loading Indicator
               AnimatedBuilder(

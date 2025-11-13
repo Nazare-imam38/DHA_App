@@ -420,11 +420,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           _isLoading = false;
         });
         
-        // Show dialog for authentication errors
-        if (errorMessage.contains('Authentication token missing') || 
-            errorMessage.contains('Please login again')) {
-          _showAuthenticationErrorDialog(errorMessage);
-        }
+        // Authentication error dialog removed as per user request
       }
     } catch (e) {
       setState(() {

@@ -10,6 +10,7 @@ import '../../../screens/main_wrapper.dart';
 import '../../../ui/widgets/cached_asset_image.dart';
 import '../../../ui/widgets/modern_forgot_password_dialog.dart';
 import '../../../ui/widgets/app_icons.dart';
+import '../../../ui/widgets/ad_banner_widget.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -263,6 +264,11 @@ class _LoginScreenState extends State<LoginScreen>
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                  // Ad Banner at top
+                  AdBannerWidget(
+                    imagePath: 'assets/Ads/300x80.jpg',
+                    autoDismissDuration: const Duration(seconds: 2),
+                  ),
                   const SizedBox(height: 20),
                   
                         // Logo and Title

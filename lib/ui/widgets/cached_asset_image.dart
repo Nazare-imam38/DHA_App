@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 /// A widget that provides optimized caching for asset images
 /// This widget uses Flutter's built-in image cache for better performance and memory management
@@ -36,12 +37,30 @@ class CachedAssetImage extends StatelessWidget {
     this.filterQuality = FilterQuality.low,
   });
 
+  /// Normalize asset path to prevent duplication
+  /// Image.asset() expects paths without the 'assets/' prefix
+  String _normalizeAssetPath(String path) {
+    // Remove leading slash if present
+    String normalized = path.startsWith('/') ? path.substring(1) : path;
+    
+    // Image.asset() expects paths relative to the assets folder
+    // So 'assets/Ads/300x80.jpg' should be 'Ads/300x80.jpg'
+    if (normalized.startsWith('assets/')) {
+      normalized = normalized.substring(7); // Remove 'assets/'
+    }
+    
+    return normalized;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Use a simple Image widget with AssetImage for better performance
+    // Normalize the asset path to prevent duplication issues
+    final normalizedPath = _normalizeAssetPath(assetPath);
+    
+    // Use Image.asset for better web compatibility
     // The caching is handled by Flutter's image cache automatically
-    return Image(
-      image: AssetImage(assetPath),
+    return Image.asset(
+      normalizedPath,
       width: width,
       height: height,
       fit: fit,
@@ -53,16 +72,19 @@ class CachedAssetImage extends StatelessWidget {
       gaplessPlayback: gaplessPlayback,
       isAntiAlias: isAntiAlias,
       filterQuality: filterQuality,
-      errorBuilder: errorBuilder ?? (context, error, stackTrace) => Container(
-        width: width,
-        height: height,
-        color: Colors.grey[300],
-        child: const Icon(
-          Icons.error_outline,
-          color: Colors.grey,
-          size: 24,
-        ),
-      ),
+      errorBuilder: errorBuilder ?? (context, error, stackTrace) {
+        debugPrint('Error loading asset: $normalizedPath - $error');
+        return Container(
+          width: width,
+          height: height,
+          color: Colors.grey[300],
+          child: const Icon(
+            Icons.error_outline,
+            color: Colors.grey,
+            size: 24,
+          ),
+        );
+      },
     );
   }
 }

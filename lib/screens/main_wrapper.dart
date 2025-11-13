@@ -11,6 +11,8 @@ import 'profile_screen.dart';
 import 'sidebar_drawer.dart';
 import '../providers/plots_provider.dart';
 import '../ui/widgets/app_icons.dart';
+import '../core/navigation/navigation_ad_observer.dart';
+import '../ui/widgets/navigation_ad_banner.dart';
 
 class MainWrapper extends StatefulWidget {
   final int initialTabIndex;
@@ -28,11 +30,17 @@ class _MainWrapperState extends State<MainWrapper>
   
   // Preload all screens to avoid white flash
   late List<Widget> _screens;
+  
+  // Ad banner state
+  bool _showAd = false;
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.initialTabIndex;
+    
+    // Check if ad should be shown after navigation
+    _checkAdStatus();
     
     // Preload all screens
     _screens = [
@@ -66,7 +74,29 @@ class _MainWrapperState extends State<MainWrapper>
       setState(() {
         _currentIndex = index;
       });
+      // Check if ad should be shown after tab navigation
+      _checkAdStatus();
       // No animation needed with IndexedStack - instant switch
+    }
+  }
+  
+  void _checkAdStatus() {
+    // Use a small delay to ensure navigation observer has updated
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted && NavigationAdObserver.shouldShowAd) {
+        setState(() {
+          _showAd = true;
+        });
+        NavigationAdObserver.markAdShown();
+      }
+    });
+  }
+  
+  void _onAdDismiss() {
+    if (mounted) {
+      setState(() {
+        _showAd = false;
+      });
     }
   }
 
@@ -77,9 +107,29 @@ class _MainWrapperState extends State<MainWrapper>
     
     return Scaffold(
       drawer: const SidebarDrawer(),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
+      body: Stack(
+        children: [
+          IndexedStack(
+            index: _currentIndex,
+            children: _screens,
+          ),
+          // Navigation Ad Banner Overlay - Centered on screen
+          if (_showAd)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withOpacity(0.5), // Semi-transparent backdrop
+                child: Center(
+                  child: SafeArea(
+                    child: NavigationAdBanner(
+                      imagePath: 'assets/Ads/375x400.jpg',
+                      autoDismissDuration: const Duration(seconds: 3),
+                      onDismiss: _onAdDismiss,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
       bottomNavigationBar: _buildModernBottomNav(l10n),
       floatingActionButton: _currentIndex == 0 ? _buildFloatingActionButton() : const SizedBox.shrink(),
