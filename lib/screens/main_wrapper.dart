@@ -132,7 +132,9 @@ class _MainWrapperState extends State<MainWrapper>
         ],
       ),
       bottomNavigationBar: _buildModernBottomNav(l10n),
-      floatingActionButton: _currentIndex == 0 ? _buildFloatingActionButton() : const SizedBox.shrink(),
+      floatingActionButton: _currentIndex == 0 
+          ? _buildFloatingActionButton() 
+          : null, // Explicitly set to null to remove FAB on all other screens including profile
     );
   }
 

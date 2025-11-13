@@ -9,6 +9,7 @@ import '../services/language_service.dart';
 import '../services/call_service.dart';
 import 'sidebar_drawer.dart';
 import '../ui/widgets/app_icons.dart';
+import '../core/theme/app_theme.dart';
 
 class ContactUsScreen extends StatefulWidget {
   const ContactUsScreen({super.key});
@@ -93,7 +94,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
     final languageService = Provider.of<LanguageService>(context);
     
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppTheme.backgroundGrey,
       drawer: const SidebarDrawer(),
       body: CustomScrollView(
         slivers: [
@@ -122,11 +123,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  gradient: AppTheme.primaryGradient,
                 ),
                 child: Stack(
                   children: [
@@ -182,25 +179,25 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16.h),
                       Text(
                         l10n.contactUs,
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                                fontSize: 32,
-                                fontWeight: FontWeight.w800,
+                        style: TextStyle(
+                          fontFamily: AppTheme.headingFont,
+                          fontSize: 24.sp,
+                          fontWeight: FontWeight.w700,
                           color: Colors.white,
-                                letterSpacing: -0.5,
+                          letterSpacing: 0.5,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8.h),
                       Text(
                         l10n.getInTouchWithUs,
-                        style: const TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 16,
-                          color: Colors.white70,
-                                fontWeight: FontWeight.w400,
+                        style: TextStyle(
+                          fontFamily: AppTheme.primaryFont,
+                          fontSize: 14.sp,
+                          color: Colors.white.withOpacity(0.9),
+                          fontWeight: FontWeight.w400,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -225,59 +222,55 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                   child: _buildEnhancedContactCard(
                       icon: AppIcons.place,
                       title: l10n.visitOurOffice,
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                      iconColor: AppTheme.primaryBlue,
                       content: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Office Info Header
                         Container(
-                          padding: const EdgeInsets.all(16),
+                          padding: EdgeInsets.all(16.w),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF0F9FF),
-                            borderRadius: BorderRadius.circular(12),
+                            color: AppTheme.lightBlue,
+                            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                             border: Border.all(
-                              color: const Color(0xFF1E3C90).withOpacity(0.2),
+                              color: AppTheme.primaryBlue.withOpacity(0.2),
                             ),
                           ),
                           child: Row(
                             children: [
                               Container(
-                                padding: const EdgeInsets.all(8),
+                                padding: EdgeInsets.all(8.w),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF1E3C90).withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(8),
+                                  color: AppTheme.primaryBlue.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   AppIcons.business,
-                                  color: Color(0xFF1E3C90),
-                                  size: 20,
+                                  color: AppTheme.primaryBlue,
+                                  size: 20.sp,
                                 ),
                               ),
-                              const SizedBox(width: 12),
+                              SizedBox(width: 12.w),
                               Expanded(
                                 child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'DHA Islamabad Head Office',
-                            style: const TextStyle(
-                              fontFamily: 'Inter',
-                                        fontSize: 18,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'DHA Islamabad Head Office',
+                                      style: TextStyle(
+                                        fontFamily: AppTheme.primaryFont,
+                                        fontSize: 16.sp,
                                         fontWeight: FontWeight.w700,
-                              color: Color(0xFF1F2937),
-                            ),
-                          ),
-                                    const SizedBox(height: 4),
-                          Text(
+                                        color: AppTheme.textPrimary,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4.h),
+                                    Text(
                                       'Defence Ave, Sector A DHA Phase 1, Islamabad',
-                            style: const TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 14,
-                              color: Color(0xFF6B7280),
+                                      style: TextStyle(
+                                        fontFamily: AppTheme.primaryFont,
+                                        fontSize: 14.sp,
+                                        color: AppTheme.textSecondary,
                                       ),
                                     ),
                                   ],
@@ -286,25 +279,19 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                             ],
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16.h),
                         // Embedded Map
                         Container(
-                          height: 200,
+                          height: 200.h,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                             border: Border.all(
-                              color: const Color(0xFF1E3C90).withOpacity(0.2),
+                              color: AppTheme.primaryBlue.withOpacity(0.2),
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
+                            boxShadow: AppTheme.lightShadow,
                           ),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                             child: FlutterMap(
                               options: MapOptions(
                                 initialCenter: const LatLng(33.6844, 73.0479), // DHA Phase 1, Islamabad coordinates
@@ -325,7 +312,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                       height: 60,
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF1E3C90),
+                                          color: AppTheme.primaryBlue,
                                           shape: BoxShape.circle,
                                           border: Border.all(
                                             color: Colors.white,
@@ -333,16 +320,16 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                           ),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: const Color(0xFF1E3C90).withOpacity(0.3),
+                                              color: AppTheme.primaryBlue.withOpacity(0.3),
                                               blurRadius: 8,
                                               offset: const Offset(0, 2),
                                             ),
                                           ],
                                         ),
-                                        child: const Icon(
+                                        child: Icon(
                                           AppIcons.place,
                                           color: Colors.white,
-                                          size: 30,
+                                          size: 30.sp,
                                         ),
                                       ),
                                     ),
@@ -357,38 +344,34 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                           GestureDetector(
                             onTap: _launchMap,
                             child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
                               decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF20B2AA), Color(0xFF17a2b8)],
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(0xFF20B2AA).withOpacity(0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
+                                color: AppTheme.tealAccent,
+                                borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppTheme.tealAccent.withOpacity(0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
                               ),
                               child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(
-                                  AppIcons.directions,
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
-                                const SizedBox(width: 10),
-                                  Text(
-                                  'Get Directions',
-                                    style: const TextStyle(
-                                      fontFamily: 'Inter',
-                                    fontSize: 15,
-                                      fontWeight: FontWeight.w600,
+                                  Icon(
+                                    AppIcons.directions,
                                     color: Colors.white,
+                                    size: 18.sp,
+                                  ),
+                                  SizedBox(width: 10.w),
+                                  Text(
+                                    'Get Directions',
+                                    style: TextStyle(
+                                      fontFamily: AppTheme.primaryFont,
+                                      fontSize: 15.sp,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
                                     ),
                                   ),
                                 ],
@@ -400,7 +383,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                     ),
                   ),
                   
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                   
                   // Call Us Card
                   SlideTransition(
@@ -408,35 +391,21 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                   child: _buildEnhancedContactCard(
                       icon: AppIcons.phone,
                       title: l10n.callUs,
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF11998e), Color(0xFF38ef7d)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                      iconColor: AppTheme.tealAccent,
                       content: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Main Office
                           Container(
-                          padding: const EdgeInsets.all(20),
+                            padding: EdgeInsets.all(20.w),
                             decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFFF0FDF4), Color(0xFFECFDF5)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: const Color(0xFF10B981).withOpacity(0.2),
-                              width: 1,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF10B981).withOpacity(0.1),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+                              color: AppTheme.tealAccent.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                              border: Border.all(
+                                color: AppTheme.tealAccent.withOpacity(0.2),
+                                width: 1,
                               ),
-                            ],
+                              boxShadow: AppTheme.lightShadow,
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -444,135 +413,125 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                               Row(
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.all(10),
+                                    padding: EdgeInsets.all(10.w),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF10B981).withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(10),
+                                      color: AppTheme.tealAccent.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       AppIcons.businessCenter,
-                                      color: Color(0xFF10B981),
-                                      size: 22,
+                                      color: AppTheme.tealAccent,
+                                      size: 22.sp,
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
+                                  SizedBox(width: 12.w),
                                   Expanded(
                                     child: Text(
-                                  l10n.mainOffice,
-                                  style: const TextStyle(
-                                    fontFamily: 'Inter',
-                                        fontSize: 16,
+                                      l10n.mainOffice,
+                                      style: TextStyle(
+                                        fontFamily: AppTheme.primaryFont,
+                                        fontSize: 16.sp,
                                         fontWeight: FontWeight.w700,
-                                    color: Color(0xFF1F2937),
-                                  ),
-                                ),
+                                        color: AppTheme.textPrimary,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 16),
-                                GestureDetector(
-                                  onTap: () => CallService.showCallBottomSheet(context, '+92-51-111-555-400'),
+                              SizedBox(height: 16.h),
+                              GestureDetector(
+                                onTap: () => CallService.showCallBottomSheet(context, '+92-51-111-555-400'),
                                 child: Container(
-                                  padding: const EdgeInsets.all(16),
+                                  padding: EdgeInsets.all(16.w),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                                     border: Border.all(
-                                      color: const Color(0xFF10B981).withOpacity(0.3),
+                                      color: AppTheme.tealAccent.withOpacity(0.3),
                                     ),
                                   ),
                                   child: Row(
                                     children: [
-                                      const Icon(
+                                      Icon(
                                         AppIcons.phone,
-                                        color: Color(0xFF10B981),
-                                        size: 20,
+                                        color: AppTheme.tealAccent,
+                                        size: 20.sp,
                                       ),
-                                      const SizedBox(width: 12),
+                                      SizedBox(width: 12.w),
                                       Text(
-                                    '+92-51-111-555-400',
-                                    style: const TextStyle(
-                                      fontFamily: 'Inter',
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w800,
-                                          color: Color(0xFF10B981),
+                                        '+92-51-111-555-400',
+                                        style: TextStyle(
+                                          fontFamily: AppTheme.primaryFont,
+                                          fontSize: 18.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppTheme.tealAccent,
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 12),
-                                Text(
+                              SizedBox(height: 12.h),
+                              Text(
                                 'Extensions: 1223, 1381, 1244, 1606',
-                                  style: const TextStyle(
-                                    fontFamily: 'Inter',
-                                  fontSize: 14,
-                                    color: Color(0xFF6B7280),
+                                style: TextStyle(
+                                  fontFamily: AppTheme.primaryFont,
+                                  fontSize: 14.sp,
+                                  color: AppTheme.textSecondary,
                                   fontStyle: FontStyle.italic,
-                                  ),
                                 ),
+                              ),
                               ],
                             ),
                           ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16.h),
                           // Direct Lines
                           Container(
-                          padding: const EdgeInsets.all(20),
+                            padding: EdgeInsets.all(20.w),
                             decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFFF3E8FF), Color(0xFFFAF5FF)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: const Color(0xFF8B5CF6).withOpacity(0.2),
-                              width: 1,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF8B5CF6).withOpacity(0.1),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+                              color: AppTheme.primaryBlue.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                              border: Border.all(
+                                color: AppTheme.primaryBlue.withOpacity(0.2),
+                                width: 1,
                               ),
-                            ],
+                              boxShadow: AppTheme.lightShadow,
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF8B5CF6).withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(10),
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(10.w),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.primaryBlue.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                                      ),
+                                      child: Icon(
+                                        AppIcons.supportAgent,
+                                        color: AppTheme.primaryBlue,
+                                        size: 22.sp,
+                                      ),
                                     ),
-                                    child: const Icon(
-                                      AppIcons.supportAgent,
-                                      color: Color(0xFF8B5CF6),
-                                      size: 22,
+                                    SizedBox(width: 12.w),
+                                    Expanded(
+                                      child: Text(
+                                        l10n.directLines,
+                                        style: TextStyle(
+                                          fontFamily: AppTheme.primaryFont,
+                                          fontSize: 16.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppTheme.textPrimary,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                  l10n.directLines,
-                                  style: const TextStyle(
-                                    fontFamily: 'Inter',
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                    color: Color(0xFF1F2937),
-                                  ),
+                                  ],
                                 ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              _buildEnhancedPhoneRow('Sales Executive', '0321-5081777', const Color(0xFF8B5CF6)),
-                              const SizedBox(height: 12),
-                              _buildEnhancedPhoneRow('Sales Executive', '0332-4305958', const Color(0xFF8B5CF6)),
+                                SizedBox(height: 16.h),
+                                _buildEnhancedPhoneRow('Sales Executive', '0321-5081777', AppTheme.primaryBlue),
+                                SizedBox(height: 12.h),
+                                _buildEnhancedPhoneRow('Sales Executive', '0332-4305958', AppTheme.primaryBlue),
                               ],
                             ),
                           ),
@@ -581,7 +540,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                     ),
                   ),
                   
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                   
                   // Email Us Card
                   SlideTransition(
@@ -589,166 +548,142 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                   child: _buildEnhancedContactCard(
                       icon: AppIcons.email,
                       title: l10n.emailUs,
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                      iconColor: AppTheme.primaryBlue,
                       content: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Email Marketplace
                           Container(
-                          padding: const EdgeInsets.all(20),
+                            padding: EdgeInsets.all(20.w),
                             decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFFEFF6FF), Color(0xFFF0F9FF)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: const Color(0xFF1E3C90).withOpacity(0.2),
-                              width: 1,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF1E3C90).withOpacity(0.1),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+                              color: AppTheme.lightBlue,
+                              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                              border: Border.all(
+                                color: AppTheme.primaryBlue.withOpacity(0.2),
+                                width: 1,
                               ),
-                            ],
+                              boxShadow: AppTheme.lightShadow,
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF1E3C90).withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(10),
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(10.w),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.primaryBlue.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                                      ),
+                                      child: Icon(
+                                        AppIcons.store,
+                                        color: AppTheme.primaryBlue,
+                                        size: 22.sp,
+                                      ),
                                     ),
-                                    child: const Icon(
-                                      AppIcons.store,
-                                      color: Color(0xFF1E3C90),
-                                      size: 22,
+                                    SizedBox(width: 12.w),
+                                    Expanded(
+                                      child: Text(
+                                        l10n.emailMarketplace,
+                                        style: TextStyle(
+                                          fontFamily: AppTheme.primaryFont,
+                                          fontSize: 16.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppTheme.textPrimary,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                  l10n.emailMarketplace,
-                                  style: const TextStyle(
-                                    fontFamily: 'Inter',
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                    color: Color(0xFF1F2937),
-                                  ),
+                                  ],
                                 ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
+                                SizedBox(height: 16.h),
                                 GestureDetector(
                                   onTap: () => _launchEmail('info@dhamarketplace.com'),
-                                child: Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: const Color(0xFF1E3C90).withOpacity(0.3),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      const Icon(
-                                        AppIcons.email,
-                                        color: Color(0xFF1E3C90),
-                                        size: 20,
+                                  child: Container(
+                                    padding: EdgeInsets.all(16.w),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                                      border: Border.all(
+                                        color: AppTheme.primaryBlue.withOpacity(0.3),
                                       ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                  child: Text(
-                                    'info@dhamarketplace.com',
-                                    style: const TextStyle(
-                                      fontFamily: 'Inter',
-                                      fontSize: 16,
-                                            fontWeight: FontWeight.w700,
-                                            color: Color(0xFF1E3C90),
-                                      decoration: TextDecoration.underline,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          AppIcons.email,
+                                          color: AppTheme.primaryBlue,
+                                          size: 20.sp,
+                                        ),
+                                        SizedBox(width: 12.w),
+                                        Expanded(
+                                          child: Text(
+                                            'info@dhamarketplace.com',
+                                            style: TextStyle(
+                                              fontFamily: AppTheme.primaryFont,
+                                              fontSize: 16.sp,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppTheme.primaryBlue,
+                                              decoration: TextDecoration.underline,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                              ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16.h),
                           // Business Hours
                           Container(
-                          padding: const EdgeInsets.all(20),
+                            padding: EdgeInsets.all(20.w),
                             decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFFF0F9FF), Color(0xFFE0F2FE)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: const Color(0xFF0EA5E9).withOpacity(0.2),
-                              width: 1,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF0EA5E9).withOpacity(0.1),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+                              color: AppTheme.lightBlue,
+                              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                              border: Border.all(
+                                color: AppTheme.primaryBlue.withOpacity(0.2),
+                                width: 1,
                               ),
-                            ],
+                              boxShadow: AppTheme.lightShadow,
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF0EA5E9).withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(10),
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(10.w),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.primaryBlue.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                                      ),
+                                      child: Icon(
+                                        AppIcons.accessTime,
+                                        color: AppTheme.primaryBlue,
+                                        size: 22.sp,
+                                      ),
                                     ),
-                                    child: const Icon(
-                                      AppIcons.accessTime,
-                                      color: Color(0xFF0EA5E9),
-                                      size: 22,
+                                    SizedBox(width: 12.w),
+                                    Expanded(
+                                      child: Text(
+                                        l10n.businessHours,
+                                        style: TextStyle(
+                                          fontFamily: AppTheme.primaryFont,
+                                          fontSize: 16.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppTheme.textPrimary,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                  l10n.businessHours,
-                                  style: const TextStyle(
-                                    fontFamily: 'Inter',
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                    color: Color(0xFF1F2937),
-                                  ),
+                                  ],
                                 ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              _buildBusinessHoursRow('Mon - Fri', '9:00 AM - 6:00 PM'),
-                              const SizedBox(height: 8),
-                              _buildBusinessHoursRow('Saturday', '9:00 AM - 2:00 PM'),
-                              const SizedBox(height: 8),
-                              _buildBusinessHoursRow('Sunday', 'Closed', isClosed: true),
+                                SizedBox(height: 16.h),
+                                _buildBusinessHoursRow('Mon - Fri', '9:00 AM - 6:00 PM'),
+                                SizedBox(height: 8.h),
+                                _buildBusinessHoursRow('Saturday', '9:00 AM - 2:00 PM'),
+                                SizedBox(height: 8.h),
+                                _buildBusinessHoursRow('Sunday', 'Closed', isClosed: true),
                               ],
                             ),
                           ),
@@ -757,87 +692,68 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                     ),
                   ),
                   
-                const SizedBox(height: 32),
+                SizedBox(height: 32.h),
                   
                   // Why Choose DHA Marketplace Section
                   SlideTransition(
                     position: _slideAnimation,
                     child: Container(
                       width: double.infinity,
-                    padding: const EdgeInsets.all(28),
+                      padding: EdgeInsets.all(24.w),
                       decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Colors.white, Color(0xFFFAFAFA)],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
+                        color: AppTheme.cardWhite,
+                        borderRadius: BorderRadius.circular(AppTheme.radiusXLarge),
+                        boxShadow: AppTheme.cardShadow,
                       ),
-                      borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                        ),
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.02),
-                          blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                    ),
                     child: Column(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(20),
+                          padding: EdgeInsets.all(20.w),
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            l10n.whyChooseDhaMarketplace,
-                            style: const TextStyle(
-                              fontFamily: 'Poppins',
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w800,
+                            gradient: AppTheme.primaryGradient,
+                            borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                          ),
+                          child: Column(
+                            children: [
+                              Text(
+                                l10n.whyChooseDhaMarketplace,
+                                style: TextStyle(
+                                  fontFamily: AppTheme.headingFont,
+                                  fontSize: 20.sp,
+                                  fontWeight: FontWeight.w700,
                                   color: Colors.white,
-                                  letterSpacing: -0.5,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            l10n.trustedPartnerForProperty,
-                            style: const TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 16,
-                                  color: Colors.white70,
+                                  letterSpacing: 0.5,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              SizedBox(height: 8.h),
+                              Text(
+                                l10n.trustedPartnerForProperty,
+                                style: TextStyle(
+                                  fontFamily: AppTheme.primaryFont,
+                                  fontSize: 14.sp,
+                                  color: Colors.white.withOpacity(0.9),
                                   fontWeight: FontWeight.w400,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 28),
+                        SizedBox(height: 24.h),
                           Row(
                             children: [
-                            Expanded(child: _buildEnhancedFeatureItem(AppIcons.security, l10n.secureTransactions, l10n.secureTransactionsDesc, const Color(0xFF1E3C90))),
-                            const SizedBox(width: 16),
-                            Expanded(child: _buildEnhancedFeatureItem(AppIcons.supportAgent, l10n.expertSupport, l10n.expertSupportDesc, const Color(0xFF10B981))),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
+                              Expanded(child: _buildEnhancedFeatureItem(AppIcons.security, l10n.secureTransactions, l10n.secureTransactionsDesc, AppTheme.primaryBlue)),
+                              SizedBox(width: 16.w),
+                              Expanded(child: _buildEnhancedFeatureItem(AppIcons.supportAgent, l10n.expertSupport, l10n.expertSupportDesc, AppTheme.tealAccent)),
+                            ],
+                          ),
+                        SizedBox(height: 16.h),
                           Row(
                             children: [
-                            Expanded(child: _buildEnhancedFeatureItem(AppIcons.locationCity, l10n.premiumLocations, l10n.premiumLocationsDesc, const Color(0xFF8B5CF6))),
-                            const SizedBox(width: 16),
-                            Expanded(child: _buildEnhancedFeatureItem(AppIcons.speed, l10n.quickProcessing, l10n.quickProcessingDesc, const Color(0xFFF59E0B))),
+                              Expanded(child: _buildEnhancedFeatureItem(AppIcons.locationCity, l10n.premiumLocations, l10n.premiumLocationsDesc, AppTheme.primaryBlue)),
+                              SizedBox(width: 16.w),
+                              Expanded(child: _buildEnhancedFeatureItem(AppIcons.speed, l10n.quickProcessing, l10n.quickProcessingDesc, AppTheme.tealAccent)),
                             ],
                           ),
                         ],
@@ -845,92 +761,82 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                     ),
                   ),
                   
-                const SizedBox(height: 32),
+                SizedBox(height: 32.h),
                   
                 // Call to Action Section - Simplified
                   SlideTransition(
                     position: _slideAnimation,
                     child: Container(
                       width: double.infinity,
-                    padding: const EdgeInsets.all(20),
+                      padding: EdgeInsets.all(20.w),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF1E3C90), Color(0xFF20B2AA)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF1E3C90).withOpacity(0.2),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
+                        gradient: AppTheme.primaryGradient,
+                        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                        boxShadow: AppTheme.cardShadow,
                       ),
                       child: Column(
                         children: [
                           Text(
                             l10n.readyToInvestInFuture,
-                            style: const TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 20,
+                            style: TextStyle(
+                              fontFamily: AppTheme.headingFont,
+                              fontSize: 18.sp,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8.h),
                           Text(
                             l10n.joinThousandsOfInvestors,
-                            style: const TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 14,
-                              color: Colors.white70,
-                            fontWeight: FontWeight.w400,
+                            style: TextStyle(
+                              fontFamily: AppTheme.primaryFont,
+                              fontSize: 14.sp,
+                              color: Colors.white.withOpacity(0.9),
+                              fontWeight: FontWeight.w400,
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 20),
-                        // Single action button to avoid overflow
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.pushNamed(context, '/properties');
-                                  },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: const Color(0xFF1E3C90),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                                    shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                          SizedBox(height: 20.h),
+                          // Single action button to avoid overflow
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/properties');
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: AppTheme.primaryBlue,
+                                padding: EdgeInsets.symmetric(vertical: 14.h),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                                ),
+                                elevation: 2,
                               ),
-                              elevation: 2,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(AppIcons.explore, size: 18),
-                                const SizedBox(width: 8),
-                                Text(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(AppIcons.explore, size: 18.sp),
+                                  SizedBox(width: 8.w),
+                                  Text(
                                     l10n.exploreProperties,
-                                    style: const TextStyle(
-                                      fontFamily: 'Inter',
-                                    fontSize: 16,
+                                    style: TextStyle(
+                                      fontFamily: AppTheme.primaryFont,
+                                      fontSize: 16.sp,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
                           ),
                         ],
                       ),
                     ),
                   ),
                   
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
               ]),
               ),
             ),
@@ -943,26 +849,15 @@ class _ContactUsScreenState extends State<ContactUsScreen>
     required IconData icon,
     required String title,
     required Widget content,
-    required Gradient gradient,
+    required Color iconColor,
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: AppTheme.cardWhite,
+        borderRadius: BorderRadius.circular(AppTheme.radiusXLarge),
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -970,14 +865,14 @@ class _ContactUsScreenState extends State<ContactUsScreen>
           Row(
             children: [
               Container(
-                width: 56,
-                height: 56,
+                width: 56.w,
+                height: 56.w,
                 decoration: BoxDecoration(
-                  gradient: gradient,
+                  color: iconColor,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: gradient.colors.first.withOpacity(0.3),
+                      color: iconColor.withOpacity(0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -986,25 +881,25 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                 child: Icon(
                   icon,
                   color: Colors.white,
-                  size: 28,
+                  size: 28.sp,
                 ),
               ),
-              const SizedBox(width: 20),
+              SizedBox(width: 20.w),
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 22,
+                  style: TextStyle(
+                    fontFamily: AppTheme.headingFont,
+                    fontSize: 18.sp,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF1F2937),
-                    letterSpacing: -0.5,
+                    color: AppTheme.textPrimary,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           content,
         ],
       ),
@@ -1015,38 +910,38 @@ class _ContactUsScreenState extends State<ContactUsScreen>
     return GestureDetector(
       onTap: () => CallService.showCallBottomSheet(context, phoneNumber),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
           border: Border.all(
             color: color.withOpacity(0.2),
           ),
         ),
         child: Row(
-      children: [
+          children: [
             Icon(
               Icons.phone,
               color: color,
-              size: 16,
+              size: 16.sp,
             ),
-            const SizedBox(width: 8),
-        Text(
-          label,
-          style: const TextStyle(
-            fontFamily: 'Inter',
-                fontSize: 13,
-            color: Color(0xFF6B7280),
+            SizedBox(width: 8.w),
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: AppTheme.primaryFont,
+                fontSize: 14.sp,
+                color: AppTheme.textSecondary,
                 fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(width: 8),
+              ),
+            ),
+            SizedBox(width: 8.w),
             Expanded(
-          child: Text(
-            phoneNumber,
+              child: Text(
+                phoneNumber,
                 style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 15,
+                  fontFamily: AppTheme.primaryFont,
+                  fontSize: 15.sp,
                   fontWeight: FontWeight.w700,
                   color: color,
                 ),
@@ -1055,7 +950,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
             Icon(
               Icons.arrow_forward_ios,
               color: color.withOpacity(0.6),
-              size: 14,
+              size: 14.sp,
             ),
           ],
         ),
@@ -1065,12 +960,12 @@ class _ContactUsScreenState extends State<ContactUsScreen>
 
   Widget _buildBusinessHoursRow(String day, String hours, {bool isClosed = false}) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
       decoration: BoxDecoration(
         color: isClosed ? Colors.grey[50] : Colors.white,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
         border: Border.all(
-          color: isClosed ? Colors.grey[200]! : const Color(0xFF0EA5E9).withOpacity(0.2),
+          color: isClosed ? Colors.grey[200]! : AppTheme.primaryBlue.withOpacity(0.2),
         ),
       ),
       child: Row(
@@ -1078,112 +973,88 @@ class _ContactUsScreenState extends State<ContactUsScreen>
           Text(
             day,
             style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 14,
+              fontFamily: AppTheme.primaryFont,
+              fontSize: 14.sp,
               fontWeight: FontWeight.w600,
-              color: isClosed ? Colors.grey[600] : const Color(0xFF1F2937),
+              color: isClosed ? Colors.grey[600] : AppTheme.textPrimary,
             ),
           ),
           const Spacer(),
           Text(
             hours,
             style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 14,
+              fontFamily: AppTheme.primaryFont,
+              fontSize: 14.sp,
               fontWeight: FontWeight.w600,
-              color: isClosed ? Colors.grey[500] : const Color(0xFF0EA5E9),
+              color: isClosed ? Colors.grey[500] : AppTheme.primaryBlue,
+            ),
           ),
-        ),
-      ],
+        ],
       ),
     );
   }
 
   Widget _buildEnhancedFeatureItem(IconData icon, String title, String description, Color color) {
     return Container(
-      height: 160, // Fixed height for all cards
-      padding: const EdgeInsets.all(16),
+      height: 160.h,
+      padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: AppTheme.cardWhite,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         border: Border.all(
           color: color.withOpacity(0.2),
           width: 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppTheme.lightShadow,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-            width: 56,
-            height: 56,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            icon,
+        children: [
+          Container(
+            width: 56.w,
+            height: 56.w,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
               color: color,
-              size: 28,
+              size: 28.sp,
+            ),
           ),
-        ),
-          const SizedBox(height: 12),
-        Text(
-          title,
-          style: const TextStyle(
-            fontFamily: 'Inter',
-              fontSize: 14,
+          SizedBox(height: 12.h),
+          Text(
+            title,
+            style: TextStyle(
+              fontFamily: AppTheme.primaryFont,
+              fontSize: 14.sp,
               fontWeight: FontWeight.w700,
-            color: Color(0xFF1F2937),
-          ),
-          textAlign: TextAlign.center,
+              color: AppTheme.textPrimary,
+            ),
+            textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-        ),
-          const SizedBox(height: 8),
+          ),
+          SizedBox(height: 8.h),
           Expanded(
             child: Text(
-          description,
-          style: const TextStyle(
-            fontFamily: 'Inter',
-                fontSize: 12,
-            color: Color(0xFF6B7280),
-            height: 1.3,
+              description,
+              style: TextStyle(
+                fontFamily: AppTheme.primaryFont,
+                fontSize: 12.sp,
+                color: AppTheme.textSecondary,
+                height: 1.3,
                 fontWeight: FontWeight.w400,
-          ),
-          textAlign: TextAlign.center,
+              ),
+              textAlign: TextAlign.center,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
-        ),
-      ],
+          ),
+        ],
       ),
     );
   }
 
-  Color _getFeatureColor(IconData icon) {
-    switch (icon) {
-      case Icons.security:
-        return const Color(0xFF2563EB);
-      case Icons.support_agent:
-        return const Color(0xFF20B2AA);
-      case Icons.location_city:
-        return const Color(0xFF7C3AED);
-      case Icons.speed:
-        return const Color(0xFF10B981);
-      default:
-        return const Color(0xFF6B7280);
-    }
-  }
 }

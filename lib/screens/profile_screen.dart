@@ -1204,7 +1204,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Scaffold(
         backgroundColor: Colors.grey[50],
         drawer: const SidebarDrawer(),
-        floatingActionButton: const SizedBox.shrink(), // Explicitly remove any floating action button
+        floatingActionButton: null, // Explicitly remove any floating action button
         body: SafeArea(
         child: Column(
           children: [

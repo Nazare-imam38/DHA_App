@@ -14,6 +14,7 @@ import 'ownership_selection_screen.dart';
 import 'property_listings_screen.dart';
 import 'main_wrapper.dart';
 import '../ui/widgets/app_icons.dart';
+import '../ui/widgets/cached_asset_image.dart';
 
 class MyListingsScreen extends StatefulWidget {
   const MyListingsScreen({super.key});
@@ -447,35 +448,17 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // DHA Marketplace Logo with red border
-                Container(
+                // DHA Marketplace Logo
+                CachedAssetImage(
+                  assetPath: 'assets/images/dhalogo.png',
                   width: 80.sp,
                   height: 80.sp,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.red,
-                      width: 3,
-                    ),
-                  ),
-                  child: ClipOval(
-                    child: Image.asset(
-                      'assets/images/dhalogo.png',
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Icon(
-                          Icons.error,
-                          size: 64.sp,
-                          color: Colors.red,
-                        );
-                      },
-                    ),
-                  ),
+                  fit: BoxFit.contain,
                 ),
                 SizedBox(height: 24.h),
-                // Error message
+                // Error message - Fixed text as requested
                 Text(
-                  message,
+                  'Authentication Error, Please login again',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Inter',
