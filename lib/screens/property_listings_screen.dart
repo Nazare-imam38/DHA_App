@@ -1123,10 +1123,16 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
             
             // Header
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              decoration: const BoxDecoration(
-                  color: Color(0xFF1B5993),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                border: Border(
+                  bottom: BorderSide(
+                    color: const Color(0xFF1B5993),
+                    width: 1.5,
+                  ),
+                ),
               ),
               child: Stack(
                 alignment: Alignment.center,
@@ -1136,23 +1142,25 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                     'Filter Properties',
                     style: TextStyle(
                       fontFamily: 'Poppins',
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      fontSize: 19,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF1B5993),
+                      letterSpacing: 0.5,
+                      height: 1.2,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   // Left icon
                   Positioned(
                     left: 0,
-                    child: Icon(AppIcons.tune, color: Colors.white, size: 24),
+                    child: Icon(AppIcons.tune, color: const Color(0xFF1B5993), size: 20),
                   ),
                   // Right close icon
                   Positioned(
                     right: 0,
                     child: GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: Icon(AppIcons.close, color: Colors.white, size: 24),
+                    child: Icon(AppIcons.close, color: const Color(0xFF1B5993), size: 20),
                     ),
                   ),
                 ],
@@ -1162,13 +1170,18 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
             // Filter Content
             Expanded(
               child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 16,
+                    bottom: 0,
+                  ),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                       // Category Filter
                       _buildFilterSectionHeader(Icons.category, 'Category'),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       Row(
                         children: [
                           Expanded(
@@ -1182,7 +1195,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                               },
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: _buildFilterChip(
                               'Residential',
@@ -1196,11 +1209,11 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 18),
                     
                       // Purpose Filter
                       _buildFilterSectionHeader(AppIcons.sell, 'Purpose'),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       Row(
                         children: [
                           Expanded(
@@ -1214,7 +1227,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                               },
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: _buildFilterChip(
                               'Sell',
@@ -1228,11 +1241,11 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 18),
                       
                       // Property Type Filter (based on category)
                       _buildFilterSectionHeader(Icons.apartment, 'Property Type'),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
@@ -1246,7 +1259,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                                 });
                               },
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 6),
                             _buildFilterChip(
                               'Houses',
                               _selectedPropertyType == 'Houses',
@@ -1256,7 +1269,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                                 });
                               },
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 6),
                             _buildFilterChip(
                               'Flats',
                               _selectedPropertyType == 'Flats',
@@ -1266,7 +1279,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                                 });
                               },
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 6),
                             _buildFilterChip(
                               'Plots',
                               _selectedPropertyType == 'Plots',
@@ -1276,7 +1289,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                                 });
                               },
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 6),
                             _buildFilterChip(
                               'Commercial',
                               _selectedPropertyType == 'Commercial',
@@ -1289,11 +1302,11 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 18),
                       
                       // Price Range Slider
                       _buildFilterSectionHeader(Icons.attach_money, 'Price Range'),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -1337,11 +1350,11 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                           });
                         },
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 18),
                       
                       // Sort Filter
                       _buildFilterSectionHeader(Icons.sort, 'Sort By'),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       Row(
                         children: [
                           Expanded(
@@ -1355,7 +1368,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                               },
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: _buildFilterChip(
                               'Price: High to Low',
@@ -1376,7 +1389,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
             
             // Filter Actions
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: Colors.grey[50],
                 border: Border(
@@ -1424,7 +1437,7 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () {
@@ -1464,23 +1477,23 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
             color: const Color(0xFF1B5993).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(6),
           ),
           child: Icon(
             icon,
             color: const Color(0xFF1B5993),
-            size: 20,
+            size: 18,
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 10),
         Text(
           title,
           style: TextStyle(
             fontFamily: 'Inter',
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
             color: Colors.black,
           ),
@@ -1493,19 +1506,29 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF1B5993) : Colors.grey[100],
-          borderRadius: BorderRadius.circular(20),
-          border: isSelected ? null : Border.all(color: Colors.grey[300]!),
+          color: isSelected ? const Color(0xFF1B5993) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF1B5993) : Colors.grey[300]!,
+            width: 1.5,
+          ),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: const Color(0xFF1B5993).withOpacity(0.2),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ] : null,
         ),
         child: Text(
           label,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: 'Inter',
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
             color: isSelected ? Colors.white : Colors.grey[700],
           ),
         ),

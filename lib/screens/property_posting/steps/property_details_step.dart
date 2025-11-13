@@ -64,6 +64,15 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
       setState(() {
         _currentTabIndex = _tabController.index;
       });
+      // When switching to Map tab, center on selected phase if available
+      if (_tabController.index == 1 && _selectedPhase != null) {
+        // Delay to ensure map is rendered and boundaries are loaded
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted && _selectedPhase != null) {
+            _animateToPhase(_selectedPhase!);
+          }
+        });
+      }
     });
     _loadPhaseBoundaries();
     _initializeFormData();
@@ -153,12 +162,23 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
     
     print('Phase updated: $phase');
     
-    // Animate map to selected phase
-    _animateToPhase(phase);
+    // Animate map to selected phase if we're on the Map tab
+    // Otherwise, it will animate when user switches to Map tab
+    if (_currentTabIndex == 1) {
+      // Delay to ensure boundaries are loaded
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) {
+          _animateToPhase(phase);
+        }
+      });
+    }
   }
 
   void _animateToPhase(String phase) {
-    if (_boundaryPolygons.isEmpty) return;
+    if (_boundaryPolygons.isEmpty || _isLoadingBoundaries) {
+      print('⚠️ Cannot animate: boundaries not loaded yet');
+      return;
+    }
     
     // Find the boundary for the selected phase
     final boundary = _boundaryPolygons.firstWhere(
@@ -170,15 +190,17 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
       // Calculate bounds for the phase
       final bounds = _calculateBounds(boundary.polygons);
       
-      // Animate to the phase boundary
+      // Animate to the phase boundary with proper padding
       _mapController.fitCamera(
         CameraFit.bounds(
           bounds: bounds,
-          padding: const EdgeInsets.all(50),
+          padding: const EdgeInsets.all(80),
         ),
       );
       
       print('📍 Animated to $phase boundary');
+    } else {
+      print('⚠️ No polygons found for phase: $phase');
     }
   }
 
@@ -488,6 +510,10 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
         decoration: BoxDecoration(
           color: isSelected ? const Color(0xFF1B5993) : Colors.transparent,
           borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF1B5993) : const Color(0xFFE5E7EB),
+            width: 1.5,
+          ),
           boxShadow: isSelected ? [
             BoxShadow(
               color: const Color(0xFF1B5993).withValues(alpha: 0.3),
@@ -933,6 +959,7 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
                 label: 'Area Unit *',
                 value: _selectedAreaUnit,
                 items: _areaUnits,
+                isCompact: true, // Add compact mode for Area Unit
                 onChanged: (value) {
                   setState(() {
                     _selectedAreaUnit = value;
@@ -1434,65 +1461,72 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
     required String? value,
     required List<String> items,
     required void Function(String?) onChanged,
+    bool isCompact = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
+      children: [
+        Text(
           label,
-          style: const TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-            color: Color(0xFF1B5993),
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: isCompact ? 13.sp : 14,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF1B5993),
             letterSpacing: 0.2,
-              ),
-            ),
-        const SizedBox(height: 8),
-            Container(
-              decoration: BoxDecoration(
+          ),
+        ),
+        SizedBox(height: isCompact ? 6.h : 8),
+        Container(
+          constraints: isCompact ? BoxConstraints(maxWidth: double.infinity) : null,
+          decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-                border: Border.all(
+            border: Border.all(
               color: Colors.grey.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
           child: DropdownButtonFormField<String>(
             value: value,
+            isExpanded: true, // Prevent overflow
             items: items.map((String item) {
               return DropdownMenuItem<String>(
                 value: item,
                 child: Text(
                   item,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: 16,
+                    fontSize: isCompact ? 14.sp : 16,
                     fontWeight: FontWeight.w500,
                     color: Colors.black,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               );
             }).toList(),
             onChanged: onChanged,
             decoration: InputDecoration(
               hintText: label.contains('Phase') ? 'Select phase' : label.contains('Area Unit') ? 'Select unit' : 'Select $label',
-              hintStyle: const TextStyle(
+              hintStyle: TextStyle(
                 fontFamily: 'Inter',
-                fontSize: 16,
+                fontSize: isCompact ? 14.sp : 16,
                 color: Colors.grey,
                 fontWeight: FontWeight.w400,
               ),
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 16,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: isCompact ? 12.w : 16,
+                vertical: isCompact ? 12.h : 16,
               ),
+              isDense: isCompact,
             ),
-            icon: const Icon(
+            icon: Icon(
               AppIcons.keyboardArrowDown,
-              color: Color(0xFF1B5993),
+              color: const Color(0xFF1B5993),
+              size: isCompact ? 18.w : 24,
             ),
+            iconSize: isCompact ? 18.w : 24,
           ),
         ),
       ],

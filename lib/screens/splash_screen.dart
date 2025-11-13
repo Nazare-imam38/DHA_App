@@ -310,7 +310,7 @@ class _SplashScreenState extends State<SplashScreen>
 }
 
 /// Custom Painter for Border Progress Bar
-/// Draws a progress bar that runs around the border of a rounded rectangle
+/// Draws a running LED effect that starts from top-right corner and moves around the border
 class BorderProgressPainter extends CustomPainter {
   final double progress;
   final double borderWidth;
@@ -325,189 +325,314 @@ class BorderProgressPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     // Calculate the perimeter of the rounded rectangle
-    final perimeter = 2 * (size.width + size.height) - 8 * borderRadius + 2 * math.pi * borderRadius;
-    final progressLength = perimeter * progress;
+    final halfBorder = borderWidth / 2;
+    final adjustedRadius = borderRadius - halfBorder;
+    
+    // Calculate edge lengths
+    final topEdgeLength = size.width - 2 * borderRadius;
+    final rightEdgeLength = size.height - 2 * borderRadius;
+    final bottomEdgeLength = size.width - 2 * borderRadius;
+    final leftEdgeLength = size.height - 2 * borderRadius;
+    final cornerLength = math.pi * adjustedRadius / 2; // Quarter circle for each corner
+    
+    // Total perimeter starting from top-right corner
+    // Path: top-right corner → right edge → bottom-right corner → bottom edge → 
+    //       bottom-left corner → left edge → top-left corner → top edge → back to top-right
+    final perimeter = cornerLength + // Top-right corner (quarter circle)
+                     rightEdgeLength + cornerLength + // Right edge + bottom-right corner
+                     bottomEdgeLength + cornerLength + // Bottom edge + bottom-left corner
+                     leftEdgeLength + cornerLength + // Left edge + top-left corner
+                     topEdgeLength; // Top edge back to top-right corner
     
     // Define colors: teal to blue gradient
     final tealColor = Color(0xFF20B2AA); // Teal
     final blueColor = Color(0xFF1B5993); // Blue
+    final brightColor = Colors.white; // Bright LED color
     
-    // Create a path that follows the border
-    final path = _createBorderPath(size, borderRadius);
+    // Running LED effect parameters
+    final ledLength = perimeter * 0.2; // Length of the LED trail (20% of perimeter)
+    final ledPosition = (progress * perimeter) % perimeter; // Current position of LED
     
-    // Create a gradient shader along the path
+    // Draw the running LED with trailing effect
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = borderWidth
-      ..strokeCap = StrokeCap.round;
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
     
-    // Draw the progress segment with gradient
-    final progressPath = _getProgressPath(size, borderRadius, progressLength, perimeter);
-    
-    // Create gradient colors for the progress bar
-    final colors = <Color>[];
-    final stops = <double>[];
-    final numStops = 20;
-    
-    for (int i = 0; i <= numStops; i++) {
-      final t = i / numStops;
-      colors.add(Color.lerp(tealColor, blueColor, t)!);
-      stops.add(t);
-    }
-    
-    // Draw segments with gradient effect
-    final segmentLength = progressLength / numStops;
-    double currentLength = 0;
-    
-    while (currentLength < progressLength) {
-      final segmentStart = currentLength;
-      final segmentEnd = (currentLength + segmentLength).clamp(0.0, progressLength);
-      final segmentProgress = segmentStart / perimeter;
+    // Draw the LED trail (fading from bright to dim)
+    final numSegments = 40;
+    for (int i = 0; i < numSegments; i++) {
+      final segmentProgress = i / numSegments;
+      final segmentStartDistance = (ledPosition - ledLength * (1 - segmentProgress)) % perimeter;
+      final segmentEndDistance = (ledPosition - ledLength * (1 - (i + 1) / numSegments)) % perimeter;
       
-      // Interpolate color
-      final color = Color.lerp(tealColor, blueColor, segmentProgress)!;
+      // Normalize to positive values
+      final segmentStart = segmentStartDistance < 0 ? segmentStartDistance + perimeter : segmentStartDistance;
+      final segmentEnd = segmentEndDistance < 0 ? segmentEndDistance + perimeter : segmentEndDistance;
+      
+      // Calculate opacity (brightest at the front, fading towards the back)
+      final opacity = 1.0 - segmentProgress * 0.85; // Fade from 100% to 15%
+      
+      // Interpolate color from bright white to teal/blue
+      final color = Color.lerp(
+        brightColor.withOpacity(opacity),
+        Color.lerp(tealColor, blueColor, 0.5)!.withOpacity(opacity * 0.6),
+        segmentProgress * 0.8,
+      )!;
+      
       paint.color = color;
       
-      // Draw this segment
-      final segmentPath = _getProgressPath(size, borderRadius, segmentEnd, perimeter, startDistance: segmentStart);
-      canvas.drawPath(segmentPath, paint);
+      // Draw the segment path
+      final segmentPath = _createPathFromTopRight(
+        size, 
+        borderRadius, 
+        adjustedRadius,
+        halfBorder,
+        segmentStart, 
+        segmentEnd, 
+        perimeter,
+        topEdgeLength,
+        rightEdgeLength,
+        bottomEdgeLength,
+        leftEdgeLength,
+        cornerLength,
+      );
       
-      currentLength = segmentEnd;
+      if (!segmentPath.getBounds().isEmpty) {
+        canvas.drawPath(segmentPath, paint);
+      }
     }
   }
   
-  Path _createBorderPath(Size size, double radius) {
+  /// Create a path along the border starting from top-right corner
+  /// Path order: top-right corner → right edge → bottom-right → bottom edge → 
+  ///            bottom-left → left edge → top-left → top edge → back to top-right
+  Path _createPathFromTopRight(
+    Size size,
+    double borderRadius,
+    double adjustedRadius,
+    double halfBorder,
+    double startDistance,
+    double endDistance,
+    double totalPerimeter,
+    double topEdgeLength,
+    double rightEdgeLength,
+    double bottomEdgeLength,
+    double leftEdgeLength,
+    double cornerLength,
+  ) {
     final path = Path();
-    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
-    final rrect = RRect.fromRectAndRadius(rect, Radius.circular(radius));
-    path.addRRect(rrect);
+    
+    // Normalize distances
+    startDistance = startDistance % totalPerimeter;
+    endDistance = endDistance % totalPerimeter;
+    
+    // Handle wrap-around
+    bool wrapped = endDistance < startDistance;
+    double currentDistance = startDistance;
+    double targetDistance = wrapped ? totalPerimeter : endDistance;
+    
+    // Calculate segment boundaries starting from top-right corner
+    double topRightCornerStart = 0;
+    double topRightCornerEnd = cornerLength;
+    double rightEdgeStart = topRightCornerEnd;
+    double rightEdgeEnd = rightEdgeStart + rightEdgeLength;
+    double bottomRightCornerStart = rightEdgeEnd;
+    double bottomRightCornerEnd = bottomRightCornerStart + cornerLength;
+    double bottomEdgeStart = bottomRightCornerEnd;
+    double bottomEdgeEnd = bottomEdgeStart + bottomEdgeLength;
+    double bottomLeftCornerStart = bottomEdgeEnd;
+    double bottomLeftCornerEnd = bottomLeftCornerStart + cornerLength;
+    double leftEdgeStart = bottomLeftCornerEnd;
+    double leftEdgeEnd = leftEdgeStart + leftEdgeLength;
+    double topLeftCornerStart = leftEdgeEnd;
+    double topLeftCornerEnd = topLeftCornerStart + cornerLength;
+    double topEdgeStart = topLeftCornerEnd;
+    double topEdgeEnd = topEdgeStart + topEdgeLength;
+    
+    // Draw first segment (until wrap or end)
+    _drawPathSegment(
+      path, size, borderRadius, adjustedRadius, halfBorder,
+      currentDistance, targetDistance,
+      topRightCornerStart, topRightCornerEnd,
+      rightEdgeStart, rightEdgeEnd,
+      bottomRightCornerStart, bottomRightCornerEnd,
+      bottomEdgeStart, bottomEdgeEnd,
+      bottomLeftCornerStart, bottomLeftCornerEnd,
+      leftEdgeStart, leftEdgeEnd,
+      topLeftCornerStart, topLeftCornerEnd,
+      topEdgeStart, topEdgeEnd,
+    );
+    
+    // If wrapped, draw from 0 to endDistance
+    if (wrapped) {
+      _drawPathSegment(
+        path, size, borderRadius, adjustedRadius, halfBorder,
+        0, endDistance,
+        topRightCornerStart, topRightCornerEnd,
+        rightEdgeStart, rightEdgeEnd,
+        bottomRightCornerStart, bottomRightCornerEnd,
+        bottomEdgeStart, bottomEdgeEnd,
+        bottomLeftCornerStart, bottomLeftCornerEnd,
+        leftEdgeStart, leftEdgeEnd,
+        topLeftCornerStart, topLeftCornerEnd,
+        topEdgeStart, topEdgeEnd,
+      );
+    }
+    
     return path;
   }
   
-  Path _getProgressPath(Size size, double radius, double progressLength, double totalPerimeter, {double startDistance = 0.0}) {
-    final path = Path();
+  void _drawPathSegment(
+    Path path,
+    Size size,
+    double borderRadius,
+    double adjustedRadius,
+    double halfBorder,
+    double startDistance,
+    double endDistance,
+    double topRightCornerStart,
+    double topRightCornerEnd,
+    double rightEdgeStart,
+    double rightEdgeEnd,
+    double bottomRightCornerStart,
+    double bottomRightCornerEnd,
+    double bottomEdgeStart,
+    double bottomEdgeEnd,
+    double bottomLeftCornerStart,
+    double bottomLeftCornerEnd,
+    double leftEdgeStart,
+    double leftEdgeEnd,
+    double topLeftCornerStart,
+    double topLeftCornerEnd,
+    double topEdgeStart,
+    double topEdgeEnd,
+  ) {
     double currentDistance = startDistance;
-    final endDistance = progressLength;
-    final halfBorder = borderWidth / 2;
     
-    // Top edge (left to right)
-    final topEdgeLength = size.width - 2 * radius;
-    if (currentDistance < endDistance && currentDistance < topEdgeLength) {
-      final startX = currentDistance;
-      final endX = math.min(endDistance, topEdgeLength);
-      if (endX > startX) {
-        path.moveTo(radius + startX, halfBorder);
-        path.lineTo(radius + endX, halfBorder);
-      }
-      currentDistance = endX;
-    }
-    
-    // Top-right corner
-    if (currentDistance < endDistance) {
-      final cornerStart = math.max(0.0, currentDistance - topEdgeLength);
-      final cornerEnd = math.min(math.pi * radius, endDistance - topEdgeLength);
+    // Top-right corner (starting point) - from top to right
+    if (currentDistance < endDistance && currentDistance < topRightCornerEnd) {
+      final cornerStart = math.max(0.0, currentDistance - topRightCornerStart);
+      final cornerEnd = math.min(endDistance - topRightCornerStart, topRightCornerEnd - topRightCornerStart);
       if (cornerEnd > cornerStart) {
-        final startAngle = cornerStart / radius;
-        final endAngle = cornerEnd / radius;
+        final startAngle = -math.pi / 2 + cornerStart / adjustedRadius;
+        final endAngle = -math.pi / 2 + cornerEnd / adjustedRadius;
+        final centerX = size.width - borderRadius;
+        final centerY = borderRadius;
         path.addArc(
-          Rect.fromLTWH(size.width - radius * 2, 0, radius * 2, radius * 2),
+          Rect.fromLTWH(centerX - adjustedRadius, centerY - adjustedRadius, adjustedRadius * 2, adjustedRadius * 2),
           startAngle,
           endAngle - startAngle,
         );
-        currentDistance = topEdgeLength + cornerEnd;
+        currentDistance = topRightCornerStart + cornerEnd;
       }
     }
     
     // Right edge (top to bottom)
-    if (currentDistance < endDistance) {
-      final rightEdgeStart = topEdgeLength + math.pi * radius;
-      final rightEdgeLength = size.height - 2 * radius;
+    if (currentDistance < endDistance && currentDistance < rightEdgeEnd) {
       final edgeStart = math.max(0.0, currentDistance - rightEdgeStart);
-      final edgeEnd = math.min(rightEdgeLength, endDistance - rightEdgeStart);
+      final edgeEnd = math.min(endDistance - rightEdgeStart, rightEdgeEnd - rightEdgeStart);
       if (edgeEnd > edgeStart) {
-        path.moveTo(size.width - halfBorder, radius + edgeStart);
-        path.lineTo(size.width - halfBorder, radius + edgeEnd);
+        if (path.getBounds().isEmpty) {
+          path.moveTo(size.width - halfBorder, borderRadius + edgeStart);
+        }
+        path.lineTo(size.width - halfBorder, borderRadius + edgeEnd);
         currentDistance = rightEdgeStart + edgeEnd;
       }
     }
     
     // Bottom-right corner
-    if (currentDistance < endDistance) {
-      final bottomRightStart = topEdgeLength + math.pi * radius + (size.height - 2 * radius);
-      final cornerStart = math.max(0.0, currentDistance - bottomRightStart);
-      final cornerEnd = math.min(math.pi * radius, endDistance - bottomRightStart);
+    if (currentDistance < endDistance && currentDistance < bottomRightCornerEnd) {
+      final cornerStart = math.max(0.0, currentDistance - bottomRightCornerStart);
+      final cornerEnd = math.min(endDistance - bottomRightCornerStart, bottomRightCornerEnd - bottomRightCornerStart);
       if (cornerEnd > cornerStart) {
-        final startAngle = math.pi / 2 - cornerStart / radius;
-        final endAngle = math.pi / 2 - cornerEnd / radius;
+        final startAngle = cornerStart / adjustedRadius;
+        final endAngle = cornerEnd / adjustedRadius;
+        final centerX = size.width - borderRadius;
+        final centerY = size.height - borderRadius;
         path.addArc(
-          Rect.fromLTWH(size.width - radius * 2, size.height - radius * 2, radius * 2, radius * 2),
+          Rect.fromLTWH(centerX - adjustedRadius, centerY - adjustedRadius, adjustedRadius * 2, adjustedRadius * 2),
           startAngle,
           endAngle - startAngle,
         );
-        currentDistance = bottomRightStart + cornerEnd;
+        currentDistance = bottomRightCornerStart + cornerEnd;
       }
     }
     
     // Bottom edge (right to left)
-    if (currentDistance < endDistance) {
-      final bottomEdgeStart = topEdgeLength + math.pi * radius + (size.height - 2 * radius) + math.pi * radius;
-      final bottomEdgeLength = size.width - 2 * radius;
+    if (currentDistance < endDistance && currentDistance < bottomEdgeEnd) {
       final edgeStart = math.max(0.0, currentDistance - bottomEdgeStart);
-      final edgeEnd = math.min(bottomEdgeLength, endDistance - bottomEdgeStart);
+      final edgeEnd = math.min(endDistance - bottomEdgeStart, bottomEdgeEnd - bottomEdgeStart);
       if (edgeEnd > edgeStart) {
-        path.moveTo(size.width - radius - edgeStart, size.height - halfBorder);
-        path.lineTo(size.width - radius - edgeEnd, size.height - halfBorder);
+        if (path.getBounds().isEmpty) {
+          path.moveTo(size.width - borderRadius - edgeStart, size.height - halfBorder);
+        }
+        path.lineTo(size.width - borderRadius - edgeEnd, size.height - halfBorder);
         currentDistance = bottomEdgeStart + edgeEnd;
       }
     }
     
     // Bottom-left corner
-    if (currentDistance < endDistance) {
-      final bottomLeftStart = topEdgeLength + math.pi * radius + (size.height - 2 * radius) + math.pi * radius + (size.width - 2 * radius);
-      final cornerStart = math.max(0.0, currentDistance - bottomLeftStart);
-      final cornerEnd = math.min(math.pi * radius, endDistance - bottomLeftStart);
+    if (currentDistance < endDistance && currentDistance < bottomLeftCornerEnd) {
+      final cornerStart = math.max(0.0, currentDistance - bottomLeftCornerStart);
+      final cornerEnd = math.min(endDistance - bottomLeftCornerStart, bottomLeftCornerEnd - bottomLeftCornerStart);
       if (cornerEnd > cornerStart) {
-        final startAngle = math.pi - cornerStart / radius;
-        final endAngle = math.pi - cornerEnd / radius;
+        final startAngle = math.pi / 2 + cornerStart / adjustedRadius;
+        final endAngle = math.pi / 2 + cornerEnd / adjustedRadius;
+        final centerX = borderRadius;
+        final centerY = size.height - borderRadius;
         path.addArc(
-          Rect.fromLTWH(0, size.height - radius * 2, radius * 2, radius * 2),
+          Rect.fromLTWH(centerX - adjustedRadius, centerY - adjustedRadius, adjustedRadius * 2, adjustedRadius * 2),
           startAngle,
           endAngle - startAngle,
         );
-        currentDistance = bottomLeftStart + cornerEnd;
+        currentDistance = bottomLeftCornerStart + cornerEnd;
       }
     }
     
     // Left edge (bottom to top)
-    if (currentDistance < endDistance) {
-      final leftEdgeStart = topEdgeLength + math.pi * radius + (size.height - 2 * radius) + math.pi * radius + (size.width - 2 * radius) + math.pi * radius;
-      final leftEdgeLength = size.height - 2 * radius;
+    if (currentDistance < endDistance && currentDistance < leftEdgeEnd) {
       final edgeStart = math.max(0.0, currentDistance - leftEdgeStart);
-      final edgeEnd = math.min(leftEdgeLength, endDistance - leftEdgeStart);
+      final edgeEnd = math.min(endDistance - leftEdgeStart, leftEdgeEnd - leftEdgeStart);
       if (edgeEnd > edgeStart) {
-        path.moveTo(halfBorder, size.height - radius - edgeStart);
-        path.lineTo(halfBorder, size.height - radius - edgeEnd);
+        if (path.getBounds().isEmpty) {
+          path.moveTo(halfBorder, size.height - borderRadius - edgeStart);
+        }
+        path.lineTo(halfBorder, size.height - borderRadius - edgeEnd);
         currentDistance = leftEdgeStart + edgeEnd;
       }
     }
     
     // Top-left corner
-    if (currentDistance < endDistance) {
-      final topLeftStart = topEdgeLength + math.pi * radius + (size.height - 2 * radius) + math.pi * radius + (size.width - 2 * radius) + math.pi * radius + (size.height - 2 * radius);
-      final cornerStart = math.max(0.0, currentDistance - topLeftStart);
-      final cornerEnd = math.min(math.pi * radius, endDistance - topLeftStart);
+    if (currentDistance < endDistance && currentDistance < topLeftCornerEnd) {
+      final cornerStart = math.max(0.0, currentDistance - topLeftCornerStart);
+      final cornerEnd = math.min(endDistance - topLeftCornerStart, topLeftCornerEnd - topLeftCornerStart);
       if (cornerEnd > cornerStart) {
-        final startAngle = 3 * math.pi / 2 - cornerStart / radius;
-        final endAngle = 3 * math.pi / 2 - cornerEnd / radius;
+        final startAngle = math.pi + cornerStart / adjustedRadius;
+        final endAngle = math.pi + cornerEnd / adjustedRadius;
+        final centerX = borderRadius;
+        final centerY = borderRadius;
         path.addArc(
-          Rect.fromLTWH(0, 0, radius * 2, radius * 2),
+          Rect.fromLTWH(centerX - adjustedRadius, centerY - adjustedRadius, adjustedRadius * 2, adjustedRadius * 2),
           startAngle,
           endAngle - startAngle,
         );
+        currentDistance = topLeftCornerStart + cornerEnd;
       }
     }
     
-    return path;
+    // Top edge (left to right) - back to start
+    if (currentDistance < endDistance && currentDistance < topEdgeEnd) {
+      final edgeStart = math.max(0.0, currentDistance - topEdgeStart);
+      final edgeEnd = math.min(endDistance - topEdgeStart, topEdgeEnd - topEdgeStart);
+      if (edgeEnd > edgeStart) {
+        if (path.getBounds().isEmpty) {
+          path.moveTo(borderRadius + edgeStart, halfBorder);
+        }
+        path.lineTo(borderRadius + edgeEnd, halfBorder);
+      }
+    }
   }
 
   @override
