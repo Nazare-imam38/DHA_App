@@ -40,7 +40,7 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
   final int _maxVideoSize = 50 * 1024 * 1024; // 50MB
   
   // Expandable card state
-  bool _isContactInfoExpanded = false;
+  bool _isContactInfoExpanded = true; // Expanded by default to use the space
 
   @override
   void initState() {
@@ -320,8 +320,8 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
         children: [
           _buildStepHeader(
             icon: AppIcons.locationOn,
-            title: 'Location & Features',
-            description: 'Update location and select amenities',
+            title: 'Location & Contact',
+            description: 'Update location and contact information',
           ),
           SizedBox(height: 32.h),
           
@@ -460,34 +460,6 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
               ],
             ),
           ),
-          SizedBox(height: 24.h),
-          
-          // Amenities Section
-          Text(
-            'Amenities',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.primaryBlue,
-            ),
-          ),
-          SizedBox(height: 12.h),
-          if (_amenitiesLoading)
-            Center(child: CircularProgressIndicator())
-          else if (_amenitiesByCategory.isEmpty)
-            Text(
-              'No amenities available',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 14.sp,
-                color: AppTheme.textSecondary,
-              ),
-            )
-          else
-            ..._amenitiesByCategory.entries.map((entry) {
-              return _buildAmenityCategory(entry.key, entry.value);
-            }).toList(),
         ],
       ),
     );
@@ -1320,54 +1292,109 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
     });
 
     try {
-      final propertyData = <String, dynamic>{
-        'purpose': _formData!.purpose ?? '',
-        'property_type_id': _formData!.propertyTypeId?.toString() ?? '',
-        'title': _formData!.title ?? '',
-        'description': _formData!.description ?? '',
-        'area': _formData!.area?.toString() ?? '',
-        'area_unit': _formData!.areaUnit ?? '',
-        'category': _formData!.category ?? '',
-        'unit_no': _formData!.apartmentNumber ?? '',
-        'price': _formData!.isRent ? '0' : (_formData!.price?.toString() ?? '0'),
-        'rent_price': _formData!.isRent ? (_formData!.rentPrice?.toString() ?? '0') : '0',
-        'latitude': _formData!.latitude?.toString() ?? '',
-        'longitude': _formData!.longitude?.toString() ?? '',
-        'location': _formData!.location ?? '',
-        'sector': _formData!.sector ?? '',
-        'phase': _formData!.phase ?? '',
-        'street': _formData!.streetNumber ?? '',
-        'payment_method': 'KuickPay',
-        'property_duration': _mapDurationToApiFormat(_formData!.listingDuration ?? '30 Days'),
-      };
-
-      if (_formData!.buildingName != null && _formData!.buildingName!.isNotEmpty) {
-        propertyData['building'] = _formData!.buildingName;
-      }
-      if (_formData!.floorNumber != null && _formData!.floorNumber!.isNotEmpty) {
-        propertyData['floor'] = _formData!.floorNumber;
-      }
-
-      // Handle ownership and contact information
-      if (_formData!.onBehalf == 1) {
-        propertyData['on_behalf'] = '1';
-      } else {
-        propertyData['on_behalf'] = '0';
+      // Build property data - PARTIAL UPDATE: only include fields that have changed
+      // Compare with original property values and only send what's different
+      final property = widget.property;
+      final propertyData = <String, dynamic>{};
+      
+      // Helper function to check if value changed
+      bool hasChanged(String? newValue, String? oldValue) {
+        if (newValue == null || newValue.isEmpty) return false;
+        return newValue != (oldValue ?? '');
       }
       
-      // Always include contact information if provided (regardless of on_behalf)
+      bool hasChangedDouble(double? newValue, String? oldValue) {
+        if (newValue == null) return false;
+        final oldDouble = oldValue != null ? double.tryParse(oldValue) : null;
+        return newValue != (oldDouble ?? 0);
+      }
+      
+      // Only add fields that have changed from original property
+      if (hasChanged(_formData!.purpose, property.purpose)) {
+        propertyData['purpose'] = _formData!.purpose!;
+      }
+      if (_formData!.propertyTypeId != null && _formData!.propertyTypeId != property.propertyTypeId) {
+        propertyData['property_type_id'] = _formData!.propertyTypeId!.toString();
+      }
+      if (hasChanged(_formData!.title, property.title)) {
+        propertyData['title'] = _formData!.title!;
+      }
+      if (hasChanged(_formData!.description, property.description)) {
+        propertyData['description'] = _formData!.description!;
+      }
+      if (hasChangedDouble(_formData!.area, property.area)) {
+        propertyData['area'] = _formData!.area!.toString();
+      }
+      if (hasChanged(_formData!.areaUnit, property.areaUnit)) {
+        propertyData['area_unit'] = _formData!.areaUnit!;
+      }
+      if (hasChanged(_formData!.category, property.category)) {
+        propertyData['category'] = _formData!.category!;
+      }
+      if (hasChanged(_formData!.apartmentNumber, property.apartmentNumber)) {
+        propertyData['unit_no'] = _formData!.apartmentNumber!;
+      }
+      
+      // Pricing - only send if changed
+      if (_formData!.isRent) {
+        if (hasChangedDouble(_formData!.rentPrice, property.rentPrice)) {
+          propertyData['rent_price'] = _formData!.rentPrice!.toString();
+        }
+      } else {
+        if (hasChangedDouble(_formData!.price, property.price)) {
+          propertyData['price'] = _formData!.price!.toString();
+        }
+      }
+      
+      // Location fields - only if changed
+      if (_formData!.latitude != null && _formData!.latitude != property.latitude) {
+        propertyData['latitude'] = _formData!.latitude!.toString();
+      }
+      if (_formData!.longitude != null && _formData!.longitude != property.longitude) {
+        propertyData['longitude'] = _formData!.longitude!.toString();
+      }
+      if (hasChanged(_formData!.location, property.location)) {
+        propertyData['location'] = _formData!.location!;
+      }
+      if (hasChanged(_formData!.sector, property.sector)) {
+        propertyData['sector'] = _formData!.sector!;
+      }
+      if (hasChanged(_formData!.phase, property.phase)) {
+        propertyData['phase'] = _formData!.phase!;
+      }
+      if (hasChanged(_formData!.streetNumber, null)) { // streetNumber not in property model
+        propertyData['street'] = _formData!.streetNumber!;
+      }
+      
+      // Optional building details - only if changed
+      if (hasChanged(_formData!.buildingName, property.building)) {
+        propertyData['building'] = _formData!.buildingName!;
+      }
+      if (hasChanged(_formData!.floorNumber, property.floor)) {
+        propertyData['floor'] = _formData!.floorNumber!;
+      }
+      
+      // Payment and duration - only if changed
+      if (hasChanged(_formData!.listingDuration, null)) {
+        propertyData['property_duration'] = _mapDurationToApiFormat(_formData!.listingDuration!);
+      }
+
+      // Contact information - only if changed or provided
       if (_formData!.cnic != null && _formData!.cnic!.isNotEmpty) {
-        propertyData['cnic'] = _formData!.cnic;
+        propertyData['cnic'] = _formData!.cnic!;
       }
       if (_formData!.name != null && _formData!.name!.isNotEmpty) {
-        propertyData['name'] = _formData!.name;
+        propertyData['name'] = _formData!.name!;
       }
       if (_formData!.phone != null && _formData!.phone!.isNotEmpty) {
-        propertyData['phone'] = _formData!.phone;
+        propertyData['phone'] = _formData!.phone!;
       }
       if (_formData!.address != null && _formData!.address!.isNotEmpty) {
-        propertyData['address'] = _formData!.address;
+        propertyData['address'] = _formData!.address!;
       }
+      
+      print('📊 Partial update: Sending ${propertyData.length} changed fields');
+      print('   Fields: ${propertyData.keys.join(", ")}');
 
       final result = await _updateService.updateProperty(
         propertyId: widget.property.id,
@@ -1375,7 +1402,7 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
         images: _selectedImages.isNotEmpty ? _selectedImages : null,
         videos: _selectedVideos.isNotEmpty ? _selectedVideos : null,
         propertyTypeId: _formData!.propertyTypeId,
-        amenities: _formData!.amenities,
+        amenities: null, // Amenities are not being posted in the update API
       );
 
       if (mounted) {

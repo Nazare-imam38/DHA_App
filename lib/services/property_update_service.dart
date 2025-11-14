@@ -28,17 +28,31 @@ class PropertyUpdateService {
         throw Exception('No authentication token found. User must be logged in.');
       }
 
-      // Prepare multipart request
+      // Prepare multipart request - explicitly use POST method
+      final uri = Uri.parse('$baseUrl/update/property/$propertyId');
+      print('🌐 Request URI: $uri');
+      print('📋 Request Method: POST');
+      
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('$baseUrl/update/property/$propertyId'),
+        uri,
       );
+      
+      // Verify method is POST before proceeding
+      if (request.method != 'POST') {
+        throw Exception('CRITICAL: Request method is not POST: ${request.method}');
+      }
 
-      // Add headers
+      // Add headers - ensure Content-Type is not set (multipart/form-data is set automatically)
+      // Add X-Requested-With to indicate this is an API request, not browser navigation
       request.headers.addAll({
         'Accept': 'application/json',
         'Authorization': 'Bearer $token',
+        'X-Requested-With': 'XMLHttpRequest', // Prevents redirects that convert POST to GET
+        // Don't set Content-Type - MultipartRequest sets it automatically with boundary
       });
+      
+      print('✅ Request method verified: ${request.method}');
 
       // Add property data as form fields
       propertyData.forEach((key, value) {
@@ -151,15 +165,38 @@ class PropertyUpdateService {
       }
 
       print('🌐 Sending update request to: $baseUrl/update/property/$propertyId');
+      print('📋 Request Method: ${request.method}');
       print('📦 Request fields: ${request.fields}');
       print('📁 Files count: ${request.files.length}');
+      print('🔑 Headers: ${request.headers}');
 
       // Send the request
       final streamedResponse = await request.send();
+      
+      // Log the actual request that was sent
+      print('📤 Request sent - Status Code: ${streamedResponse.statusCode}');
+      if (streamedResponse.request != null) {
+        print('📤 Request URL: ${streamedResponse.request!.url}');
+        print('📤 Request Method: ${streamedResponse.request!.method}');
+      }
+      
       final response = await http.Response.fromStream(streamedResponse);
 
       print('📊 Update Response Status: ${response.statusCode}');
       print('📄 Update Response Body: ${response.body}');
+
+      // Handle method not allowed error (405)
+      if (response.statusCode == 405) {
+        print('❌ Method Not Allowed (405) - Server received wrong HTTP method');
+        print('   Expected: POST');
+        print('   Received by server: GET (likely due to redirect or browser access)');
+        return {
+          'success': false,
+          'error': 'Method Not Allowed',
+          'message': 'The server received a GET request instead of POST. This may be due to a redirect or the URL being accessed directly in a browser. Please ensure the request is sent as POST from the app.',
+          'statusCode': 405,
+        };
+      }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = json.decode(response.body);
@@ -182,10 +219,16 @@ class PropertyUpdateService {
           
           // Check for specific backend validation errors
           if (errorMessage.contains('validateSometimesIf') || 
-              errorMessage.contains('sometimes_if')) {
-            errorMessage = 'Backend validation error: The server is using an unsupported validation rule. '
-                'Please contact support or try again later. '
-                'This is a server-side issue that needs to be fixed by the backend team.';
+              errorMessage.contains('sometimes_if') ||
+              errorMessage.contains('BadMethodCallException')) {
+            errorMessage = 'Backend validation error: The server is using an unsupported validation rule (sometimes_if). '
+                'This is a server-side issue that needs to be fixed by the backend development team. '
+                'Please contact support. The frontend is sending the correct data format.';
+            
+            print('❌ Backend Validation Error Detected:');
+            print('   Error: $errorMessage');
+            print('   This error occurs because the backend uses "sometimes_if" which doesn\'t exist in Laravel.');
+            print('   The backend team needs to replace it with "sometimes" + "required_if" or conditional validation.');
           }
         } catch (e) {
           errorData = {};
