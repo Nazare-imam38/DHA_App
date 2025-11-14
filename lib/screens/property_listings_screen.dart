@@ -10,9 +10,11 @@ import '../services/customer_properties_service.dart';
 import '../models/customer_property.dart';
 import '../ui/widgets/cached_asset_image.dart';
 import '../ui/widgets/app_icons.dart';
+import '../core/theme/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'sidebar_drawer.dart';
 import 'property_detail_info_screen.dart';
+import '../ui/screens/auth/login_screen.dart';
 
 class PropertyListingsScreen extends StatefulWidget {
   const PropertyListingsScreen({super.key});
@@ -542,30 +544,76 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
-                                AppIcons.errorOutline,
-                                size: 64,
-                                color: Colors.red[300],
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                _errorMessage!,
-                                style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 16,
-                                  color: Colors.grey[600],
+                              // Check if it's an authentication error
+                              if (_errorMessage!.contains('Authentication token missing') || 
+                                  _errorMessage!.contains('Please login again') ||
+                                  _errorMessage!.contains('Unauthorized'))
+                                Column(
+                                  children: [
+                                    // DHA Logo instead of error icon
+                                    CachedAssetImage(
+                                      assetPath: 'assets/images/dhalogo.png',
+                                      width: 120,
+                                      height: 120,
+                                      fit: BoxFit.contain,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      'Please login to search property',
+                                      style: TextStyle(
+                                        fontFamily: 'Inter',
+                                        fontSize: 16,
+                                        color: Colors.grey[600],
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => const LoginScreen(),
+                                          ),
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFF20B2AA),
+                                        foregroundColor: Colors.white,
+                                      ),
+                                      child: const Text('Login to App'),
+                                    ),
+                                  ],
+                                )
+                              else
+                                Column(
+                                  children: [
+                                    Icon(
+                                      AppIcons.errorOutline,
+                                      size: 64,
+                                      color: Colors.red[300],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      _errorMessage!,
+                                      style: TextStyle(
+                                        fontFamily: 'Inter',
+                                        fontSize: 16,
+                                        color: Colors.grey[600],
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    ElevatedButton(
+                                      onPressed: () => _loadProperties(refresh: true),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFF20B2AA),
+                                        foregroundColor: Colors.white,
+                                      ),
+                                      child: const Text('Retry'),
+                                    ),
+                                  ],
                                 ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 16),
-                              ElevatedButton(
-                                onPressed: () => _loadProperties(refresh: true),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF20B2AA),
-                                  foregroundColor: Colors.white,
-                                ),
-                                child: const Text('Retry'),
-                              ),
                             ],
                           ),
                         )

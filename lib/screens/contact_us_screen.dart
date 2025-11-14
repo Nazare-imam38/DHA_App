@@ -26,10 +26,10 @@ class _ContactUsScreenState extends State<ContactUsScreen>
   late Animation<Offset> _slideAnimation;
   
   // Expandable section states
-  bool _isVisitOfficeExpanded = true;
-  bool _isCallUsExpanded = true;
-  bool _isEmailUsExpanded = true;
-  bool _isWhyChooseExpanded = true;
+  bool _isVisitOfficeExpanded = false;
+  bool _isCallUsExpanded = false;
+  bool _isEmailUsExpanded = false;
+  bool _isWhyChooseExpanded = false;
 
   @override
   void initState() {
@@ -185,15 +185,12 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                         ),
                       ),
                     ),
-                    ],
                   ),
                 ),
               ),
-            ),
-            
             // Contact Cards Section
-          SliverPadding(
-            padding: const EdgeInsets.all(16.0),
+            SliverPadding(
+              padding: const EdgeInsets.all(16.0),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Visit Our Office Card with Map
@@ -700,7 +697,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                             child: Container(
                               padding: EdgeInsets.all(24.w),
                               decoration: BoxDecoration(
-                                gradient: AppTheme.primaryGradient,
+                                color: AppTheme.cardWhite,
                                 borderRadius: BorderRadius.vertical(top: Radius.circular(AppTheme.radiusXLarge)),
                               ),
                               child: Row(
@@ -715,7 +712,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                             fontFamily: AppTheme.headingFont,
                                             fontSize: 20.sp,
                                             fontWeight: FontWeight.w700,
-                                            color: Colors.white,
+                                            color: AppTheme.primaryBlue,
                                             letterSpacing: 0.5,
                                           ),
                                         ),
@@ -725,7 +722,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                           style: TextStyle(
                                             fontFamily: AppTheme.primaryFont,
                                             fontSize: 14.sp,
-                                            color: Colors.white.withOpacity(0.9),
+                                            color: AppTheme.textSecondary,
                                             fontWeight: FontWeight.w400,
                                           ),
                                         ),
@@ -738,7 +735,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                                     duration: const Duration(milliseconds: 200),
                                     child: Icon(
                                       AppIcons.keyboardArrowDown,
-                                      color: Colors.white,
+                                      color: AppTheme.primaryBlue,
                                       size: 24.sp,
                                     ),
                                   ),
@@ -791,7 +788,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                       width: double.infinity,
                       padding: EdgeInsets.all(20.w),
                       decoration: BoxDecoration(
-                        gradient: AppTheme.primaryGradient,
+                        color: AppTheme.cardWhite,
                         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
                         boxShadow: AppTheme.cardShadow,
                       ),
@@ -803,7 +800,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                               fontFamily: AppTheme.headingFont,
                               fontSize: 18.sp,
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                              color: AppTheme.primaryBlue,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -813,7 +810,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                             style: TextStyle(
                               fontFamily: AppTheme.primaryFont,
                               fontSize: 14.sp,
-                              color: Colors.white.withOpacity(0.9),
+                              color: AppTheme.textSecondary,
                               fontWeight: FontWeight.w400,
                             ),
                             textAlign: TextAlign.center,

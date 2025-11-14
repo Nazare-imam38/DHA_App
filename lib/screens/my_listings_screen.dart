@@ -15,6 +15,8 @@ import 'property_listings_screen.dart';
 import 'main_wrapper.dart';
 import '../ui/widgets/app_icons.dart';
 import '../ui/widgets/cached_asset_image.dart';
+import '../services/auth_service.dart';
+import '../ui/screens/auth/login_screen.dart';
 
 class MyListingsScreen extends StatefulWidget {
   const MyListingsScreen({super.key});
@@ -26,10 +28,12 @@ class MyListingsScreen extends StatefulWidget {
 class _MyListingsScreenState extends State<MyListingsScreen> {
   final CustomerPropertiesService _service = CustomerPropertiesService();
   final GeocodingService _geocodingService = GeocodingService();
+  final AuthService _authService = AuthService();
   List<CustomerProperty> _properties = [];
   List<CustomerProperty> _filteredProperties = [];
   bool _isLoading = true;
   String? _error;
+  bool _isLoggedIn = false;
   final Map<String, String?> _geocodedAddresses = {}; // Cache geocoded addresses
   
   // Filter options
@@ -39,7 +43,17 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
   @override
   void initState() {
     super.initState();
+    _checkLoginStatus();
     _loadProperties();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    final isLoggedIn = await _authService.isLoggedIn();
+    if (mounted) {
+      setState(() {
+        _isLoggedIn = isLoggedIn;
+      });
+    }
   }
 
   Future<void> _geocodeProperty(CustomerProperty property) async {
@@ -702,13 +716,26 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const OwnershipSelectionScreen(),
-            ),
-          );
+        onPressed: () async {
+          // Check if user is logged in before navigating
+          final isLoggedIn = await _authService.isLoggedIn();
+          if (!isLoggedIn) {
+            // Redirect to login screen if not logged in
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LoginScreen(),
+              ),
+            );
+          } else {
+            // Navigate to ownership selection if logged in
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const OwnershipSelectionScreen(),
+              ),
+            );
+          }
         },
         backgroundColor: AppTheme.primaryBlue,
         icon: Icon(AppIcons.add, color: Colors.white),
@@ -735,44 +762,154 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     }
 
     if (_error != null) {
-      // Check if it's an authentication error - show DHA logo instead of error icon
-      final isAuthError = _error!.contains('Authentication token missing') || 
-                          _error!.contains('Please login again');
+      // If user is logged in and has no properties, show "No Property posted by you" instead of error
+      if (_isLoggedIn && _properties.isEmpty && 
+          (_selectedFilter == 'All' || _selectedFilter == 'Approved' || _selectedFilter == 'Rejected')) {
+        return Center(
+          child: Padding(
+            padding: EdgeInsets.all(24.w),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // DHA Logo
+                CachedAssetImage(
+                  assetPath: 'assets/images/dhalogo.png',
+                  width: 120.sp,
+                  height: 120.sp,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(height: 16),
+                // "No Property posted by you" text
+                Text(
+                  'No Property posted by you',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Add Property button
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    // Check if user is logged in before navigating
+                    final isLoggedIn = await _authService.isLoggedIn();
+                    if (!isLoggedIn) {
+                      // Redirect to login screen if not logged in
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginScreen(),
+                        ),
+                      );
+                    } else {
+                      // Navigate to ownership selection if logged in
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const OwnershipSelectionScreen(),
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF20B2AA),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 12.h),
+                  ),
+                  icon: Icon(AppIcons.add, color: Colors.white, size: 20.sp),
+                  label: Text(
+                    'Add Property',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
       
+      // Check if it's an authentication error - show login message
+      final isAuthError = _error!.contains('Authentication token missing') || 
+                          _error!.contains('Please login again') ||
+                          _error!.contains('Unauthorized');
+      
+      if (isAuthError) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // DHA Logo
+              CachedAssetImage(
+                assetPath: 'assets/images/dhalogo.png',
+                width: 120.sp,
+                height: 120.sp,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 32.w),
+                child: Text(
+                  'please login to see the listing',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 16.sp,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF20B2AA),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                ),
+                child: Text(
+                  'Login to App',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+      
+      // Show generic error for non-authentication errors
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (isAuthError)
-              Container(
-                width: 80.sp,
-                height: 80.sp,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.red,
-                    width: 3,
-                  ),
-                ),
-                child: ClipOval(
-                  child: Image.asset(
-                    'assets/images/dhalogo.png',
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Icon(
-                        AppIcons.errorOutline,
-                        size: 64.sp,
-                        color: Colors.red,
-                      );
-                    },
-                  ),
-                ),
-              )
-            else
-            Icon(
-              AppIcons.errorOutline,
-              size: 64.sp,
-              color: Colors.red,
+            // DHA Logo instead of error icon
+            CachedAssetImage(
+              assetPath: 'assets/images/dhalogo.png',
+              width: 120.sp,
+              height: 120.sp,
+              fit: BoxFit.contain,
             ),
             SizedBox(height: 16.h),
             Text(
@@ -822,7 +959,70 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     }
 
     if (_filteredProperties.isEmpty) {
-      // Special handling for Approved filter
+      // Show "No Property posted by you" message when user is logged in and has no properties
+      // This applies to All, Approved, and Rejected filters
+      if (_isLoggedIn && (_selectedFilter == 'All' || _selectedFilter == 'Approved' || _selectedFilter == 'Rejected')) {
+        return Center(
+          child: Padding(
+            padding: EdgeInsets.all(24.w),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // DHA Logo
+                CachedAssetImage(
+                  assetPath: 'assets/images/dhalogo.png',
+                  width: 120.sp,
+                  height: 120.sp,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(height: 16),
+                // "No Property posted by you" text
+                Text(
+                  'No Property posted by you',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Add Property button
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const OwnershipSelectionScreen(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF20B2AA),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 12.h),
+                  ),
+                  icon: Icon(AppIcons.add, color: Colors.white, size: 20.sp),
+                  label: Text(
+                    'Add Property',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+      
+      // Special handling for Approved filter when not logged in or has pending/rejected
       if (_selectedFilter == 'Approved') {
         return Center(
           child: Padding(
@@ -889,7 +1089,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         );
       }
       
-      // Default empty state for other filters
+      // Default empty state for Pending filter or when not logged in
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -924,13 +1124,26 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
             if (_selectedFilter == 'All') ...[
               SizedBox(height: 24.h),
               ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const OwnershipSelectionScreen(),
-                    ),
-                  );
+                onPressed: () async {
+                  // Check if user is logged in before navigating
+                  final isLoggedIn = await _authService.isLoggedIn();
+                  if (!isLoggedIn) {
+                    // Redirect to login screen if not logged in
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginScreen(),
+                      ),
+                    );
+                  } else {
+                    // Navigate to ownership selection if logged in
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const OwnershipSelectionScreen(),
+                      ),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryBlue,

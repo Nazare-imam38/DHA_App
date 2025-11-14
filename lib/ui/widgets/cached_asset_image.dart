@@ -37,19 +37,17 @@ class CachedAssetImage extends StatelessWidget {
     this.filterQuality = FilterQuality.low,
   });
 
-  /// Normalize asset path to prevent duplication
-  /// Image.asset() expects paths without the 'assets/' prefix
+  /// Normalize asset path for proper asset loading
+  /// Image.asset() expects paths as declared in pubspec.yaml
+  /// Keep the path as-is to match pubspec.yaml declarations exactly
   String _normalizeAssetPath(String path) {
-    // Remove leading slash if present
-    String normalized = path.startsWith('/') ? path.substring(1) : path;
-    
-    // Image.asset() expects paths relative to the assets folder
-    // So 'assets/Ads/300x80.jpg' should be 'Ads/300x80.jpg'
-    if (normalized.startsWith('assets/')) {
-      normalized = normalized.substring(7); // Remove 'assets/'
+    // Remove leading slash if present (Flutter doesn't like leading slashes)
+    if (path.startsWith('/')) {
+      return path.substring(1);
     }
-    
-    return normalized;
+    // Return path as-is to match pubspec.yaml declarations
+    // Image.asset() will handle the path correctly based on how it's declared
+    return path;
   }
 
   @override

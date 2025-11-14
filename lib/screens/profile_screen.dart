@@ -1205,6 +1205,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: Colors.grey[50],
         drawer: const SidebarDrawer(),
         floatingActionButton: null, // Explicitly remove any floating action button
+        floatingActionButtonLocation: null, // Also remove the location to ensure no FAB appears
         body: SafeArea(
         child: Column(
           children: [

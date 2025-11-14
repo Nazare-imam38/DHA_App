@@ -3,7 +3,7 @@ description: DHA Marketplace Mobile App
 
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -65,10 +65,42 @@ flutter:
     - assets/images/dhalogo.png
     - assets/images/dha.png
     - assets/images/dha-logo.png
+    - assets/images/login.jpg
+    - assets/images/logo.png
     - assets/Ads/
+    - assets/Ads/300x80.jpg
+    - assets/Ads/375x400.jpg
+    - assets/Ads/600x480.jpg
+    - assets/Ads/728x90.jpg
+    - assets/Ads/785x500.jpg
+    - assets/Ads/800x600.jpg
     - assets/Boundaries/geojsons/
+    - assets/Boundaries/geojsons/Amenities.geojson
+    - assets/Boundaries/geojsons/combined.geojson
+    - assets/Boundaries/geojsons/DHA_topo_simplified.json
+    - assets/Boundaries/geojsons/DHA_topo.geojson
+    - assets/Boundaries/geojsons/DHA_topo.json
+    - assets/Boundaries/geojsons/DHAISB.geojson
+    - assets/Boundaries/geojsons/Phase1.geojson
+    - assets/Boundaries/geojsons/Phase2.geojson
+    - assets/Boundaries/geojsons/Phase3.geojson
+    - assets/Boundaries/geojsons/Phase4_GV.geojson
+    - assets/Boundaries/geojsons/Phase4_RVN.geojson
+    - assets/Boundaries/geojsons/Phase4_RVS.geojson
+    - assets/Boundaries/geojsons/Phase4.geojson
+    - assets/Boundaries/geojsons/Phase5.geojson
+    - assets/Boundaries/geojsons/Phase6.geojson
+    - assets/Boundaries/geojsons/Phase7.geojson
     - assets/gallery/
+    - assets/gallery/dha-commercial-center.jpg
+    - assets/gallery/dha-gate-night.jpg
+    - assets/gallery/dha-medical-center.jpg
+    - assets/gallery/dha-mosque-night.jpg
+    - assets/gallery/dha-park-night.jpg
+    - assets/gallery/dha-sports-facility.jpg
+    - assets/gallery/imperial-hall.jpg
     - assets/earth_textures/
+    - assets/earth_textures/earth_simple.png
 
 flutter_launcher_icons:
   android: true
