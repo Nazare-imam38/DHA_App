@@ -49,16 +49,24 @@ class PropertyUpdateService {
       });
 
       // Add amenities in nested format: amenities[property_type_id][amenity_id]
+      // IMPORTANT: Backend expects amenity IDs (numeric), not names
       if (amenities != null && amenities.isNotEmpty && propertyTypeId != null) {
         print('🏠 Adding ${amenities.length} amenities in nested format');
         int index = 1;
-        for (final amenityId in amenities) {
-          final amenityIdStr = amenityId.toString().trim();
-          if (amenityIdStr.isNotEmpty) {
-            print('   ✅ Adding amenities[$propertyTypeId][$index]: $amenityIdStr');
-            request.fields['amenities[$propertyTypeId][$index]'] = amenityIdStr;
-            index++;
+        for (final amenityValue in amenities) {
+          final amenityStr = amenityValue.toString().trim();
+          if (amenityStr.isEmpty) continue;
+          
+          // Validate that we're sending an ID (numeric), not a name
+          // If it's not numeric, log a warning but still send it (backend will handle validation)
+          final isNumeric = RegExp(r'^\d+$').hasMatch(amenityStr);
+          if (!isNumeric) {
+            print('⚠️ WARNING: Amenity value "$amenityStr" is not numeric (expected ID). This may cause backend errors.');
           }
+          
+          print('   ✅ Adding amenities[$propertyTypeId][$index]: $amenityStr');
+          request.fields['amenities[$propertyTypeId][$index]'] = amenityStr;
+          index++;
         }
       }
 
@@ -163,12 +171,33 @@ class PropertyUpdateService {
         };
       } else {
         print('❌ Property update failed with status: ${response.statusCode}');
-        final errorData = json.decode(response.body);
+        print('📄 Full response body: ${response.body}');
+        
+        Map<String, dynamic> errorData;
+        String errorMessage;
+        
+        try {
+          errorData = json.decode(response.body);
+          errorMessage = errorData['message'] ?? response.body;
+          
+          // Check for specific backend validation errors
+          if (errorMessage.contains('validateSometimesIf') || 
+              errorMessage.contains('sometimes_if')) {
+            errorMessage = 'Backend validation error: The server is using an unsupported validation rule. '
+                'Please contact support or try again later. '
+                'This is a server-side issue that needs to be fixed by the backend team.';
+          }
+        } catch (e) {
+          errorData = {};
+          errorMessage = 'Failed to update property. Server returned status ${response.statusCode}';
+        }
+        
         return {
           'success': false,
           'error': 'Update failed with status: ${response.statusCode}',
-          'message': errorData['message'] ?? response.body,
+          'message': errorMessage,
           'errors': errorData['errors'],
+          'statusCode': response.statusCode,
         };
       }
     } catch (e) {

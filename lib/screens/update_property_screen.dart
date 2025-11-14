@@ -114,6 +114,18 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
       final amenitiesByCategory = await _amenitiesService.getAmenitiesByPropertyType(propertyTypeId);
       final allAmenities = amenitiesByCategory.values.expand((list) => list).toList();
       
+      // Resolve property's existing amenities (which might be names) to IDs
+      if (_formData != null && widget.property.amenities.isNotEmpty) {
+        final resolvedAmenityIds = _resolveAmenityNamesToIds(
+          widget.property.amenities,
+          allAmenities,
+        );
+        print('🔄 Resolved ${widget.property.amenities.length} amenities to ${resolvedAmenityIds.length} IDs');
+        print('   Original: ${widget.property.amenities}');
+        print('   Resolved IDs: $resolvedAmenityIds');
+        _formData!.updateAmenities(resolvedAmenityIds);
+      }
+      
       setState(() {
         _amenitiesByCategory = amenitiesByCategory;
         _allAmenities = allAmenities;
@@ -124,6 +136,48 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
         _amenitiesLoading = false;
       });
     }
+  }
+
+  /// Resolve amenity names to IDs by matching against available amenities
+  List<String> _resolveAmenityNamesToIds(
+    List<String> propertyAmenities,
+    List<Map<String, dynamic>> allAvailableAmenities,
+  ) {
+    final resolvedIds = <String>[];
+    
+    // Create a map of name -> id for quick lookup
+    final nameToIdMap = <String, String>{};
+    for (final amenity in allAvailableAmenities) {
+      final id = amenity['id']?.toString();
+      final name = amenity['name']?.toString() ?? amenity['amenity_name']?.toString();
+      if (id != null && name != null) {
+        // Store both exact name and lowercase version for matching
+        nameToIdMap[name] = id;
+        nameToIdMap[name.toLowerCase().trim()] = id;
+      }
+    }
+    
+    // Resolve each property amenity
+    for (final amenity in propertyAmenities) {
+      final trimmed = amenity.trim();
+      
+      // First check if it's already an ID (numeric string)
+      if (RegExp(r'^\d+$').hasMatch(trimmed)) {
+        // It's already an ID, use it directly
+        resolvedIds.add(trimmed);
+        continue;
+      }
+      
+      // Try to find by name (exact match first, then case-insensitive)
+      final id = nameToIdMap[trimmed] ?? nameToIdMap[trimmed.toLowerCase()];
+      if (id != null) {
+        resolvedIds.add(id);
+      } else {
+        print('⚠️ Could not resolve amenity "$trimmed" to an ID, skipping');
+      }
+    }
+    
+    return resolvedIds;
   }
 
   @override
@@ -1328,12 +1382,22 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
         if (result['success'] == true) {
           _showSuccessDialog();
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(result['message'] ?? 'Failed to update property'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          final errorMessage = result['message'] ?? 'Failed to update property';
+          final statusCode = result['statusCode'] ?? 'Unknown';
+          
+          // Show detailed error dialog for backend validation errors
+          if (errorMessage.contains('Backend validation error') || 
+              errorMessage.contains('sometimes_if')) {
+            _showBackendErrorDialog(errorMessage, statusCode);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(errorMessage),
+                backgroundColor: Colors.red,
+                duration: Duration(seconds: 5),
+              ),
+            );
+          }
         }
       }
     } catch (e) {
@@ -1352,6 +1416,98 @@ class _UpdatePropertyScreenState extends State<UpdatePropertyScreen> {
         });
       }
     }
+  }
+
+  void _showBackendErrorDialog(String errorMessage, dynamic statusCode) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+        title: Row(
+          children: [
+            Icon(Icons.error_outline, color: Colors.red, size: 28.sp),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Text(
+                'Backend Error',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              errorMessage,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w500,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Container(
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: AppTheme.lightBlue,
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Technical Details:',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    'Status Code: $statusCode\n'
+                    'Error: validateSometimesIf method not found\n'
+                    'This is a server-side issue that needs to be fixed by the backend development team.',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w400,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              'OK',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primaryBlue,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showSuccessDialog() {
