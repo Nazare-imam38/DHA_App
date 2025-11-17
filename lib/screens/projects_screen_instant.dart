@@ -149,6 +149,10 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
   // Modern filter manager
   final ModernFilterManager _filterManager = ModernFilterManager();
   
+  // Dynamic enabled filter options (updated from API responses)
+  List<String> _enabledPhases = [];
+  List<String> _enabledSizes = [];
+  
   // Global key for persistent filter panel
   final GlobalKey<ModernFiltersPanelState> _filterPanelKey = GlobalKey<ModernFiltersPanelState>();
   
@@ -239,12 +243,22 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
     _filterManager.onPhasesUpdated = (phases) {
       print('✅ Filter Manager: Available phases updated: $phases');
+      // Update state to trigger widget rebuild with new enabled phases
+      setState(() {
+        _enabledPhases = phases;
+        print('✅ Updated _enabledPhases state: $_enabledPhases');
+      });
       // Update the filter panel with available phases
       _updateFilterPanelPhases(phases);
     };
 
     _filterManager.onSizesUpdated = (sizes) {
       print('✅ Filter Manager: Available sizes updated: $sizes');
+      // Update state to trigger widget rebuild with new enabled sizes
+      setState(() {
+        _enabledSizes = sizes;
+        print('✅ Updated _enabledSizes state: $_enabledSizes');
+      });
       // Update the filter panel with available sizes
       _updateFilterPanelSizes(sizes);
     };
@@ -285,6 +299,36 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     print('📊 Available sizes for filter panel: $sizes');
   }
 
+  /// Safely get enabled phases list
+  List<String>? _getEnabledPhases() {
+    try {
+      // Check if list exists and has items
+      final phases = _enabledPhases;
+      if (phases.isEmpty) {
+        return null;
+      }
+      return List<String>.from(phases);
+    } catch (e) {
+      print('⚠️ Error getting enabled phases: $e');
+      return null;
+    }
+  }
+
+  /// Safely get enabled sizes list
+  List<String>? _getEnabledSizes() {
+    try {
+      // Check if list exists and has items
+      final sizes = _enabledSizes;
+      if (sizes.isEmpty) {
+        return null;
+      }
+      return List<String>.from(sizes);
+    } catch (e) {
+      print('⚠️ Error getting enabled sizes: $e');
+      return null;
+    }
+  }
+
   /// Apply filters to modern filter manager
   void _applyFiltersToManager(Map<String, dynamic> filters) {
     // Apply price range
@@ -296,10 +340,25 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     // Apply plot type
     final plotType = filters['plotType'] as String?;
     _filterManager.setCategory(plotType);
+    
+    // Clear enabled phases if category is cleared (they need to be reloaded for new category)
+    if (plotType == null) {
+      setState(() {
+        _enabledPhases = [];
+        _enabledSizes = [];
+      });
+    }
 
     // Apply DHA phase
     final dhaPhase = filters['dhaPhase'] as String?;
     _filterManager.setPhase(dhaPhase);
+    
+    // Clear enabled sizes if phase is cleared
+    if (dhaPhase == null) {
+      setState(() {
+        _enabledSizes = [];
+      });
+    }
 
     // Apply plot size
     final plotSize = filters['plotSize'] as String?;
@@ -1359,9 +1418,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                 'plotSize': _selectedPlotSize,
                 'priceRange': _priceRange,
               },
-              // Pass dynamic filter options from the filter manager
-              enabledPhases: _filterManager.availablePhases,
-              enabledSizes: _filterManager.availableSizes,
+              // Pass dynamic filter options from state (updated when API responses come in)
+              enabledPhases: _getEnabledPhases(),
+              enabledSizes: _getEnabledSizes(),
             ),
             ),
             ),

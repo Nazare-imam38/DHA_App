@@ -123,6 +123,17 @@ class ModernFiltersPanelState extends State<ModernFiltersPanel>
   void didUpdateWidget(ModernFiltersPanel oldWidget) {
     super.didUpdateWidget(oldWidget);
     print('🔍 ModernFiltersPanel: didUpdateWidget called - isVisible: ${widget.isVisible}, wasVisible: ${oldWidget.isVisible}');
+    
+    // Check if enabled phases changed
+    final oldPhases = oldWidget.enabledPhases ?? [];
+    final newPhases = widget.enabledPhases ?? [];
+    if (oldPhases.toString() != newPhases.toString()) {
+      print('🔍 ModernFiltersPanel: Enabled phases changed from $oldPhases to $newPhases');
+      setState(() {
+        // Trigger rebuild to show updated phases
+      });
+    }
+    
     // CRITICAL: Only trigger animations when visibility actually changes
     if (widget.isVisible && !oldWidget.isVisible) {
       print('🔍 Filter panel: Opening animation');
@@ -355,20 +366,7 @@ class ModernFiltersPanelState extends State<ModernFiltersPanel>
                                   _isDhaPhaseExpanded = !_isDhaPhaseExpanded;
                                 });
                               } : () {},
-                              children: (_getEnabledPhases()).map((phase) => _buildFilterOptionDisabled(
-                                phase,
-                                _selectedDhaPhase == phase,
-                                _isPhaseEnabled(phase),
-                                () {
-                                  if (!_isPhaseEnabled(phase)) return;
-                                  setState(() {
-                                    _selectedDhaPhase = phase;
-                                    _updateActiveFilters();
-                                    _isDhaPhaseExpanded = false;
-                                    _notifyFiltersChanged();
-                                  });
-                                },
-                              )).toList(),
+                              children: _buildPhaseOptions(),
                             ),
                             
                             const SizedBox(height: 4),
@@ -856,13 +854,65 @@ class ModernFiltersPanelState extends State<ModernFiltersPanel>
   }
 
   List<String> _getEnabledPhases() {
-    return widget.enabledPhases != null && widget.enabledPhases!.isNotEmpty
-        ? widget.enabledPhases!
-        : _dhaPhasesStatic;
+    // If enabledPhases are provided, use only those (filtered from API)
+    if (widget.enabledPhases != null && widget.enabledPhases!.isNotEmpty) {
+      print('🔍 ModernFiltersPanel: ✅ Using enabled phases from API: ${widget.enabledPhases}');
+      print('🔍 ModernFiltersPanel: ✅ Total enabled phases: ${widget.enabledPhases!.length}');
+      return widget.enabledPhases!;
+    }
+    // Otherwise, show all static phases
+    print('🔍 ModernFiltersPanel: ⚠️ Using all static phases (no enabled phases from API): $_dhaPhasesStatic');
+    print('🔍 ModernFiltersPanel: ⚠️ widget.enabledPhases is: ${widget.enabledPhases}');
+    return _dhaPhasesStatic;
   }
 
   bool _isPhaseEnabled(String phase) {
-    return _getEnabledPhases().contains(phase);
+    final enabledPhases = _getEnabledPhases();
+    final isEnabled = enabledPhases.contains(phase);
+    if (!isEnabled) {
+      print('🔍 ModernFiltersPanel: Phase "$phase" is NOT enabled. Enabled phases: $enabledPhases');
+    }
+    return isEnabled;
+  }
+
+  /// Build phase options - only show enabled phases if available from API, otherwise show all with disabled state
+  List<Widget> _buildPhaseOptions() {
+    final enabledPhases = _getEnabledPhases();
+    
+    // If we have enabled phases from API, only show those (they're all enabled)
+    if (widget.enabledPhases != null && widget.enabledPhases!.isNotEmpty) {
+      print('🔍 ModernFiltersPanel: Building phase options - showing only enabled phases: $enabledPhases');
+      return enabledPhases.map((phase) => _buildFilterOptionDisabled(
+        phase,
+        _selectedDhaPhase == phase,
+        true, // All shown phases are enabled
+        () {
+          setState(() {
+            _selectedDhaPhase = phase;
+            _updateActiveFilters();
+            _isDhaPhaseExpanded = false;
+            _notifyFiltersChanged();
+          });
+        },
+      )).toList();
+    }
+    
+    // Otherwise, show all static phases but disable the ones not in enabled list
+    print('🔍 ModernFiltersPanel: Building phase options - showing all phases with enabled state');
+    return _dhaPhasesStatic.map((phase) => _buildFilterOptionDisabled(
+      phase,
+      _selectedDhaPhase == phase,
+      _isPhaseEnabled(phase),
+      () {
+        if (!_isPhaseEnabled(phase)) return;
+        setState(() {
+          _selectedDhaPhase = phase;
+          _updateActiveFilters();
+          _isDhaPhaseExpanded = false;
+          _notifyFiltersChanged();
+        });
+      },
+    )).toList();
   }
 
   List<String> _getEnabledSizes() {

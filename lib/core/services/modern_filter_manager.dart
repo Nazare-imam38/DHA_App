@@ -264,77 +264,56 @@ class ModernFilterManager {
   
   /// Performance optimization: Background processing for filters
   Future<void> _processFiltersInBackground(String taskId) async {
-    if (_isProcessingInBackground) {
-      print('ModernFilterManager: ⏳ Waiting for background processing to complete...');
-      return;
-    }
-    
+    // Remove the blocking check - allow sequential filter calls
+    // The debouncing already handles rapid filter changes
     _isProcessingInBackground = true;
     final completer = Completer<void>();
     _backgroundTasks[taskId] = completer;
     
     try {
-      // Step 1: Filter by price range first
-      if (_minPrice != null && _maxPrice != null) {
-        print('ModernFilterManager: 🎯 Step 1 - Optimized price range filtering $_minPrice - $_maxPrice');
-        
-        // Performance optimization: Load categories in parallel with price filtering
-        final categoriesFuture = _loadAvailableCategories();
-        final plotsFuture = _fetchPlotsByPriceRange();
-        
-        await Future.wait([categoriesFuture, plotsFuture]);
-        
-        // If no category selected, we're done
-        if (_category == null) {
-          completer.complete();
-          return;
-        }
-        
-        // Step 2: Filter by category
-        if (_category != null) {
-          print('ModernFilterManager: 🎯 Step 2 - Optimized category filtering $_category');
-          
-          // Performance optimization: Load phases in parallel with category filtering
-          final phasesFuture = _loadAvailablePhases();
-          final categoryPlotsFuture = _fetchPlotsByCategory();
-          
-          await Future.wait([phasesFuture, categoryPlotsFuture]);
-          
-          // If no phase selected, we're done
-          if (_phase == null) {
-            completer.complete();
-            return;
-          }
-          
-          // Step 3: Filter by phase
-          if (_phase != null) {
-            print('ModernFilterManager: 🎯 Step 3 - Optimized phase filtering $_phase');
-            
-            // Performance optimization: Load sizes in parallel with phase filtering
-            final sizesFuture = _loadAvailableSizes();
-            final phasePlotsFuture = _fetchPlotsByPhase();
-            
-            await Future.wait([sizesFuture, phasePlotsFuture]);
-            
-            // If no size selected, we're done
-            if (_size == null) {
-              completer.complete();
-              return;
-            }
-            
-            // Step 4: Filter by size (final filter)
-            if (_size != null) {
-              print('ModernFilterManager: 🎯 Step 4 - Optimized size filtering $_size');
-              await _fetchPlotsBySize();
-              completer.complete();
-              return;
-            }
-          }
-        }
+      // Check which filters are set to determine which API to call
+      final hasPriceRange = _minPrice != null && _maxPrice != null;
+      final hasCategory = _category != null;
+      final hasPhase = _phase != null;
+      final hasSize = _size != null;
+      
+      print('ModernFilterManager: 🔍 Filter state - Price: $hasPriceRange, Category: $hasCategory, Phase: $hasPhase, Size: $hasSize');
+      
+      // Progressive filtering: Call the most specific API based on what's selected
+      if (hasPriceRange && hasCategory && hasPhase && hasSize) {
+        // Step 4: All filters selected - filter by size
+        print('ModernFilterManager: 🎯 Step 4 - Filtering by size $_size with phase $_phase, category $_category, price $_minPrice-$_maxPrice');
+        await _loadAvailableSizes();
+        await _fetchPlotsBySize();
+        completer.complete();
+        return;
+      } else if (hasPriceRange && hasCategory && hasPhase) {
+        // Step 3: Price + Category + Phase - filter by phase
+        print('ModernFilterManager: 🎯 Step 3 - Filtering by phase $_phase with category $_category, price $_minPrice-$_maxPrice');
+        await _loadAvailableSizes();
+        await _fetchPlotsByPhase();
+        completer.complete();
+        return;
+      } else if (hasPriceRange && hasCategory) {
+        // Step 2: Price + Category - filter by category (THIS IS THE KEY FIX)
+        print('ModernFilterManager: 🎯 Step 2 - Filtering by category $_category with price $_minPrice-$_maxPrice');
+        await _loadAvailablePhases();
+        await _fetchPlotsByCategory();
+        completer.complete();
+        return;
+      } else if (hasPriceRange) {
+        // Step 1: Only price range - filter by price
+        print('ModernFilterManager: 🎯 Step 1 - Filtering by price range $_minPrice - $_maxPrice');
+        await _loadAvailableCategories();
+        await _fetchPlotsByPriceRange();
+        completer.complete();
+        return;
       } else {
         // No price range set, load all plots
+        print('ModernFilterManager: 🎯 No price range - loading all plots');
         await loadInitialPlots();
         completer.complete();
+        return;
       }
     } finally {
       _isProcessingInBackground = false;
@@ -656,9 +635,13 @@ class ModernFilterManager {
 
   /// Load available phases for current category and price range
   Future<void> _loadAvailablePhases() async {
-    if (_category == null || _minPrice == null || _maxPrice == null) return;
+    if (_category == null || _minPrice == null || _maxPrice == null) {
+      print('ModernFilterManager: ⚠️ Cannot load phases - missing category or price range');
+      return;
+    }
     
     try {
+      print('ModernFilterManager: 🔍 Loading available phases for category $_category, price $_minPrice-$_maxPrice');
       _availablePhases = await ProgressiveFilter.ProgressiveFilterService.getAvailablePhases(
         category: _category!,
         priceFrom: _minPrice!,
@@ -666,11 +649,12 @@ class ModernFilterManager {
       );
       _phasesLoaded = true;
       onPhasesUpdated?.call(_availablePhases);
-      print('ModernFilterManager: ✅ Loaded ${_availablePhases.length} available phases');
+      print('ModernFilterManager: ✅ Loaded ${_availablePhases.length} available phases: $_availablePhases');
     } catch (e) {
       print('ModernFilterManager: ❌ Error loading phases: $e');
       _availablePhases = [];
       _phasesLoaded = false;
+      onPhasesUpdated?.call([]);
     }
   }
 
@@ -722,17 +706,40 @@ class ModernFilterManager {
   /// Fetch plots by category and price range
   Future<void> _fetchPlotsByCategory() async {
     try {
+      print('ModernFilterManager: 🔍 Fetching plots by category: $_category, price: $_minPrice - $_maxPrice');
       final response = await ProgressiveFilter.ProgressiveFilterService.filterByCategory(
         category: _category!,
         priceFrom: _minPrice!,
         priceTo: _maxPrice!,
       );
       
+      print('ModernFilterManager: 📦 Received ${response.plots.length} PlotData objects from API');
+      
+      if (response.plots.isEmpty) {
+        print('ModernFilterManager: ⚠️ No plots in API response!');
+        _filteredPlots = [];
+        onPlotsUpdated?.call([]);
+        return;
+      }
+      
+      print('ModernFilterManager: 🔄 Converting ${response.plots.length} PlotData to PlotModel...');
       _filteredPlots = _convertToPlotModels(response.plots);
+      print('ModernFilterManager: ✅ Converted to ${_filteredPlots.length} PlotModel objects');
+      
+      if (_filteredPlots.isEmpty) {
+        print('ModernFilterManager: ⚠️ Conversion resulted in 0 plots! Check PlotData to PlotModel conversion.');
+        if (response.plots.isNotEmpty) {
+          print('ModernFilterManager: 🔍 First PlotData sample: id=${response.plots.first.id}, plotNo=${response.plots.first.plotNo}');
+        }
+      } else {
+        print('ModernFilterManager: 📋 First plot: id=${_filteredPlots.first.id}, plotNo=${_filteredPlots.first.plotNo}, category=${_filteredPlots.first.category}');
+      }
+      
       onPlotsUpdated?.call(_filteredPlots);
-      print('ModernFilterManager: ✅ Category filter returned ${_filteredPlots.length} plots');
-    } catch (e) {
+      print('ModernFilterManager: ✅ Category filter returned ${_filteredPlots.length} plots and callback triggered');
+    } catch (e, stackTrace) {
       print('ModernFilterManager: ❌ Error fetching plots by category: $e');
+      print('ModernFilterManager: ❌ Stack trace: $stackTrace');
       _filteredPlots = [];
       onPlotsUpdated?.call([]);
     }

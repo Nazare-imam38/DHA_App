@@ -48,7 +48,7 @@ class ProgressiveFilterService {
     _requestTimestamps[cacheKey] = DateTime.now();
     
     try {
-      final url = '$baseUrl/filtered-plots?price_from=${priceFrom.toInt()}&price_to=${priceTo.toInt()}';
+      final url = '$baseUrl/filter-plots-range?price_from=${priceFrom.toInt()}&price_to=${priceTo.toInt()}';
       
       for (int attempt = 1; attempt <= _maxRetries; attempt++) {
         try {
@@ -63,8 +63,8 @@ class ProgressiveFilterService {
           ).timeout(_timeout);
           
           if (response.statusCode == 200) {
-            final Map<String, dynamic> jsonData = json.decode(response.body);
-            final result = FilteredPlotsResponse.fromJson(jsonData);
+            final responseData = json.decode(response.body);
+            final result = FilteredPlotsResponse.fromJson(responseData);
             
             // Performance optimization: Cache the response
             _cacheResponse(cacheKey, result);
@@ -121,7 +121,7 @@ class ProgressiveFilterService {
     _requestTimestamps[cacheKey] = DateTime.now();
     
     try {
-      final url = '$baseUrl/filter-plots-range?category=$category&price_from=${priceFrom.toInt()}&price_to=${priceTo.toInt()}';
+      final url = '$baseUrl/filter-plots-range?price_from=${priceFrom.toInt()}&price_to=${priceTo.toInt()}&category=$category';
       
       for (int attempt = 1; attempt <= _maxRetries; attempt++) {
         try {
@@ -136,13 +136,30 @@ class ProgressiveFilterService {
           ).timeout(_timeout);
           
           if (response.statusCode == 200) {
-            final Map<String, dynamic> jsonData = json.decode(response.body);
-            final result = FilteredPlotsResponse.fromJson(jsonData);
+            final responseData = json.decode(response.body);
+            print('ProgressiveFilterService: 📦 Raw API response type: ${responseData.runtimeType}');
+            if (responseData is Map) {
+              print('ProgressiveFilterService: 📦 Response keys: ${(responseData as Map).keys.toList()}');
+              if ((responseData as Map).containsKey('data')) {
+                final data = (responseData as Map)['data'];
+                if (data is Map) {
+                  print('ProgressiveFilterService: 📦 Data keys: ${(data as Map).keys.toList()}');
+                  if ((data as Map).containsKey('plots')) {
+                    final plots = (data as Map)['plots'];
+                    print('ProgressiveFilterService: 📦 Plots type: ${plots.runtimeType}, count: ${plots is List ? plots.length : 'N/A'}');
+                  }
+                }
+              }
+            }
+            final result = FilteredPlotsResponse.fromJson(responseData);
             
             // Performance optimization: Cache the response
             _cacheResponse(cacheKey, result);
             
             print('ProgressiveFilterService: ✅ Category filter returned ${result.plots.length} plots');
+            if (result.plots.isNotEmpty) {
+              print('ProgressiveFilterService: 📋 First plot: id=${result.plots.first.id}, plotNo=${result.plots.first.plotNo}, category=${result.plots.first.category}');
+            }
             completer.complete(result);
             return result;
           } else {
@@ -173,9 +190,11 @@ class ProgressiveFilterService {
     required double priceFrom,
     required double priceTo,
   }) async {
-    print('ProgressiveFilterService: Filtering by phase $phase with category $category and price $priceFrom - $priceTo');
+    // Convert phase format: "Phase 1" -> "1", "Phase 2" -> "2", etc.
+    final apiPhase = _convertPhaseToApiFormat(phase);
+    print('ProgressiveFilterService: Filtering by phase $phase (API format: $apiPhase) with category $category and price $priceFrom - $priceTo');
     
-    final url = '$baseUrl/filter-plots-range?phase=$phase&category=$category&price_from=${priceFrom.toInt()}&price_to=${priceTo.toInt()}';
+    final url = '$baseUrl/filter-plots-range?phase=$apiPhase&category=$category&price_from=${priceFrom.toInt()}&price_to=${priceTo.toInt()}';
     
     for (int attempt = 1; attempt <= _maxRetries; attempt++) {
       try {
@@ -190,8 +209,8 @@ class ProgressiveFilterService {
         ).timeout(_timeout);
         
         if (response.statusCode == 200) {
-          final Map<String, dynamic> jsonData = json.decode(response.body);
-          final result = FilteredPlotsResponse.fromJson(jsonData);
+          final responseData = json.decode(response.body);
+          final result = FilteredPlotsResponse.fromJson(responseData);
           
           print('ProgressiveFilterService: ✅ Phase filter returned ${result.plots.length} plots');
           return result;
@@ -220,9 +239,13 @@ class ProgressiveFilterService {
     required double priceFrom,
     required double priceTo,
   }) async {
-    print('ProgressiveFilterService: Filtering by size $size with phase $phase, category $category and price $priceFrom - $priceTo');
+    // Convert phase format: "Phase 1" -> "1", "Phase 2" -> "2", etc.
+    final apiPhase = _convertPhaseToApiFormat(phase);
+    // URL-encode the size parameter (e.g., "5 Kanal" -> "5+Kanal" or "5%20Kanal")
+    final encodedSize = Uri.encodeComponent(size).replaceAll('%20', '+');
+    print('ProgressiveFilterService: Filtering by size $size (encoded: $encodedSize) with phase $phase (API format: $apiPhase), category $category and price $priceFrom - $priceTo');
     
-    final url = '$baseUrl/filter-plots-range?price_from=${priceFrom.toInt()}&price_to=${priceTo.toInt()}&phase=$phase&category=$category&cat_area=$size';
+    final url = '$baseUrl/filter-plots-range?price_from=${priceFrom.toInt()}&price_to=${priceTo.toInt()}&phase=$apiPhase&category=$category&cat_area=$encodedSize';
     
     for (int attempt = 1; attempt <= _maxRetries; attempt++) {
       try {
@@ -237,8 +260,8 @@ class ProgressiveFilterService {
         ).timeout(_timeout);
         
         if (response.statusCode == 200) {
-          final Map<String, dynamic> jsonData = json.decode(response.body);
-          final result = FilteredPlotsResponse.fromJson(jsonData);
+          final responseData = json.decode(response.body);
+          final result = FilteredPlotsResponse.fromJson(responseData);
           
           print('ProgressiveFilterService: ✅ Size filter returned ${result.plots.length} plots');
           return result;
@@ -291,13 +314,54 @@ class ProgressiveFilterService {
         priceTo: priceTo,
       );
       
-      // Extract unique phases from the plots
-      final phases = result.plots.map((plot) => plot.phase).toSet().toList();
+      // First, try to get phases from the counts object (more reliable)
+      List<String> phases = [];
+      if (result.counts.phaseCounts != null && result.counts.phaseCounts!.isNotEmpty) {
+        phases = result.counts.phaseCounts!.keys.toList();
+        print('ProgressiveFilterService: Extracted phases from counts: $phases');
+      }
       
-      print('ProgressiveFilterService: Available phases for $category in price $priceFrom-$priceTo: $phases');
+      // Fallback: Extract unique phases from the plots if counts not available
+      if (phases.isEmpty) {
+        phases = result.plots.map((plot) => plot.phase).where((phase) => phase.isNotEmpty).toSet().toList();
+        print('ProgressiveFilterService: Extracted phases from plots: $phases');
+      }
+      
+      // Convert phase format to UI format: "1" -> "Phase 1", "4" -> "Phase 4", "RVS" -> "RVS", etc.
+      phases = phases.map((phase) {
+        // Check if it's a numeric phase
+        final phaseNum = int.tryParse(phase.trim());
+        if (phaseNum != null) {
+          return 'Phase $phaseNum';
+        }
+        // Check if it's already in "Phase X" format
+        if (phase.toLowerCase().startsWith('phase ')) {
+          return phase; // Already formatted
+        }
+        // For text phases like "RVS", "Margalla Enclave", return as-is
+        return phase;
+      }).toList();
+      
+      // Sort phases for consistent display (handle numeric phases vs text)
+      phases.sort((a, b) {
+        // Extract numbers from "Phase 1", "Phase 2", etc.
+        final aMatch = RegExp(r'Phase\s*(\d+)', caseSensitive: false).firstMatch(a);
+        final bMatch = RegExp(r'Phase\s*(\d+)', caseSensitive: false).firstMatch(b);
+        
+        if (aMatch != null && bMatch != null) {
+          final aNum = int.parse(aMatch.group(1)!);
+          final bNum = int.parse(bMatch.group(1)!);
+          return aNum.compareTo(bNum);
+        }
+        if (aMatch != null) return -1; // Numeric phases first
+        if (bMatch != null) return 1;
+        return a.compareTo(b); // Text phases alphabetically
+      });
+      
+      print('ProgressiveFilterService: ✅ Available phases for $category in price $priceFrom-$priceTo: $phases');
       return phases;
     } catch (e) {
-      print('ProgressiveFilterService: Error getting available phases: $e');
+      print('ProgressiveFilterService: ❌ Error getting available phases: $e');
       return [];
     }
   }
@@ -326,6 +390,31 @@ class ProgressiveFilterService {
       print('ProgressiveFilterService: Error getting available sizes: $e');
       return [];
     }
+  }
+  
+  /// Convert phase format for API: "Phase 1" -> "1", "Phase 2" -> "2", "RVS" -> "RVS"
+  static String _convertPhaseToApiFormat(String phase) {
+    // Handle different phase formats
+    if (phase.toLowerCase().contains('phase')) {
+      // Extract number from "Phase 1", "Phase 2", etc.
+      final match = RegExp(r'phase\s*(\d+)', caseSensitive: false).firstMatch(phase);
+      if (match != null) {
+        return match.group(1)!;
+      }
+    }
+    
+    // Handle RVS and other special cases
+    if (phase.toUpperCase() == 'RVS') {
+      return 'RVS';
+    }
+    
+    // If it's already a number, return as is
+    if (RegExp(r'^\d+$').hasMatch(phase)) {
+      return phase;
+    }
+    
+    // Default fallback
+    return phase;
   }
   
   // Performance optimization: Cache helper methods
@@ -434,14 +523,111 @@ class FilteredPlotsResponse {
     required this.counts,
   });
 
-  factory FilteredPlotsResponse.fromJson(Map<String, dynamic> json) {
-    return FilteredPlotsResponse(
-      success: json['success'] ?? false,
-      plots: (json['data']['plots'] as List<dynamic>?)
-          ?.map((plot) => PlotData.fromJson(plot as Map<String, dynamic>))
-          .toList() ?? [],
-      counts: PlotCounts.fromJson(json['data']['counts'] ?? {}),
-    );
+  factory FilteredPlotsResponse.fromJson(dynamic json) {
+    // Handle different response formats from the API
+    if (json is List) {
+      // API returns a list directly
+      return FilteredPlotsResponse(
+        success: true,
+        plots: json
+            .map((plot) => PlotData.fromJson(plot as Map<String, dynamic>))
+            .toList(),
+        counts: PlotCounts(totalCount: json.length),
+      );
+    }
+    
+    // API returns a Map/object
+    if (json is Map<String, dynamic>) {
+      // Check if response has nested 'data' structure
+      if (json.containsKey('data') && json['data'] is Map<String, dynamic>) {
+        final data = json['data'] as Map<String, dynamic>;
+        
+        // Safely extract plots - handle both List and ensure it's not a Map
+        List<dynamic> plotsList = [];
+        if (data.containsKey('plots')) {
+          final plotsValue = data['plots'];
+          if (plotsValue is List) {
+            plotsList = plotsValue;
+            print('ProgressiveFilterService: ✅ Successfully extracted ${plotsList.length} plots from data.plots');
+          } else if (plotsValue is Map) {
+            // If plots is a Map, it's an error - log and use empty list
+            print('ProgressiveFilterService: ⚠️ ERROR - plots is a Map, not a List! Type: ${plotsValue.runtimeType}');
+            plotsList = [];
+          } else {
+            print('ProgressiveFilterService: ⚠️ plots is neither List nor Map. Type: ${plotsValue.runtimeType}');
+            plotsList = [];
+          }
+        } else {
+          print('ProgressiveFilterService: ⚠️ data does not contain "plots" key');
+        }
+        
+        // Safely extract counts - handle both Map and int
+        Map<String, dynamic> countsMap = {};
+        if (data.containsKey('counts')) {
+          final countsValue = data['counts'];
+          if (countsValue is Map) {
+            countsMap = Map<String, dynamic>.from(countsValue);
+            print('ProgressiveFilterService: ✅ Successfully extracted counts Map with keys: ${countsMap.keys.toList()}');
+          } else if (countsValue is int) {
+            // If counts is an integer, create a map with total_count
+            countsMap = {'total_count': countsValue};
+            print('ProgressiveFilterService: ✅ Converted counts int ($countsValue) to Map');
+          } else {
+            print('ProgressiveFilterService: ⚠️ counts is neither Map nor int. Type: ${countsValue.runtimeType}');
+            countsMap = {};
+          }
+        } else {
+          print('ProgressiveFilterService: ⚠️ data does not contain "counts" key');
+        }
+        
+        final result = FilteredPlotsResponse(
+          success: json['success'] ?? true,
+          plots: plotsList
+              .map((plot) => PlotData.fromJson(plot as Map<String, dynamic>))
+              .toList(),
+          counts: PlotCounts.fromJson(countsMap),
+        );
+        
+        print('ProgressiveFilterService: ✅ Parsed response - ${result.plots.length} plots, totalCount: ${result.counts.totalCount}');
+        return result;
+      }
+      
+      // Check if plots are directly in the root (alternative API format)
+      if (json.containsKey('plots') && json['plots'] is List) {
+        // Safely extract counts - handle both Map and int
+        Map<String, dynamic> countsMap = {};
+        if (json.containsKey('counts')) {
+          final countsValue = json['counts'];
+          if (countsValue is Map) {
+            countsMap = Map<String, dynamic>.from(countsValue);
+          } else if (countsValue is int) {
+            // If counts is an integer, create a map with total_count
+            countsMap = {'total_count': countsValue};
+          } else {
+            print('ProgressiveFilterService: ⚠️ counts is neither Map nor int. Type: ${countsValue.runtimeType}');
+            countsMap = {};
+          }
+        }
+        
+        return FilteredPlotsResponse(
+          success: json['success'] ?? true,
+          plots: (json['plots'] as List<dynamic>)
+              .map((plot) => PlotData.fromJson(plot as Map<String, dynamic>))
+              .toList(),
+          counts: PlotCounts.fromJson(countsMap),
+        );
+      }
+      
+      // Fallback: try to extract plots from any structure
+      return FilteredPlotsResponse(
+        success: json['success'] ?? true,
+        plots: [],
+        counts: PlotCounts(totalCount: 0),
+      );
+    }
+    
+    // Unknown format
+    throw FormatException('Unexpected response format: ${json.runtimeType}');
   }
 }
 
@@ -506,7 +692,7 @@ class PlotData {
       category: json['category'] ?? '',
       catArea: json['cat_area'] ?? '',
       dimension: json['dimension'] ?? '',
-      phase: json['phase'] ?? '',
+      phase: json['phase']?.toString() ?? '',
       sector: json['sector'] ?? '',
       streetNo: json['street_no'] ?? '',
       block: json['block'] ?? '',
@@ -515,11 +701,13 @@ class PlotData {
       remarks: json['remarks'] ?? '',
       holdBy: json['hold_by'],
       expireTime: json['expire_time'],
-      basePrice: json['base_price'] ?? '',
-      oneYrPlan: json['one_yr_plan'] ?? '',
-      twoYrsPlan: json['two_yrs_plan'] ?? '',
-      twoFiveYrsPlan: json['two_five_yrs_plan'] ?? '',
-      threeYrsPlan: json['three_yrs_plan'] ?? '',
+      // API returns expo_base_price, fallback to base_price for compatibility
+      basePrice: json['expo_base_price']?.toString() ?? json['base_price']?.toString() ?? '0',
+      // API returns one_yr_ep, two_yrs_ep, etc. (not one_yr_plan)
+      oneYrPlan: json['one_yr_ep']?.toString() ?? json['one_yr_plan']?.toString() ?? '0',
+      twoYrsPlan: json['two_yrs_ep']?.toString() ?? json['two_yrs_plan']?.toString() ?? '0',
+      twoFiveYrsPlan: json['two_five_yrs_ep']?.toString() ?? json['two_five_yrs_plan']?.toString() ?? '0',
+      threeYrsPlan: json['three_yrs_ep']?.toString() ?? json['three_yrs_plan']?.toString() ?? '0',
       stAsgeojson: json['st_asgeojson'] ?? '',
       eventHistory: EventHistory.fromJson(json['event_history'] ?? {}),
     );
@@ -573,14 +761,26 @@ class Event {
 /// Plot counts model
 class PlotCounts {
   final int totalCount;
+  final Map<String, int>? phaseCounts;
 
   PlotCounts({
     required this.totalCount,
+    this.phaseCounts,
   });
 
   factory PlotCounts.fromJson(Map<String, dynamic> json) {
+    Map<String, int>? phases;
+    if (json.containsKey('phases') && json['phases'] is Map) {
+      final phasesMap = json['phases'] as Map;
+      phases = {};
+      phasesMap.forEach((key, value) {
+        phases![key.toString()] = value is int ? value : (int.tryParse(value.toString()) ?? 0);
+      });
+    }
+    
     return PlotCounts(
       totalCount: json['total_count'] ?? 0,
+      phaseCounts: phases,
     );
   }
 }
