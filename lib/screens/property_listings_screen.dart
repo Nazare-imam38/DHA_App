@@ -1182,36 +1182,19 @@ class _PropertyListingsScreenState extends State<PropertyListingsScreen> {
                   ),
                 ),
               ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Centered title
-                  Text(
-                    'Filter Properties',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 19,
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xFF1B5993),
-                      letterSpacing: 0.5,
-                      height: 1.2,
-                    ),
-                    textAlign: TextAlign.center,
+              child: Center(
+                child: Text(
+                  'Filter Properties',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 19,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF1B5993),
+                    letterSpacing: 0.5,
+                    height: 1.2,
                   ),
-                  // Left icon
-                  Positioned(
-                    left: 0,
-                    child: Icon(AppIcons.tune, color: const Color(0xFF1B5993), size: 20),
-                  ),
-                  // Right close icon
-                  Positioned(
-                    right: 0,
-                    child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Icon(AppIcons.close, color: const Color(0xFF1B5993), size: 20),
-                    ),
-                  ),
-                ],
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
             

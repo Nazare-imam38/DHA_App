@@ -3561,31 +3561,41 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           ),
           child: Column(
             children: [
-              // Handle bar - fully draggable area
-              GestureDetector(
-                onTap: () {
-                  // Cycle through snap points when tapped
-                  final currentSize = _bottomSheetController.size;
-                  if (currentSize < 0.3) {
-                    _bottomSheetController.animateTo(0.5, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-                  } else if (currentSize < 0.8) {
-                    _bottomSheetController.animateTo(0.9, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-                  } else {
-                    _bottomSheetController.animateTo(0.15, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+              // Handle bar - prominent slider for dragging the bottom sheet
+              Container(
+                // Padding to make the drag area larger and more accessible
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
+                // Make entire top area tappable/draggable
+                child: GestureDetector(
+                  onTap: () {
+                    // Cycle through snap points when tapped
+                    final currentSize = _bottomSheetController.size;
+                    if (currentSize < 0.3) {
+                      _bottomSheetController.animateTo(0.5, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                    } else if (currentSize < 0.8) {
+                      _bottomSheetController.animateTo(0.9, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                    } else {
+                      _bottomSheetController.animateTo(0.15, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                    }
+                  },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Centered drag handle - visual indicator
+                      // Prominent drag handle slider - visual indicator
                       Container(
                         width: 60,
-                        height: 6,
+                        height: 5,
+                        margin: const EdgeInsets.symmetric(vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.grey[400],
                           borderRadius: BorderRadius.circular(3),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 2,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -3914,33 +3924,12 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                     padding: const EdgeInsets.all(16),
                     child: Row(
                       children: [
-                        // DHA Logo with text
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 24,
-                              height: 24,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF1B5993),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Icon(
-                                Icons.apartment,
-                                color: Colors.white,
-                                size: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            const Text(
-                              'DHA',
-                              style: TextStyle(
-                                fontSize: 8,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF1B5993),
-                              ),
-                            ),
-                          ],
+                        // DHA Logo
+                        Image.asset(
+                          'assets/images/dhalogo.png',
+                          width: 24,
+                          height: 24,
+                          fit: BoxFit.contain,
                         ),
                         const SizedBox(width: 12),
                         Expanded(
