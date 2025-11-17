@@ -1013,8 +1013,9 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     
     return Scaffold(
       drawer: const SidebarDrawer(),
-      body: Stack(
-        children: [
+      body: SafeArea(
+        child: Stack(
+          children: [
           // Map - Always visible, no loading overlay
           FlutterMap(
             mapController: _mapController,
@@ -1544,6 +1545,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           // Plot Details Popup - Show when a plot is selected on map
           // This will be rendered as a map overlay instead of floating widget
         ],
+        ),
       ),
     );
   }
