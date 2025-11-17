@@ -1117,10 +1117,11 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
                     ],
                   ),
               ],
-              // Plot markers - showing home icons for each plot
-              MarkerLayer(
-                markers: _getPlotMarkers(),
-              ),
+              // Plot markers - showing home icons for each plot (only when filters are active)
+              if (_hasActiveFilters())
+                MarkerLayer(
+                  markers: _getPlotMarkers(),
+                ),
                // Amenities markers (only show when toggle is on and at zoom level 16+)
                // NOTE: We only want MARKERS, not polygons for amenities
                if (_showAmenities)
