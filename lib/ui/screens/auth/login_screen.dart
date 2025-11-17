@@ -269,7 +269,7 @@ class _LoginScreenState extends State<LoginScreen>
                     imagePath: 'assets/Ads/300x80.jpg',
                     autoDismissDuration: const Duration(seconds: 2),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   
                         // Logo and Title
                         FadeTransition(
@@ -282,24 +282,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 height: 140,
                                 fit: BoxFit.contain,
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                l10n.welcomeBack,
-                                style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white,
-                                  shadows: [
-                                    Shadow(
-                                      color: Colors.black.withOpacity(0.5),
-                                      offset: const Offset(0, 2),
-                                      blurRadius: 6,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 2),
+                              const SizedBox(height: 8),
                               Text(
                                 l10n.signInToAccount,
                                 style: TextStyle(
@@ -313,7 +296,7 @@ class _LoginScreenState extends State<LoginScreen>
                             ],
                           ),
                         ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
 
                   // Email Field
                   SlideTransition(
