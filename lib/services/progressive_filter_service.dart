@@ -530,74 +530,107 @@ class FilteredPlotsResponse {
       return FilteredPlotsResponse(
         success: true,
         plots: json
-            .map((plot) => PlotData.fromJson(plot as Map<String, dynamic>))
+            .map((plot) {
+              if (plot is Map<String, dynamic>) {
+                return PlotData.fromJson(plot);
+              } else if (plot is Map) {
+                return PlotData.fromJson(Map<String, dynamic>.from(plot));
+              } else {
+                throw FormatException('Plot data is not a Map: ${plot.runtimeType}');
+              }
+            })
             .toList(),
         counts: PlotCounts(totalCount: json.length),
       );
     }
     
-    // API returns a Map/object
+    // API returns a Map/object - handle both Map<String, dynamic> and _JsonMap (web)
+    Map<String, dynamic>? jsonMap;
     if (json is Map<String, dynamic>) {
+      jsonMap = json;
+    } else if (json is Map) {
+      // Handle _JsonMap and other Map types (web compatibility)
+      jsonMap = Map<String, dynamic>.from(json);
+    }
+    
+    if (jsonMap != null) {
       // Check if response has nested 'data' structure
-      if (json.containsKey('data') && json['data'] is Map<String, dynamic>) {
-        final data = json['data'] as Map<String, dynamic>;
-        
-        // Safely extract plots - handle both List and ensure it's not a Map
-        List<dynamic> plotsList = [];
-        if (data.containsKey('plots')) {
-          final plotsValue = data['plots'];
-          if (plotsValue is List) {
-            plotsList = plotsValue;
-            print('ProgressiveFilterService: ✅ Successfully extracted ${plotsList.length} plots from data.plots');
-          } else if (plotsValue is Map) {
-            // If plots is a Map, it's an error - log and use empty list
-            print('ProgressiveFilterService: ⚠️ ERROR - plots is a Map, not a List! Type: ${plotsValue.runtimeType}');
-            plotsList = [];
-          } else {
-            print('ProgressiveFilterService: ⚠️ plots is neither List nor Map. Type: ${plotsValue.runtimeType}');
-            plotsList = [];
-          }
-        } else {
-          print('ProgressiveFilterService: ⚠️ data does not contain "plots" key');
+      final dataValue = jsonMap['data'];
+      if (dataValue != null) {
+        Map<String, dynamic>? data;
+        if (dataValue is Map<String, dynamic>) {
+          data = dataValue;
+        } else if (dataValue is Map) {
+          data = Map<String, dynamic>.from(dataValue);
         }
         
-        // Safely extract counts - handle both Map and int
-        Map<String, dynamic> countsMap = {};
-        if (data.containsKey('counts')) {
-          final countsValue = data['counts'];
-          if (countsValue is Map) {
-            countsMap = Map<String, dynamic>.from(countsValue);
-            print('ProgressiveFilterService: ✅ Successfully extracted counts Map with keys: ${countsMap.keys.toList()}');
-          } else if (countsValue is int) {
-            // If counts is an integer, create a map with total_count
-            countsMap = {'total_count': countsValue};
-            print('ProgressiveFilterService: ✅ Converted counts int ($countsValue) to Map');
+        if (data != null) {
+          // Safely extract plots - handle both List and ensure it's not a Map
+          List<dynamic> plotsList = [];
+          if (data.containsKey('plots')) {
+            final plotsValue = data['plots'];
+            if (plotsValue is List) {
+              plotsList = plotsValue;
+              print('ProgressiveFilterService: ✅ Successfully extracted ${plotsList.length} plots from data.plots');
+            } else if (plotsValue is Map) {
+              // If plots is a Map, it's an error - log and use empty list
+              print('ProgressiveFilterService: ⚠️ ERROR - plots is a Map, not a List! Type: ${plotsValue.runtimeType}');
+              plotsList = [];
+            } else {
+              print('ProgressiveFilterService: ⚠️ plots is neither List nor Map. Type: ${plotsValue.runtimeType}');
+              plotsList = [];
+            }
           } else {
-            print('ProgressiveFilterService: ⚠️ counts is neither Map nor int. Type: ${countsValue.runtimeType}');
-            countsMap = {};
+            print('ProgressiveFilterService: ⚠️ data does not contain "plots" key');
           }
-        } else {
-          print('ProgressiveFilterService: ⚠️ data does not contain "counts" key');
+          
+          // Safely extract counts - handle both Map and int
+          Map<String, dynamic> countsMap = {};
+          if (data.containsKey('counts')) {
+            final countsValue = data['counts'];
+            if (countsValue is Map) {
+              countsMap = Map<String, dynamic>.from(countsValue);
+              print('ProgressiveFilterService: ✅ Successfully extracted counts Map with keys: ${countsMap.keys.toList()}');
+            } else if (countsValue is int) {
+              // If counts is an integer, create a map with total_count
+              countsMap = {'total_count': countsValue};
+              print('ProgressiveFilterService: ✅ Converted counts int ($countsValue) to Map');
+            } else {
+              print('ProgressiveFilterService: ⚠️ counts is neither Map nor int. Type: ${countsValue.runtimeType}');
+              countsMap = {};
+            }
+          } else {
+            print('ProgressiveFilterService: ⚠️ data does not contain "counts" key');
+          }
+          
+          final result = FilteredPlotsResponse(
+            success: jsonMap['success'] ?? true,
+            plots: plotsList
+                .map((plot) {
+                  if (plot is Map<String, dynamic>) {
+                    return PlotData.fromJson(plot);
+                  } else if (plot is Map) {
+                    return PlotData.fromJson(Map<String, dynamic>.from(plot));
+                  } else {
+                    throw FormatException('Plot data is not a Map: ${plot.runtimeType}');
+                  }
+                })
+                .toList(),
+            counts: PlotCounts.fromJson(countsMap),
+          );
+          
+          print('ProgressiveFilterService: ✅ Parsed response - ${result.plots.length} plots, totalCount: ${result.counts.totalCount}');
+          return result;
         }
-        
-        final result = FilteredPlotsResponse(
-          success: json['success'] ?? true,
-          plots: plotsList
-              .map((plot) => PlotData.fromJson(plot as Map<String, dynamic>))
-              .toList(),
-          counts: PlotCounts.fromJson(countsMap),
-        );
-        
-        print('ProgressiveFilterService: ✅ Parsed response - ${result.plots.length} plots, totalCount: ${result.counts.totalCount}');
-        return result;
       }
       
       // Check if plots are directly in the root (alternative API format)
-      if (json.containsKey('plots') && json['plots'] is List) {
+      final plotsValue = jsonMap['plots'];
+      if (plotsValue != null && plotsValue is List) {
         // Safely extract counts - handle both Map and int
         Map<String, dynamic> countsMap = {};
-        if (json.containsKey('counts')) {
-          final countsValue = json['counts'];
+        if (jsonMap.containsKey('counts')) {
+          final countsValue = jsonMap['counts'];
           if (countsValue is Map) {
             countsMap = Map<String, dynamic>.from(countsValue);
           } else if (countsValue is int) {
@@ -610,9 +643,17 @@ class FilteredPlotsResponse {
         }
         
         return FilteredPlotsResponse(
-          success: json['success'] ?? true,
-          plots: (json['plots'] as List<dynamic>)
-              .map((plot) => PlotData.fromJson(plot as Map<String, dynamic>))
+          success: jsonMap['success'] ?? true,
+          plots: (plotsValue as List)
+              .map((plot) {
+                if (plot is Map<String, dynamic>) {
+                  return PlotData.fromJson(plot);
+                } else if (plot is Map) {
+                  return PlotData.fromJson(Map<String, dynamic>.from(plot));
+                } else {
+                  throw FormatException('Plot data is not a Map: ${plot.runtimeType}');
+                }
+              })
               .toList(),
           counts: PlotCounts.fromJson(countsMap),
         );
@@ -620,7 +661,7 @@ class FilteredPlotsResponse {
       
       // Fallback: try to extract plots from any structure
       return FilteredPlotsResponse(
-        success: json['success'] ?? true,
+        success: jsonMap['success'] ?? true,
         plots: [],
         counts: PlotCounts(totalCount: 0),
       );
@@ -709,7 +750,13 @@ class PlotData {
       twoFiveYrsPlan: json['two_five_yrs_ep']?.toString() ?? json['two_five_yrs_plan']?.toString() ?? '0',
       threeYrsPlan: json['three_yrs_ep']?.toString() ?? json['three_yrs_plan']?.toString() ?? '0',
       stAsgeojson: json['st_asgeojson'] ?? '',
-      eventHistory: EventHistory.fromJson(json['event_history'] ?? {}),
+      eventHistory: EventHistory.fromJson(
+        json['event_history'] is Map<String, dynamic>
+            ? json['event_history'] as Map<String, dynamic>
+            : json['event_history'] is Map
+                ? Map<String, dynamic>.from(json['event_history'] as Map)
+                : <String, dynamic>{},
+      ),
     );
   }
 }
@@ -723,9 +770,26 @@ class EventHistory {
   });
 
   factory EventHistory.fromJson(Map<String, dynamic> json) {
+    final eventValue = json['event'];
+    List<dynamic>? eventsList;
+    
+    if (eventValue is List) {
+      eventsList = eventValue;
+    } else if (eventValue is List<dynamic>) {
+      eventsList = eventValue;
+    }
+    
     return EventHistory(
-      events: (json['event'] as List<dynamic>?)
-          ?.map((event) => Event.fromJson(event as Map<String, dynamic>))
+      events: eventsList
+          ?.map((event) {
+            if (event is Map<String, dynamic>) {
+              return Event.fromJson(event);
+            } else if (event is Map) {
+              return Event.fromJson(Map<String, dynamic>.from(event));
+            } else {
+              throw FormatException('Event data is not a Map: ${event.runtimeType}');
+            }
+          })
           .toList() ?? [],
     );
   }
@@ -770,12 +834,23 @@ class PlotCounts {
 
   factory PlotCounts.fromJson(Map<String, dynamic> json) {
     Map<String, int>? phases;
-    if (json.containsKey('phases') && json['phases'] is Map) {
-      final phasesMap = json['phases'] as Map;
-      phases = {};
-      phasesMap.forEach((key, value) {
-        phases![key.toString()] = value is int ? value : (int.tryParse(value.toString()) ?? 0);
-      });
+    
+    // Handle phases - can be a Map or _JsonMap (web)
+    final phasesValue = json['phases'];
+    if (phasesValue != null) {
+      Map? phasesMap;
+      if (phasesValue is Map<String, dynamic>) {
+        phasesMap = phasesValue;
+      } else if (phasesValue is Map) {
+        phasesMap = phasesValue;
+      }
+      
+      if (phasesMap != null) {
+        phases = {};
+        phasesMap.forEach((key, value) {
+          phases![key.toString()] = value is int ? value : (int.tryParse(value.toString()) ?? 0);
+        });
+      }
     }
     
     return PlotCounts(
