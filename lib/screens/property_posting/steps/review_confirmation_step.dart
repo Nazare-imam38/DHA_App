@@ -35,6 +35,8 @@ class _ReviewConfirmationStepState extends State<ReviewConfirmationStep> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         leading: IconButton(
           icon: Icon(AppIcons.arrowBackIos, color: AppTheme.primaryBlue),
           onPressed: () => Navigator.pop(context),

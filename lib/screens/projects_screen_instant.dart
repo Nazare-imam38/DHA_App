@@ -832,12 +832,20 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
     }
     
     // Convert to optimized format and use optimized renderer
+    // Create a map to look up original AmenityMarker by point
+    final Map<String, AmenityMarker> amenityMap = {};
+    for (final amenity in amenityMarkers) {
+      final key = '${amenity.point.latitude},${amenity.point.longitude}';
+      amenityMap[key] = amenity;
+    }
+    
     final List<renderer.AmenityMarker> optimizedAmenities = amenityMarkers.map((amenity) => 
         renderer.AmenityMarker(
           point: amenity.point,
           phase: amenity.phase,
           color: _getAmenityColor(amenity.amenityType),
           icon: _getAmenityIcon(amenity.amenityType),
+          amenityType: amenity.amenityType, // Preserve the type!
         )
     ).toList();
     
@@ -845,6 +853,41 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
       optimizedAmenities,
       zoomLevel,
       _showAmenities,
+      onTap: (renderer.AmenityMarker optimizedMarker) {
+        // Look up the original AmenityMarker by point
+        final key = '${optimizedMarker.point.latitude},${optimizedMarker.point.longitude}';
+        final originalMarker = amenityMap[key];
+        if (originalMarker != null) {
+          print('Tapped on optimized marker: ${originalMarker.amenityType}');
+          _handleAmenityMarkerTap(originalMarker);
+        } else {
+          // Fallback: create a temporary marker from the optimized one
+          print('⚠️ Could not find original marker, using optimized marker type: ${optimizedMarker.amenityType}');
+          final tempMarker = AmenityMarker(
+            marker: Marker(
+              point: optimizedMarker.point,
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.blue, width: 2),
+                ),
+                child: Icon(
+                  geojson.AmenitiesGeoJsonService.getAmenityIcon(optimizedMarker.amenityType),
+                  color: geojson.AmenitiesGeoJsonService.getAmenityColor(optimizedMarker.amenityType),
+                  size: 18,
+                ),
+              ),
+            ),
+            amenityType: optimizedMarker.amenityType,
+            phase: optimizedMarker.phase,
+            point: optimizedMarker.point,
+          );
+          _handleAmenityMarkerTap(tempMarker);
+        }
+      },
     );
   }
   
@@ -1918,6 +1961,12 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   /// Handle amenity tap
   void _handleAmenityTap(geojson.AmenityFeature feature) {
+    // Debug: Print feature details
+    print('🔍 Amenity tapped:');
+    print('   Feature type: ${feature.type}');
+    print('   Feature phase: ${feature.phase}');
+    print('   Feature center: ${feature.center.latitude}, ${feature.center.longitude}');
+    
     setState(() {
       _selectedAmenity = AmenityMarker(
         marker: Marker(
@@ -1959,6 +2008,12 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
 
   /// Show amenity information dialog
   void _showAmenityInfo(AmenityMarker amenity) {
+    // Debug: Print amenity details
+    print('🔍 Showing amenity info dialog:');
+    print('   Type: ${amenity.amenityType}');
+    print('   Phase: ${amenity.phase}');
+    print('   Point: ${amenity.point.latitude}, ${amenity.point.longitude}');
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -1975,7 +2030,7 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                amenity.amenityType,
+                _formatAmenityName(amenity.amenityType),
                 style: const TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 18,
@@ -1990,10 +2045,6 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildInfoRow('Phase', 'Phase ${amenity.phase}'),
-            const SizedBox(height: 8),
-            _buildInfoRow('Type', amenity.amenityType),
-            const SizedBox(height: 8),
-            _buildInfoRow('Location', '${amenity.point.latitude.toStringAsFixed(6)}, ${amenity.point.longitude.toStringAsFixed(6)}'),
           ],
         ),
         actions: [
@@ -2013,6 +2064,40 @@ class _ProjectsScreenInstantState extends State<ProjectsScreenInstant>
         ],
       ),
     );
+  }
+
+  /// Format amenity name for display
+  String _formatAmenityName(String amenityType) {
+    if (amenityType.isEmpty) {
+      print('⚠️ Empty amenity type received');
+      return 'Unknown';
+    }
+    
+    // Debug: Print the raw type received
+    print('🔍 Formatting amenity name: "$amenityType"');
+    
+    // Trim and normalize
+    final trimmed = amenityType.trim();
+    final lower = trimmed.toLowerCase();
+    
+    // Handle common variations (case-insensitive)
+    if (lower == 'masjid') return 'Masjid';
+    if (lower == 'park') return 'Park';
+    if (lower == 'school') return 'School';
+    if (lower == 'play ground' || lower == 'playground') return 'Play Ground';
+    if (lower == 'graveyard') return 'Graveyard';
+    if (lower == 'health facility') return 'Health Facility';
+    if (lower == 'petrol pump') return 'Petrol Pump';
+    
+    // Default: preserve original capitalization or capitalize first letter
+    if (trimmed.length == 1) {
+      return trimmed.toUpperCase();
+    }
+    // If already properly capitalized, return as is, otherwise capitalize first letter
+    if (trimmed[0] == trimmed[0].toUpperCase()) {
+      return trimmed; // Already capitalized
+    }
+    return trimmed[0].toUpperCase() + trimmed.substring(1);
   }
 
   /// Build info row for amenity dialog

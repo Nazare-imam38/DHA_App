@@ -14,6 +14,8 @@ class PurposeSelectionStep extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppTheme.cardWhite,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(
             AppIcons.arrowBackIosNew,

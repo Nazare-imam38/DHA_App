@@ -228,6 +228,8 @@ class _OwnerDetailsStepState extends State<OwnerDetailsStep> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         leading: IconButton(
           icon: Icon(AppIcons.arrowBackIosNew, color: Color(0xFF1B5993), size: 16),
           onPressed: () => Navigator.pop(context),

@@ -10,6 +10,7 @@ class AmenitiesGeoJsonService {
   
   static List<AmenityFeature> _amenities = [];
   static bool _isLoaded = false;
+  static int _debugCount = 0;
   
   /// Load amenities from GeoJSON file
   static Future<List<AmenityFeature>> loadAmenities() async {
@@ -190,9 +191,20 @@ class AmenityFeature {
       center = const LatLng(0, 0);
     }
     
+    final typeRaw = properties['Type'];
+    final type = typeRaw?.toString().trim() ?? 'Unknown';
+    final phaseRaw = properties['Phase'];
+    final phase = phaseRaw?.toString().trim() ?? 'Unknown';
+    
+    // Debug: Print first few amenities to verify type extraction
+    if (AmenitiesGeoJsonService._debugCount < 10) {
+      print('📍 AmenityFeature.fromJson: Type="$type" (raw: $typeRaw), Phase="$phase"');
+      AmenitiesGeoJsonService._debugCount++;
+    }
+    
     return AmenityFeature(
-      type: properties['Type'] ?? 'Unknown',
-      phase: properties['Phase'] ?? 'Unknown',
+      type: type,
+      phase: phase,
       center: center,
     );
   }

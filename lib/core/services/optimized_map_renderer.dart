@@ -80,8 +80,9 @@ class OptimizedMapRenderer {
   static List<Marker> getFilteredAmenitiesMarkers(
     List<AmenityMarker> amenityMarkers,
     double zoomLevel,
-    bool showAmenities,
-  ) {
+    bool showAmenities, {
+    Function(AmenityMarker)? onTap,
+  }) {
     if (!showAmenities) return [];
     
     // Sync amenities with town plan zoom level (14+)
@@ -104,7 +105,7 @@ class OptimizedMapRenderer {
     // At zoom level 18+, show all amenities
     
     return filteredMarkers.map((amenityMarker) => 
-        _createOptimizedAmenityMarker(amenityMarker, zoomLevel)
+        _createOptimizedAmenityMarker(amenityMarker, zoomLevel, onTap: onTap)
     ).toList();
   }
   
@@ -190,36 +191,50 @@ class OptimizedMapRenderer {
   }
   
   /// Create optimized amenity marker
-  static Marker _createOptimizedAmenityMarker(AmenityMarker amenityMarker, double zoomLevel) {
+  static Marker _createOptimizedAmenityMarker(
+    AmenityMarker amenityMarker, 
+    double zoomLevel, {
+    Function(AmenityMarker)? onTap,
+  }) {
     // Dynamic sizing based on zoom level
     final size = zoomLevel < 16.0 ? 24.0 : 30.0;
     final iconSize = zoomLevel < 16.0 ? 12.0 : 16.0;
+    
+    Widget child = Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: amenityMarker.color.withOpacity(0.8),
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Icon(
+        amenityMarker.icon,
+        color: Colors.white,
+        size: iconSize,
+      ),
+    );
+    
+    // Add tap handler if provided
+    if (onTap != null) {
+      child = GestureDetector(
+        onTap: () => onTap(amenityMarker),
+        child: child,
+      );
+    }
     
     return Marker(
       point: amenityMarker.point,
       width: size,
       height: size,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: amenityMarker.color.withOpacity(0.8),
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 1.5),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 3,
-              offset: const Offset(0, 1),
-            ),
-          ],
-        ),
-        child: Icon(
-          amenityMarker.icon,
-          color: Colors.white,
-          size: iconSize,
-        ),
-      ),
+      child: child,
     );
   }
   
@@ -259,11 +274,13 @@ class AmenityMarker {
   final String phase;
   final Color color;
   final IconData icon;
+  final String amenityType; // Add amenityType to preserve type information
   
   const AmenityMarker({
     required this.point,
     required this.phase,
     required this.color,
     required this.icon,
+    required this.amenityType,
   });
 }

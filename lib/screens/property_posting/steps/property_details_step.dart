@@ -232,6 +232,8 @@ class _PropertyDetailsStepState extends State<PropertyDetailsStep>
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(
             AppIcons.arrowBackIosNew,

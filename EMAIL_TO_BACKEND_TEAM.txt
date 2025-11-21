@@ -1,0 +1,46 @@
+Subject: URGENT: Property Update API Failing - Invalid Validation Rule
+
+Hi Backend Team,
+
+The property update API is currently failing in production with a 500 error. Users cannot update their properties.
+
+ERROR:
+Method Illuminate\Validation\Validator::validateSometimesIf does not exist.
+
+CAUSE:
+The validation rules are using "sometimes_if" which is not a valid Laravel validation rule.
+
+QUICK FIX:
+1. SSH into the server: /var/www/html/dha-marketplace-backend
+2. Find the validation file:
+   grep -rn "sometimes_if" app/
+
+3. Replace "sometimes_if" with "required_if":
+   
+   BEFORE:
+   'rent_price' => 'sometimes_if:purpose,Rent|required'
+   
+   AFTER:
+   'rent_price' => 'required_if:purpose,Rent|nullable|numeric|min:0'
+
+4. Clear cache:
+   php artisan config:clear
+   php artisan cache:clear
+   php artisan route:clear
+
+AFFECTED ENDPOINT:
+POST /api/update/property/{id}
+
+DOCUMENTATION:
+I've created detailed documentation in the project repository:
+- BACKEND_FIX_REQUIRED.md (full details)
+- UpdatePropertyRequest_FIXED_EXAMPLE.php (working example)
+- SHARE_WITH_BACKEND_TEAM.md (quick reference)
+
+PRIORITY: CRITICAL
+This is blocking all property updates in production.
+
+Please let me know once this is fixed so we can test.
+
+Thanks,
+[Your Name]
